@@ -60,7 +60,15 @@ print_header_simple(format_string($checklist->name), '', $navigation, '', '', tr
 
 /// Print the main part of the page
 
-echo 'YOUR CODE GOES HERE';
+$currenttab = 'view';
+include('tabs.php');
+
+print_heading(format_string($checklist->name));
+
+if (has_capability('mod/checklist:updateown', $context)) {
+} elseif (has_capability('mod/checklist:preview', $context)) {
+}
+//echo 'YOUR CODE GOES HERE';
 
 
 /// Finish the page
