@@ -13,6 +13,7 @@ $string['checklistsettings'] = 'Settings';
 
 $string['edit'] = 'Edit Checklist';
 
+$string['guestsno'] = 'You do not have permission to view this checklist';
 $string['modulename'] = 'Checklist';
 $string['modulenameplural'] = 'Checklists';
 

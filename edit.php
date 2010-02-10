@@ -1,11 +1,4 @@
-<?php 
-
-/**
- * This page prints a particular instance of checklist
- *
- * @author  David Smith <moodle@davosmith.co.uk>
- * @package mod/checklist
- */
+<?php
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
@@ -44,8 +37,6 @@ if ($id) {
 require_login($course, true, $cm);
 $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 
-
-/// Print the page header
 $strchecklists = get_string('modulenameplural', 'checklist');
 $strchecklist  = get_string('modulename', 'checklist');
 
@@ -58,46 +49,21 @@ $navigation = build_navigation($navlinks);
 print_header_simple(format_string($checklist->name), '', $navigation, '', '', true,
               update_module_button($cm->id, $course->id, $strchecklist), navmenu($course, $cm));
 
-/// Print the main part of the page
-
-$canupdateown = has_capability('mod/checklist:updateown', $context);
-$canpreview = has_capability('mod/checklist:preview', $context);
-
-if ($canupdateown) {
-    $currenttab = 'view';
-} elseif ($canpreview) {
-    $currenttab = 'preview';
-} else {
-    $loginurl = $CFG->wwwroot.'/login/index.php';
-    if (!empty($CFG->loginhttps)) {
-        $loginurl = str_replace('http:','https:', $loginurl);
-    }
-    echo '<br/>';
-    notice_yesno('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n</p>" .
-                 get_string('liketologin') . '</p>', $loginurl, get_referer(false));
-    print_footer($course);
-    die;
+if (!has_capability('mod/checklist:edit', $context)) {
+    redirect($CFG->wwwroot.'/mod/checklist/view.php?checklist='.$context->id);
 }
 
+add_to_log($course->id, "checklist", "edit", "edit.php?id=$cm->id", $checklist->id, $cm->id);
 
-if ($canupdateown) {
-    $items = checklist_get_items($checklist->id, $USER->id);
-} else {
-    $items = checklist_get_items($checklist->id);
-}
+$items = checklist_get_items($checklist->id);
 
-if ((!$items) && (has_capability('mod/checklist:edit', $context))) {
-    redirect($CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$checklist->id);
-}
-
-add_to_log($course->id, 'checklist', 'view', "view.php?id=$cm->id", $checklist->id, $cm->id);
-
+$currenttab = 'edit';
 include('tabs.php');
 
 print_heading(format_string($checklist->name));
 
+print_r($items);
 
-/// Finish the page
 print_footer($course);
 
 ?>

@@ -27,9 +27,8 @@ $activated = array();
 
 if (has_capability('mod/checklist:updateown', $context)) {
     $row[] = new tabobject('view', "$CFG->wwwroot/mod/checklist/view.php?checklist=$checklist->id", get_string('view', 'checklist'));
-}
-if (has_capability('mod/checklist:preview', $context)) {
-    $row[] = new tabobject('view', "$CFG->wwwroot/mod/checklist/view.php?checklist=$checklist->id", get_string('preview', 'checklist'));
+} elseif (has_capability('mod/checklist:preview', $context)) {
+    $row[] = new tabobject('preview', "$CFG->wwwroot/mod/checklist/view.php?checklist=$checklist->id", get_string('preview', 'checklist'));
 }
 if (has_capability('mod/checklist:viewreports', $context)) {
     $row[] = new tabobject('report', "$CFG->wwwroot/mod/checklist/report.php?checklist=$checklist->id", get_string('report', 'checklist'));
@@ -50,6 +49,14 @@ if ($currenttab == 'report') {
 
 if ($currenttab == 'edit') {
     $activated[] = 'edit';
+
+    if (!$items) {
+        $inactive = array('view', 'report', 'preview');
+    }
+}
+
+if ($currenttab == 'preview') {
+    $activated[] = 'preview';
 }
 
 print_tabs($tabs, $currenttab, $inactive, $activated);

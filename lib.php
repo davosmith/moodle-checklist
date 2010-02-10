@@ -219,5 +219,23 @@ function checklist_uninstall() {
 /// Remember (see note in first lines) that, if this section grows, it's HIGHLY
 /// recommended to move all funcions below to a new "localib.php" file.
 
+/**
+ * Get an array of the items in a checklist
+ * 
+ * @param $checklistid int - id of the checklist to get the items for
+ * @param $userid int (optional) - id of the user to get private items for
+ * @return array of items in checklist, or false if no items
+ */
+function checklist_get_items($checklistid, $userid = 0) {
+    $sql = 'checklist = '.$checklistid;
+    $sql .= ' AND (userid = 0';
+    if ($userid) {
+        $sql .= ' OR userid = '.$USER->id;
+    }
+    $sql .= ')';
+
+    return get_records_select('checklist_item', $sql, 'position');
+}
+
 
 ?>
