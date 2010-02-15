@@ -1,5 +1,6 @@
 <?php
 
+$string['additem'] = 'Add';
 $string['checklist'] = 'checklist';
 
 $string['checklist:edit'] = 'Create and edit checklists';
@@ -17,9 +18,13 @@ $string['guestsno'] = 'You do not have permission to view this checklist';
 $string['modulename'] = 'Checklist';
 $string['modulenameplural'] = 'Checklists';
 
+$string['noitems'] = 'No items in the checklist';
+
 $string['preview'] = 'Preview';
 
 $string['report'] = 'View Progress';
+
+$string['savechecks'] = 'Save';
 
 $string['teacheredit'] = 'Effect of teacher editing check marks';
 $string['teachernoteditcheck'] = 'Not allowed';
