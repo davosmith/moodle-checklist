@@ -285,7 +285,7 @@ class checklist_class {
         } else {
             $updateform = $this->canupdateown();
             if ($updateform) {
-                echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="get">';
+                echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
                 echo '<input type="hidden" name="checklist" value="'.$this->checklist->id.'" />';
                 echo '<input type="hidden" name="action" value="updatechecks" />';
             }
@@ -328,6 +328,10 @@ class checklist_class {
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
                     echo '<input type="text" name="displaytext" value="'.$item->displaytext.'" />';
                     echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
+                    echo '</form>';
+                    echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
+                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                    echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
                 } else {
                     echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>&nbsp;';
@@ -436,7 +440,6 @@ class checklist_class {
     }
 
     function additem($displaytext, $userid=0, $indent=0, $position=false) {
-        // Create new DB record and add to items array
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -471,7 +474,6 @@ class checklist_class {
     }
 
     function updateitemtext($itemid, $displaytext) {
-        // Update the text in the array and db record
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;

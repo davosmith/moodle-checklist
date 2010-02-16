@@ -1,6 +1,7 @@
 <?php
 
 $string['additem'] = 'Add';
+$string['canceledititem'] = 'Cancel';
 $string['checklist'] = 'checklist';
 
 $string['checklist:edit'] = 'Create and edit checklists';
