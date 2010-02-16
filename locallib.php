@@ -276,6 +276,9 @@ class checklist_class {
     }
 
     function view_items() {
+        // TODO tick & disable parent item if all children ticked (+rename, so does not change mark)
+        // TODO tick & disable children items, if parent ticked
+        
         global $CFG;
         
         print_box_start('generalbox boxwidthnormal boxaligncenter');
@@ -291,9 +294,18 @@ class checklist_class {
                 echo '<input type="hidden" name="checklist" value="'.$this->checklist->id.'" />';
                 echo '<input type="hidden" name="action" value="updatechecks" />';
             }
-                
+
             echo '<ol class="checklist">';
+            $currindent = 0;
             foreach ($this->items as $item) {
+                while ($item->indent > $currindent) {
+                    $currindent++;
+                    echo '<ol class="checklist">';
+                }
+                while ($item->indent < $currindent) {
+                    $currindent--;
+                    echo '</ol>';
+                }
                 $itemname = '"item'.$item->id.'"';
                 $checked = ($updateform && $item->checked) ? ' checked="checked" ' : '';
                 echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
@@ -319,7 +331,18 @@ class checklist_class {
         echo '<ol class="checklist">';
         if ($this->items) {
             $lastitem = count($this->items);
+            $currindent = 0;
             foreach ($this->items as $item) {
+
+                while ($item->indent > $currindent) {
+                    $currindent++;
+                    echo '<ol class="checklist">';
+                }
+                while ($item->indent < $currindent) {
+                    $currindent--;
+                    echo '</ol>';
+                }
+
                 $itemname = '"item'.$item->id.'"';
                 echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.' disabled="disabled" />';
 
@@ -426,8 +449,6 @@ class checklist_class {
             break;
         case 'deleteitem':
             break;
-        case 'updateitemtext':
-            break;
         case 'moveitemup':
             $this->moveitemup($itemid);
             break;
@@ -435,8 +456,10 @@ class checklist_class {
             $this->moveitemdown($itemid);
             break;
         case 'indentitem':
+            $this->indentitem($itemid);
             break;
         case 'unindentitem':
+            $this->unindentitem($itemid);
             break;
         default:
             print_error('Invalid action - "'.s($action).'"');
@@ -551,18 +574,41 @@ class checklist_class {
     }
         
     function indentitemto($itemid, $indent) {
-        // Check suitable parent for this new position
-        // Update DB
+        if (!isset($this->items[$itemid])) {
+            return;
+            // Not able to indent useritems, as they are always parent + 1
+        }
+        
+        if ($indent < 0) {
+            $indent = 0;
+        } elseif ($indent > CHECKLIST_MAX_INDENT) {
+            $indent = CHECKLIST_MAX_INDENT;
+        }
+
+        $this->items[$itemid]->indent = $indent;
+        update_record('checklist_item', $this->items[$itemid]);
+        
+        // TODO Check suitable parent for this new position
     }
 
     function indentitem($itemid) {
         // Get current indent
         // Call indentitemto
+        if (!isset($this->items[$itemid])) {
+            return;
+            // Not able to indent useritems, as they are always parent + 1
+        }
+        $this->indentitemto($itemid, $this->items[$itemid]->indent + 1);
     }
 
     function unindentitem($itemid) {
         // Get current indent
         // call indentitemto
+        if (!isset($this->items[$itemid])) {
+            return;
+            // Not able to indent useritems, as they are always parent + 1
+        }
+        $this->indentitemto($itemid, $this->items[$itemid]->indent - 1);
     }
 
     function updatechecks() {
