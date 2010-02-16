@@ -108,8 +108,8 @@ class checklist_class {
     }
 
     /**
-     * Check all items are numbered sequentiall from 1
-     * also, move any items between $start and $end
+     * Check all items are numbered sequentially from 1
+     * then, move any items between $start and $end
      * the number of places indicated by $move
      *
      * @param $move (optional) - how far to offset the current positions
@@ -122,13 +122,15 @@ class checklist_class {
         foreach($this->items as $item) {
             if ($pos == $start) {
                 $pos += $move;
-            } else if ($pos == $end) {
-                break;
+                $start = -1;
             }
-            
+
             if ($item->position != $pos) {
                 $item->position = $pos;
                 update_record('checklist_item', $item);
+            }
+            if ($pos == $end) {
+                break;
             }
             $pos++;
         }
@@ -334,7 +336,7 @@ class checklist_class {
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
                 } else {
-                    echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>&nbsp;';
+                    echo '<label for='.$itemname.'>'.$item->position.') '.s($item->displaytext).'</label>&nbsp;';
 
                     $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;action=';
 
@@ -427,8 +429,10 @@ class checklist_class {
         case 'updateitemtext':
             break;
         case 'moveitemup':
+            $this->moveitemup($itemid);
             break;
         case 'moveitemdown':
+            $this->moveitemdown($itemid);
             break;
         case 'indentitem':
             break;
@@ -491,21 +495,59 @@ class checklist_class {
     }
 
     function moveitemto($itemid, $newposition) {
-        // Update position of item
-        // Update position of all items following this one
+        if (!isset($this->items[$itemid])) {
+            if (isset($this->useritems[$itemid])) {
+                $this->useritems[$itemid]->position = $newposition;
+                update_record('checklist_item', $this->useritems[$itemid]);
+            }
+            return;
+        }
+
+        $itemcount = count($this->items);
+        if ($newposition < 1) {
+            $newposition = 1;
+        } elseif ($newposition > $itemcount) {
+            $newposition = $itemcount;
+        }
+
+        $oldposition = $this->items[$itemid]->position;
+        if ($oldposition == $newposition) {
+            return;
+        }
+
+        if ($newposition < $oldposition) {            
+            $this->update_item_positions(1, $newposition, $oldposition); // Move items down
+        } else {
+            $this->update_item_positions(-1, $oldposition, $newposition); // Move items up (including this one)
+        }
+        
+        $this->items[$itemid]->position = $newposition; // Move item to new position
+        uasort($this->items, 'checklist_itemcompare'); // Sort the array by position
+        update_record('checklist_item', $this->items[$itemid]); // Update the database
     }
 
     function moveitemup($itemid) {
-        // Get current position
-        // If indented, only allow move if suitable space for 'reparenting'
-        // Subtract 1 from position
-        // call moveitemto
+        // TODO If indented, only allow move if suitable space for 'reparenting'
+
+        if (!isset($this->items[$itemid])) {
+            if (isset($this->useritems[$itemid])) {
+                $this->moveitemto($itemid, $this->useritems[$itemid]->position - 1);
+            }
+            return;
+        }
+        $this->moveitemto($itemid, $this->items[$itemid]->position - 1);
     }
 
     function moveitemdown($itemid) {
-        // Get current position
-        // Check not already at end of list
-        // call moveitemto
+        // TODO If indented, only allow move if suitable space for 'reparenting'
+
+        if (!isset($this->items[$itemid])) {
+            if (isset($this->useritems[$itemid])) {
+                $this->moveitemto($itemid, $this->useritems[$itemid]->position + 1);
+            }
+            return;
+        }
+        $this->moveitemto($itemid, $this->items[$itemid]->position + 1);
     }
         
     function indentitemto($itemid, $indent) {
