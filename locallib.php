@@ -390,6 +390,9 @@ class checklist_class {
                         echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('moveitemdown','checklist').'" /></a>';
                     }
 
+                    echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
+                    echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt="'.get_string('moveitemdown','checklist').'" /></a>';
+                    
                     $lastindent = $currindent;
                 }
                 
@@ -457,6 +460,7 @@ class checklist_class {
             $this->updateitemtext($itemid, $displaytext);
             break;
         case 'deleteitem':
+            $this->deleteitem($itemid);
             break;
         case 'moveitemup':
             $this->moveitemup($itemid);
@@ -516,22 +520,52 @@ class checklist_class {
         }
 
         if (isset($this->items[$itemid])) {
-            $this->items[$itemid]->displaytext = $displaytext;
-            update_record('checklist_item', $this->items[$itemid]);
+            if ($this->canedit()) {
+                $this->items[$itemid]->displaytext = $displaytext;
+                update_record('checklist_item', $this->items[$itemid]);
+            }
+        } elseif (isset($this->useritems[$itemid])) {
+            if ($this->canupdateown()) {
+                $this->useritems[$itemid]->displaytext = $displaytext;
+                update_record('checklist_item', $this->useritems[$itemid]);
+            }
         }
     }
 
     function deleteitem($itemid) {
-        // Remove item from DB
-        // Remove all 'check' records linked to this item
+        if (isset($this->items[$itemid])) {
+            if (!$this->canedit()) {
+                return;
+            }
+            unset($this->items[$itemid]);
+        } elseif (isset($this->useritems[$itemid])) {
+            if (!$this->canupdateown()) {
+                return;
+            }
+            unset($this->items[$itemid]);
+        } else {
+            // Item for deletion is not currently available
+            return;
+        }
+
+        delete_records('checklist_item', 'id', $itemid);
+        delete_records('checklist_check', 'item', $itemid);
+
+        $this->update_item_positions();
     }
 
     function moveitemto($itemid, $newposition) {
         if (!isset($this->items[$itemid])) {
             if (isset($this->useritems[$itemid])) {
-                $this->useritems[$itemid]->position = $newposition;
-                update_record('checklist_item', $this->useritems[$itemid]);
+                if ($this->canupdateown()) {
+                    $this->useritems[$itemid]->position = $newposition;
+                    update_record('checklist_item', $this->useritems[$itemid]);
+                }
             }
+            return;
+        }
+
+        if (!$this->canedit()) {
             return;
         }
 
