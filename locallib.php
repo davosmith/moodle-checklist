@@ -118,19 +118,19 @@ class checklist_class {
      */
     function update_item_positions($move=0, $start=1, $end=false) {
         $pos = 1;
-        
+
         foreach($this->items as $item) {
             if ($pos == $start) {
                 $pos += $move;
                 $start = -1;
             }
-
             if ($item->position != $pos) {
+                $oldpos = $item->position;
                 $item->position = $pos;
                 update_record('checklist_item', $item);
-            }
-            if ($pos == $end) {
-                break;
+                if ($oldpos == $end) {
+                    break;
+                }
             }
             $pos++;
         }
@@ -332,6 +332,7 @@ class checklist_class {
         if ($this->items) {
             $lastitem = count($this->items);
             $currindent = 0;
+            $lastindent = 0;
             foreach ($this->items as $item) {
 
                 while ($item->indent > $currindent) {
@@ -371,7 +372,7 @@ class checklist_class {
                         echo '<img src="'.$CFG->pixpath.'/t/left.gif" alt="'.get_string('unindentitem','checklist').'" /></a>';
                     }
 
-                    if ($item->indent < CHECKLIST_MAX_INDENT) {
+                    if (($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
                         echo '<a href="'.$baseurl.'indentitem" />';
                         echo '<img src="'.$CFG->pixpath.'/t/right.gif" alt="'.get_string('indentitem','checklist').'" /></a>';
                     }
@@ -388,6 +389,8 @@ class checklist_class {
                         echo '<a href="'.$baseurl.'moveitemdown" />';
                         echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('moveitemdown','checklist').'" /></a>';
                     }
+
+                    $lastindent = $currindent;
                 }
                 
                 echo '</li>';
@@ -397,11 +400,16 @@ class checklist_class {
         echo '<form action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
         echo '<input type="hidden" name="action" value="additem" />';
         echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+        echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
         echo '<input type="text" name="displaytext" value="" />';
         echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
         echo '</form>';
         echo '</li>';
         echo '</ol>';
+        while ($currindent) {
+            $currindent--;
+            echo '</ol>';
+        }
 
         print_box_end();
     }
@@ -436,7 +444,8 @@ class checklist_class {
         switch ($action) {
         case 'additem':
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
-            $this->additem($displaytext);
+            $indent = optional_param('indent', 0, PARAM_INT);
+            $this->additem($displaytext, 0, $indent);
             break;
         case 'edititem':
             if (isset($this->items[$itemid])) {
@@ -575,8 +584,13 @@ class checklist_class {
         
     function indentitemto($itemid, $indent) {
         if (!isset($this->items[$itemid])) {
-            return;
             // Not able to indent useritems, as they are always parent + 1
+            return;
+        }
+
+        $position = $this->items[$itemid]->position;
+        if ($position == 1) {
+            $indent = 0;
         }
         
         if ($indent < 0) {
@@ -585,28 +599,39 @@ class checklist_class {
             $indent = CHECKLIST_MAX_INDENT;
         }
 
-        $this->items[$itemid]->indent = $indent;
+        $oldindent = $this->items[$itemid]->indent;
+        $adjust = $indent - $oldindent;
+        if ($adjust == 0) {
+            return;
+        }
+        $this->items[$itemid]->indent = $indent;        
         update_record('checklist_item', $this->items[$itemid]);
-        
-        // TODO Check suitable parent for this new position
+
+        // Update all 'children' of this item to new indent
+        foreach ($this->items as $item) {
+            if ($item->position > $position) {
+                if ($item->indent > $oldindent) {
+                    $item->indent += $adjust;
+                    update_record('checklist_item', $item);
+                } else {
+                    break;
+                }
+            }
+        }
     }
 
     function indentitem($itemid) {
-        // Get current indent
-        // Call indentitemto
         if (!isset($this->items[$itemid])) {
-            return;
             // Not able to indent useritems, as they are always parent + 1
+            return;
         }
         $this->indentitemto($itemid, $this->items[$itemid]->indent + 1);
     }
 
     function unindentitem($itemid) {
-        // Get current indent
-        // call indentitemto
         if (!isset($this->items[$itemid])) {
-            return;
             // Not able to indent useritems, as they are always parent + 1
+            return;
         }
         $this->indentitemto($itemid, $this->items[$itemid]->indent - 1);
     }
