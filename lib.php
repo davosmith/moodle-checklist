@@ -19,6 +19,8 @@ define("CHECKLIST_TEACHERMARK_NO", 0);
 define("CHECKLIST_TEACHERMARK_YES", 1);
 define("CHECKLIST_TEACHERMARK_UNDECIDED", 2);
 
+define("CHECKLIST_MAX_INDENT", 10);
+
 /**
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function

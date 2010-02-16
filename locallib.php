@@ -293,7 +293,7 @@ class checklist_class {
             echo '<ol class="checklist">';
             foreach ($this->items as $item) {
                 $itemname = '"item'.$item->id.'"';
-                $checked = $item->checked ? ' checked="checked" ' : '';
+                $checked = ($updateform && $item->checked) ? ' checked="checked" ' : '';
                 echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
                 echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>';
                 echo '</li>';
@@ -316,9 +316,52 @@ class checklist_class {
         
         echo '<ol class="checklist">';
         if ($this->items) {
+            $lastitem = count($this->items);
             foreach ($this->items as $item) {
                 $itemname = '"item'.$item->id.'"';
-                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.' disabled="disabled" /><label for='.$itemname.'>'.s($item->displaytext).'</label></li>';
+                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.' disabled="disabled" />';
+
+                if (isset($item->editme)) {
+                    echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
+                    echo '<input type="hidden" name="action" value="updateitem" />';
+                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                    echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
+                    echo '<input type="text" name="displaytext" value="'.$item->displaytext.'" />';
+                    echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
+                    echo '</form>';
+                } else {
+                    echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>&nbsp;';
+
+                    $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;action=';
+
+                    echo '<a href="'.$baseurl.'edititem" />';
+                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt="'.get_string('edititem','checklist').'" /></a>&nbsp;';
+
+                    if ($item->indent > 0) {
+                        echo '<a href="'.$baseurl.'unindentitem" />';
+                        echo '<img src="'.$CFG->pixpath.'/t/left.gif" alt="'.get_string('unindentitem','checklist').'" /></a>';
+                    }
+
+                    if ($item->indent < CHECKLIST_MAX_INDENT) {
+                        echo '<a href="'.$baseurl.'indentitem" />';
+                        echo '<img src="'.$CFG->pixpath.'/t/right.gif" alt="'.get_string('indentitem','checklist').'" /></a>';
+                    }
+
+                    echo '&nbsp;';
+                    
+                    // TODO more complex checks once there is indentation to worry about as well
+                    if ($item->position > 1) {
+                        echo '<a href="'.$baseurl.'moveitemup" />';
+                        echo '<img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('moveitemup','checklist').'" /></a>';
+                    }
+
+                    if ($item->position < $lastitem) {
+                        echo '<a href="'.$baseurl.'moveitemdown" />';
+                        echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('moveitemdown','checklist').'" /></a>';
+                    }
+                }
+                
+                echo '</li>';
             }
         }
         echo '<li>';
@@ -366,6 +409,15 @@ class checklist_class {
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
             $this->additem($displaytext);
             break;
+        case 'edititem':
+            if (isset($this->items[$itemid])) {
+                $this->items[$itemid]->editme = true;
+            }
+            break;
+        case 'updateitem':
+            $displaytext = optional_param('displaytext', '', PARAM_TEXT);
+            $this->updateitemtext($itemid, $displaytext);
+            break;
         case 'deleteitem':
             break;
         case 'updateitemtext':
@@ -385,6 +437,7 @@ class checklist_class {
 
     function additem($displaytext, $userid=0, $indent=0, $position=false) {
         // Create new DB record and add to items array
+        $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
         }
@@ -412,12 +465,22 @@ class checklist_class {
                     $this->update_item_positions(1, $position);
                 }
                 $this->items[$item->id] = $item;
+                uasort($this->items, 'checklist_itemcompare');
             }
         }
     }
 
     function updateitemtext($itemid, $displaytext) {
         // Update the text in the array and db record
+        $displaytext = trim($displaytext);
+        if ($displaytext == '') {
+            return;
+        }
+
+        if (isset($this->items[$itemid])) {
+            $this->items[$itemid]->displaytext = $displaytext;
+            update_record('checklist_item', $this->items[$itemid]);
+        }
     }
 
     function deleteitem($itemid) {
@@ -506,6 +569,11 @@ function checklist_itemcompare($item1, $item2) {
     if ($item1->position < $item2->position) {
         return -1;
     } elseif ($item1->position > $item2->position) {
+        return 1;
+    }
+    if ($item1->id < $item2->id) {
+        return -1;
+    } elseif ($item1->id > $item2->id) {
         return 1;
     }
     return 0;

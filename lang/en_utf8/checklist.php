@@ -15,8 +15,15 @@ $string['checklistsettings'] = 'Settings';
 $string['edit'] = 'Edit Checklist';
 
 $string['guestsno'] = 'You do not have permission to view this checklist';
+
+$string['indentitem'] = 'Indent item';
+$string['unindentitem'] = 'Unindent item';
+
 $string['modulename'] = 'Checklist';
 $string['modulenameplural'] = 'Checklists';
+
+$string['moveitemdown'] = 'Move item down';
+$string['moveitemup'] = 'Move item up';
 
 $string['noitems'] = 'No items in the checklist';
 
@@ -33,6 +40,7 @@ $string['teacheralongsidecheck'] = 'Alongside user';
 
 $string['theme'] = 'Checklist display theme';
 
+$string['updateitem'] = 'Update';
 $string['useritemsallowed'] = 'User can add their own items';
 
 $string['view'] = 'View Checklist';
