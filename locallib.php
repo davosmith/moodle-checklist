@@ -69,11 +69,16 @@ class checklist_class {
     function get_items() {
         global $CFG;
         
+        // Load all shared checklist items
         $sql = 'checklist = '.$this->checklist->id;
         $sql .= ' AND userid = 0';
         $this->items = get_records_select('checklist_item', $sql, 'position');
 
-        if ($this->userid) {
+        // Makes sure all items are numbered sequentially, starting at 1
+        $this->update_item_positions();
+
+        // Load student's own checklist items
+        if ($this->userid && $this->canaddown()) {
             $sql = 'checklist = '.$this->checklist->id;
             $sql .= ' AND userid = '.$this->userid;
             $this->useritems = get_records_select('checklist_item', $sql, 'position');
@@ -81,15 +86,11 @@ class checklist_class {
             $this->useritems = false;
         }
 
-        // Makes sure all items are numbered sequentially, starting at 1
-        $this->update_item_positions();
+        // Load the currently checked-off items
+        if ($this->userid && $this->canupdateown()) {
 
-        if ($this->userid) {
-
-            $sql = 'SELECT i.id, c.usertimestamp FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
             $sql .= 'ON (i.id = c.item AND c.userid = '.$this->userid.') WHERE i.checklist = '.$this->checklist->id;
-
-            // TODO - display the teacher's mark
 
             $checks = get_records_sql($sql);
 
@@ -98,10 +99,10 @@ class checklist_class {
                 
                 if (isset($this->items[$id])) {
                     $this->items[$id]->checked = $check->usertimestamp > 0;
-                } elseif (isset($this->useritems[$id])) {
+                    $this->items[$id]->teachermark = $check->teachermark;
+                } elseif ($this->useritems && isset($this->useritems[$id])) {
                     $this->useritems[$id] = $check->usertimestamp > 0;
-                } else {
-                    error('Non-existant item has been checked');
+                    // User items never have a teacher mark to go with them
                 }
             }
         }
@@ -141,6 +142,10 @@ class checklist_class {
 
     function canupdateown() {
         return has_capability('mod/checklist:updateown', $this->context);
+    }
+
+    function canaddown() {
+        return has_capability('mod/checklist:updateown'. $this->context) && $checklist->useritemsallowed;
     }
 
     function canpreview() {
@@ -595,11 +600,27 @@ class checklist_class {
             error('Invalid sesskey');
         }
 
+        $itemid = optional_param('itemid', 0, PARAM_INT);
+
         switch($action) {
         case 'updatechecks':
             $this->updatechecks();
             break;
 
+        case 'additem':
+            $displaytext = optional_param('displaytext', '', PARAM_TEXT);
+            $position = optional_param('position', false, PARAM_INT);
+            $this->additem($displaytext, $this->userid, 0, $position);
+            break;
+
+        case 'deleteitem':
+            $this->deleteitem($itemid);
+            break;
+
+        case 'updateitem':
+            $this->updateitemtext($itemid, $displaytext);
+            break;
+            
         default:
             error('Invalid action - "'.s($action).'"');
         }
@@ -657,6 +678,16 @@ class checklist_class {
         if ($displaytext == '') {
             return;
         }
+
+        if ($userid) {
+            if (!$this->canaddown()) {
+                return;
+            }
+        } else {
+            if (!$this->canedit()) {
+                return;
+            }
+        }
         
         $item = new stdClass;
         $item->checklist = $this->checklist->id;
@@ -698,7 +729,7 @@ class checklist_class {
                 update_record('checklist_item', $this->items[$itemid]);
             }
         } elseif (isset($this->useritems[$itemid])) {
-            if ($this->canupdateown()) {
+            if ($this->canaddown()) {
                 $this->useritems[$itemid]->displaytext = $displaytext;
                 update_record('checklist_item', $this->useritems[$itemid]);
             }
@@ -712,7 +743,7 @@ class checklist_class {
             }
             unset($this->items[$itemid]);
         } elseif (isset($this->useritems[$itemid])) {
-            if (!$this->canupdateown()) {
+            if (!$this->canaddown()) {
                 return;
             }
             unset($this->items[$itemid]);
