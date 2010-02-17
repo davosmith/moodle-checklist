@@ -119,6 +119,9 @@ class checklist_class {
     function update_item_positions($move=0, $start=1, $end=false) {
         $pos = 1;
 
+        if (!$this->items) {
+            return;
+        }
         foreach($this->items as $item) {
             if ($pos == $start) {
                 $pos += $move;
@@ -350,10 +353,10 @@ class checklist_class {
         
         print_box_start('generalbox boxwidthnormal boxaligncenter');
         
+        $currindent = 0;
         echo '<ol class="checklist">';
         if ($this->items) {
             $lastitem = count($this->items);
-            $currindent = 0;
             $lastindent = 0;
             foreach ($this->items as $item) {
 

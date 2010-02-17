@@ -34,8 +34,6 @@ function checklist_add_instance($checklist) {
 
     $checklist->timecreated = time();
 
-    # You may have to add extra stuff in here #
-
     return insert_record('checklist', $checklist);
 }
 
@@ -52,8 +50,6 @@ function checklist_update_instance($checklist) {
 
     $checklist->timemodified = time();
     $checklist->id = $checklist->instance;
-
-    # You may have to add extra stuff in here #
 
     return update_record('checklist', $checklist);
 }
@@ -75,9 +71,16 @@ function checklist_delete_instance($id) {
 
     $result = true;
 
-    # Delete any dependent records here #
+    $items = get_records('checklist_item', 'checklist', $checklist->id, '', 'id');
+    if ($items) {
+        $items = implode(',',array_keys($items));
+        $result  = delete_records_select('checklist_check', 'item IN ('.$items.')');
 
-    if (! delete_records('checklist', 'id', $checklist->id)) {
+        if ($result) {
+            $result = delete_records('checklist_item', 'checklist', $checklist->id);
+        }
+    }
+    if ($result && !delete_records('checklist', 'id', $checklist->id)) {
         $result = false;
     }
 
@@ -148,9 +151,14 @@ function checklist_cron () {
  * @return mixed boolean/array of students
  */
 function checklist_get_participants($checklistid) {
-    // TODO - implement this
+    global $CFG;
+
+    $sql = "SELECT DISTINCT u.id u.id FROM {$CFG->prefix}user u, {$CFG->prefix}checklist_item i, {$CFG->prefix}checklist_check c ";
+    $sql .= "WHERE i.checklist = '$checklistid' AND ((c.item = i.id AND c.userid = u.id) OR (i.userid = u.id))";
+
+    $return = get_records_sql($sql);
     
-    return false;
+    return $return;
 }
 
 
