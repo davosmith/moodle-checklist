@@ -4,7 +4,12 @@ ol.checklist li {
     list-style-type: none;
 }
 
-.checklist_useritem {
+ol.checklist .useritem {
+    font-style: italic;
+    color: #7070c0;
+}
+
+ol.checklist .itemoptional {
     font-style: italic;
     color: #a0a0a0;
 }

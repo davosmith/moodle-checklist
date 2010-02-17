@@ -35,11 +35,18 @@ $string['moveitemup'] = 'Move item up';
 
 $string['noitems'] = 'No items in the checklist';
 
-$string['percentcomplete'] = 'Complete';
+$string['optionalitem'] = 'This item is optional';
+$string['optionalhide'] = 'Hide Optional Items';
+$string['optionalshow'] = 'Show Optional Items';
+
+$string['percentcomplete'] = 'Required Items';
+$string['percentcompleteall'] = 'All Items';
 $string['preview'] = 'Preview';
 
 $string['report'] = 'View Progress';
 $string['reporttablesummary'] = 'Table showing the items on the checklist that each student has completed';
+
+$string['requireditem'] = 'This item is required - it must be completed';
 
 $string['savechecks'] = 'Save';
 

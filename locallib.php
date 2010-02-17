@@ -21,6 +21,7 @@ class checklist_class {
     var $items;
     var $useritems;
     var $useredit;
+    var $showoptional;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
         global $COURSE;
@@ -251,6 +252,8 @@ class checklist_class {
 
         $this->view_tabs('report');
 
+        $this->process_report_actions();
+
         $this->view_report();
         
         $this->view_footer();
@@ -315,21 +318,30 @@ class checklist_class {
     function view_progressbar() {
         global $CFG;
         
-        $totalitems = count($this->items);
+        $totalitems = 0;
+        $requireditems = 0;
+        $completeitems = 0;
+        $allcompleteitems = 0;
+        foreach ($this->items as $item) {
+            if (!$item->itemoptional) {
+                $requireditems++;
+                if ($item->checked) {
+                    $completeitems++;
+                    $allcompleteitems++;
+                }
+            } elseif ($item->checked) {
+                $allcompleteitems++;
+            }
+            $totalitems++;
+        }
         if ($totalitems == 0) {
             return;
         }
         
-        $completeitems = 0;
-        foreach ($this->items as $item) {
-            if ($item->checked) {
-                $completeitems++;
-            }
-        }
-
-        $percentcomplete = ($completeitems * 100) / $totalitems;
+        $percentcomplete = ($completeitems * 100) / $requireditems;
+        $allpercentcomplete = ($allcompleteitems * 100) / $totalitems;
         
-        echo '<div style="display:block; float:left">';
+        echo '<div style="display:block; float:left; width:150px;">';
         echo get_string('percentcomplete','checklist').':&nbsp;';
         echo '</div>';
         echo '<div class="checklist_progress_outer">';
@@ -337,12 +349,21 @@ class checklist_class {
         echo '</div>';
         echo '&nbsp;'.sprintf('%0d',$percentcomplete).'%';
         echo '<br style="clear:both"/>';
+        
+        echo '<div style="display:block; float:left; width:150px;">';
+        echo get_string('percentcompleteall','checklist').':&nbsp;';
+        echo '</div>';
+        echo '<div class="checklist_progress_outer">';
+        echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+        echo '</div>';
+        echo '&nbsp;'.sprintf('%0d',$allpercentcomplete).'%';
+        echo '<br style="clear:both"/>';
     }
 
     function view_items() {
         global $CFG;
         
-        print_box_start('generalbox boxwidthnormal boxaligncenter');
+        print_box_start('generalbox boxwidthwide boxaligncenter');
 
         echo '<p>'.format_string($this->checklist->intro, $this->checklist->introformat).'</p>';
 
@@ -394,8 +415,9 @@ class checklist_class {
                 }
                 $itemname = '"item'.$item->id.'"';
                 $checked = ($updateform && $item->checked) ? ' checked="checked" ' : '';
+                $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
                 echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
-                echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>';
+                echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
 
                 if ($addown) {
                     $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
@@ -433,7 +455,7 @@ class checklist_class {
                                 echo '</li>';
                             } else {
                                 echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
-                                echo '<label class="checklist_useritem" for='.$itemname.'>'.s($useritem->displaytext).'</label>';
+                                echo '<label class="useritem" for='.$itemname.'>'.s($useritem->displaytext).'</label>';
 
                                 if ($addown) {
                                     $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
@@ -506,7 +528,20 @@ class checklist_class {
                 }
 
                 $itemname = '"item'.$item->id.'"';
-                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.' disabled="disabled" />';
+                $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
+
+                echo '<li>';
+                if ($item->itemoptional) {
+                    $title = '"'.get_string('optionalitem','checklist').'"';
+                    echo '<a href="'.$baseurl.'makerequired" />';
+                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/optional.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    $optional = ' class="itemoptional" ';
+                } else {
+                    $title = '"'.get_string('requireditem','checklist').'"';
+                    echo '<a href="'.$baseurl.'makeoptional" />';
+                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/required.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    $optional = '';
+                }
 
                 if (isset($item->editme)) {
                     echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
@@ -522,9 +557,7 @@ class checklist_class {
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
                 } else {
-                    echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>&nbsp;';
-
-                    $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                    echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>&nbsp;';
 
                     echo '<a href="'.$baseurl.'edititem" />';
                     $title = '"'.get_string('edititem','checklist').'"';
@@ -591,17 +624,31 @@ class checklist_class {
 
         $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?checklist='.$this->checklist->id;
         groups_print_activity_menu($this->cm, $thisurl);
-        echo '<br style="clear:both"/>';
         $activegroup = groups_get_activity_group($this->cm, true);
+
+        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="get" />';
+        echo '<input type="hidden" name="checklist" value="'.$this->checklist->id.'" />';
+        if ($this->showoptional) {
+            echo '<input type="hidden" name="action" value="hideoptional" />';
+            echo '<input type="submit" name="submit" value="'.get_string('optionalhide','checklist').'" />';
+        } else {
+            echo '<input type="hidden" name="action" value="showoptional" />';
+            echo '<input type="submit" name="submit" value="'.get_string('optionalshow','checklist').'" />';
+        }
+        echo '</form>';
+        
+        echo '<br style="clear:both"/>';
 
         $table = new stdClass;
         $table->head = array(get_string('fullname'));
         $table->level = array(-1);
         $table->size = array('100px');
+        $table->skip = array(false);
         foreach ($this->items as $item) {
             $table->head[] = s($item->displaytext);
             $table->level[] = ($item->indent < 3) ? $item->indent : 2;
             $table->size[] = '80px';
+            $table->skip[] = (!$this->showoptional) && $item->itemoptional;
         }
 
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
@@ -648,6 +695,9 @@ class checklist_class {
         $keys = array_keys($table->head);
         $lastkey = end($keys);
         foreach ($table->head as $key => $heading) {
+            if ($table->skip[$key]) {
+                continue;
+            }
             $size = $table->size[$key];
             $levelclass = ' head'.$table->level[$key];
             if ($key == $lastkey) {
@@ -674,6 +724,9 @@ class checklist_class {
             $keys2 = array_keys($row);
             $lastkey = end($keys2);
             foreach ($row as $key => $item) {
+                if ($table->skip[$key]) {
+                    continue;
+                }
                 if ($key == 0) {
                     // First item is the name
                     $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0">'.$item.'</td>';
@@ -805,8 +858,28 @@ class checklist_class {
         case 'unindentitem':
             $this->unindentitem($itemid);
             break;
+        case 'makeoptional':
+            $this->makeoptional($itemid, true);
+            break;
+        case 'makerequired':
+            $this->makeoptional($itemid, false);
+            break;
+            
         default:
             error('Invalid action - "'.s($action).'"');
+        }
+    }
+
+    function process_report_actions() {
+        $this->showoptional = true;
+        
+        $action = optional_param('action', false, PARAM_TEXT);
+        if (!$action) {
+            return;
+        }
+
+        if ($action == 'hideoptional') {
+            $this->showoptional = false;
         }
     }
 
@@ -1010,6 +1083,15 @@ class checklist_class {
             return;
         }
         $this->indentitemto($itemid, $this->items[$itemid]->indent - 1);
+    }
+
+    function makeoptional($itemid, $optional) {
+        if (!isset($this->items[$itemid])) {
+            return;
+        }
+
+        $this->items[$itemid]->itemoptional = $optional;
+        update_record('checklist_item', $this->items[$itemid]);
     }
 
     function updatechecks() {
