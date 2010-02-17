@@ -219,6 +219,28 @@ class checklist_class {
         $this->view_footer();
     }
 
+    function report() {
+        global $CFG;
+
+        if (!$this->canviewreports()) {
+            redirect($CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->context->id);
+        }
+
+        add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
+
+        $this->view_header();
+
+        print_heading(format_string($this->checklist->name));
+
+        $this->view_tabs('report');
+
+        //$this->process_edit_actions();
+
+        $this->view_report();
+        
+        $this->view_footer();
+    }
+
     function view_header() {
         $navlinks = array();
         $navlinks[] = array('name' => $this->strchecklists, 'link' => "index.php?id={$this->course->id}", 'type' => 'activity');
@@ -415,6 +437,51 @@ class checklist_class {
         }
 
         print_box_end();
+    }
+
+    function view_report() {
+        global $CFG;
+
+        $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?checklist='.$this->checklist->id;
+        groups_print_activity_menu($this->cm, $thisurl);
+        $activegroup = groups_get_activity_group($this->cm, true);
+
+        // TODO - work with tablelib.php instead
+        $table = new stdClass;
+        $table->head = array(get_string('fullname'));
+        foreach ($this->items as $item) {
+            $table->head[] = s($item->displaytext);
+        }
+
+        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
+            $users = array_keys($users);
+        }
+        $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') ');
+
+        $table->data = array();
+        if ($ausers) {
+            foreach ($ausers as $auser) {
+                $row = array();
+                $row[] = fullname($auser);
+
+                $sql = 'SELECT i.id, c.usertimestamp FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+                $sql .= 'ON (i.id = c.item AND c.userid = '.$auser->id.') WHERE i.checklist = '.$this->checklist->id.' AND i.userid=0 ORDER BY i.position';
+                $checks = get_records_sql($sql);
+
+                foreach ($checks as $check) {
+                    if ($check->usertimestamp > 0) {
+                        $row[] = '<img src="'.$CFG->pixpath.'/i/tick_green_big.gif" />';
+                    } else {
+                        $row[] = '';
+                    }
+                }
+
+                $table->data[] = $row;
+            }
+        }
+        
+        print_table($table);
+
     }
 
     function view_footer() {
