@@ -340,15 +340,17 @@ class checklist_class {
         
         $percentcomplete = ($completeitems * 100) / $requireditems;
         $allpercentcomplete = ($allcompleteitems * 100) / $totalitems;
-        
-        echo '<div style="display:block; float:left; width:150px;">';
-        echo get_string('percentcomplete','checklist').':&nbsp;';
-        echo '</div>';
-        echo '<div class="checklist_progress_outer">';
-        echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
-        echo '</div>';
-        echo '&nbsp;'.sprintf('%0d',$percentcomplete).'%';
-        echo '<br style="clear:both"/>';
+
+        if ($totalitems > $requireditems) {
+            echo '<div style="display:block; float:left; width:150px;">';
+            echo get_string('percentcomplete','checklist').':&nbsp;';
+            echo '</div>';
+            echo '<div class="checklist_progress_outer">';
+            echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+            echo '</div>';
+            echo '&nbsp;'.sprintf('%0d',$percentcomplete).'%';
+            echo '<br style="clear:both"/>';
+        }
         
         echo '<div style="display:block; float:left; width:150px;">';
         echo get_string('percentcompleteall','checklist').':&nbsp;';
