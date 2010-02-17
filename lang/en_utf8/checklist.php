@@ -31,6 +31,7 @@ $string['noitems'] = 'No items in the checklist';
 $string['preview'] = 'Preview';
 
 $string['report'] = 'View Progress';
+$string['reporttablesummary'] = 'Table showing the items on the checklist that each student has completed';
 
 $string['savechecks'] = 'Save';
 

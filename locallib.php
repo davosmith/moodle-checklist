@@ -444,13 +444,17 @@ class checklist_class {
 
         $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?checklist='.$this->checklist->id;
         groups_print_activity_menu($this->cm, $thisurl);
+        echo '<br style="clear:both"/>';
         $activegroup = groups_get_activity_group($this->cm, true);
 
-        // TODO - work with tablelib.php instead
         $table = new stdClass;
         $table->head = array(get_string('fullname'));
+        $table->level = array(-1);
+        $table->size = array('100px');
         foreach ($this->items as $item) {
             $table->head[] = s($item->displaytext);
+            $table->level[] = ($item->indent < 3) ? $item->indent : 2;
+            $table->size[] = '80px';
         }
 
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
@@ -470,9 +474,9 @@ class checklist_class {
 
                 foreach ($checks as $check) {
                     if ($check->usertimestamp > 0) {
-                        $row[] = '<img src="'.$CFG->pixpath.'/i/tick_green_big.gif" />';
+                        $row[] = true;
                     } else {
-                        $row[] = '';
+                        $row[] = false;
                     }
                 }
 
@@ -480,8 +484,73 @@ class checklist_class {
             }
         }
         
-        print_table($table);
+        $this->print_report_table($table);
+    }
 
+    function print_report_table($table) {
+        global $CFG;
+        
+        $output = '';
+
+        $output .= '<table summary="'.get_string('reporttablesummary','checklist').'"';
+        $output .= ' cellpadding="5" cellspacing="1" class="generaltable boxaligncenter checklistreport">';
+
+        // Sort out the heading row
+        $countcols = count($table->head);
+        $output .= '<tr>';
+        $keys = array_keys($table->head);
+        $lastkey = end($keys);
+        foreach ($table->head as $key => $heading) {
+            $size = $table->size[$key];
+            $levelclass = ' head'.$table->level[$key];
+            if ($key == $lastkey) {
+                $levelclass .= ' lastcol';
+            }
+            $output .= '<th style="vertical-align:top; align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
+            $output .= $heading.'</th>';
+        }
+        $output .= '</tr>';
+
+        // Output the data
+        $tickimg = '<img src="'.$CFG->pixpath.'/i/tick_green_big.gif" />';
+        $oddeven = 1;
+        $keys = array_keys($table->data);
+        $lastrowkey = end($keys);
+        foreach ($table->data as $key => $row) {
+            $oddeven = $oddeven ? 0 : 1;
+            $class = '';
+            if ($key == $lastrowkey) {
+                $class = ' lastrow';
+            }
+
+            $output .= '<tr class="r'.$oddeven.$class.'">';
+            $keys2 = array_keys($row);
+            $lastkey = end($keys2);
+            foreach ($row as $key => $item) {
+                if ($key == 0) {
+                    // First item is the name
+                    $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0">'.$item.'</td>';
+                } else {
+                    $size = $table->size[$key];
+                    $img = '&nbsp;';
+                    $cellclass = 'cell c'.$key.' level'.$table->level[$key];
+                    if ($item) {
+                        $cellclass .= '-checked';
+                        $img = $tickimg;
+                    }
+                    if ($key == $lastkey) {
+                        $cellclass .= ' lastcol';
+                    }
+                
+                    $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">'.$img.'</td>';
+                }
+            }
+            $output .= '</tr>';
+        }
+        
+        $output .= '</table>';
+
+        echo $output;
     }
 
     function view_footer() {
@@ -500,7 +569,7 @@ class checklist_class {
             break;
 
         default:
-            error('unknown action: "'.s($action).'"');
+            error('Invalid action - "'.s($action).'"');
         }
     }
     
@@ -542,7 +611,7 @@ class checklist_class {
             $this->unindentitem($itemid);
             break;
         default:
-            print_error('Invalid action - "'.s($action).'"');
+            error('Invalid action - "'.s($action).'"');
         }
     }
 
