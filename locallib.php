@@ -20,6 +20,7 @@ class checklist_class {
     var $userid;
     var $items;
     var $useritems;
+    var $useredit;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
         global $COURSE;
@@ -101,7 +102,7 @@ class checklist_class {
                     $this->items[$id]->checked = $check->usertimestamp > 0;
                     $this->items[$id]->teachermark = $check->teachermark;
                 } elseif ($this->useritems && isset($this->useritems[$id])) {
-                    $this->useritems[$id] = $check->usertimestamp > 0;
+                    $this->useritems[$id]->checked = $check->usertimestamp > 0;
                     // User items never have a teacher mark to go with them
                 }
             }
@@ -140,12 +141,24 @@ class checklist_class {
         }
     }
 
+    function get_item_at_position($position) {
+        if (!$this->items) {
+            return false;
+        }
+        foreach ($this->items as $item) {
+            if ($item->position == $position) {
+                return $item;
+            }
+        }
+        return false;
+    }
+
     function canupdateown() {
         return has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canaddown() {
-        return has_capability('mod/checklist:updateown'. $this->context) && $checklist->useritemsallowed;
+        return $this->checklist->useritemsallowed && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canpreview() {
@@ -320,7 +333,7 @@ class checklist_class {
         echo get_string('percentcomplete','checklist').':&nbsp;';
         echo '</div>';
         echo '<div class="checklist_progress_outer">';
-        echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/progress.gif);" >&nbsp;</div>';
+        echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
         echo '</div>';
         echo '&nbsp;'.sprintf('%0d',$percentcomplete).'%';
         echo '<br style="clear:both"/>';
@@ -341,11 +354,31 @@ class checklist_class {
             print_string('noitems','checklist');
         } else {
             $updateform = $this->canupdateown();
+            $addown = $this->canaddown() && $this->useredit;
             if ($updateform) {
+                if ($this->canaddown()) {
+                    echo '<form style="display:inline;" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="get">';
+                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                    if ($addown) {
+                        echo '<input type="hidden" name="useredit" value="off" />';
+                        echo '<input type="submit" name="submit" value="'.get_string('addownitems-stop','checklist').'" />';
+                    } else {
+                        echo '<input type="hidden" name="useredit" value="on" />';
+                        echo '<input type="submit" name="submit" value="'.get_string('addownitems','checklist').'" />';
+                    }
+                    echo '</form>';
+                }
                 echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
                 echo '<input type="hidden" name="checklist" value="'.$this->checklist->id.'" />';
                 echo '<input type="hidden" name="action" value="updatechecks" />';
                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+                if ($addown) {
+                    echo '<input type="hidden" name="useredit" value="on" />';
+                }
+            }
+
+            if ($this->useritems) {
+                reset($this->useritems);
             }
 
             echo '<ol class="checklist">';
@@ -363,7 +396,79 @@ class checklist_class {
                 $checked = ($updateform && $item->checked) ? ' checked="checked" ' : '';
                 echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
                 echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>';
+
+                if ($addown) {
+                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                    echo '&nbsp;<a href="'.$baseurl.'startadditem" />';
+                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt="'.get_string('additemalt','checklist').'" /></a>';
+                }
+                
                 echo '</li>';
+
+                // Output any user-added items
+                if ($this->useritems) {
+                    $useritem = current($this->useritems);
+
+                    if ($useritem && ($useritem->position == $item->position)) {
+                        echo '<ol class="checklist">';
+                        while ($useritem && ($useritem->position == $item->position)) {
+                            $itemname = '"item'.$useritem->id.'"';
+                            $checked = ($updateform && $useritem->checked) ? ' checked="checked" ' : '';
+                            if (isset($useritem->editme)) {
+                                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' disabled="disabled" />';
+                                echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
+                                echo '<input type="hidden" name="action" value="updateitem" />';
+                                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                                echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
+                                echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+                                echo '<input type="text" name="displaytext" value="'.s($useritem->displaytext).'" />';
+                                echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
+                                echo '</form>';
+                                echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="get">';
+                                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                                echo '<input type="hidden" name="useredit" value="on" />';
+                                echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
+                                echo '</form>';
+                                echo '</li>';
+                            } else {
+                                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
+                                echo '<label class="checklist_useritem" for='.$itemname.'>'.s($useritem->displaytext).'</label>';
+
+                                if ($addown) {
+                                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                                    echo '&nbsp;<a href="'.$baseurl.'edititem" />';
+                                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt="'.get_string('edititem','checklist').'" /></a>';
+
+                                    echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
+                                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/remove.png" alt="'.get_string('deleteitem','checklist').'" /></a>';
+                                }
+
+                                echo '</li>';
+                            }
+                            $useritem = next($this->useritems);
+                        }
+                        echo '</ol>';
+                    }
+                }
+
+                if ($addown && isset($item->addafter)) {
+                    echo '<ol class="checklist"><li>';
+                    echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
+                    echo '<input type="hidden" name="action" value="additem" />';
+                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                    echo '<input type="hidden" name="position" value="'.$item->position.'" />';
+                    echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+                    echo '<input type="checkbox" disabled="disabled" />';
+                    echo '<input type="text" name="displaytext" value="" />';
+                    echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
+                    echo '</form>';
+                    echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="get">';
+                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                    echo '<input type="hidden" name="useredit" value="on" />';
+                    echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
+                    echo '</form>';
+                    echo '</li></ol>';
+                }
             }
             echo '</ol>';
 
@@ -591,11 +696,13 @@ class checklist_class {
     }
 
     function process_view_actions() {
+        $this->useredit = optional_param('useredit', false, PARAM_BOOL);
+        
         $action = optional_param('action', false, PARAM_TEXT);
         if (!$action) {
             return;
         }
-        
+
         if (!confirm_sesskey()) {
             error('Invalid sesskey');
         }
@@ -607,10 +714,26 @@ class checklist_class {
             $this->updatechecks();
             break;
 
+        case 'startadditem':
+            if (isset($this->items[$itemid])) {
+                $this->items[$itemid]->addafter = true;
+            }
+            break;
+            
+        case 'edititem':
+            if ($this->useritems && isset($this->useritems[$itemid])) {
+                $this->useritems[$itemid]->editme = true;
+            }
+            break;
+
         case 'additem':
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
             $position = optional_param('position', false, PARAM_INT);
             $this->additem($displaytext, $this->userid, 0, $position);
+            $item = $this->get_item_at_position($position);
+            if ($item) {
+                $item->addafter = true;
+            }
             break;
 
         case 'deleteitem':
@@ -618,11 +741,16 @@ class checklist_class {
             break;
 
         case 'updateitem':
+            $displaytext = optional_param('displaytext', '', PARAM_TEXT);
             $this->updateitemtext($itemid, $displaytext);
             break;
             
         default:
             error('Invalid action - "'.s($action).'"');
+        }
+
+        if ($action != 'updatechecks') {
+            $this->useredit = true;
         }
     }
     
@@ -704,6 +832,7 @@ class checklist_class {
         if ($item->id) {
             if ($userid) {
                 $this->useritems[$item->id] = $item;
+                $this->useritems[$item->id]->checked = false;
                 if ($position) {
                     uasort($this->useritems, 'checklist_itemcompare');
                 }
@@ -746,7 +875,7 @@ class checklist_class {
             if (!$this->canaddown()) {
                 return;
             }
-            unset($this->items[$itemid]);
+            unset($this->useritems[$itemid]);
         } else {
             // Item for deletion is not currently available
             return;
@@ -887,31 +1016,63 @@ class checklist_class {
             }
         }
 
-        foreach ($this->items as $item) {
-            $newval = isset($newchecks[$item->id]) && $newchecks[$item->id];
+        if ($this->items) {
+            foreach ($this->items as $item) {
+                $newval = isset($newchecks[$item->id]) && $newchecks[$item->id];
 
-            if ($newval != $item->checked) {
-                $item->checked = $newval;
+                if ($newval != $item->checked) {
+                    $item->checked = $newval;
                 
-                $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
-                if ($check) {
-                    if ($newval) {
-                        $check->usertimestamp = time();
-                    } else {
-                        $check->usertimestamp = 0;
-                    }
-                    update_record('checklist_check', $check);
+                    $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
+                    if ($check) {
+                        if ($newval) {
+                            $check->usertimestamp = time();
+                        } else {
+                            $check->usertimestamp = 0;
+                        }
+                        update_record('checklist_check', $check);
 
-                } else {
+                    } else {
                     
-                    $check = new stdClass;
-                    $check->item = $item->id;
-                    $check->userid = $this->userid;
-                    $check->usertimestamp = time();
-                    $check->teachertimestamp = 0;
-                    $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+                        $check = new stdClass;
+                        $check->item = $item->id;
+                        $check->userid = $this->userid;
+                        $check->usertimestamp = time();
+                        $check->teachertimestamp = 0;
+                        $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
                     
-                    $check->id = insert_record('checklist_check', $check);
+                        $check->id = insert_record('checklist_check', $check);
+                    }
+                }
+            }
+        }
+        if ($this->useritems) {
+            foreach ($this->useritems as $item) {
+                $newval = isset($newchecks[$item->id]) && $newchecks[$item->id];
+
+                if ($newval != $item->checked) {
+                    $item->checked = $newval;
+                
+                    $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
+                    if ($check) {
+                        if ($newval) {
+                            $check->usertimestamp = time();
+                        } else {
+                            $check->usertimestamp = 0;
+                        }
+                        update_record('checklist_check', $check);
+
+                    } else {
+                    
+                        $check = new stdClass;
+                        $check->item = $item->id;
+                        $check->userid = $this->userid;
+                        $check->usertimestamp = time();
+                        $check->teachertimestamp = 0;
+                        $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+                    
+                        $check->id = insert_record('checklist_check', $check);
+                    }
                 }
             }
         }

@@ -4,6 +4,11 @@ ol.checklist li {
     list-style-type: none;
 }
 
+.checklist_useritem {
+    font-style: italic;
+    color: #a0a0a0;
+}
+
 .checklistreport .header {
     background-color: #e1e1df;
 }

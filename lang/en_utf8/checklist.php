@@ -1,6 +1,9 @@
 <?php
 
 $string['additem'] = 'Add';
+$string['additemalt'] = 'Add a new item to the list';
+$string['addownitems'] = 'Add your own items';
+$string['addownitems-stop'] = 'Stop adding your own items';
 $string['canceledititem'] = 'Cancel';
 $string['checklist'] = 'checklist';
 
@@ -13,9 +16,10 @@ $string['checklist:viewreports'] = 'View students\' progress';
 $string['checklistintro'] = 'Introduction';
 $string['checklistsettings'] = 'Settings';
 
-$string['deleteitem'] = 'Delete item';
+$string['deleteitem'] = 'Delete this item';
 
 $string['edit'] = 'Edit Checklist';
+$string['edititem'] = 'Edit this item';
 
 $string['guestsno'] = 'You do not have permission to view this checklist';
 
