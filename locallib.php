@@ -294,12 +294,43 @@ class checklist_class {
         print_tabs($tabs, $currenttab, $inactive, $activated);
     }
 
+    function view_progressbar() {
+        global $CFG;
+        
+        $totalitems = count($this->items);
+        if ($totalitems == 0) {
+            return;
+        }
+        
+        $completeitems = 0;
+        foreach ($this->items as $item) {
+            if ($item->checked) {
+                $completeitems++;
+            }
+        }
+
+        $percentcomplete = ($completeitems * 100) / $totalitems;
+        
+        echo '<div style="display:block; float:left">';
+        echo get_string('percentcomplete','checklist').':&nbsp;';
+        echo '</div>';
+        echo '<div class="checklist_progress_outer">';
+        echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/progress.gif);" >&nbsp;</div>';
+        echo '</div>';
+        echo '&nbsp;'.sprintf('%0d',$percentcomplete).'%';
+        echo '<br style="clear:both"/>';
+    }
+
     function view_items() {
         global $CFG;
         
         print_box_start('generalbox boxwidthnormal boxaligncenter');
 
         echo '<p>'.format_string($this->checklist->intro, $this->checklist->introformat).'</p>';
+
+        if ($this->canupdateown()) {
+            $this->view_progressbar();
+        }
         
         if (!$this->items) {
             print_string('noitems','checklist');

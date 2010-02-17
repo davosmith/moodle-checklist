@@ -47,3 +47,20 @@ ol.checklist li {
     background-color: #00bf00;
 }
 
+.checklist_progress_outer {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+    width: 300px;
+    background-color: transparent;
+    height: 15px;
+    float: left;
+}
+
+.checklist_progress_inner {
+    background-color: #c0c0c0;
+    height: 100%;
+    width: 100%;
+    background-repeate: repeat-y;
+    background-position: left;
+}

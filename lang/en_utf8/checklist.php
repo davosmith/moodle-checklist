@@ -28,6 +28,7 @@ $string['moveitemup'] = 'Move item up';
 
 $string['noitems'] = 'No items in the checklist';
 
+$string['percentcomplete'] = 'Complete';
 $string['preview'] = 'Preview';
 
 $string['report'] = 'View Progress';
