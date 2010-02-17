@@ -24,6 +24,7 @@ $string['edititem'] = 'Edit this item';
 $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['indentitem'] = 'Indent item';
+$string['itemcomplete'] = 'Completed';
 $string['unindentitem'] = 'Unindent item';
 
 $string['modulename'] = 'Checklist';

@@ -400,7 +400,8 @@ class checklist_class {
                 if ($addown) {
                     $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
                     echo '&nbsp;<a href="'.$baseurl.'startadditem" />';
-                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt="'.get_string('additemalt','checklist').'" /></a>';
+                    $title = '"'.get_string('additemalt','checklist').'"';
+                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
                 }
                 
                 echo '</li>';
@@ -437,10 +438,12 @@ class checklist_class {
                                 if ($addown) {
                                     $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem" />';
-                                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt="'.get_string('edititem','checklist').'" /></a>';
+                                    $title = '"'.get_string('edititem','checklist').'"';
+                                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt='.$title.' title='.$title.' /></a>';
 
                                     echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
-                                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/remove.png" alt="'.get_string('deleteitem','checklist').'" /></a>';
+                                    $title = '"'.get_string('deleteitem','checklist').'"';
+                                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/remove.png" alt='.$title.' title='.$title.' /></a>';
                                 }
 
                                 echo '</li>';
@@ -524,16 +527,19 @@ class checklist_class {
                     $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
 
                     echo '<a href="'.$baseurl.'edititem" />';
-                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt="'.get_string('edititem','checklist').'" /></a>&nbsp;';
+                    $title = '"'.get_string('edititem','checklist').'"';
+                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif"  alt='.$title.' title='.$title.' /></a>&nbsp;';
 
                     if ($item->indent > 0) {
                         echo '<a href="'.$baseurl.'unindentitem" />';
-                        echo '<img src="'.$CFG->pixpath.'/t/left.gif" alt="'.get_string('unindentitem','checklist').'" /></a>';
+                        $title = '"'.get_string('unindentitem','checklist').'"';
+                        echo '<img src="'.$CFG->pixpath.'/t/left.gif" alt='.$title.' title='.$title.'  /></a>';
                     }
 
                     if (($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
                         echo '<a href="'.$baseurl.'indentitem" />';
-                        echo '<img src="'.$CFG->pixpath.'/t/right.gif" alt="'.get_string('indentitem','checklist').'" /></a>';
+                        $title = '"'.get_string('indentitem','checklist').'"';
+                        echo '<img src="'.$CFG->pixpath.'/t/right.gif" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     echo '&nbsp;';
@@ -541,16 +547,19 @@ class checklist_class {
                     // TODO more complex checks to take into account indentation
                     if ($item->position > 1) {
                         echo '<a href="'.$baseurl.'moveitemup" />';
-                        echo '<img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('moveitemup','checklist').'" /></a>';
+                    $title = '"'.get_string('moveitemup','checklist').'"';
+                    echo '<img src="'.$CFG->pixpath.'/t/up.gif" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     if ($item->position < $lastitem) {
                         echo '<a href="'.$baseurl.'moveitemdown" />';
-                        echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('moveitemdown','checklist').'" /></a>';
+                    $title = '"'.get_string('moveitemdown','checklist').'"';
+                    echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
-                    echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt="'.get_string('deleteitem','checklist').'" /></a>';
+                    $title = '"'.get_string('deleteitem','checklist').'"';
+                    echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt='.$title.' title='.$title.' /></a>';
                     
                     $lastindent = $currindent;
                 }
@@ -650,7 +659,7 @@ class checklist_class {
         $output .= '</tr>';
 
         // Output the data
-        $tickimg = '<img src="'.$CFG->pixpath.'/i/tick_green_big.gif" />';
+        $tickimg = '<img src="'.$CFG->pixpath.'/i/tick_green_big.gif" alt="'.get_string('itemcomplete','checklist').'" />';
         $oddeven = 1;
         $keys = array_keys($table->data);
         $lastrowkey = end($keys);
