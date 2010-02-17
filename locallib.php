@@ -382,7 +382,7 @@ class checklist_class {
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
                 } else {
-                    echo '<label for='.$itemname.'>'.$item->position.') '.s($item->displaytext).'</label>&nbsp;';
+                    echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>&nbsp;';
 
                     $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;action=';
 
