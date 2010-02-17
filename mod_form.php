@@ -53,10 +53,9 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('format', 'introformat', get_string('format'));
 
 //-------------------------------------------------------------------------------
-    /// Adding the rest of newmodule settings, spreeading all them into this fieldset
-    /// or adding more fieldsets ('header' elements) if needed for better logic
-        //        $mform->addElement('static', 'label1', 'checklistsetting1', 'Your newmodule fields go here. Replace me!');
 
+        // These settings are all disabled, as they are not currently implemented
+        /*
         $mform->addElement('header', 'checklistsettings', get_string('checklistsettings', 'checklist'));
 
         $ynoptions = array( 0 => get_string('no'), 1 => get_string('yes'));
@@ -70,7 +69,7 @@ class mod_checklist_mod_form extends moodleform_mod {
 
         $themes = array('default' => 'default');
         $mform->addElement('select', 'theme', get_string('theme', 'checklist'), $themes);
-
+        */
         
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules

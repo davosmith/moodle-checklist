@@ -148,6 +148,8 @@ function checklist_cron () {
  * @return mixed boolean/array of students
  */
 function checklist_get_participants($checklistid) {
+    // TODO - implement this
+    
     return false;
 }
 
@@ -163,15 +165,7 @@ function checklist_get_participants($checklistid) {
  * @todo Finish documenting this function
  */
 function checklist_scale_used($checklistid, $scaleid) {
-    $return = false;
-
-    //$rec = get_record("newmodule","id","$newmoduleid","scale","-$scaleid");
-    //
-    //if (!empty($rec) && !empty($scaleid)) {
-    //    $return = true;
-    //}
-
-    return $return;
+    return false;
 }
 
 
@@ -184,11 +178,7 @@ function checklist_scale_used($checklistid, $scaleid) {
  * @return boolean True if the scale is used by any checklist
  */
 function checklist_scale_used_anywhere($scaleid) {
-    if ($scaleid and record_exists('checklist', 'grade', -$scaleid)) {
-        return true;
-    } else {
-        return false;
-    }
+    return false;
 }
 
 
@@ -212,12 +202,5 @@ function checklist_install() {
 function checklist_uninstall() {
     return true;
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////
-/// Any other newmodule functions go here.  Each of them must have a name that
-/// starts with newmodule_
-/// Remember (see note in first lines) that, if this section grows, it's HIGHLY
-/// recommended to move all funcions below to a new "localib.php" file.
 
 ?>
