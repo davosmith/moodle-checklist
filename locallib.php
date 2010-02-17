@@ -156,8 +156,6 @@ class checklist_class {
     }
         
     function view() {
-        // TODO - check sesskey()
-        
         global $CFG;
         
         if ($this->canupdateown()) {
@@ -199,8 +197,6 @@ class checklist_class {
 
 
     function edit() {
-        // TODO - check sesskey()
-        
         global $CFG;
         
         if (!$this->canedit()) {
@@ -236,8 +232,6 @@ class checklist_class {
         print_heading(format_string($this->checklist->name));
 
         $this->view_tabs('report');
-
-        //$this->process_edit_actions();
 
         $this->view_report();
         
@@ -301,9 +295,6 @@ class checklist_class {
     }
 
     function view_items() {
-        // TODO tick & disable parent item if all children ticked (+rename, so does not change mark)
-        // TODO tick & disable children items, if parent ticked
-        
         global $CFG;
         
         print_box_start('generalbox boxwidthnormal boxaligncenter');
@@ -318,6 +309,7 @@ class checklist_class {
                 echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
                 echo '<input type="hidden" name="checklist" value="'.$this->checklist->id.'" />';
                 echo '<input type="hidden" name="action" value="updatechecks" />';
+                echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
             }
 
             echo '<ol class="checklist">';
@@ -377,6 +369,7 @@ class checklist_class {
                     echo '<input type="hidden" name="action" value="updateitem" />';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
+                    echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                     echo '<input type="text" name="displaytext" value="'.$item->displaytext.'" />';
                     echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                     echo '</form>';
@@ -387,7 +380,7 @@ class checklist_class {
                 } else {
                     echo '<label for='.$itemname.'>'.s($item->displaytext).'</label>&nbsp;';
 
-                    $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;action=';
+                    $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
 
                     echo '<a href="'.$baseurl.'edititem" />';
                     echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt="'.get_string('edititem','checklist').'" /></a>&nbsp;';
@@ -429,6 +422,7 @@ class checklist_class {
         echo '<input type="hidden" name="action" value="additem" />';
         echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
         echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
+        echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
         echo '<input type="text" name="displaytext" value="" />';
         echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
         echo '</form>';
@@ -566,6 +560,10 @@ class checklist_class {
             return;
         }
         
+        if (!confirm_sesskey()) {
+            error('Invalid sesskey');
+        }
+
         switch($action) {
         case 'updatechecks':
             $this->updatechecks();
@@ -581,6 +579,11 @@ class checklist_class {
         if (!$action) {
             return;
         }
+
+        if (!confirm_sesskey()) {
+            error('Invalid sesskey');
+        }
+
         $itemid = optional_param('itemid', 0, PARAM_INT);
 
         switch ($action) {
@@ -624,7 +627,7 @@ class checklist_class {
             return;
         }
         
-        $item = new Object();
+        $item = new stdClass;
         $item->checklist = $this->checklist->id;
         $item->displaytext = $displaytext;
         if ($position) {
@@ -839,7 +842,7 @@ class checklist_class {
 
                 } else {
                     
-                    $check = new Object();
+                    $check = new stdClass;
                     $check->item = $item->id;
                     $check->userid = $this->userid;
                     $check->usertimestamp = time();
