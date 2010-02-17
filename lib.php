@@ -211,4 +211,42 @@ function checklist_uninstall() {
     return true;
 }
 
+function checklist_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'checklistheader', get_string('modulenameplural', 'checklist'));
+    $mform->addElement('checkbox', 'reset_checklist_progress', get_string('resetchecklistprogress','checklist'));
+}
+
+function checklist_reset_course_form_defaults($course) {
+    return array('reset_checklist_progress' => 1);
+}
+
+function checklist_reset_userdata($data) {
+    global $CFG;
+
+    $status = array();
+    $component = get_string('modulenameplural', 'checklist');
+    $typestr = get_string('resetchecklistprogress', 'checklist');
+    $status[] = array('component'=>$component, 'item'=>$typestr, 'error'=>false);
+
+    if (!empty($data->reset_checklist_progress)) {
+        $checklists = get_records('checklist', 'course', $data->courseid);
+        if (!$checklists) {
+            return $status;
+        }
+        $checklists = implode(',',array_keys($checklists));
+        $items = get_records_select('checklist_item', 'checklist IN ('.$checklists.')');
+        if (!$items) {
+            return $status;
+        }
+        $items = implode(',',array_keys($items));
+        
+        delete_records_select('checklist_check', 'item IN ('.$items.')');
+
+        $sql = 'checklist IN ('.$checklists.') AND userid != 0';
+        delete_records_select('checklist_item', $sql);
+    }
+
+    return $status;
+}
+
 ?>

@@ -96,15 +96,17 @@ class checklist_class {
 
             $checks = get_records_sql($sql);
 
-            foreach ($checks as $check) {
-                $id = $check->id;
+            if ($checks) {
+                foreach ($checks as $check) {
+                    $id = $check->id;
                 
-                if (isset($this->items[$id])) {
-                    $this->items[$id]->checked = $check->usertimestamp > 0;
-                    $this->items[$id]->teachermark = $check->teachermark;
-                } elseif ($this->useritems && isset($this->useritems[$id])) {
-                    $this->useritems[$id]->checked = $check->usertimestamp > 0;
-                    // User items never have a teacher mark to go with them
+                    if (isset($this->items[$id])) {
+                        $this->items[$id]->checked = $check->usertimestamp > 0;
+                        $this->items[$id]->teachermark = $check->teachermark;
+                    } elseif ($this->useritems && isset($this->useritems[$id])) {
+                        $this->useritems[$id]->checked = $check->usertimestamp > 0;
+                        // User items never have a teacher mark to go with them
+                    }
                 }
             }
         }
@@ -911,6 +913,7 @@ class checklist_class {
         }
         $item->indent = $indent;
         $item->userid = $userid;
+        $item->itemoptional = false;
 
         $item->id = insert_record('checklist_item', $item);
         if ($item->id) {

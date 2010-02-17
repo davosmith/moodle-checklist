@@ -5,6 +5,9 @@ $string['additemalt'] = 'Add a new item to the list';
 $string['addownitems'] = 'Add your own items';
 $string['addownitems-stop'] = 'Stop adding your own items';
 $string['canceledititem'] = 'Cancel';
+
+$string['checkeditemsdeleted'] = 'Checked items deleted';
+
 $string['checklist'] = 'checklist';
 
 $string['checklist:edit'] = 'Create and edit checklists';
@@ -48,6 +51,8 @@ $string['reporttablesummary'] = 'Table showing the items on the checklist that e
 
 $string['requireditem'] = 'This item is required - it must be completed';
 
+$string['resetchecklistprogress'] = 'Reset checklist progress and user items';
+
 $string['savechecks'] = 'Save';
 
 $string['teacheredit'] = 'Effect of teacher editing check marks';
@@ -59,6 +64,7 @@ $string['theme'] = 'Checklist display theme';
 
 $string['updateitem'] = 'Update';
 $string['useritemsallowed'] = 'User can add their own items';
+$string['useritemsdeleted'] = 'User items deleted';
 
 $string['view'] = 'View Checklist';
 
