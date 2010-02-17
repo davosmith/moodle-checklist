@@ -9,18 +9,16 @@ ol.checklist li {
 }
 
 .checklistreport .head0 {
-    color: #FF0000;
-    font-weight: bolder;
-}
-
-.checklistreport .head1 {
-    color: #FF6060;
     font-weight: bold;
 }
 
-.checklistreport .head2 {
-    color: #FF9090;
+.checklistreport .head1 {
     font-weight: normal;
+}
+
+.checklistreport .head2 {
+    font-weight: normal;
+    font-style: italic;
 }
 
 .checklistreport .level0 {
