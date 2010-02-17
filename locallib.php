@@ -401,7 +401,7 @@ class checklist_class {
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
                     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                    echo '<input type="text" name="displaytext" value="'.$item->displaytext.'" />';
+                    echo '<input type="text" name="displaytext" value="'.s($item->displaytext).'" />';
                     echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                     echo '</form>';
                     echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
@@ -428,7 +428,7 @@ class checklist_class {
 
                     echo '&nbsp;';
                     
-                    // TODO more complex checks once there is indentation to worry about as well
+                    // TODO more complex checks to take into account indentation
                     if ($item->position > 1) {
                         echo '<a href="'.$baseurl.'moveitemup" />';
                         echo '<img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('moveitemup','checklist').'" /></a>';
@@ -440,7 +440,7 @@ class checklist_class {
                     }
 
                     echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
-                    echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt="'.get_string('moveitemdown','checklist').'" /></a>';
+                    echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt="'.get_string('deleteitem','checklist').'" /></a>';
                     
                     $lastindent = $currindent;
                 }

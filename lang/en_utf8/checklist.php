@@ -13,6 +13,8 @@ $string['checklist:viewreports'] = 'View students\' progress';
 $string['checklistintro'] = 'Introduction';
 $string['checklistsettings'] = 'Settings';
 
+$string['deleteitem'] = 'Delete item';
+
 $string['edit'] = 'Edit Checklist';
 
 $string['guestsno'] = 'You do not have permission to view this checklist';
