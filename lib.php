@@ -153,7 +153,7 @@ function checklist_cron () {
 function checklist_get_participants($checklistid) {
     global $CFG;
 
-    $sql = "SELECT DISTINCT u.id u.id FROM {$CFG->prefix}user u, {$CFG->prefix}checklist_item i, {$CFG->prefix}checklist_check c ";
+    $sql = "SELECT DISTINCT u.id, u.id FROM {$CFG->prefix}user u, {$CFG->prefix}checklist_item i, {$CFG->prefix}checklist_check c ";
     $sql .= "WHERE i.checklist = '$checklistid' AND ((c.item = i.id AND c.userid = u.id) OR (i.userid = u.id))";
 
     $return = get_records_sql($sql);

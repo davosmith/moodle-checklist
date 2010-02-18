@@ -19,6 +19,8 @@ $string['checklist:viewreports'] = 'View students\' progress';
 $string['checklistintro'] = 'Introduction';
 $string['checklistsettings'] = 'Settings';
 
+$string['checks'] = 'Check marks';
+
 $string['deleteitem'] = 'Delete this item';
 
 $string['edit'] = 'Edit Checklist';
@@ -28,7 +30,7 @@ $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['indentitem'] = 'Indent item';
 $string['itemcomplete'] = 'Completed';
-$string['unindentitem'] = 'Unindent item';
+$string['items'] = 'Checklist Items';
 
 $string['modulename'] = 'Checklist';
 $string['modulenameplural'] = 'Checklists';
@@ -62,6 +64,7 @@ $string['teacheralongsidecheck'] = 'Alongside user';
 
 $string['theme'] = 'Checklist display theme';
 
+$string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';
 $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';

@@ -655,10 +655,11 @@ class checklist_class {
             $table->skip[] = (!$this->showoptional) && $item->itemoptional;
         }
 
+        $ausers = false;
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
             $users = array_keys($users);
+            $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') ');
         }
-        $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') ');
 
         $table->data = array();
         if ($ausers) {
