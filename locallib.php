@@ -518,6 +518,7 @@ class checklist_class {
         $currindent = 0;
         echo '<ol class="checklist">';
         if ($this->items) {
+            $addatend = true;
             $lastitem = count($this->items);
             $lastindent = 0;
             foreach ($this->items as $item) {
@@ -598,22 +599,48 @@ class checklist_class {
                     $title = '"'.get_string('deleteitem','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt='.$title.' title='.$title.' /></a>';
                     
+                    echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem" />';
+                    $title = '"'.get_string('additemhere','checklist').'"';
+                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
+
+                    if (isset($item->addafter)) {
+                        $addatend = false;
+                        echo '<li>';
+                        echo '<form style="display:inline;" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
+                        echo '<input type="hidden" name="action" value="additem" />';
+                        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                        echo '<input type="hidden" name="position" value="'.($item->position+1).'" />';
+                        echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
+                        echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+                        echo '<input type="checkbox" disabled="disabled" />';
+                        echo '<input type="text" name="displaytext" value="" />';
+                        echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
+                        echo '</form>';
+                        echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
+                        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                        echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
+                        echo '</form>';
+                        echo '</li>';
+                    }
+
                     $lastindent = $currindent;
                 }
                 
                 echo '</li>';
             }
         }
-        echo '<li>';
-        echo '<form action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
-        echo '<input type="hidden" name="action" value="additem" />';
-        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-        echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
-        echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        echo '<input type="text" name="displaytext" value="" />';
-        echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
-        echo '</form>';
-        echo '</li>';
+        if ($addatend) {
+            echo '<li>';
+            echo '<form action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
+            echo '<input type="hidden" name="action" value="additem" />';
+            echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+            echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
+            echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+            echo '<input type="text" name="displaytext" value="" />';
+            echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
+            echo '</form>';
+            echo '</li>';
+        }
         echo '</ol>';
         while ($currindent) {
             $currindent--;
@@ -837,7 +864,13 @@ class checklist_class {
         case 'additem':
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
             $indent = optional_param('indent', 0, PARAM_INT);
-            $this->additem($displaytext, 0, $indent);
+            $position = optional_param('position', false, PARAM_INT);
+            $this->additem($displaytext, 0, $indent, $position);
+            break;
+        case 'startadditem':
+            if (isset($this->items[$itemid])) {
+                $this->items[$itemid]->addafter = true;
+            }
             break;
         case 'edititem':
             if (isset($this->items[$itemid])) {
@@ -926,6 +959,7 @@ class checklist_class {
                 }
             } else {
                 if ($position) {
+                    $item->addafter = true;
                     $this->update_item_positions(1, $position);
                 }
                 $this->items[$item->id] = $item;

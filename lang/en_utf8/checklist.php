@@ -2,6 +2,7 @@
 
 $string['additem'] = 'Add';
 $string['additemalt'] = 'Add a new item to the list';
+$string['additemhere'] = 'Insert new item after this one';
 $string['addownitems'] = 'Add your own items';
 $string['addownitems-stop'] = 'Stop adding your own items';
 $string['canceledititem'] = 'Cancel';
