@@ -516,9 +516,9 @@ class checklist_class {
         print_box_start('generalbox boxwidthnormal boxaligncenter');
         
         $currindent = 0;
+        $addatend = true;
         echo '<ol class="checklist">';
         if ($this->items) {
-            $addatend = true;
             $lastitem = count($this->items);
             $lastindent = 0;
             foreach ($this->items as $item) {
