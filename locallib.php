@@ -953,6 +953,7 @@ class checklist_class {
         $item->itemoptional = false;
 
         $item->id = insert_record('checklist_item', $item);
+        $item->displaytext = stripslashes($displaytext);
         if ($item->id) {
             if ($userid) {
                 $this->useritems[$item->id] = $item;
