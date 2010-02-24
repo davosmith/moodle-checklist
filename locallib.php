@@ -516,7 +516,7 @@ class checklist_class {
     function view_edit_items() {
         global $CFG;
         
-        print_box_start('generalbox boxwidthnormal boxaligncenter');
+        print_box_start('generalbox boxwidthwide boxaligncenter');
         
         $currindent = 0;
         $addatend = true;
