@@ -135,7 +135,10 @@ class checklist_class {
             if ($item->position != $pos) {
                 $oldpos = $item->position;
                 $item->position = $pos;
-                update_record('checklist_item', $item);
+                $upditem = new stdClass;
+                $upditem->id = $item->id;
+                $upditem->position = $pos;
+                update_record('checklist_item', $upditem);
                 if ($oldpos == $end) {
                     break;
                 }
@@ -976,13 +979,19 @@ class checklist_class {
 
         if (isset($this->items[$itemid])) {
             if ($this->canedit()) {
-                $this->items[$itemid]->displaytext = $displaytext;
-                update_record('checklist_item', $this->items[$itemid]);
+                $this->items[$itemid]->displaytext = stripslashes($displaytext);
+                $upditem = new stdClass;
+                $upditem->id = $itemid;
+                $upditem->displaytext = $displaytext;
+                update_record('checklist_item', $upditem);
             }
         } elseif (isset($this->useritems[$itemid])) {
             if ($this->canaddown()) {
-                $this->useritems[$itemid]->displaytext = $displaytext;
-                update_record('checklist_item', $this->useritems[$itemid]);
+                $this->useritems[$itemid]->displaytext = stripslashes($displaytext);
+                $upditem = new stdClass;
+                $upditem->id = $itemid;
+                $upditem->displaytext = $displaytext;
+                update_record('checklist_item', $upditem);
             }
         }
     }
@@ -1014,7 +1023,10 @@ class checklist_class {
             if (isset($this->useritems[$itemid])) {
                 if ($this->canupdateown()) {
                     $this->useritems[$itemid]->position = $newposition;
-                    update_record('checklist_item', $this->useritems[$itemid]);
+                    $upditem = new stdClass;
+                    $upditem->id = $itemid;
+                    $upditem->position = $newposition;
+                    update_record('checklist_item', $upditem);
                 }
             }
             return;
@@ -1044,7 +1056,10 @@ class checklist_class {
         
         $this->items[$itemid]->position = $newposition; // Move item to new position
         uasort($this->items, 'checklist_itemcompare'); // Sort the array by position
-        update_record('checklist_item', $this->items[$itemid]); // Update the database
+        $upditem = new stdClass;
+        $upditem->id = $itemid;
+        $upditem->position = $newposition;
+        update_record('checklist_item', $upditem); // Update the database
     }
 
     function moveitemup($itemid) {
@@ -1093,15 +1108,21 @@ class checklist_class {
         if ($adjust == 0) {
             return;
         }
-        $this->items[$itemid]->indent = $indent;        
-        update_record('checklist_item', $this->items[$itemid]);
+        $this->items[$itemid]->indent = $indent;
+        $upditem = new stdClass;
+        $upditem->id = $itemid;
+        $upditem->indent = $indent;
+        update_record('checklist_item', $upditem);
 
         // Update all 'children' of this item to new indent
         foreach ($this->items as $item) {
             if ($item->position > $position) {
                 if ($item->indent > $oldindent) {
                     $item->indent += $adjust;
-                    update_record('checklist_item', $item);
+                    $upditem = new stdClass;
+                    $upditem->id = $item->id;
+                    $upditem->indent = $item->indent;
+                    update_record('checklist_item', $upditem);
                 } else {
                     break;
                 }
@@ -1131,7 +1152,10 @@ class checklist_class {
         }
 
         $this->items[$itemid]->itemoptional = $optional;
-        update_record('checklist_item', $this->items[$itemid]);
+        $upditem = new stdClass;
+        $upditem->id = $itemid;
+        $upditem->optional = $optional;
+        update_record('checklist_item', $upditem);
     }
 
     function updatechecks() {
