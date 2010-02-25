@@ -66,9 +66,9 @@ ol.checklist .itemoptional {
 }
 
 .checklist_progress_inner {
-    background-color: #c0c0c0;
+    background-color: #229b15;
     height: 100%;
     width: 100%;
-    background-repeate: repeat-y;
-    background-position: left;
+    background-repeate: repeat-x;
+    background-position: top;
 }
