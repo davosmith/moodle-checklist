@@ -15,9 +15,9 @@
  *     actions across all modules.
  */
 
-define("CHECKLIST_TEACHERMARK_NO", 0); 
+define("CHECKLIST_TEACHERMARK_NO", 2); 
 define("CHECKLIST_TEACHERMARK_YES", 1);
-define("CHECKLIST_TEACHERMARK_UNDECIDED", 2);
+define("CHECKLIST_TEACHERMARK_UNDECIDED", 0);
 
 define("CHECKLIST_MAX_INDENT", 10);
 
