@@ -339,6 +339,14 @@ class checklist_class {
             }
             $totalitems++;
         }
+        if ($this->useritems) {
+            foreach ($this->useritems as $item) {
+                if ($item->checked) {
+                    $allcompleteitems++;
+                }
+                $totalitems++;
+            }
+        }
         if ($totalitems == 0) {
             return;
         }
