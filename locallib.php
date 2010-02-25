@@ -205,7 +205,7 @@ class checklist_class {
         $this->view_tabs($currenttab);
 
         if ((!$this->items) && $this->canedit()) {
-            redirect($CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id, get_string('noitems','checklist'));
+            redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id, get_string('noitems','checklist'));
         }
 
         add_to_log($this->course->id, 'checklist', 'view', "view.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);        
@@ -224,7 +224,7 @@ class checklist_class {
         global $CFG;
         
         if (!$this->canedit()) {
-            redirect($CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->context->id);
+            redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
         }
 
         add_to_log($this->course->id, "checklist", "edit", "edit.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
@@ -246,7 +246,7 @@ class checklist_class {
         global $CFG;
 
         if (!$this->canviewreports()) {
-            redirect($CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->context->id);
+            redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
         }
 
         add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
@@ -284,15 +284,15 @@ class checklist_class {
         $activated = array();
 
         if ($this->canupdateown()) {
-            $row[] = new tabobject('view', "$CFG->wwwroot/mod/checklist/view.php?checklist={$this->checklist->id}", get_string('view', 'checklist'));
+            $row[] = new tabobject('view', "$CFG->wwwroot/mod/checklist/view.php?id={$this->cm->id}", get_string('view', 'checklist'));
         } elseif ($this->canpreview()) {
-            $row[] = new tabobject('preview', "$CFG->wwwroot/mod/checklist/view.php?checklist={$this->checklist->id}", get_string('preview', 'checklist'));
+            $row[] = new tabobject('preview', "$CFG->wwwroot/mod/checklist/view.php?id={$this->cm->id}", get_string('preview', 'checklist'));
         }
         if ($this->canviewreports()) {
-            $row[] = new tabobject('report', "$CFG->wwwroot/mod/checklist/report.php?checklist={$this->checklist->id}", get_string('report', 'checklist'));
+            $row[] = new tabobject('report', "$CFG->wwwroot/mod/checklist/report.php?id={$this->cm->id}", get_string('report', 'checklist'));
         }
         if ($this->canedit()) {
-            $row[] = new tabobject('edit', "$CFG->wwwroot/mod/checklist/edit.php?checklist={$this->checklist->id}", get_string('edit', 'checklist'));
+            $row[] = new tabobject('edit', "$CFG->wwwroot/mod/checklist/edit.php?id={$this->cm->id}", get_string('edit', 'checklist'));
         }
 
         if ($currenttab == 'view' && count($row) == 1) {
@@ -405,7 +405,7 @@ class checklist_class {
                     echo '</form>';
                 }
                 echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
-                echo '<input type="hidden" name="checklist" value="'.$this->checklist->id.'" />';
+                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                 echo '<input type="hidden" name="action" value="updatechecks" />';
                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                 if ($addown) {
@@ -435,7 +435,7 @@ class checklist_class {
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
 
                 if ($addown) {
-                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
                     echo '&nbsp;<a href="'.$baseurl.'startadditem" />';
                     $title = '"'.get_string('additemalt','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
@@ -473,7 +473,7 @@ class checklist_class {
                                 echo '<label class="useritem" for='.$itemname.'>'.s($useritem->displaytext).'</label>';
 
                                 if ($addown) {
-                                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?checklist='.$this->checklist->id.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem" />';
                                     $title = '"'.get_string('edititem','checklist').'"';
                                     echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt='.$title.' title='.$title.' /></a>';
@@ -544,7 +544,7 @@ class checklist_class {
                 }
 
                 $itemname = '"item'.$item->id.'"';
-                $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?checklist='.$this->checklist->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
 
                 echo '<li>';
                 if ($item->itemoptional) {
@@ -664,12 +664,12 @@ class checklist_class {
     function view_report() {
         global $CFG;
 
-        $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?checklist='.$this->checklist->id;
+        $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
 
         echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="get" />';
-        echo '<input type="hidden" name="checklist" value="'.$this->checklist->id.'" />';
+        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
         if ($this->showoptional) {
             echo '<input type="hidden" name="action" value="hideoptional" />';
             echo '<input type="submit" name="submit" value="'.get_string('optionalhide','checklist').'" />';
