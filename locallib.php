@@ -1163,7 +1163,7 @@ class checklist_class {
         $this->items[$itemid]->itemoptional = $optional;
         $upditem = new stdClass;
         $upditem->id = $itemid;
-        $upditem->optional = $optional;
+        $upditem->itemoptional = $optional;
         update_record('checklist_item', $upditem);
     }
 
