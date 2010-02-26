@@ -22,6 +22,7 @@ class checklist_class {
     var $useritems;
     var $useredit;
     var $showoptional;
+    var $sortby;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
         global $COURSE;
@@ -670,6 +671,7 @@ class checklist_class {
 
         echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="get" />';
         echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+        echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
         if ($this->showoptional) {
             echo '<input type="hidden" name="action" value="hideoptional" />';
             echo '<input type="submit" name="submit" value="'.get_string('optionalhide','checklist').'" />';
@@ -693,10 +695,28 @@ class checklist_class {
             $table->skip[] = (!$this->showoptional) && $item->itemoptional;
         }
 
+        switch ($this->sortby) {
+        case 'firstdesc':
+            $orderby = 'ORDER BY u.firstname DESC';
+            break;
+
+        case 'lastasc':
+            $orderby = 'ORDER BY u.lastname';
+            break;
+
+        case 'lastdesc':
+            $orderby = 'ORDER BY u.lastname DESC';
+            break;
+            
+        default:
+            $orderby = 'ORDER BY u.firstname';
+            break;
+        }
+        
         $ausers = false;
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
             $users = array_keys($users);
-            $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') ');
+            $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
         }
 
         $table->data = array();
@@ -921,6 +941,7 @@ class checklist_class {
 
     function process_report_actions() {
         $this->showoptional = true;
+        $this->sortby = optional_param('sortby', 'firstasc', PARAM_TEXT);
         
         $action = optional_param('action', false, PARAM_TEXT);
         if (!$action) {
