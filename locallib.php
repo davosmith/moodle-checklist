@@ -182,6 +182,10 @@ class checklist_class {
     function view() {
         global $CFG;
         
+        $this->view_header();
+
+        print_heading(format_string($this->checklist->name));
+
         if ($this->canupdateown()) {
             $currenttab = 'view';
         } elseif ($this->canpreview()) {
@@ -194,13 +198,9 @@ class checklist_class {
             echo '<br/>';
             notice_yesno('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n</p>" .
                          get_string('liketologin') . '</p>', $loginurl, get_referer(false));
-            print_footer($course);
+            print_footer($this->course);
             die;
         }
-
-        $this->view_header();
-
-        print_heading(format_string($this->checklist->name));
 
         $this->view_tabs($currenttab);
 
