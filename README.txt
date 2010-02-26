@@ -32,7 +32,13 @@ Click on 'Results', to see a chart of how the students are currently progressing
 Students can now log in, click on the checklist, tick any items they have completed and then click 'Save' to update the database.
 If you have allowed them to do so, they can click on 'Start Adding Items', then click on the green '+' icons to insert their own, private items to the list.
 
+**Further information**
+Moodle plugins database entry: http://moodle.org/mod/data/view.php?d=13&rid=3582
+Browse the code: http://cvs.moodle.org/contrib/plugins/mod/checklist
+Download the latest version: http://download.moodle.org/download.php/plugins/mod/checklist.zip
+Report a bug, or suggest an improvement: http://tracker.moodle.org/browse/CONTRIB/component/10608
+
 **Contact details**
-Any bugs or suggestions for improvement to:
+Any questions to:
 moodle@davosmith.co.uk
 
