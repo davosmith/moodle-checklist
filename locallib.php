@@ -432,7 +432,7 @@ class checklist_class {
                 $itemname = '"item'.$item->id.'"';
                 $checked = ($updateform && $item->checked) ? ' checked="checked" ' : '';
                 $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
-                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
+                echo '<li><input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
 
                 if ($addown) {
@@ -454,7 +454,7 @@ class checklist_class {
                             $itemname = '"item'.$useritem->id.'"';
                             $checked = ($updateform && $useritem->checked) ? ' checked="checked" ' : '';
                             if (isset($useritem->editme)) {
-                                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' disabled="disabled" />';
+                                echo '<li><input type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
                                 echo '<input type="hidden" name="action" value="updateitem" />';
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
@@ -470,7 +470,7 @@ class checklist_class {
                                 echo '</form>';
                                 echo '</li>';
                             } else {
-                                echo '<li><input type="checkbox" name='.$itemname.' id='.$itemname.$checked.' />';
+                                echo '<li><input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
                                 echo '<label class="useritem" for='.$itemname.'>'.s($useritem->displaytext).'</label>';
 
                                 if ($addown) {
@@ -1189,21 +1189,15 @@ class checklist_class {
     }
 
     function updatechecks() {
-        $newchecks = array();
-        
-        foreach ($_REQUEST as $param => $val) {
-            if (substr($param, 0, 4) == 'item') {
-                $id = intval(substr($param, 4));
-                $newval = clean_param($param, PARAM_BOOL);
-
-                $newchecks[$id] = $newval;
-                
-            }
+        $newchecks = optional_param('items', array(), PARAM_INT);
+        if (!is_array($newchecks)) {
+            // Something has gone wrong, so update nothing
+            return;
         }
-
+        
         if ($this->items) {
             foreach ($this->items as $item) {
-                $newval = isset($newchecks[$item->id]) && $newchecks[$item->id];
+                $newval = in_array($item->id, $newchecks);
 
                 if ($newval != $item->checked) {
                     $item->checked = $newval;
@@ -1233,7 +1227,7 @@ class checklist_class {
         }
         if ($this->useritems) {
             foreach ($this->useritems as $item) {
-                $newval = isset($newchecks[$item->id]) && $newchecks[$item->id];
+                $newval = in_array($item->id, $newchecks);
 
                 if ($newval != $item->checked) {
                     $item->checked = $newval;
