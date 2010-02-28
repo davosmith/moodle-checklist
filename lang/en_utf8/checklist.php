@@ -26,14 +26,14 @@ $string['checks'] = 'Check marks';
 
 $string['deleteitem'] = 'Delete this item';
 
-$string['edit'] = 'Edit Checklist';
+$string['edit'] = 'Edit checklist';
 $string['edititem'] = 'Edit this item';
 
 $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['indentitem'] = 'Indent item';
 $string['itemcomplete'] = 'Completed';
-$string['items'] = 'Checklist Items';
+$string['items'] = 'Checklist items';
 
 $string['modulename'] = 'Checklist';
 $string['modulenameplural'] = 'Checklists';
@@ -44,11 +44,11 @@ $string['moveitemup'] = 'Move item up';
 $string['noitems'] = 'No items in the checklist';
 
 $string['optionalitem'] = 'This item is optional';
-$string['optionalhide'] = 'Hide Optional Items';
-$string['optionalshow'] = 'Show Optional Items';
+$string['optionalhide'] = 'Hide optional items';
+$string['optionalshow'] = 'Show optional items';
 
-$string['percentcomplete'] = 'Required Items';
-$string['percentcompleteall'] = 'All Items';
+$string['percentcomplete'] = 'Required items';
+$string['percentcompleteall'] = 'All items';
 $string['preview'] = 'Preview';
 
 $string['report'] = 'View Progress';
@@ -60,10 +60,10 @@ $string['resetchecklistprogress'] = 'Reset checklist progress and user items';
 
 $string['savechecks'] = 'Save';
 
-$string['teacheredit'] = 'Updated by';
+$string['teacheredit'] = 'Updates by';
 $string['teachernoteditcheck'] = 'Student only';
 $string['teacheroverwritecheck'] = 'Teacher only';
-$string['teacheralongsidecheck'] = 'Student and Teacher';
+$string['teacheralongsidecheck'] = 'Student and teacher';
 
 $string['theme'] = 'Checklist display theme';
 
@@ -72,12 +72,12 @@ $string['updateitem'] = 'Update';
 $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 
-$string['view'] = 'View Checklist';
-$string['viewall'] = 'View All';
+$string['view'] = 'View checklist';
+$string['viewall'] = 'View all';
 $string['viewallcancel'] = 'Cancel';
 $string['viewallsave'] = 'Save';
 
-$string['viewsinglereport'] = 'View Progress for this User';
-$string['viewsingleupdate'] = 'Update Progress for this User';
+$string['viewsinglereport'] = 'View progress for this user';
+$string['viewsingleupdate'] = 'Update progress for this user';
 
 ?>
