@@ -60,10 +60,10 @@ $string['resetchecklistprogress'] = 'Reset checklist progress and user items';
 
 $string['savechecks'] = 'Save';
 
-$string['teacheredit'] = 'Effect of teacher editing check marks';
-$string['teachernoteditcheck'] = 'Not allowed';
-$string['teacheroverwritecheck'] = 'Override user';
-$string['teacheralongsidecheck'] = 'Alongside user';
+$string['teacheredit'] = 'Updated by';
+$string['teachernoteditcheck'] = 'Student only';
+$string['teacheroverwritecheck'] = 'Teacher only';
+$string['teacheralongsidecheck'] = 'Student and Teacher';
 
 $string['theme'] = 'Checklist display theme';
 

@@ -59,14 +59,15 @@ class mod_checklist_mod_form extends moodleform_mod {
         $ynoptions = array( 0 => get_string('no'), 1 => get_string('yes'));
         $mform->addElement('select', 'useritemsallowed', get_string('useritemsallowed', 'checklist'), $ynoptions);
 
-        // These settings are all disabled, as they are not currently implemented
-        /*
         $teditoptions = array();
         $teditoptions[0] = get_string('teachernoteditcheck','checklist');
         $teditoptions[1] = get_string('teacheroverwritecheck', 'checklist');
         $teditoptions[2] = get_string('teacheralongsidecheck', 'checklist');
         $mform->addElement('select', 'teacheredit', get_string('teacheredit', 'checklist'), $teditoptions);
 
+        // These settings are all disabled, as they are not currently implemented
+        
+        /*
         $themes = array('default' => 'default');
         $mform->addElement('select', 'theme', get_string('theme', 'checklist'), $themes);
         */
