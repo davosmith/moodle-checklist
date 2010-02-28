@@ -15,7 +15,7 @@
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="introformat" NEXT="timemodified"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="timecreated" NEXT="useritemsallowed"/>
         <FIELD NAME="useritemsallowed" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="Whether or not users are allowed to add their own items to the checklist" PREVIOUS="timemodified" NEXT="teacheredit"/>
-        <FIELD NAME="teacheredit" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="2" SEQUENCE="false" ENUM="false" COMMENT="Whether a teacher can: 0 - not update check marks; 1 - override check marks; 2 - add extra check marks beside the user's mark" PREVIOUS="useritemsallowed" NEXT="theme"/>
+        <FIELD NAME="teacheredit" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Whether the marking will be done by: 0 - students only (default), 1 - teacher only; 2 - both teacher and student" PREVIOUS="useritemsallowed" NEXT="theme"/>
         <FIELD NAME="theme" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="default" SEQUENCE="false" ENUM="false" COMMENT="The theme chosen to display the checklist to the users" PREVIOUS="teacheredit"/>
       </FIELDS>
       <KEYS>

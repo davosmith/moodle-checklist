@@ -60,7 +60,13 @@ $string['resetchecklistprogress'] = 'Reset checklist progress and user items';
 
 $string['savechecks'] = 'Save';
 
+
 $string['teacheredit'] = 'Updates by';
+
+$string['teachermarkundecided'] = 'Teacher has not yet marked this';
+$string['teachermarkyes'] = 'Teacher states that you have completed this';
+$string['teachermarkno'] = 'Teacher states that you have NOT completed this';
+
 $string['teachernoteditcheck'] = 'Student only';
 $string['teacheroverwritecheck'] = 'Teacher only';
 $string['teacheralongsidecheck'] = 'Student and teacher';
@@ -73,7 +79,7 @@ $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 
 $string['view'] = 'View checklist';
-$string['viewall'] = 'View all';
+$string['viewall'] = 'View all progress';
 $string['viewallcancel'] = 'Cancel';
 $string['viewallsave'] = 'Save';
 

@@ -55,6 +55,18 @@ ol.checklist .itemoptional {
     background-color: #00bf00;
 }
 
+.checklistreport .level0-unchecked {
+    background-color: #ff0000;
+}
+
+.checklistreport .level1-unchecked {
+    background-color: #df0000;
+}
+
+.checklistreport .level2-unchecked {
+    background-color: #bf0000;
+}
+
 .checklist_progress_outer {
     border-width: 1px;
     border-style: solid;

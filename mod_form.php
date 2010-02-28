@@ -60,9 +60,9 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('select', 'useritemsallowed', get_string('useritemsallowed', 'checklist'), $ynoptions);
 
         $teditoptions = array();
-        $teditoptions[0] = get_string('teachernoteditcheck','checklist');
-        $teditoptions[1] = get_string('teacheroverwritecheck', 'checklist');
-        $teditoptions[2] = get_string('teacheralongsidecheck', 'checklist');
+        $teditoptions[CHECKLIST_MARKING_STUDENT] = get_string('teachernoteditcheck','checklist');
+        $teditoptions[CHECKLIST_MARKING_TEACHER] = get_string('teacheroverwritecheck', 'checklist');
+        $teditoptions[CHECKLIST_MARKING_BOTH] = get_string('teacheralongsidecheck', 'checklist');
         $mform->addElement('select', 'teacheredit', get_string('teacheredit', 'checklist'), $teditoptions);
 
         // These settings are all disabled, as they are not currently implemented
