@@ -17,6 +17,8 @@ $string['checklist:updateother'] = 'Update students\' checklist marks';
 $string['checklist:updateown'] = 'Update your checklist marks';
 $string['checklist:viewreports'] = 'View students\' progress';
 
+$string['checklistfor'] = 'Checklist for';
+
 $string['checklistintro'] = 'Introduction';
 $string['checklistsettings'] = 'Settings';
 
@@ -71,5 +73,11 @@ $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 
 $string['view'] = 'View Checklist';
+$string['viewall'] = 'View All';
+$string['viewallcancel'] = 'Cancel';
+$string['viewallsave'] = 'Save';
+
+$string['viewsinglereport'] = 'View Progress for this User';
+$string['viewsingleupdate'] = 'Update Progress for this User';
 
 ?>

@@ -90,7 +90,7 @@ class checklist_class {
         }
 
         // Load the currently checked-off items
-        if ($this->userid && $this->canupdateown()) {
+        if ($this->userid && ($this->canupdateown() || $this->canviewreports() )) {
 
             $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
             $sql .= 'ON (i.id = c.item AND c.userid = '.$this->userid.') WHERE i.checklist = '.$this->checklist->id;
@@ -260,7 +260,11 @@ class checklist_class {
 
         $this->process_report_actions();
 
-        $this->view_report();
+        if ($this->userid) {
+            $this->view_items(true);
+        } else {
+            $this->view_report();
+        }
         
         $this->view_footer();
     }
@@ -376,17 +380,26 @@ class checklist_class {
         echo '<br style="clear:both"/>';
     }
 
-    function view_items() {
+    function view_items($viewother = false) {
         global $CFG;
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
 
+        $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
+        if ($viewother) {
+            $thispage = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
+            if (!$student = get_record('user', 'id', $this->userid)) {
+                error('No such user!');
+            }
+            echo '<h2>'.get_string('checklistfor','checklist').' '.fullname($student, true).'</h2>';
+        }
+
         echo '<p>'.format_string($this->checklist->intro, $this->checklist->introformat).'</p>';
 
-        if ($this->canupdateown()) {
+        if ($this->canupdateown() || $viewother) {
             $this->view_progressbar();
         }
-        
+
         if (!$this->items) {
             print_string('noitems','checklist');
         } else {
@@ -394,7 +407,7 @@ class checklist_class {
             $addown = $this->canaddown() && $this->useredit;
             if ($updateform) {
                 if ($this->canaddown()) {
-                    echo '<form style="display:inline;" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="get">';
+                    echo '<form style="display:inline;" action="'.$thispage.'" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     if ($addown) {
                         echo '<input type="hidden" name="useredit" value="off" />';
@@ -405,7 +418,7 @@ class checklist_class {
                     }
                     echo '</form>';
                 }
-                echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
+                echo '<form action="'.$thispage.'" method="post">';
                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                 echo '<input type="hidden" name="action" value="updatechecks" />';
                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
@@ -430,13 +443,16 @@ class checklist_class {
                     echo '</ol>';
                 }
                 $itemname = '"item'.$item->id.'"';
-                $checked = ($updateform && $item->checked) ? ' checked="checked" ' : '';
+                $checked = (($updateform || $viewother) && $item->checked) ? ' checked="checked" ' : '';
+                if ($viewother) {
+                    $checked .= ' disabled="disabled" ';
+                }
                 $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
                 echo '<li><input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
 
                 if ($addown) {
-                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                    $baseurl = $thispage.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
                     echo '&nbsp;<a href="'.$baseurl.'startadditem" />';
                     $title = '"'.get_string('additemalt','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
@@ -455,7 +471,7 @@ class checklist_class {
                             $checked = ($updateform && $useritem->checked) ? ' checked="checked" ' : '';
                             if (isset($useritem->editme)) {
                                 echo '<li><input type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
-                                echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
+                                echo '<form style="display:inline" action="'.$thispage.'" method="post">';
                                 echo '<input type="hidden" name="action" value="updateitem" />';
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
@@ -463,7 +479,7 @@ class checklist_class {
                                 echo '<input type="text" name="displaytext" value="'.s($useritem->displaytext).'" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '</form>';
-                                echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="get">';
+                                echo '<form style="display:inline" action="'.$thispage.'" method="get">';
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="useredit" value="on" />';
                                 echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
@@ -474,7 +490,7 @@ class checklist_class {
                                 echo '<label class="useritem" for='.$itemname.'>'.s($useritem->displaytext).'</label>';
 
                                 if ($addown) {
-                                    $baseurl = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                                    $baseurl = $thispage.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem" />';
                                     $title = '"'.get_string('edititem','checklist').'"';
                                     echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt='.$title.' title='.$title.' /></a>';
@@ -494,7 +510,7 @@ class checklist_class {
 
                 if ($addown && isset($item->addafter)) {
                     echo '<ol class="checklist"><li>';
-                    echo '<form action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="post">';
+                    echo '<form action="'.$thispage.'" method="post">';
                     echo '<input type="hidden" name="action" value="additem" />';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="position" value="'.$item->position.'" />';
@@ -503,7 +519,7 @@ class checklist_class {
                     echo '<input type="text" name="displaytext" value="" />';
                     echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
                     echo '</form>';
-                    echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/view.php" method="get">';
+                    echo '<form style="display:inline" action="'.$thispage.'" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="useredit" value="on" />';
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
@@ -517,6 +533,13 @@ class checklist_class {
                 echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 echo '</form>';
             }
+        }
+
+        if ($viewother) {
+            echo '<form action="'.$thispage.'" method="get">';
+            echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+            echo '<input type="submit" name="viewall" value="'.get_string('viewall','checklist').'" />';
+            echo '</form>';
         }
 
         print_box_end();
@@ -666,6 +689,8 @@ class checklist_class {
         global $CFG;
 
         $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
+        $thisurl .= $this->showoptional ? '' : '&amp;action=hideoptional';
+
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
 
@@ -723,7 +748,12 @@ class checklist_class {
         if ($ausers) {
             foreach ($ausers as $auser) {
                 $row = array();
-                $row[] = fullname($auser);
+                
+                $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
+                $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
+                $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
+
+                $row[] = fullname($auser).$vslink;
 
                 $sql = 'SELECT i.id, c.usertimestamp FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
                 $sql .= 'ON (i.id = c.item AND c.userid = '.$auser->id.') WHERE i.checklist = '.$this->checklist->id.' AND i.userid=0 ORDER BY i.position';

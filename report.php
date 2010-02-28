@@ -13,6 +13,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $checklist  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
+$studentid = optional_param('studentid', false, PARAM_INT);
 
 if ($id) {
     if (! $cm = get_coursemodule_from_id('checklist', $id)) {
@@ -44,7 +45,7 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-$chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
+$chk = new checklist_class($cm->id, $studentid, $checklist, $cm, $course);
 
 $chk->report();
 
