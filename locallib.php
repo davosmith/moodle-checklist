@@ -23,6 +23,7 @@ class checklist_class {
     var $useredit;
     var $showoptional;
     var $sortby;
+    var $additemafter;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
         global $COURSE;
@@ -577,7 +578,7 @@ class checklist_class {
                     }
                 }
 
-                if ($addown && isset($item->addafter)) {
+                if ($addown && ($item->id == $this->additemafter)) {
                     echo '<ol class="checklist"><li>';
                     echo '<form action="'.$thispage.'" method="post">';
                     echo '<input type="hidden" name="action" value="additem" />';
@@ -613,7 +614,7 @@ class checklist_class {
         global $CFG;
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
-        
+
         $currindent = 0;
         $addatend = true;
         echo '<ol class="checklist">';
@@ -632,7 +633,9 @@ class checklist_class {
                 }
 
                 $itemname = '"item'.$item->id.'"';
-                $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
+                $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey();
+                $baseurl .= ($this->additemafter) ? '&amp;additemafter='.$this->additemafter : '';
+                $baseurl .= '&amp;action=';
 
                 echo '<li>';
                 if ($item->itemoptional) {
@@ -702,7 +705,7 @@ class checklist_class {
                     $title = '"'.get_string('additemhere','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
 
-                    if (isset($item->addafter)) {
+                    if ($this->additemafter == $item->id) {
                         $addatend = false;
                         echo '<li>';
                         echo '<form style="display:inline;" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
@@ -956,9 +959,7 @@ class checklist_class {
             break;
 
         case 'startadditem':
-            if (isset($this->items[$itemid])) {
-                $this->items[$itemid]->addafter = true;
-            }
+            $this->additemafter = $itemid;
             break;
             
         case 'edititem':
@@ -973,7 +974,7 @@ class checklist_class {
             $this->additem($displaytext, $this->userid, 0, $position);
             $item = $this->get_item_at_position($position);
             if ($item) {
-                $item->addafter = true;
+                $this->additemafter = $item->id;
             }
             break;
 
@@ -1005,6 +1006,7 @@ class checklist_class {
             error('Invalid sesskey');
         }
 
+        $additemafter = optional_param('additemafter', false, PARAM_INT);
         $itemid = optional_param('itemid', 0, PARAM_INT);
 
         switch ($action) {
@@ -1013,11 +1015,12 @@ class checklist_class {
             $indent = optional_param('indent', 0, PARAM_INT);
             $position = optional_param('position', false, PARAM_INT);
             $this->additem($displaytext, 0, $indent, $position);
+            if ($position) {
+                $additemafter = false;
+            }
             break;
         case 'startadditem':
-            if (isset($this->items[$itemid])) {
-                $this->items[$itemid]->addafter = true;
-            }
+            $additemafter = $itemid;
             break;
         case 'edititem':
             if (isset($this->items[$itemid])) {
@@ -1052,6 +1055,10 @@ class checklist_class {
             
         default:
             error('Invalid action - "'.s($action).'"');
+        }
+
+        if ($additemafter) {
+            $this->additemafter = $additemafter;
         }
     }
 
@@ -1110,7 +1117,7 @@ class checklist_class {
                 }
             } else {
                 if ($position) {
-                    $item->addafter = true;
+                    $this->additemafter = $item->id;
                     $this->update_item_positions(1, $position);
                 }
                 $this->items[$item->id] = $item;
