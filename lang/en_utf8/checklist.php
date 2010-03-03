@@ -60,6 +60,8 @@ $string['resetchecklistprogress'] = 'Reset checklist progress and user items';
 
 $string['savechecks'] = 'Save';
 
+$string['showfulldetails'] = 'Show full details';
+$string['showprogressbars'] = 'Show progress bars';
 
 $string['teacheredit'] = 'Updates by';
 

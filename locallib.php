@@ -420,6 +420,7 @@ class checklist_class {
 
         $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
         if ($viewother) {
+            $showbars = optional_param('showbars',false,PARAM_BOOL);
             $thispage = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
             if (!$student = get_record('user', 'id', $this->userid)) {
                 error('No such user!');
@@ -427,6 +428,7 @@ class checklist_class {
             echo '<h2>'.get_string('checklistfor','checklist').' '.fullname($student, true);
             echo '&nbsp;<form style="display: inline;" action="'.$thispage.'" method="get">';
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+            echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
             echo '<input type="submit" name="viewall" value="'.get_string('viewall','checklist').'" />';
             echo '</form>';
             echo '</h2>';
@@ -755,8 +757,11 @@ class checklist_class {
     function view_report() {
         global $CFG;
 
+        $showbars = optional_param('showbars', false, PARAM_BOOL);
+
         $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
         $thisurl .= $this->showoptional ? '' : '&amp;action=hideoptional';
+        $thisurl .= $showbars ? '&amp;showbars=on' : '';
 
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
@@ -764,6 +769,7 @@ class checklist_class {
         echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="get" />';
         echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
         echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
+        echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
         if ($this->showoptional) {
             echo '<input type="hidden" name="action" value="hideoptional" />';
             echo '<input type="submit" name="submit" value="'.get_string('optionalhide','checklist').'" />';
@@ -773,19 +779,20 @@ class checklist_class {
         }
         echo '</form>';
         
-        echo '<br style="clear:both"/>';
 
-        $table = new stdClass;
-        $table->head = array(get_string('fullname'));
-        $table->level = array(-1);
-        $table->size = array('100px');
-        $table->skip = array(false);
-        foreach ($this->items as $item) {
-            $table->head[] = s($item->displaytext);
-            $table->level[] = ($item->indent < 3) ? $item->indent : 2;
-            $table->size[] = '80px';
-            $table->skip[] = (!$this->showoptional) && $item->itemoptional;
+        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="get" />';
+        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+        echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
+        echo $this->showoptional ? '' : '<input type="hidden" name="action" value="hideoptional" />';
+        if ($showbars) {
+            echo '<input type="submit" name="submit" value="'.get_string('showfulldetails','checklist').'" />';
+        } else {
+            echo '<input type="hidden" name="showbars" value="on" />';
+            echo '<input type="submit" name="submit" value="'.get_string('showprogressbars','checklist').'" />';
         }
+        echo '</form>';
+
+        echo '<br style="clear:both"/>';
 
         switch ($this->sortby) {
         case 'firstdesc':
@@ -811,34 +818,95 @@ class checklist_class {
             $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
         }
 
-        $table->data = array();
-        if ($ausers) {
-            foreach ($ausers as $auser) {
-                $row = array();
-                
-                $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
-                $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
-                $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
-
-                $row[] = fullname($auser).$vslink;
-
-                $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
-                $sql .= 'ON (i.id = c.item AND c.userid = '.$auser->id.') WHERE i.checklist = '.$this->checklist->id.' AND i.userid=0 ORDER BY i.position';
-                $checks = get_records_sql($sql);
-
-                foreach ($checks as $check) {
-                    if ($check->usertimestamp > 0) {
-                        $row[] = array($check->teachermark,true);
-                    } else {
-                        $row[] = array($check->teachermark,false);
+        if ($showbars) {
+            if ($ausers) {
+                // Show just progress bars
+                if ($this->showoptional) {
+                    $itemstocount = array_keys($this->items);
+                } else {
+                    $itemstocount = array();
+                    foreach ($this->items as $item) {
+                        if (!$item->itemoptional) {
+                            $itemstocount[] = $item->id;
+                        }
                     }
                 }
+                $totalitems = count($itemstocount);
+                $itemstocount = implode(',',$itemstocount);
 
-                $table->data[] = $row;
+                if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+                    $sql = 'usertimestamp > 0 AND item IN ('.$itemstocount.') AND userid = ';
+                } else {
+                    $sql = 'teachermark = '.CHECKLIST_TEACHERMARK_YES.' AND item IN ('.$itemstocount.') AND userid = ';
+                }
+                echo '<div>';
+                foreach ($ausers as $auser) {
+                    if ($totalitems) {
+                        $tickeditems = count_records_select('checklist_check', $sql.$auser->id);
+                        $percentcomplete = ($tickeditems * 100) / $totalitems;
+                    } else {
+                        $percentcomplete = 0;
+                        $tickeditems = 0;
+                    }
+
+                    $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
+                    $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
+                    $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
+                    echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.fullname($auser).$vslink.'</div>';
+                    
+                    echo '<div class="checklist_progress_outer">';
+                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+                    echo '</div>';
+                    echo '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%',$percentcomplete).'</div>';
+                    echo '<div style="float:left;">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
+                    echo '<br style="clear:both;" />';
+                }
+                echo '</div>';
             }
-        }
+            
+        } else {
+            // Show full table
+            $table = new stdClass;
+            $table->head = array(get_string('fullname'));
+            $table->level = array(-1);
+            $table->size = array('100px');
+            $table->skip = array(false);
+            foreach ($this->items as $item) {
+                $table->head[] = s($item->displaytext);
+                $table->level[] = ($item->indent < 3) ? $item->indent : 2;
+                $table->size[] = '80px';
+                $table->skip[] = (!$this->showoptional) && $item->itemoptional;
+            }
+
+            $table->data = array();
+            if ($ausers) {
+                foreach ($ausers as $auser) {
+                    $row = array();
+                
+                    $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
+                    $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
+                    $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
+
+                    $row[] = fullname($auser).$vslink;
+
+                    $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+                    $sql .= 'ON (i.id = c.item AND c.userid = '.$auser->id.') WHERE i.checklist = '.$this->checklist->id.' AND i.userid=0 ORDER BY i.position';
+                    $checks = get_records_sql($sql);
+
+                    foreach ($checks as $check) {
+                        if ($check->usertimestamp > 0) {
+                            $row[] = array($check->teachermark,true);
+                        } else {
+                            $row[] = array($check->teachermark,false);
+                        }
+                    }
+
+                    $table->data[] = $row;
+                }
+            }
         
-        $this->print_report_table($table);
+            $this->print_report_table($table);
+        }
     }
 
     function print_report_table($table) {
