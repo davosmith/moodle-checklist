@@ -16,8 +16,8 @@ $string['checklist:preview'] = 'Prevista de una lista de control';
 $string['checklist:updateother'] = 'Actualizar notas para la lista del estudiante';
 $string['checklist:updateown'] = 'Actualizar notas para su propia lista';
 $string['checklist:viewreports'] = 'Ver progreso de los estudiantes';
-
-$string['checklistintro'] = 'Introducciónn';
+$string['checklistfor'] = 'Lista de control de';
+$string['checklistintro'] = 'Introducción';
 $string['checklistsettings'] = 'Ajustes';
 
 $string['checks'] = 'Marcas';
@@ -71,5 +71,12 @@ $string['useritemsallowed'] = 'Ususario puede añadir sus propias piezas';
 $string['useritemsdeleted'] = 'Piezas del usuarios están borrados';
 
 $string['view'] = 'Ver lista de control';
+
+$string['viewall'] = 'Ver todo';
+$string['viewallcancel'] = 'Cancelar';
+$string['viewallsave'] = 'Guardar';
+
+$string['viewsinglereport'] = 'Ver progreso de este usuario';
+$string['viewsingleupdate'] = 'Actualizar progreso de este usuario';
 
 ?>
