@@ -81,6 +81,6 @@ ol.checklist .itemoptional {
     background-color: #229b15;
     height: 100%;
     width: 100%;
-    background-repeate: repeat-x;
+    background-repeat: repeat-x;
     background-position: top;
 }
