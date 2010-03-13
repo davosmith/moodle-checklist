@@ -1487,6 +1487,47 @@ class checklist_class {
             }
         }
     }
+
+    /* static function - avoiding 'static' keyword for PHP 4 compatibility */
+    function print_user_progressbar($checklistid, $userid) {
+        global $CFG;
+
+        list($ticked, $total) = checklist_class::get_user_progress($checklistid, $userid);
+        if (!$total) {
+            return;
+        }
+        $percent = $ticked * 100 / $total;
+
+        // Sadly 'styles.php' will not be included from outside the module, so I have to hard-code the styles here
+        echo '<div class="checklist_progress_outer" style="border-width: 1px; border-style: solid; border-color: black; width: 300px; background-colour: transparent; height: 15px; float: left;" >';
+        echo '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
+        echo '</div>';
+        echo '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%', $percent).'</div>';
+        //        echo '<div style="float:left;">&nbsp;('.$ticked.'/'.$total.')</div>';
+        echo '<br style="clear:both;" />';
+    }
+
+    function get_user_progress($checklistid, $userid) {
+        $userid = intval($userid); // Just to be on the safe side...
+
+        $checklist = get_record('checklist', 'id', $checklistid);
+        if (!$checklist) {
+            return array(false, false);
+        }
+        $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", '', 'id');
+        $total = count($items);
+        $itemlist = implode(',',array_keys($items));
+
+        $sql = "userid = $userid AND item IN ($itemlist) AND ";
+        if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+            $sql .= 'usertimestamp > 0';
+        } else {
+            $sql .= 'teachermark = '.CHECKLIST_TEACHERMARK_YES;
+        }
+        $ticked = count_records_select('checklist_check', $sql);
+
+        return array($ticked, $total);
+    }
 }
 
 function checklist_itemcompare($item1, $item2) {
