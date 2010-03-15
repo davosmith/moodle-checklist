@@ -85,7 +85,7 @@ class checklist_class {
         if ($this->userid && $this->canaddown()) {
             $sql = 'checklist = '.$this->checklist->id;
             $sql .= ' AND userid = '.$this->userid;
-            $this->useritems = get_records_select('checklist_item', $sql, 'position');
+            $this->useritems = get_records_select('checklist_item', $sql, 'position, id');
         } else {
             $this->useritems = false;
         }
