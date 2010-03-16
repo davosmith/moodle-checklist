@@ -1437,6 +1437,7 @@ class checklist_class {
                     
                         $check->id = insert_record('checklist_check', $check);
                     }
+                    checklist_update_grades($this->checklist, $this->userid);
                 }
             }
         }
@@ -1505,6 +1506,7 @@ class checklist_class {
                         $newcheck->userid = $this->userid;
                         $newcheck->id = insert_record('checklist_check', $newcheck);
                     }
+                    checklist_update_grades($this->checklist, $this->userid);
                 }
             }
         }

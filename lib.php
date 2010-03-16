@@ -37,8 +37,12 @@ define("CHECKLIST_MAX_INDENT", 10);
 function checklist_add_instance($checklist) {
 
     $checklist->timecreated = time();
+    $returnid = insert_record('checklist', $checklist);
 
-    return insert_record('checklist', $checklist);
+    $checklist = stripslashes_recursive($checklist);
+    checklist_grade_item_update($checklist);
+
+    return $returnid;
 }
 
 
@@ -55,7 +59,12 @@ function checklist_update_instance($checklist) {
     $checklist->timemodified = time();
     $checklist->id = $checklist->instance;
 
-    return update_record('checklist', $checklist);
+    $returnid = update_record('checklist', $checklist);
+
+    $checklist = stripslashes_recursive($checklist);
+    checklist_grade_item_update($checklist);
+
+    return $returnid;
 }
 
 
@@ -88,7 +97,97 @@ function checklist_delete_instance($id) {
         $result = false;
     }
 
+    checklist_grade_item_delete($checklist);
+
     return $result;
+}
+
+function checklist_update_all_grades() {
+    $checklists = get_records('checklist');
+    if ($checklists) {
+        foreach ($checklists as $checklist) {
+            checklist_update_grades($checklist);
+        }
+    }
+}
+
+function checklist_update_grades($checklist, $userid=0) {
+    global $CFG;
+
+    if ($CFG->version < 2007101500) {
+        // No gradelib for pre 1.9
+        return;
+    }
+
+    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", ''. 'id');
+    if ($userid) {
+        $users = $userid;
+    } else {
+        if (!$course = get_record('course', 'id', $checklist->course)) {
+            return;
+        }
+        if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
+            return;
+        }
+        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+            return;
+        }
+        $users = implode(',',array_keys($users));
+    }
+    
+    $total = count($items);
+    $itemlist = implode(',',array_keys($items));
+    if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+        $date = ', MAX(c.usertimestamp) AS datesubmitted';
+        $where = 'c.usertimestamp > 0';
+    } else {
+        $date = ', MAX(c.teachertimestamp) AS dategraded';
+        $where = 'c.teachermark = '.CHECKLIST_TEACHERMARK_YES;
+    }
+
+    $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * 100 / '.$total.') AS rawgrade'.$date;
+    $sql .= " FROM {$CFG->prefix}user AS u LEFT JOIN {$CFG->prefix}checklist_check AS c ON u.id = c.userid";
+    $sql .= " WHERE c.item IN ($itemlist)";
+    $sql .= ' AND u.id IN ('.$users.')';
+    $sql .= ' GROUP BY u.id';
+
+    $grades = get_records_sql($sql);
+
+    checklist_grade_item_update($checklist, $grades);
+}
+
+function checklist_grade_item_delete($checklist) {
+    global $CFG;
+    require_once($CFG->libdir.'/gradelib.php');
+    if (!isset($checklist->courseid)) {
+        $checklist->courseid = $checklist->course;
+    }
+
+    return grade_update('mod/checklist', $checklist->courseid, 'mod', 'checklist', $checklist->id, 0, NULL, array('deleted'=>1));
+}
+
+function checklist_grade_item_update($checklist, $grades=NULL) {
+    global $CFG;
+    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+        require_once($CFG->libdir.'/gradelib.php');
+    }
+
+    if (!isset($checklist->courseid)) {
+        $checklist->courseid = $checklist->course;
+    }
+
+    $params = array('itemname'=>$checklist->name);
+    $params['gradetype'] = GRADE_TYPE_VALUE;
+    $params['grademax']  = 100;
+    $params['grademin']  = 0;
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
+    }
+
+    return grade_update('mod/checklist', $checklist->courseid, 'mod', 'checklist', $checklist->id, 0, $grades, $params);
 }
 
 
@@ -237,8 +336,8 @@ function checklist_reset_userdata($data) {
         if (!$checklists) {
             return $status;
         }
-        $checklists = implode(',',array_keys($checklists));
-        $items = get_records_select('checklist_item', 'checklist IN ('.$checklists.')');
+        $checklistkeys = implode(',',array_keys($checklists));
+        $items = get_records_select('checklist_item', 'checklist IN ('.$checklistkeys.')');
         if (!$items) {
             return $status;
         }
@@ -246,8 +345,13 @@ function checklist_reset_userdata($data) {
         
         delete_records_select('checklist_check', 'item IN ('.$items.')');
 
-        $sql = 'checklist IN ('.$checklists.') AND userid != 0';
+        $sql = 'checklist IN ('.$checklistkeys.') AND userid != 0';
         delete_records_select('checklist_item', $sql);
+
+        // Reset the grades
+        foreach ($checklists as $checklist) {
+            checklist_grade_item_update($checklist, 'reset');            
+        }
     }
 
     return $status;
