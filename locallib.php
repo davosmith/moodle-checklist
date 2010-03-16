@@ -762,6 +762,7 @@ class checklist_class {
         $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
         $thisurl .= $this->showoptional ? '' : '&amp;action=hideoptional';
         $thisurl .= $showbars ? '&amp;showbars=on' : '';
+        $thisurl .= '&amp;sortby='.$this->sortby;
 
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
@@ -866,8 +867,29 @@ class checklist_class {
             
         } else {
             // Show full table
+            $firstlink = 'sortby=firstasc';
+            $lastlink = 'sortby=lastasc';
+            $firstarrow = '';
+            $lastarrow = '';
+            if ($this->sortby == 'firstasc') {
+                $firstlink = 'sortby=firstdesc';
+                $firstarrow = '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+            } elseif ($this->sortby == 'lastasc') {
+                $lastlink = 'sortby=lastdesc';
+                $lastarrow = '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+            } elseif ($this->sortby == 'firstdesc') {
+                $firstarrow = '<img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+            } elseif ($this->sortby == 'lastdesc') {
+                $lastarrow = '<img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+            }
+            $firstlink = preg_replace('/sortby=.*/', $firstlink, $thisurl);
+            $lastlink = preg_replace('/sortby=.*/', $lastlink, $thisurl);
+            $nameheading = get_string('fullname');
+            $nameheading = ' <a href="'.$firstlink.'" >'.get_string('firstname').'</a> '.$firstarrow;
+            $nameheading .= ' / <a href="'.$lastlink.'" >'.get_string('lastname').'</a> '.$lastarrow;
+
             $table = new stdClass;
-            $table->head = array(get_string('fullname'));
+            $table->head = array($nameheading);
             $table->level = array(-1);
             $table->size = array('100px');
             $table->skip = array(false);
