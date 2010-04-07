@@ -853,7 +853,8 @@ class checklist_class {
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
                     $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
-                    echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.fullname($auser).$vslink.'</div>';
+                    $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
+                    echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
                     
                     echo '<div class="checklist_progress_outer">';
                     echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
@@ -908,8 +909,9 @@ class checklist_class {
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
                     $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
+                    $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
 
-                    $row[] = fullname($auser).$vslink;
+                    $row[] = $userlink.$vslink;
 
                     $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
                     $sql .= 'ON (i.id = c.item AND c.userid = '.$auser->id.') WHERE i.checklist = '.$this->checklist->id.' AND i.userid=0 ORDER BY i.position';
