@@ -14,6 +14,16 @@ ol.checklist .itemoptional {
     color: #a0a0a0;
 }
 
+.itemdue {
+    font-style: italic;
+    color: #90d090;
+}
+
+.itemoverdue {
+    font-style: italic;
+    color: #f09090;
+}
+
 .checklistreport .header {
     background-color: #e1e1df;
 }

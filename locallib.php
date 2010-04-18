@@ -759,6 +759,9 @@ class checklist_class {
                     echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemhere','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
+                    if ($item->duetime) {
+                        echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                    }
 
                     if ($this->additemafter == $item->id) {
                         $addatend = false;
@@ -1329,6 +1332,7 @@ class checklist_class {
                 if ($duetime) {
                     $upditem->duetime = gmmktime(0,0,0, $duetime['month'], $duetime['day'], $duetime['year']);
                 }
+                $this->items[$itemid]->duetime = $upditem->duetime;
                 update_record('checklist_item', $upditem);
             }
         } elseif (isset($this->useritems[$itemid])) {
