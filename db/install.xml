@@ -16,7 +16,8 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="timecreated" NEXT="useritemsallowed"/>
         <FIELD NAME="useritemsallowed" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="Whether or not users are allowed to add their own items to the checklist" PREVIOUS="timemodified" NEXT="teacheredit"/>
         <FIELD NAME="teacheredit" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Whether the marking will be done by: 0 - students only (default), 1 - teacher only; 2 - both teacher and student" PREVIOUS="useritemsallowed" NEXT="theme"/>
-        <FIELD NAME="theme" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="default" SEQUENCE="false" ENUM="false" COMMENT="The theme chosen to display the checklist to the users" PREVIOUS="teacheredit"/>
+        <FIELD NAME="theme" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="default" SEQUENCE="false" ENUM="false" COMMENT="The theme chosen to display the checklist to the users" PREVIOUS="teacheredit" NEXT="duedatesoncalendar"/> 
+        <FIELD NAME="duedatesoncalendar" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Add due dates to the course calendar" PREVIOUS="theme"/> 
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

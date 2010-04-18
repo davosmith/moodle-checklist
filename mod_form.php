@@ -65,6 +65,9 @@ class mod_checklist_mod_form extends moodleform_mod {
         $teditoptions[CHECKLIST_MARKING_BOTH] = get_string('teacheralongsidecheck', 'checklist');
         $mform->addElement('select', 'teacheredit', get_string('teacheredit', 'checklist'), $teditoptions);
 
+        $mform->addElement('select', 'duedatesoncalendar', get_string('duedatesoncalendar', 'checklist'), $ynoptions);
+        $mform->setDefault('duedatesoncalendar', 0);
+
         // These settings are all disabled, as they are not currently implemented
         
         /*

@@ -26,6 +26,8 @@ $string['checks'] = 'Check marks';
 
 $string['deleteitem'] = 'Delete this item';
 
+$string['duedatesoncalendar'] = 'Add due dates to calendar';
+
 $string['edit'] = 'Edit checklist';
 $string['editdatesstart'] = 'Edit dates';
 $string['editdatesstop'] = 'Stop editing dates';

@@ -47,6 +47,14 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $result = $result && add_field($table, $field);
     }
 
+    if ($result && $oldversion < 2010041801) {
+        $table = new XMLDBTable('checklist');
+        $field = new XMLDBField('duedatesoncalendar');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '0', 'theme');
+
+    /// Launch add field duedatesoncalendar
+        $result = $result && add_field($table, $field);
+    }
         
     return $result;
 
