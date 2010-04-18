@@ -9,6 +9,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/locallib.php');
 
 $id = required_param('id', PARAM_INT);   // course
 
@@ -48,6 +49,7 @@ $timenow  = time();
 $strname  = get_string('name');
 $strweek  = get_string('week');
 $strtopic = get_string('topic');
+$strprogress = get_string('progress','checklist');
 
 if ($course->format == 'weeks') {
     $table->head  = array ($strweek, $strname);
@@ -60,6 +62,12 @@ if ($course->format == 'weeks') {
     $table->align = array ('left', 'left', 'left');
 }
 
+$context = get_context_instance(CONTEXT_COURSE, $course->id);
+$canupdateown = has_capability('mod/checklist:updateown', $context);
+if ($canupdateown) {
+    $table->head[] = $strprogress;
+}
+
 foreach ($checklists as $checklist) {
     if (!$checklist->visible) {
         //Show dimmed if the mod is hidden
@@ -69,11 +77,18 @@ foreach ($checklists as $checklist) {
         $link = '<a href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
     }
 
+    
     if ($course->format == 'weeks' or $course->format == 'topics') {
-        $table->data[] = array ($checklist->section, $link);
+        $row = array ($checklist->section, $link);
     } else {
-        $table->data[] = array ($link);
+        $row = array ($link);
     }
+
+    if ($canupdateown) {
+        $row[] = checklist_class::print_user_progressbar($checklist->id, $USER->id, '300px', true, true);
+    }
+
+    $table->data[] = $row;
 }
 
 print_heading($strchecklists);

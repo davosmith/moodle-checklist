@@ -50,6 +50,7 @@ $string['optionalshow'] = 'Show optional items';
 $string['percentcomplete'] = 'Required items';
 $string['percentcompleteall'] = 'All items';
 $string['preview'] = 'Preview';
+$string['progress'] = 'Progress';
 
 $string['report'] = 'View Progress';
 $string['reporttablesummary'] = 'Table showing the items on the checklist that each student has completed';
