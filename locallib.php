@@ -524,6 +524,14 @@ class checklist_class {
                     $title = '"'.get_string('additemalt','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
                 }
+
+                if ($item->duetime) {
+                    if ($item->duetime > time()) {
+                        echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                    } else {
+                        echo '<span class="itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
+                    }
+                }
                 
                 echo '</li>';
 
@@ -641,7 +649,7 @@ class checklist_class {
         echo '<select name="duetime[year]" id="timedueyear'.$id.'" >';
         $today = getdate();
         $thisyear = $today['year'];
-        for ($i=$thisyear; $i<=($thisyear + 20); $i++) {
+        for ($i=$thisyear-5; $i<=($thisyear + 10); $i++) {
             $selected = ($i == $year) ? 'selected="selected" ' : '';
             echo '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
         }
@@ -760,7 +768,11 @@ class checklist_class {
                     $title = '"'.get_string('additemhere','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
                     if ($item->duetime) {
-                        echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                        if ($item->duetime > time()) {
+                            echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                        } else {
+                            echo '<span class="itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
+                        }
                     }
 
                     if ($this->additemafter == $item->id) {
