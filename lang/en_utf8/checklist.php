@@ -27,6 +27,8 @@ $string['checks'] = 'Check marks';
 $string['deleteitem'] = 'Delete this item';
 
 $string['edit'] = 'Edit checklist';
+$string['editdatesstart'] = 'Edit dates';
+$string['editdatesstop'] = 'Stop editing dates';
 $string['edititem'] = 'Edit this item';
 
 $string['guestsno'] = 'You do not have permission to view this checklist';

@@ -35,7 +35,8 @@
         <FIELD NAME="displaytext" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="userid" NEXT="position"/>
         <FIELD NAME="position" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="displaytext" NEXT="indent"/>
         <FIELD NAME="indent" TYPE="int" LENGTH="8" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="position" NEXT="itemoptional"/>
-        <FIELD NAME="itemoptional" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="indent"/>
+        <FIELD NAME="itemoptional" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="indent" NEXT="duetime"/> 
+        <FIELD NAME="duetime" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Date/time when this item is due to be completed" PREVIOUS="itemoptional"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

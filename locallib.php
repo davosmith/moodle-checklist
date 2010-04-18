@@ -24,6 +24,7 @@ class checklist_class {
     var $showoptional;
     var $sortby;
     var $additemafter;
+    var $editdates;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
         global $COURSE;
@@ -612,6 +613,48 @@ class checklist_class {
         print_box_end();
     }
 
+    function print_edit_date($ts=0) {
+        $id=rand();
+        if ($ts == 0) {
+            $disabled = true;
+            $date = getdate();
+        } else {
+            $disabled = false;
+            $date = getdate($ts);
+        }
+        $day = $date['mday'];
+        $month = $date['mon'];
+        $year = $date['year'];
+        
+        echo '<select name="duetime[day]" id="timedueday'.$id.'" >';
+        for ($i=1; $i<=31; $i++) {
+            $selected = ($i == $day) ? 'selected="selected" ' : '';
+            echo '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
+        }
+        echo '</select>';
+        echo '<select name="duetime[month]" id="timeduemonth'.$id.'" >';
+        for ($i=1; $i<=12; $i++) {
+            $selected = ($i == $month) ? 'selected="selected" ' : '';
+            echo '<option value="'.$i.'" '.$selected.'>'.userdate(gmmktime(12,0,0,$i,15,2000), "%B").'</option>';
+        }
+        echo '</select>';
+        echo '<select name="duetime[year]" id="timedueyear'.$id.'" >';
+        $today = getdate();
+        $thisyear = $today['year'];
+        for ($i=$thisyear; $i<=($thisyear + 20); $i++) {
+            $selected = ($i == $year) ? 'selected="selected" ' : '';
+            echo '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
+        }
+        echo '</select>';
+        $checked = $disabled ? 'checked="checked" ' : '';
+        echo '<input type="checkbox" name="duetimedisable" '.$checked.' id="timeduedisable'.$id.'" onclick="toggledate'.$id.'()" /><label for="timeduedisable'.$id.'">'.get_string('disable').' </label>'."\n";
+        echo '<script type="text/javascript">'."\n";
+        echo "function toggledate{$id}() {\n var disable = document.getElementById('timeduedisable{$id}').value;\n var day = document.getElementById('timedueday{$id}');\n var month = document.getElementById('timeduemonth{$id}');\n var year = document.getElementById('timedueyear{$id}');\n";
+        echo 'if (disable) { day.setAttribute("disabled","disabled"); month.setAttribute("disabled", "disabled"); year.setAttribute("disabled", "disabled"); }'."\n";
+        echo 'else { day.removeAttribute("disabled"); month.removeAttribute("disabled"); year.removeAttribute("disabled"); }'."\n";
+        echo "} toggledate{$id}(); </script>\n";
+    }
+
     function view_edit_items() {
         global $CFG;
         
@@ -637,17 +680,18 @@ class checklist_class {
                 $itemname = '"item'.$item->id.'"';
                 $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey();
                 $baseurl .= ($this->additemafter) ? '&amp;additemafter='.$this->additemafter : '';
+                $baseurl .= ($this->editdates) ? '&amp;editdates=on' : '';
                 $baseurl .= '&amp;action=';
 
                 echo '<li>';
                 if ($item->itemoptional) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
-                    echo '<a href="'.$baseurl.'makerequired" />';
+                    echo '<a href="'.$baseurl.'makerequired">';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/optional.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
-                    echo '<a href="'.$baseurl.'makeoptional" />';
+                    echo '<a href="'.$baseurl.'makeoptional">';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/required.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = '';
                 }
@@ -659,27 +703,36 @@ class checklist_class {
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
                     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                     echo '<input type="text" name="displaytext" value="'.s($item->displaytext).'" />';
+                    if ($this->editdates) {
+                        echo '<input type="hidden" name="editdates" value="on" />';
+                        $this->print_edit_date($item->duetime);
+                    }
                     echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                     echo '</form>';
+
                     echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                    echo '<input type="hidden" name="editdates" value="on" />';
+                    if ($this->additemafter) {
+                        echo '<input type="hidden" name="additemafter" value="'.$this->additemafter.'" />';
+                    }
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
                 } else {
                     echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>&nbsp;';
 
-                    echo '<a href="'.$baseurl.'edititem" />';
+                    echo '<a href="'.$baseurl.'edititem">';
                     $title = '"'.get_string('edititem','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/edit.gif"  alt='.$title.' title='.$title.' /></a>&nbsp;';
 
                     if ($item->indent > 0) {
-                        echo '<a href="'.$baseurl.'unindentitem" />';
+                        echo '<a href="'.$baseurl.'unindentitem">';
                         $title = '"'.get_string('unindentitem','checklist').'"';
                         echo '<img src="'.$CFG->pixpath.'/t/left.gif" alt='.$title.' title='.$title.'  /></a>';
                     }
 
                     if (($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
-                        echo '<a href="'.$baseurl.'indentitem" />';
+                        echo '<a href="'.$baseurl.'indentitem">';
                         $title = '"'.get_string('indentitem','checklist').'"';
                         echo '<img src="'.$CFG->pixpath.'/t/right.gif" alt='.$title.' title='.$title.' /></a>';
                     }
@@ -688,22 +741,22 @@ class checklist_class {
                     
                     // TODO more complex checks to take into account indentation
                     if ($item->position > 1) {
-                        echo '<a href="'.$baseurl.'moveitemup" />';
+                        echo '<a href="'.$baseurl.'moveitemup">';
                     $title = '"'.get_string('moveitemup','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/up.gif" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     if ($item->position < $lastitem) {
-                        echo '<a href="'.$baseurl.'moveitemdown" />';
+                        echo '<a href="'.$baseurl.'moveitemdown">';
                     $title = '"'.get_string('moveitemdown','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt='.$title.' title='.$title.' /></a>';
                     }
 
-                    echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
+                    echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
                     $title = '"'.get_string('deleteitem','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt='.$title.' title='.$title.' /></a>';
                     
-                    echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem" />';
+                    echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemhere','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
 
@@ -718,10 +771,17 @@ class checklist_class {
                         echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                         echo '<input type="checkbox" disabled="disabled" />';
                         echo '<input type="text" name="displaytext" value="" />';
+                        if ($this->editdates) {
+                            echo '<input type="hidden" name="editdates" value="on" />';
+                            $this->print_edit_date();
+                        }
                         echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
                         echo '</form>';
                         echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
                         echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                        if ($this->editdates) {
+                            echo '<input type="hidden" name="editdates" value="on" />';
+                        }
                         echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                         echo '</form>';
                         echo '</li>';
@@ -741,6 +801,10 @@ class checklist_class {
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
             echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
             echo '<input type="text" name="displaytext" value="" />';
+            if ($this->editdates) {
+                echo '<input type="hidden" name="editdates" value="on" />';
+                $this->print_edit_date();
+            }
             echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
             echo '</form>';
             echo '</li>';
@@ -750,6 +814,19 @@ class checklist_class {
             $currindent--;
             echo '</ol>';
         }
+
+        echo '<form action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
+        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+        if ($this->additemafter) {
+            echo '<input type="hidden" name="additemafter" value="'.$this->additemafter.'" />';
+        }
+        if (!$this->editdates) {
+            echo '<input type="hidden" name="editdates" value="on" />';
+            echo '<input type="submit" value="'.get_string('editdatesstart','checklist').'" />';
+        } else {
+            echo '<input type="submit" value="'.get_string('editdatesstop','checklist').'" />';
+        }
+        echo '</form>';
 
         print_box_end();
     }
@@ -851,7 +928,7 @@ class checklist_class {
                     }
 
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
-                    $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
+                    $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'">';
                     $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
                     $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
                     echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
@@ -1089,8 +1166,12 @@ class checklist_class {
     }
     
     function process_edit_actions() {
+        $this->editdates = optional_param('editdates', false, PARAM_BOOL);
+        $additemafter = optional_param('additemafter', false, PARAM_INT);
+        
         $action = optional_param('action', false, PARAM_TEXT);
         if (!$action) {
+            $this->additemafter = $additemafter;
             return;
         }
 
@@ -1098,7 +1179,6 @@ class checklist_class {
             error('Invalid sesskey');
         }
 
-        $additemafter = optional_param('additemafter', false, PARAM_INT);
         $itemid = optional_param('itemid', 0, PARAM_INT);
 
         switch ($action) {
@@ -1106,7 +1186,12 @@ class checklist_class {
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
             $indent = optional_param('indent', 0, PARAM_INT);
             $position = optional_param('position', false, PARAM_INT);
-            $this->additem($displaytext, 0, $indent, $position);
+            if (optional_param('duetimedisable', false, PARAM_BOOL)) {
+                $duetime = false;
+            } else {
+                $duetime = optional_param('duetime', false, PARAM_INT);
+            }
+            $this->additem($displaytext, 0, $indent, $position, $duetime);
             if ($position) {
                 $additemafter = false;
             }
@@ -1121,7 +1206,14 @@ class checklist_class {
             break;
         case 'updateitem':
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
-            $this->updateitemtext($itemid, $displaytext);
+            $duetime = optional_param('duetime', false, PARAM_INT);
+            if (optional_param('duetimedisable', false, PARAM_BOOL)) {
+                $duetime = false;
+                echo 'here';
+            } else {
+                $duetime = optional_param('duetime', false, PARAM_INT);
+            }
+            $this->updateitemtext($itemid, $displaytext, $duetime);
             break;
         case 'deleteitem':
             $this->deleteitem($itemid);
@@ -1144,7 +1236,6 @@ class checklist_class {
         case 'makerequired':
             $this->makeoptional($itemid, false);
             break;
-            
         default:
             error('Invalid action - "'.s($action).'"');
         }
@@ -1170,7 +1261,7 @@ class checklist_class {
         }
     }
 
-    function additem($displaytext, $userid=0, $indent=0, $position=false) {
+    function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1197,6 +1288,10 @@ class checklist_class {
         $item->indent = $indent;
         $item->userid = $userid;
         $item->itemoptional = false;
+        $item->duetime = 0;
+        if ($duetime) {
+            $item->duetime = gmmktime(0,0,0, $duetime['month'], $duetime['day'], $duetime['year']);
+        }
 
         $item->id = insert_record('checklist_item', $item);
         $item->displaytext = stripslashes($displaytext);
@@ -1218,7 +1313,7 @@ class checklist_class {
         }
     }
 
-    function updateitemtext($itemid, $displaytext) {
+    function updateitemtext($itemid, $displaytext, $duetime=false) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1230,6 +1325,10 @@ class checklist_class {
                 $upditem = new stdClass;
                 $upditem->id = $itemid;
                 $upditem->displaytext = $displaytext;
+                $upditem->duetime = 0;
+                if ($duetime) {
+                    $upditem->duetime = gmmktime(0,0,0, $duetime['month'], $duetime['day'], $duetime['year']);
+                }
                 update_record('checklist_item', $upditem);
             }
         } elseif (isset($this->useritems[$itemid])) {

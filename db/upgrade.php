@@ -38,6 +38,15 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $db->debug = true;
     }
 
+    if ($result && $oldversion < 2010041800) {
+        $table = new XMLDBTable('checklist_item');
+        $field = new XMLDBField('duetime');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'itemoptional');
+
+    /// Launch add field duetime
+        $result = $result && add_field($table, $field);
+    }
+
         
     return $result;
 
