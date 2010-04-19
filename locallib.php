@@ -1224,7 +1224,6 @@ class checklist_class {
             $duetime = optional_param('duetime', false, PARAM_INT);
             if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                 $duetime = false;
-                echo 'here';
             } else {
                 $duetime = optional_param('duetime', false, PARAM_INT);
             }
@@ -1307,6 +1306,7 @@ class checklist_class {
         if ($duetime) {
             $item->duetime = gmmktime(0,0,0, $duetime['month'], $duetime['day'], $duetime['year']);
         }
+        $item->eventid = 0;
 
         $item->id = insert_record('checklist_item', $item);
         $item->displaytext = stripslashes($displaytext);
@@ -1324,7 +1324,61 @@ class checklist_class {
                 }
                 $this->items[$item->id] = $item;
                 uasort($this->items, 'checklist_itemcompare');
+                if ($this->checklist->duedatesoncalendar) {
+                    $this->setevent($item->id, true);
+                }
             }
+        }
+    }
+
+    function setevent($itemid, $add) {
+        $item = $this->items[$itemid];
+        $update = false;
+
+        if  ((!$add) || ($item->duetime == 0)) {  // Remove the event (if any)
+            if (!$item->eventid) {
+                return; // No event to remove
+            }
+
+            delete_event($item->eventid);
+            $this->items[$itemid]->eventid = 0;
+            $update = true;
+            
+        } else {  // Add/update event
+            $event = new stdClass;
+            $event->name = $item->displaytext;
+            $event->description = get_string('calendardescription', 'checklist', $this->checklist->name);
+            $event->courseid = $this->course->id;
+            $event->modulename = 'checklist';
+            $event->instance = $this->checklist->id;
+            $event->eventtype = 'due';
+            $event->timestart = $item->duetime;
+
+            if ($item->eventid) {
+                $event->id = $item->eventid;
+                update_event($event);
+            } else {
+                $this->items[$itemid]->eventid = add_event($event);
+                $update = true;
+            }
+        }
+
+        if ($update) { // Event added or removed
+            $upditem = new stdClass;
+            $upditem->id = $itemid;
+            $upditem->eventid = $this->items[$itemid]->eventid;
+            update_record('checklist_item', $upditem);
+        }
+    }
+
+    function setallevents() {
+        if (!$this->items) {
+            return;
+        }
+
+        $add = $this->checklist->duedatesoncalendar;
+        foreach ($this->items as $key => $value) {
+            $this->setevent($key, $add);
         }
     }
 
@@ -1340,12 +1394,18 @@ class checklist_class {
                 $upditem = new stdClass;
                 $upditem->id = $itemid;
                 $upditem->displaytext = $displaytext;
+
                 $upditem->duetime = 0;
                 if ($duetime) {
                     $upditem->duetime = gmmktime(0,0,0, $duetime['month'], $duetime['day'], $duetime['year']);
                 }
                 $this->items[$itemid]->duetime = $upditem->duetime;
+
                 update_record('checklist_item', $upditem);
+
+                if ($this->checklist->duedatesoncalendar) {
+                    $this->setevent($itemid, true);
+                }
             }
         } elseif (isset($this->useritems[$itemid])) {
             if ($this->canaddown()) {
@@ -1363,6 +1423,7 @@ class checklist_class {
             if (!$this->canedit()) {
                 return;
             }
+            $this->setevent($itemid, false); // Remove any calendar events
             unset($this->items[$itemid]);
         } elseif (isset($this->useritems[$itemid])) {
             if (!$this->canaddown()) {

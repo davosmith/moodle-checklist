@@ -25,6 +25,8 @@ define("CHECKLIST_MARKING_BOTH", 2);
 
 define("CHECKLIST_MAX_INDENT", 10);
 
+require_once(dirname(__FILE__).'/locallib.php');
+
 /**
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -40,6 +42,7 @@ function checklist_add_instance($checklist) {
     $returnid = insert_record('checklist', $checklist);
 
     $checklist = stripslashes_recursive($checklist);
+    $checklist->id = $returnid;
     checklist_grade_item_update($checklist);
 
     return $returnid;
@@ -61,6 +64,12 @@ function checklist_update_instance($checklist) {
 
     $returnid = update_record('checklist', $checklist);
 
+    // Add or remove all calendar events, as needed
+    $course = get_record('course', 'id', $checklist->course);
+    $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id);
+    $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
+    $chk->setallevents();
+
     $checklist = stripslashes_recursive($checklist);
     checklist_grade_item_update($checklist);
 
@@ -80,6 +89,15 @@ function checklist_delete_instance($id) {
 
     if (! $checklist = get_record('checklist', 'id', $id)) {
         return false;
+    }
+
+    // Remove all calendar events
+    if ($checklist->duedatesoncalendar) {
+        $checklist->duedatesoncalendar = false;
+        $course = get_record('course', 'id', $checklist->course);
+        $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id);
+        $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
+        $chk->setallevents();
     }
 
     $result = true;

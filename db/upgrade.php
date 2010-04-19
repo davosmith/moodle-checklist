@@ -55,6 +55,17 @@ function xmldb_checklist_upgrade($oldversion=0) {
     /// Launch add field duedatesoncalendar
         $result = $result && add_field($table, $field);
     }
+
+    if ($result && $oldversion < 2010041900) {
+
+    /// Define field eventid to be added to checklist_item
+        $table = new XMLDBTable('checklist_item');
+        $field = new XMLDBField('eventid');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'duetime');
+
+    /// Launch add field eventid
+        $result = $result && add_field($table, $field);
+    }
         
     return $result;
 
