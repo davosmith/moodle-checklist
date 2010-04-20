@@ -448,6 +448,7 @@ class checklist_class {
         if (!$this->items) {
             print_string('noitems','checklist');
         } else {
+            $focusitem = false;
             $updateform = ($showcheckbox && $this->canupdateown()) || ($viewother && $showteachermark);
             $addown = $this->canaddown() && $this->useredit;
             if ($updateform) {
@@ -554,7 +555,7 @@ class checklist_class {
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
                                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                                echo '<input type="text" name="displaytext" value="'.s($useritem->displaytext).'" />';
+                                echo '<input type="text" name="displaytext" value="'.s($useritem->displaytext).'" id="updateitembox" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '</form>';
                                 echo '<form style="display:inline" action="'.$thispage.'" method="get">';
@@ -563,6 +564,8 @@ class checklist_class {
                                 echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                                 echo '</form>';
                                 echo '</li>';
+
+                                $focusitem = 'updateitembox';
                             } else {
                                 echo '<li>';
                                 if ($showcheckbox) {
@@ -599,7 +602,7 @@ class checklist_class {
                     if ($showcheckbox) {
                         echo '<input type="checkbox" disabled="disabled" />';
                     }
-                    echo '<input type="text" name="displaytext" value="" />';
+                    echo '<input type="text" name="displaytext" value="" id="additembox" />';
                     echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
                     echo '</form>';
                     echo '<form style="display:inline" action="'.$thispage.'" method="get">';
@@ -608,6 +611,10 @@ class checklist_class {
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
                     echo '</li></ol>';
+
+                    if (!$focusitem) {
+                        $focusitem = 'additembox';
+                    }
                 }
             }
             echo '</ol>';
@@ -615,6 +622,10 @@ class checklist_class {
             if ($updateform) {
                 echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 echo '</form>';
+            }
+
+            if ($focusitem) {
+                echo '<script type="text/javascript">document.getElementById("'.$focusitem.'").focus();</script>';
             }
         }
 
@@ -672,6 +683,7 @@ class checklist_class {
         $addatend = true;
         echo '<ol class="checklist">';
         if ($this->items) {
+            $focusitem = false;
             $lastitem = count($this->items);
             $lastindent = 0;
             foreach ($this->items as $item) {
@@ -710,13 +722,15 @@ class checklist_class {
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
                     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                    echo '<input type="text" name="displaytext" value="'.s($item->displaytext).'" />';
+                    echo '<input type="text" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
                     if ($this->editdates) {
                         echo '<input type="hidden" name="editdates" value="on" />';
                         $this->print_edit_date($item->duetime);
                     }
                     echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                     echo '</form>';
+
+                    $focusitem = 'updateitembox';
 
                     echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
@@ -785,7 +799,7 @@ class checklist_class {
                         echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
                         echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                         echo '<input type="checkbox" disabled="disabled" />';
-                        echo '<input type="text" name="displaytext" value="" />';
+                        echo '<input type="text" name="displaytext" value="" id="additembox" />';
                         if ($this->editdates) {
                             echo '<input type="hidden" name="editdates" value="on" />';
                             $this->print_edit_date();
@@ -800,6 +814,10 @@ class checklist_class {
                         echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                         echo '</form>';
                         echo '</li>';
+
+                        if (!$focusitem) {
+                            $focusitem = 'additembox';
+                        }
                     }
 
                     $lastindent = $currindent;
@@ -815,7 +833,7 @@ class checklist_class {
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
             echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-            echo '<input type="text" name="displaytext" value="" />';
+            echo '<input type="text" name="displaytext" value="" id="additembox" />';
             if ($this->editdates) {
                 echo '<input type="hidden" name="editdates" value="on" />';
                 $this->print_edit_date();
@@ -823,6 +841,9 @@ class checklist_class {
             echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
             echo '</form>';
             echo '</li>';
+            if (!$focusitem) {
+                $focusitem = 'additembox';
+            }
         }
         echo '</ol>';
         while ($currindent) {
@@ -842,6 +863,10 @@ class checklist_class {
             echo '<input type="submit" value="'.get_string('editdatesstop','checklist').'" />';
         }
         echo '</form>';
+
+        if ($focusitem) {
+            echo '<script type="text/javascript">document.getElementById("'.$focusitem.'").focus();</script>';
+        }
 
         print_box_end();
     }
