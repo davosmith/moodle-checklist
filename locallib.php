@@ -668,9 +668,9 @@ class checklist_class {
         $checked = $disabled ? 'checked="checked" ' : '';
         echo '<input type="checkbox" name="duetimedisable" '.$checked.' id="timeduedisable'.$id.'" onclick="toggledate'.$id.'()" /><label for="timeduedisable'.$id.'">'.get_string('disable').' </label>'."\n";
         echo '<script type="text/javascript">'."\n";
-        echo "function toggledate{$id}() {\n var disable = document.getElementById('timeduedisable{$id}').value;\n var day = document.getElementById('timedueday{$id}');\n var month = document.getElementById('timeduemonth{$id}');\n var year = document.getElementById('timedueyear{$id}');\n";
-        echo 'if (disable) { day.setAttribute("disabled","disabled"); month.setAttribute("disabled", "disabled"); year.setAttribute("disabled", "disabled"); }'."\n";
-        echo 'else { day.removeAttribute("disabled"); month.removeAttribute("disabled"); year.removeAttribute("disabled"); }'."\n";
+        echo "function toggledate{$id}() {\n var disable = document.getElementById('timeduedisable{$id}').checked;\n var day = document.getElementById('timedueday{$id}');\n var month = document.getElementById('timeduemonth{$id}');\n var year = document.getElementById('timedueyear{$id}');\n";
+        echo "if (disable) { \nday.setAttribute('disabled','disabled');\nmonth.setAttribute('disabled', 'disabled');\nyear.setAttribute('disabled', 'disabled');\n } ";
+        echo "else {\nday.removeAttribute('disabled');\nmonth.removeAttribute('disabled');\nyear.removeAttribute('disabled');\n }";
         echo "} toggledate{$id}(); </script>\n";
     }
 
