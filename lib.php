@@ -249,6 +249,56 @@ function checklist_print_recent_activity($course, $isteacher, $timestart) {
 }
 
 
+function checklist_print_overview($courses, &$htmlarray) {
+    global $USER, $CFG;
+
+    if (empty($courses) || !is_array($courses) || count($courses) == 0) {
+        return array();
+    }
+
+    if (!$checklists = get_all_instances_in_courses('checklist',$courses)) {
+        return;
+    }
+
+    $strchecklist = get_string('modulename','checklist');
+
+    foreach ($checklists as $key => $checklist) {
+        $show_all = true;
+        if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+            $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
+            $show_all = !has_capability('mod/checklist:updateown', $context);
+        }
+        if ($show_all) { // Show all items whether or not they are checked off (as this user is unable to check them off)
+            $date_items = get_records_select('checklist_item','checklist = '.$checklist->id.' AND duetime > 0','duetime');
+        } else { // Show only items that have not been checked off
+            $date_items = get_records_sql('SELECT i.* FROM '.$CFG->prefix.'checklist_item i JOIN '.$CFG->prefix.'checklist_check c ON c.item = i.id '.
+                                          'WHERE i.checklist = '.$checklist->id.' AND i.duetime > 0 AND c.userid = '.$USER->id.' AND usertimestamp = 0 '.
+                                          'ORDER BY i.duetime');
+        }
+        if (!$date_items) {
+            continue;
+        }
+
+        $str = '<div class="checklist overview"><div class="name">'.$strchecklist.': '.
+            '<a title="'.$strchecklist.'" href="'.$CFG->wwwroot.'/mod/checklist/view.php?id='.$checklist->coursemodule.'">'.$checklist->name.'</a></div>';
+        foreach ($date_items as $item) {
+            $str .= '<div class="info">'.$item->displaytext.': ';
+            if ($item->duetime > time()) {
+                $str .= '<span class="itemdue">';
+            } else {
+                $str .= '<span class="itemoverdue">';
+            }
+            $str .= date('j M Y', $item->duetime).'</span></div>';
+        }
+        $str .= '</div>';
+        if (empty($htmlarray[$checklist->course]['checklist'])) {
+            $htmlarray[$checklist->course]['checklist'] = $str;
+        } else {
+            $htmlarray[$checklist->course]['checklist'] .= $str;
+        }
+    }
+}
+
 /**
  * Function to be run periodically according to the moodle cron
  * This function searches for things that need to be done, such
