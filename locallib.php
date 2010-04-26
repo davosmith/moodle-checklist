@@ -564,7 +564,7 @@ class checklist_class {
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '<br />';
                                 // FIXME: test in multiple browsers, set char width / height, add this code to the 'add item' section, process the response
-                                echo '<textarea name="displaytext-note">'.s($note).'</textarea>';
+                                echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
                                 echo '</form>';
                                 echo '</div>';
                                 echo '<form style="display:inline;" action="'.$thispage.'" method="get">';
@@ -581,7 +581,11 @@ class checklist_class {
                                 if ($showcheckbox) {
                                     echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
                                 }
-                                echo '<label class="useritem" for='.$itemname.'>'.s($useritem->displaytext).'</label>';
+                                $splittext = explode("\n",s($useritem->displaytext),2);
+                                $splittext[] = '';
+                                $text = $splittext[0];
+                                $note = str_replace("\n",'<br />',$splittext[1]);
+                                echo '<label class="useritem" for='.$itemname.'>'.$text.'</label>';
 
                                 if ($addown) {
                                     $baseurl = $thispage.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
@@ -592,6 +596,9 @@ class checklist_class {
                                     echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
                                     $title = '"'.get_string('deleteitem','checklist').'"';
                                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/remove.png" alt='.$title.' title='.$title.' /></a>';
+                                }
+                                if ($note != '') {
+                                    echo '<div class="note">'.$note.'</div>';
                                 }
 
                                 echo '</li>';
@@ -604,6 +611,7 @@ class checklist_class {
 
                 if ($addown && ($item->id == $this->additemafter)) {
                     echo '<ol class="checklist"><li>';
+                    echo '<div style="float: left;">';
                     echo '<form action="'.$thispage.'" method="post">';
                     echo '<input type="hidden" name="action" value="additem" />';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
@@ -614,12 +622,16 @@ class checklist_class {
                     }
                     echo '<input type="text" name="displaytext" value="" id="additembox" />';
                     echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
+                    echo '<br />';
+                    echo '<textarea name="displaytextnote" rows="3" cols="25"></textarea>';
                     echo '</form>';
+                    echo '</div>';
                     echo '<form style="display:inline" action="'.$thispage.'" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="useredit" value="on" />';
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
+                    echo '<br style="clear: both;" />';
                     echo '</li></ol>';
 
                     if (!$focusitem) {
@@ -1189,6 +1201,7 @@ class checklist_class {
 
         case 'additem':
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
+            $displaytext .= "\n".optional_param('displaytextnote', '', PARAM_TEXT);
             $position = optional_param('position', false, PARAM_INT);
             $this->additem($displaytext, $this->userid, 0, $position);
             $item = $this->get_item_at_position($position);
@@ -1203,6 +1216,7 @@ class checklist_class {
 
         case 'updateitem':
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
+            $displaytext .= "\n".optional_param('displaytextnote', '', PARAM_TEXT);
             $this->updateitemtext($itemid, $displaytext);
             break;
             

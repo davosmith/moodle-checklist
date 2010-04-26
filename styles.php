@@ -6,7 +6,13 @@ ol.checklist li {
 
 ol.checklist .useritem {
     font-style: italic;
-    color: #7070c0;
+    color: #404090;
+}
+
+ol.checklist .note {
+    font-style: italic;
+    color: #a0a0e0;
+    padding: 0 0 0 20px;
 }
 
 ol.checklist .itemoptional {
