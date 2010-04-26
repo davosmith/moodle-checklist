@@ -480,7 +480,7 @@ class checklist_class {
                 reset($this->useritems);
             }
 
-            echo '<ol class="checklist">';
+            echo '<ol class="checklist" id="checklistouter">';
             $currindent = 0;
             foreach ($this->items as $item) {
                 while ($item->indent > $currindent) {
@@ -521,7 +521,7 @@ class checklist_class {
 
                 if ($addown) {
                     $baseurl = $thispage.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
-                    echo '&nbsp;<a href="'.$baseurl.'startadditem" />';
+                    echo '&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemalt','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
                 }
@@ -563,7 +563,6 @@ class checklist_class {
                                 echo '<input type="text" name="displaytext" value="'.s($text).'" id="updateitembox" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '<br />';
-                                // FIXME: test in multiple browsers, set char width / height, add this code to the 'add item' section, process the response
                                 echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
                                 echo '</form>';
                                 echo '</div>';
@@ -589,11 +588,11 @@ class checklist_class {
 
                                 if ($addown) {
                                     $baseurl = $thispage.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
-                                    echo '&nbsp;<a href="'.$baseurl.'edititem" />';
+                                    echo '&nbsp;<a href="'.$baseurl.'edititem">';
                                     $title = '"'.get_string('edititem','checklist').'"';
                                     echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt='.$title.' title='.$title.' /></a>';
 
-                                    echo '&nbsp;<a href="'.$baseurl.'deleteitem" />';
+                                    echo '&nbsp;<a href="'.$baseurl.'deleteitem" class="deleteicon">';
                                     $title = '"'.get_string('deleteitem','checklist').'"';
                                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/remove.png" alt='.$title.' title='.$title.' /></a>';
                                 }
@@ -648,6 +647,21 @@ class checklist_class {
 
             if ($focusitem) {
                 echo '<script type="text/javascript">document.getElementById("'.$focusitem.'").focus();</script>';
+            }
+
+            if ($addown) {
+                echo '<script type="text/javascript">';
+                echo 'function confirmdelete(url) {';
+                echo 'if (confirm("'.get_string('confirmdeleteitem','checklist').'")) { window.location = url; } ';
+                echo '} ';
+                echo 'var links = document.getElementById("checklistouter").getElementsByTagName("a"); ';
+                echo 'for (var i in links) { ';
+                echo 'if (links[i].className == "deleteicon") { ';
+                echo 'var url = links[i].href;';
+                echo 'links[i].href = "#";';
+                echo 'links[i].onclick = new Function( "confirmdelete(\'"+url+"\')" ) ';
+                echo '}} ';
+                echo '</script>';
             }
         }
 

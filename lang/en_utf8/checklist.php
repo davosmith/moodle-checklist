@@ -26,6 +26,8 @@ $string['checklistsettings'] = 'Settings';
 
 $string['checks'] = 'Check marks';
 
+$string['confirmdeleteitem'] = 'Are you sure you want to permanently delete this checklist item?';
+
 $string['deleteitem'] = 'Delete this item';
 
 $string['duedatesoncalendar'] = 'Add due dates to calendar';
