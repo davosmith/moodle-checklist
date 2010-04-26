@@ -546,7 +546,12 @@ class checklist_class {
                             $itemname = '"item'.$useritem->id.'"';
                             $checked = ($updateform && $useritem->checked) ? ' checked="checked" ' : '';
                             if (isset($useritem->editme)) {
+                                $itemtext = explode("\n", $useritem->displaytext, 2);
+                                $itemtext[] = '';
+                                $text = $itemtext[0];
+                                $note = $itemtext[1];
                                 echo '<li>';
+                                echo '<div style="float: left;">';
                                 if ($showcheckbox) {
                                     echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
@@ -555,14 +560,19 @@ class checklist_class {
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
                                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                                echo '<input type="text" name="displaytext" value="'.s($useritem->displaytext).'" id="updateitembox" />';
+                                echo '<input type="text" name="displaytext" value="'.s($text).'" id="updateitembox" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
+                                echo '<br />';
+                                // FIXME: test in multiple browsers, set char width / height, add this code to the 'add item' section, process the response
+                                echo '<textarea name="displaytext-note">'.s($note).'</textarea>';
                                 echo '</form>';
-                                echo '<form style="display:inline" action="'.$thispage.'" method="get">';
+                                echo '</div>';
+                                echo '<form style="display:inline;" action="'.$thispage.'" method="get">';
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="useredit" value="on" />';
                                 echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                                 echo '</form>';
+                                echo '<br style="clear: both;" />';
                                 echo '</li>';
 
                                 $focusitem = 'updateitembox';
