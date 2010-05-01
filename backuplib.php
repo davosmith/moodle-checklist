@@ -67,6 +67,7 @@
         fwrite ($bf,full_tag("USERITEMSALLOWED",4,false,$checklist->useritemsallowed));
         fwrite ($bf,full_tag("TEACHEREDIT",4,false,$checklist->teacheredit));
         fwrite ($bf,full_tag("THEME",4,false,$checklist->theme));
+        fwrite ($bf,full_tag("DUEDATESONCALENDAR",4,false,$checklist->duedatesoncalendar));
 
         $status = backup_checklist_items($bf,$preferences,$checklist->id);
 
@@ -121,6 +122,7 @@
 				if ($status) $status = fwrite ($bf, full_tag("POSITION",6,false,$item->position));
 				if ($status) $status = fwrite ($bf, full_tag("INDENT",6,false,$item->indent));
 				if ($status) $status = fwrite ($bf, full_tag("ITEMOPTIONAL",6,false,$item->itemoptional));
+                if ($status) $status = fwrite ($bf, full_tag("DUETIME",6,false,$item->duetime));
 				
                 if ($userbackup) {
                     if ($status) $status = backup_checklist_checks($bf, $preferences, $item->id);

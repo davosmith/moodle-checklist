@@ -25,6 +25,17 @@
     //
     //-----------------------------------------------------------
 
+require_once(dirname(__FILE__).'/locallib.php');
+
+
+   function backup_todb_chk_optional_field($data, $field, $default) {
+        if (array_key_exists($field, $data['#'])) {
+            return backup_todb($data['#'][$field]['0']['#']);
+        } else {
+            return $default;
+        }
+    }
+ 
     function checklist_restore_mods($mod,$restore) {
         
         global $CFG,$db;
@@ -58,6 +69,7 @@
             $checklist->useritemsallowed = backup_todb($info['MOD']['#']['USERITEMSALLOWED']['0']['#']);
             $checklist->teacheredit = backup_todb($info['MOD']['#']['TEACHEREDIT']['0']['#']);
             $checklist->theme = backup_todb($info['MOD']['#']['THEME']['0']['#']);
+            $checklist->duedatesoncalendar = backup_todb_chk_optional_field($info['MOD'], 'DUEDATESONCALENDAR', false);
 
             $newid = insert_record('checklist', $checklist);
 
@@ -81,7 +93,7 @@
             } else {
                 $status = false;
             }
-            
+                
         } else {
             $status = false;
         }
@@ -120,6 +132,8 @@
             $item->position = backup_todb($i_info['#']['POSITION']['0']['#']);
             $item->indent = backup_todb($i_info['#']['INDENT']['0']['#']);
             $item->itemoptional = backup_todb($i_info['#']['ITEMOPTIONAL']['0']['#']);
+            $item->duetime = backup_todb_chk_optional_field($i_info,'DUETIME', 0);
+            $item->eventid = 0;
             
             if ($item->userid > 0) {
                 // Ignore user-created items if not restoring userdata
@@ -174,6 +188,9 @@
         $status = true;
 
         //Get the checks
+        if (!array_key_exists('CHECKS', $info['#'])) {
+            return true; // Item has not been checked by anyone
+        }
         $checks = $info['#']['CHECKS']['0']['#']['CHECK'];
 
         //Iterate over checks

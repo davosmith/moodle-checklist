@@ -96,8 +96,10 @@ function checklist_delete_instance($id) {
         $checklist->duedatesoncalendar = false;
         $course = get_record('course', 'id', $checklist->course);
         $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id);
-        $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
-        $chk->setallevents();
+        if ($cm) { // Should not fail be false, but check, just in case...
+            $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
+            $chk->setallevents();
+        }
     }
 
     $result = true;
@@ -423,6 +425,30 @@ function checklist_reset_userdata($data) {
     }
 
     return $status;
+}
+
+function checklist_refresh_events($courseid = 0) {
+
+    if ($courseid) {
+        $checklists = get_records('checklist', 'course', $courseid);
+        $course = get_record('course', 'id', $courseid);
+    } else {
+        $checklists = get_records('checklist');
+        $course = NULL;
+    }
+    if (!$checklists) {
+        return true;
+    }
+    
+    foreach ($checklists as $checklist) {
+        if ($checklist->duedatesoncalendar) {
+            $cm = get_coursemodule_from_instance('checklist', $checklist->id, $checklist->course);
+            $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
+            $chk->setallevents();
+        }
+    }
+
+    return true;
 }
 
 ?>
