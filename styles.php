@@ -20,6 +20,13 @@ ol.checklist .itemoptional {
     color: #a0a0a0;
 }
 
+ol.checklist .teachercomment {
+    color: black;
+    background-color: #ffffb0;
+    border: solid black 1px;
+    margin: 0 0 0 20px;
+}
+
 .itemdue {
     font-style: italic;
     color: #90d090;

@@ -66,6 +66,28 @@ function xmldb_checklist_upgrade($oldversion=0) {
     /// Launch add field eventid
         $result = $result && add_field($table, $field);
     }
+
+    if ($result && $oldversion < 2010050100) {
+
+    /// Define field teachercomments to be added to checklist
+        $table = new XMLDBTable('checklist');
+        $field = new XMLDBField('teachercomments');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '0', 'duedatesoncalendar');
+
+    /// Launch add field teachercomments
+        $result = $result && add_field($table, $field);
+
+        $table = new XMLDBTable('checklist_comment');
+        $table->addFieldInfo('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null, null);
+        $table->addFieldInfo('itemid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0');
+        $table->addFieldInfo('userid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0');
+        $table->addFieldInfo('commentby', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0');
+        $table->addFieldInfo('text', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, null, '');
+
+        $table->addKeyInfo('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->addIndexInfo('checklist_item_user', XMLDB_INDEX_UNIQUE, array('itemid', 'userid'));
+        $result = $result && create_table($table);
+    }
         
     return $result;
 

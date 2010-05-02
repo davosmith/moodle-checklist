@@ -1,5 +1,7 @@
 <?php
 
+$string['addcomments'] = 'Add comments';
+
 $string['additem'] = 'Add';
 $string['additemalt'] = 'Add a new item to the list';
 $string['additemhere'] = 'Insert new item after this one';
@@ -71,6 +73,8 @@ $string['savechecks'] = 'Save';
 
 $string['showfulldetails'] = 'Show full details';
 $string['showprogressbars'] = 'Show progress bars';
+
+$string['teachercomments'] = 'Teachers can add comments';
 
 $string['teacheredit'] = 'Updates by';
 

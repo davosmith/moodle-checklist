@@ -419,9 +419,14 @@ class checklist_class {
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
 
+        $comments = $this->checklist->teachercomments;
+        $editcomments = false;
         $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
         if ($viewother) {
             $showbars = optional_param('showbars',false,PARAM_BOOL);
+            if ($comments) {
+                $editcomments = optional_param('editcomments', false, PARAM_BOOL);
+            }
             $thispage = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
             if (!$student = get_record('user', 'id', $this->userid)) {
                 error('No such user!');
@@ -432,6 +437,16 @@ class checklist_class {
             echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
             echo '<input type="submit" name="viewall" value="'.get_string('viewall','checklist').'" />';
             echo '</form>';
+
+            if (!$editcomments) {
+                echo '<form style="display: inline;" action="'.$thispage.'" method="get">';
+                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
+                echo '<input type="hidden" name="editcomments" value="on" />';
+                echo '<input type="hidden" name="studentid" value="'.$this->userid.'" />';
+                echo ' <input type="submit" name="viewall" value="'.get_string('addcomments','checklist').'" />';
+                echo '</form>';
+            }
             echo '</h2>';
         }
 
@@ -449,10 +464,10 @@ class checklist_class {
             print_string('noitems','checklist');
         } else {
             $focusitem = false;
-            $updateform = ($showcheckbox && $this->canupdateown()) || ($viewother && $showteachermark);
+            $updateform = ($showcheckbox && $this->canupdateown() && !$viewother) || ($viewother && ($showteachermark || $editcomments));
             $addown = $this->canaddown() && $this->useredit;
             if ($updateform) {
-                if ($this->canaddown()) {
+                if ($this->canaddown() && !$viewother) {
                     echo '<form style="display:inline;" action="'.$thispage.'" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     if ($addown) {
@@ -478,6 +493,26 @@ class checklist_class {
 
             if ($this->useritems) {
                 reset($this->useritems);
+            }
+
+            if ($comments) {
+                $itemids = implode(',',array_keys($this->items));
+                $commentsunsorted = get_records_select('checklist_comment',"userid = {$this->userid} AND itemid IN ({$itemids})");
+                $commentuserids = array();
+                $commentusers = array();
+                if ($commentsunsorted) {
+                    $comments = array();
+                    foreach ($commentsunsorted as $comment) {
+                        $comments[$comment->itemid] = $comment;
+                        if ($comment->commentby) {
+                            $commentuserids[] = $comment->commentby;
+                        }
+                    }
+                    $commentuserids = implode(",",array_unique($commentuserids, SORT_NUMERIC));
+                    $commentusers = get_records_select('user', 'id IN ('.$commentuserids.')');
+                } else {
+                    $comments = false;
+                }
             }
 
             echo '<ol class="checklist" id="checklistouter">';
@@ -532,6 +567,27 @@ class checklist_class {
                     } else {
                         echo '<span class="itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
                     }
+                }
+
+                $foundcomment = false;
+                if ($comments) {
+                    if (array_key_exists($item->id, $comments)) {
+                        $comment =  $comments[$item->id];
+                        $foundcomment = true;
+                        echo ' <span class="teachercomment">&nbsp;';
+                        if ($comment->commentby) {
+                            echo '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$comment->commentby.'&amp;course='.$this->course->id.'">'.fullname($commentusers[$comment->commentby]).'</a>: ';
+                        }
+                        if ($editcomments) {
+                            echo '<input type="text" name="teachercomment['.$item->id.']" value="'.s($comment->text).'" />';
+                        } else {
+                            echo s($comment->text);
+                        }
+                        echo '&nbsp;</span>';
+                    }
+                }
+                if (!$foundcomment && $editcomments) {
+                    echo '&nbsp;<input type="text" name="teachercomment['.$item->id.']" />';
                 }
                 
                 echo '</li>';
@@ -1715,42 +1771,87 @@ class checklist_class {
     }
 
     function updateteachermarks() {
+        global $USER;
+        
         $newchecks = optional_param('items', array(), PARAM_TEXT);
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing
             return;
         }
 
-        if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-            // Shouldn't be here
-            return;
-        }
+        if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
 
-        foreach ($newchecks as $newcheck) {
-            list($itemid, $newval) = explode(':',$newcheck, 2);
+            foreach ($newchecks as $newcheck) {
+                list($itemid, $newval) = explode(':',$newcheck, 2);
             
-            if (isset($this->items[$itemid])) {
-                $item = $this->items[$itemid];
-                if ($newval != $item->teachermark) {
-                    $item->teachermark = $newval;
+                if (isset($this->items[$itemid])) {
+                    $item = $this->items[$itemid];
+                    if ($newval != $item->teachermark) {
+                        $item->teachermark = $newval;
                     
-                    $newcheck = new stdClass;
-                    $newcheck->teachertimestamp = time();
-                    $newcheck->teachermark = $newval;
+                        $newcheck = new stdClass;
+                        $newcheck->teachertimestamp = time();
+                        $newcheck->teachermark = $newval;
                     
-                    $oldcheck = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
-                    if ($oldcheck) {
-                        $newcheck->id = $oldcheck->id;
-                        update_record('checklist_check', $newcheck);
-                    } else {
-                        $newcheck->item = $itemid;
-                        $newcheck->userid = $this->userid;
-                        $newcheck->id = insert_record('checklist_check', $newcheck);
+                        $oldcheck = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
+                        if ($oldcheck) {
+                            $newcheck->id = $oldcheck->id;
+                            update_record('checklist_check', $newcheck);
+                        } else {
+                            $newcheck->item = $itemid;
+                            $newcheck->userid = $this->userid;
+                            $newcheck->id = insert_record('checklist_check', $newcheck);
+                        }
+                        checklist_update_grades($this->checklist, $this->userid);
                     }
-                    checklist_update_grades($this->checklist, $this->userid);
                 }
             }
         }
+
+        $newcomments = optional_param('teachercomment', false, PARAM_TEXT);
+        if (!$this->checklist->teachercomments || !$newcomments || !is_array($newcomments)) {
+            return;
+        }
+
+        $itemids = implode(',',array_keys($this->items));
+        $commentsunsorted = get_records_select('checklist_comment',"userid = {$this->userid} AND itemid IN ({$itemids})");
+        $comments = array();
+        if ($commentsunsorted) {
+            foreach ($commentsunsorted as $comment) {
+                $comments[$comment->itemid] = $comment;
+            }
+        }
+        foreach ($newcomments as $itemid => $newcomment) {
+            $newcomment = trim($newcomment);
+            if ($newcomment == '') {
+                if (array_key_exists($itemid, $comments)) {
+                    delete_records('checklist_comment', 'id', $comments[$itemid]->id);
+                    unset($comments[$itemid]); // Should never be needed, but just in case...
+                }
+            } else {
+                if (array_key_exists($itemid, $comments)) {
+                    if ($comments[$itemid]->text != $newcomment) {
+                        $updatecomment = new stdClass;
+                        $updatecomment->id = $comments[$itemid]->id;
+                        $updatecomment->userid = $this->userid;
+                        $updatecomment->itemid = $itemid;
+                        $updatecomment->commentby = $USER->id;
+                        $updatecomment->text = $newcomment;
+
+                        update_record('checklist_comment',$updatecomment);
+                    }
+                } else {
+                    $addcomment = new stdClass;
+                    $addcomment->itemid = $itemid;
+                    $addcomment->userid = $this->userid;
+                    $addcomment->commentby = $USER->id;
+                    $addcomment->text = $newcomment;
+
+                    insert_record('checklist_comment',$addcomment);
+                }
+            }
+        }
+
     }
 
     /* static function - avoiding 'static' keyword for PHP 4 compatibility */

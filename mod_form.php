@@ -74,6 +74,10 @@ class mod_checklist_mod_form extends moodleform_mod {
         $themes = array('default' => 'default');
         $mform->addElement('select', 'theme', get_string('theme', 'checklist'), $themes);
         */
+
+        $mform->addElement('select', 'teachercomments', get_string('teachercomments', 'checklist'), $ynoptions);
+        $mform->setDefault('teachercomments', 0);
+        $mform->setAdvanced('teachercomments');
         
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules
