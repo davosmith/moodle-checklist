@@ -70,6 +70,7 @@ require_once(dirname(__FILE__).'/locallib.php');
             $checklist->teacheredit = backup_todb($info['MOD']['#']['TEACHEREDIT']['0']['#']);
             $checklist->theme = backup_todb($info['MOD']['#']['THEME']['0']['#']);
             $checklist->duedatesoncalendar = backup_todb_chk_optional_field($info['MOD'], 'DUEDATESONCALENDAR', false);
+            $checklist->teachercomments = backup_todb_chk_optional_field($info['MOD'], 'TEACHERCOMMENTS', false);
 
             $newid = insert_record('checklist', $checklist);
 
@@ -170,6 +171,7 @@ require_once(dirname(__FILE__).'/locallib.php');
                 //Restore checks
                 if ($restore_user) {
                     $status = checklist_checks_restore ($newid,$i_info,$restore);
+                    $status = $status && checklist_comments_restore($newid, $i_info, $restore);
                 }
                 
             } else {
@@ -249,4 +251,76 @@ require_once(dirname(__FILE__).'/locallib.php');
         return $status;
     }
 
+    function checklist_comments_restore($item,$info,$restore) {
+
+        global $CFG;
+
+        $status = true;
+
+        //Get the comments
+        if (!array_key_exists('COMMENTS', $info['#'])) {
+            return true; // Item has not been commented by anyone
+        }
+        $comments = $info['#']['COMMENTS']['0']['#']['COMMENT'];
+
+        //Iterate over comments
+        for($i = 0; $i < sizeof($comments); $i++) {
+            $c_info = $comments[$i];
+            //traverse_xmlize($c_info);                                                                 //Debug
+            //print_object ($GLOBALS['traverse_array']);                                                  //Debug
+            //$GLOBALS['traverse_array']="";                                                              //Debug
+
+            //We'll need this later!!
+            $oldid = backup_todb($c_info['#']['ID']['0']['#']);
+
+            //Now, build the CHECKLIST_COMMENT record structure
+            $comment = new stdClass;
+            $comment->itemid = $item;
+            $comment->userid = backup_todb($c_info['#']['USERID']['0']['#']);
+            $comment->commentby = backup_todb($c_info['#']['COMMENTBY']['0']['#']);
+            $comment->text = backup_todb($c_info['#']['TEXT']['0']['#']);
+
+            $comment->userid = backup_getid($restore->backup_unique_code,'user',$comment->userid);
+            if (!$comment->userid) {
+                $status = false;
+                break;
+            }
+            $comment->userid = $comment->userid->new_id;
+
+            if ($comment->commentby) {
+                $comment->commentby = backup_getid($restore->backup_unique_code,'user',$comment->commentby);
+                if (!$comment->userid) {
+                    $status = false;
+                    break;
+                }
+                $comment->userid = $comment->userid->new_id;
+            }
+            //The structure is equal to the db, so insert the checklist_comment
+            $newid = insert_record ('checklist_comment',$comment);
+
+
+            //Do some output
+            if (($i+1) % 50 == 0) {
+                if (!defined('RESTORE_SILENTLY')) {
+                    echo ".";
+                    if (($i+1) % 1000 == 0) {
+                        echo "<br />";
+                    }
+                }
+                backup_flush(300);
+            }
+
+            if ($newid) {
+                //We have the newid, update backup_ids
+                backup_putid($restore->backup_unique_code,'checklist_comment',$oldid,
+                             $newid);
+
+            } else {
+                $status = false;
+                break;
+            }
+        }
+
+        return $status;
+    }
 ?>

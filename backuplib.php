@@ -68,6 +68,7 @@
         fwrite ($bf,full_tag("TEACHEREDIT",4,false,$checklist->teacheredit));
         fwrite ($bf,full_tag("THEME",4,false,$checklist->theme));
         fwrite ($bf,full_tag("DUEDATESONCALENDAR",4,false,$checklist->duedatesoncalendar));
+        fwrite ($bf,full_tag("TEACHERCOMMENTS",4,false,$checklist->teachercomments));
 
         $status = backup_checklist_items($bf,$preferences,$checklist->id);
 
@@ -156,6 +157,21 @@
 		
 		    if ($status) $status = fwrite($bf, end_tag("CHECKS",7,true));
 		}
+
+        $checklist_comments = get_records('checklist_comment','item',$item,'id');
+        if ($checklist_comments) {
+            $status = fwrite($bf, start_tag('COMMENTS',7,true));
+            foreach ($checklist_comments as $comment) {
+                $status = $status && fwrite($bf, start_tag('COMMENT', 8, true));
+                $status = $status && fwrite($bf, full_tag('ID',9,false,$comment->id));
+                $status = $status && fwrite($bf, full_tag('USERID',9,false,$comment->userid));
+                $status = $status && fwrite($bf, full_tag('COMMENTBY',9,false,$comment->commentby));
+                $status = $status && fwrite($bf, full_tag('TEXT',9,false,$comment->text));
+                $status = $status && fwrite($bf, end_tag('COMMENT', 8, true));
+            }
+
+            $status = $status && fwrite($bf, end_tag('COMMENTS', 7, true));
+        }
 				
 		return $status;
 	
