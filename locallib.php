@@ -779,9 +779,9 @@ class checklist_class {
 
         $currindent = 0;
         $addatend = true;
+        $focusitem = false;
         echo '<ol class="checklist">';
         if ($this->items) {
-            $focusitem = false;
             $lastitem = count($this->items);
             $lastindent = 0;
             foreach ($this->items as $item) {
