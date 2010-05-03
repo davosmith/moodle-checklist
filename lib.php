@@ -221,7 +221,41 @@ function checklist_grade_item_update($checklist, $grades=NULL) {
  * @return null
  * @todo Finish documenting this function
  */
-function checklist_user_outline($course, $user, $mod, $newmodule) {
+function checklist_user_outline($course, $user, $mod, $checklist) {
+    global $CFG;
+
+    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", '', 'id');
+    if (!$items) {
+        return null;
+    }
+
+    $total = count($items);
+    $itemlist = implode(',',array_keys($items));
+
+    $sql = "userid = {$user->id} AND item IN ($itemlist) AND ";
+    if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+        $sql .= 'usertimestamp > 0';
+        $order = 'usertimestamp DESC';
+    } else {
+        $sql .= 'teachermark = '.CHECKLIST_TEACHERMARK_YES;
+        $order = 'teachertimestamp DESC';
+    }
+    $checks = get_records_select('checklist_check', $sql, $order);
+
+    $return = null;
+    if ($checks) {
+        $return = new stdClass;
+
+        $ticked = count($checks);
+        if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+            $return->time = reset($checks)->usertimestamp;
+        } else {
+            $return->time = reset($checks)->teachertimestamp;
+        }
+        $percent = sprintf('%0d',($ticked * 100) / $total);
+        $return->info = get_string('progress','checklist').': '.$ticked.'/'.$total.' ('.$percent.'%)';
+    }
+
     return $return;
 }
 
