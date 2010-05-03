@@ -95,6 +95,12 @@
             } else {
                 $info[$instance->id.'2'][1] = 0;
             }
+            $info[$instance->id.'3'][0] = get_string('comments','checklist');
+            if ($ids = checklist_comment_ids_by_instance($instance->id)) {
+                $info[$instance->id.'3'][1] = count($ids);
+            } else {
+                $info[$instance->id.'3'][1] = 0;
+            }
         }
         
         return $info;
@@ -158,7 +164,7 @@
 		    if ($status) $status = fwrite($bf, end_tag("CHECKS",7,true));
 		}
 
-        $checklist_comments = get_records('checklist_comment','item',$item,'id');
+        $checklist_comments = get_records('checklist_comment','itemid',$item,'id');
         if ($checklist_comments) {
             $status = fwrite($bf, start_tag('COMMENTS',7,true));
             foreach ($checklist_comments as $comment) {
@@ -208,6 +214,12 @@
                 $info[2][1] = count($ids);
             } else {
                 $info[2][1] = 0;
+            }
+            $info[3][0] = get_string('comments','checklist');
+            if ($ids = checklist_comment_ids_by_course($course)) {
+                $info[3][1] = count($ids);
+            } else {
+                $info[3][1] = 0;
             }
         }
 
@@ -316,6 +328,30 @@ function checklist_check_ids_by_instance ($instanceid) {
                                       {$CFG->prefix}checklist_item i     
                                  WHERE i.checklist = $instanceid AND
                                        k.item = i.id"); 
+}
+
+function checklist_comment_ids_by_course ($course) {
+
+        global $CFG;
+
+        return get_records_sql ("SELECT t.id, t.itemid 
+                                 FROM {$CFG->prefix}checklist_comment t,
+                                      {$CFG->prefix}checklist_item i,    
+                                      {$CFG->prefix}checklist c 
+                                 WHERE c.course = '$course' AND
+                                       i.checklist = c.id AND
+                                       t.itemid = i.id"); 
+}
+    
+function checklist_comment_ids_by_instance ($instanceid) {
+
+        global $CFG;
+
+        return get_records_sql ("SELECT t.id, t.itemid
+                                 FROM {$CFG->prefix}checklist_comment t,
+                                      {$CFG->prefix}checklist_item i     
+                                 WHERE i.checklist = $instanceid AND
+                                       t.itemid = i.id"); 
 }
     
 ?>

@@ -76,7 +76,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         */
 
         $mform->addElement('select', 'teachercomments', get_string('teachercomments', 'checklist'), $ynoptions);
-        $mform->setDefault('teachercomments', 0);
+        $mform->setDefault('teachercomments', 1);
         $mform->setAdvanced('teachercomments');
         
 //-------------------------------------------------------------------------------

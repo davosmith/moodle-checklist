@@ -27,6 +27,7 @@ $string['checklistintro'] = 'Introduction';
 $string['checklistsettings'] = 'Settings';
 
 $string['checks'] = 'Check marks';
+$string['comments'] = 'Comments';
 
 $string['confirmdeleteitem'] = 'Are you sure you want to permanently delete this checklist item?';
 

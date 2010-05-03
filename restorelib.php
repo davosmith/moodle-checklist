@@ -289,11 +289,11 @@ require_once(dirname(__FILE__).'/locallib.php');
 
             if ($comment->commentby) {
                 $comment->commentby = backup_getid($restore->backup_unique_code,'user',$comment->commentby);
-                if (!$comment->userid) {
+                if (!$comment->commentby) {
                     $status = false;
                     break;
                 }
-                $comment->userid = $comment->userid->new_id;
+                $comment->commentby = $comment->commentby->new_id;
             }
             //The structure is equal to the db, so insert the checklist_comment
             $newid = insert_record ('checklist_comment',$comment);

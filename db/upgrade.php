@@ -72,7 +72,7 @@ function xmldb_checklist_upgrade($oldversion=0) {
     /// Define field teachercomments to be added to checklist
         $table = new XMLDBTable('checklist');
         $field = new XMLDBField('teachercomments');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '0', 'duedatesoncalendar');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '1', 'duedatesoncalendar');
 
     /// Launch add field teachercomments
         $result = $result && add_field($table, $field);
