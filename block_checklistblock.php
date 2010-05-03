@@ -42,7 +42,7 @@ class block_checklistblock extends block_list {
         } 
 
         if (!$checklist = get_record('checklist','id',$this->config->checklistid)) {
-            $this->content->items = array('Error - checklist not found');
+            $this->content->items = array(get_string('nochecklist', 'block_checklistblock'));
             return $this->content;
         }
 

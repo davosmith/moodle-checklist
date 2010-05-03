@@ -7,7 +7,7 @@
 <?php
    global $COURSE;
 
-   $options = array(0 => get_string('none'));
+   $options = array();
 $checklists = get_records('checklist','course',$COURSE->id);
 if ($checklists) {
 foreach ($checklists as $checklist) {
