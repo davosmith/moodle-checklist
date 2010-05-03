@@ -92,7 +92,7 @@ class checklist_class {
         }
 
         // Load the currently checked-off items
-        if ($this->userid && ($this->canupdateown() || $this->canviewreports() )) {
+        if ($this->userid) { // && ($this->canupdateown() || $this->canviewreports() )) {
 
             $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
             $sql .= 'ON (i.id = c.item AND c.userid = '.$this->userid.') WHERE i.checklist = '.$this->checklist->id;
@@ -163,11 +163,13 @@ class checklist_class {
     }
 
     function canupdateown() {
-        return has_capability('mod/checklist:updateown', $this->context);
+        global $USER;
+        return ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canaddown() {
-        return $this->checklist->useritemsallowed && has_capability('mod/checklist:updateown', $this->context);
+        global $USER;
+        return $this->checklist->useritemsallowed && ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canpreview() {
@@ -269,6 +271,10 @@ class checklist_class {
         }
         
         $this->view_footer();
+    }
+
+    function user_complete() {
+        $this->view_items(false, true);
     }
 
     function view_header() {
@@ -414,7 +420,7 @@ class checklist_class {
         }
     }
 
-    function view_items($viewother = false) {
+    function view_items($viewother = false, $userreport = false) {
         global $CFG;
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
@@ -454,7 +460,7 @@ class checklist_class {
 
         $showteachermark = false;
         $showcheckbox = true;
-        if ($this->canupdateown() || $viewother) {
+        if ($this->canupdateown() || $viewother || $userreport) {
             $this->view_progressbar();
             $showteachermark = ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
             $showcheckbox = ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
@@ -464,7 +470,7 @@ class checklist_class {
             print_string('noitems','checklist');
         } else {
             $focusitem = false;
-            $updateform = ($showcheckbox && $this->canupdateown() && !$viewother) || ($viewother && ($showteachermark || $editcomments));
+            $updateform = ($showcheckbox && $this->canupdateown() && !$viewother && !$userreport) || ($viewother && ($showteachermark || $editcomments));
             $addown = $this->canaddown() && $this->useredit;
             if ($updateform) {
                 if ($this->canaddown() && !$viewother) {
@@ -527,8 +533,8 @@ class checklist_class {
                     echo '</ol>';
                 }
                 $itemname = '"item'.$item->id.'"';
-                $checked = (($updateform || $viewother) && $item->checked) ? ' checked="checked" ' : '';
-                if ($viewother) {
+                $checked = (($updateform || $viewother || $userreport) && $item->checked) ? ' checked="checked" ' : '';
+                if ($viewother || $userreport) {
                     $checked .= ' disabled="disabled" ';
                 }
                 $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
