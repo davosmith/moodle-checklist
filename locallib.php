@@ -254,13 +254,17 @@ class checklist_class {
             redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
         }
 
-        add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
-
         $this->view_header();
 
         print_heading(format_string($this->checklist->name));
 
         $this->view_tabs('report');
+
+        if ((!$this->items) && $this->canedit()) {
+            redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id, get_string('noitems','checklist'));
+        }
+
+        add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
 
         $this->process_report_actions();
 
@@ -335,6 +339,10 @@ class checklist_class {
 
     function view_progressbar() {
         global $CFG;
+
+        if (!$this->items) {
+            return;
+        }
 
         $teacherprogress = ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT);
         
@@ -1893,7 +1901,9 @@ class checklist_class {
         if (!$checklist) {
             return array(false, false);
         }
-        $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", '', 'id');
+        if (!$items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", '', 'id')) {
+            return array(false, false);
+        }
         $total = count($items);
         $itemlist = implode(',',array_keys($items));
 
