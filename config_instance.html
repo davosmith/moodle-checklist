@@ -24,8 +24,32 @@ echo '<select name="checklistid">';
     echo '<option value="'.$id.'" '.$selected.'>'.$item.'</option>';
   }
 
+?>
+    </td>
+  </tr>
+  <tr valign="top">
+    <td align="right">
+      <?php print_string('choosegroup', 'block_checklistblock'); ?>:
+    </td>
+    <td>
+<?php
+   global $COURSE;
 
-   //print_textarea(true, 10, 50, 0, 0, 'text', $this->config->checkistid);
+   $options = array(0 => get_string('allparticipants'));
+   $groups = get_records('groups','courseid',$COURSE->id);
+   if ($groups) {
+       foreach ($groups as $group) {
+           $options[$group->id] = s($group->name);
+       }
+   }
+   echo '<select name="groupid">';
+   foreach ($options as $id => $item) {
+      $selected = '';
+      if ($id == $this->config->groupid) {
+        $selected = 'selected="selected" ';
+      }
+      echo '<option value="'.$id.'" '.$selected.'>'.$item.'</option>';
+   }
 ?>
     </td>
   </tr>
