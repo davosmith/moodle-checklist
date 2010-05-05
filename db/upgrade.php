@@ -2,91 +2,124 @@
 
 function xmldb_checklist_upgrade($oldversion=0) {
 
-    global $CFG, $THEME, $db;
+    global $CFG, $THEME, $DB;
 
+    $dbman = $DB->get_manager();
     $result = true;
 
     if ($result && $oldversion < 2010022500) {
         // Adjust (currently unused) 'teachermark' fields to be 0 when unmarked, not 2
-        $sql = 'UPDATE '.$CFG->prefix.'checklist_check ';
+        $sql = 'UPDATE {checklist_check} ';
         $sql .= 'SET teachermark=0 ';
         $sql .= 'WHERE teachermark=2';
-        $result = execute_sql($sql);
+        $DB->execute($sql);
+
+        upgrade_mod_savepoint($result, 2010022500, 'checklist');
     }
 
     if ($result && $oldversion < 2010022800) {
         // All checklists created before this point were 'student only' checklists
         // Update the default & previously created checklists to reflect this
         
-        $sql = 'UPDATE '.$CFG->prefix.'checklist ';
+        $sql = 'UPDATE {checklist} ';
         $sql .= 'SET teacheredit=0 ';
         $sql .= 'WHERE teacheredit=2';
-        $result = execute_sql($sql);
+        $DB->execute($sql);
         
-        $table = new XMLDBTable('checklist');
-        $field = new XMLDBField('teacheredit');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '0', null);
-        $result = $result && change_field_type($table, $field);
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('teacheredit', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, '0', 'useritemsallowed');
+        $dbman->change_field_type($table, $field);
+    
+        /// checklist savepoint reached
+        upgrade_mod_savepoint($result, 2010022800, 'checklist');
     }
 
     if ($result && $oldversion < 2010031600) {
         notify('Processing checklist grades, this may take a while if there are many checklists...', 'notifysuccess');
 
+        require_once(dirname(dirname(__FILE__)).'/lib.php');
+
         // too much debug output
-        $db->debug = false;
+        $olddebug = $DB->get_debug();
+        $DB->set_debug(false);
         checklist_update_all_grades();
-        $db->debug = true;
+        $DB->set_debug($olddebug);
+
+        /// checklist savepoint reached
+        upgrade_mod_savepoint($result, 2010031600, 'checklist');
     }
 
     if ($result && $oldversion < 2010041800) {
-        $table = new XMLDBTable('checklist_item');
-        $field = new XMLDBField('duetime');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'itemoptional');
+        $table = new xmldb_table('checklist_item');
+        $field = new xmldb_field('duetime', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0', 'itemoptional');
 
-    /// Launch add field duetime
-        $result = $result && add_field($table, $field);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        /// checklist savepoint reached
+        upgrade_mod_savepoint($result, 2010041800, 'checklist');
     }
 
     if ($result && $oldversion < 2010041801) {
-        $table = new XMLDBTable('checklist');
-        $field = new XMLDBField('duedatesoncalendar');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '0', 'theme');
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('duedatesoncalendar', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, '0', 'theme');
 
-    /// Launch add field duedatesoncalendar
-        $result = $result && add_field($table, $field);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        /// checklist savepoint reached
+        upgrade_mod_savepoint($result, 2010041801, 'checklist');
     }
 
     if ($result && $oldversion < 2010041900) {
 
-    /// Define field eventid to be added to checklist_item
-        $table = new XMLDBTable('checklist_item');
-        $field = new XMLDBField('eventid');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'duetime');
+        /// Define field eventid to be added to checklist_item
+        $table = new xmldb_table('checklist_item');
+        $field = new xmldb_field('eventid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0', 'duetime');
 
-    /// Launch add field eventid
-        $result = $result && add_field($table, $field);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        /// checklist savepoint reached
+        upgrade_mod_savepoint($result, 2010041900, 'checklist');
     }
 
     if ($result && $oldversion < 2010050100) {
 
-    /// Define field teachercomments to be added to checklist
-        $table = new XMLDBTable('checklist');
-        $field = new XMLDBField('teachercomments');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '1', 'duedatesoncalendar');
+        /// Define field teachercomments to be added to checklist
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('teachercomments', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, '1', 'duedatesoncalendar');
 
-    /// Launch add field teachercomments
-        $result = $result && add_field($table, $field);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
 
-        $table = new XMLDBTable('checklist_comment');
-        $table->addFieldInfo('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null, null);
-        $table->addFieldInfo('itemid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0');
-        $table->addFieldInfo('userid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0');
-        $table->addFieldInfo('commentby', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0');
-        $table->addFieldInfo('text', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, null, '');
+        /// Define table checklist_comment to be created
+        $table = new xmldb_table('checklist_comment');
 
-        $table->addKeyInfo('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->addIndexInfo('checklist_item_user', XMLDB_INDEX_UNIQUE, array('itemid', 'userid'));
-        $result = $result && create_table($table);
+        /// Adding fields to table checklist_comment
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('commentby', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0');
+        $table->add_field('text', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
+
+        /// Adding keys to table checklist_comment
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        /// Adding indexes to table checklist_comment
+        $table->add_index('checklist_item_user', XMLDB_INDEX_UNIQUE, array('itemid', 'userid'));
+
+        /// Conditionally launch create table for checklist_comment
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        /// checklist savepoint reached
+        upgrade_mod_savepoint($result, 2010050100, 'checklist');
     }
         
     return $result;
