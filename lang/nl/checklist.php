@@ -1,5 +1,12 @@
 <?php
+/**
+Nederlandse vertaling door Linuxpete
+email: linuxpete.nl(at)gmail.com
+Date : 06 may 2010
+**/
 
+
+$string['addcomments'] = 'Maak opmerkingen';
 $string['additem'] = 'Toevoegen';
 $string['additemalt'] = 'Voeg een nieuwe item toe aan de lijst.';
 $string['additemhere'] = 'Voeg een nieuw item toe na dit item.';
@@ -23,10 +30,14 @@ $string['checklistintro'] = 'Introductie';
 $string['checklistsettings'] = 'Instellingen';
 
 $string['checks'] = 'Check marks';
+$string['comments'] = 'Opmerkingen';
 
+$string['confirmdeleteitem'] = 'Weet u zeker dat u dit item permanent wilt verwijderen?';
 $string['deleteitem'] = 'Verwijder dit item.';
-
+$string['duedatesoncalendar'] = 'Zet einddatum op kalender';
 $string['edit'] = 'Wijzig Checklist';
+$string['editdatesstart'] = 'Wijzig datums';
+$string['editdatesstop'] = 'Einde wijzigen';
 $string['edititem'] = 'Wijzig dit item';
 
 $string['guestsno'] = 'U hebt geen toestemming om deze checklist te bekijken.';
@@ -50,6 +61,7 @@ $string['optionalshow'] = 'Laat optionele items zien';
 $string['percentcomplete'] = 'Verplichte items';
 $string['percentcompleteall'] = 'Alle items';
 $string['preview'] = 'Voorvertonen';
+$string['progress'] = 'Voortgang';
 
 $string['report'] = 'Bekijk Voortgang';
 $string['reporttablesummary'] = 'Deze tabel laat alle items zien welke de student heeft voltooid';
@@ -63,6 +75,7 @@ $string['savechecks'] = 'Opslaan';
 
 $string['showfulldetails'] = 'Bekijk details';
 $string['showprogressbars'] = 'Bekijk voortgangsbalken';
+$string['teachercomments'] = 'Instructeur kan opmerkingen toevoegen.';
 
 $string['teacheredit'] = 'Wijzigingen door';
 
