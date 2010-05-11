@@ -27,7 +27,8 @@ class checklist_class {
     var $editdates;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
-        global $COURSE;
+        //UT
+        global $COURSE, $DB;
 
         if ($cmid == 'staticonly') {
             //use static functions only!
@@ -35,8 +36,6 @@ class checklist_class {
         }
 
         $this->userid = $userid;
-
-        global $CFG;
 
         if ($cm) {
             $this->cm = $cm;
@@ -50,14 +49,14 @@ class checklist_class {
             $this->course = $course;
         } else if ($this->cm->course == $COURSE->id) {
             $this->course = $COURSE;
-        } else if (! $this->course = get_record('course', 'id', $this->cm->course)) {
+        } else if (! $this->course = $DB->get_record('course', array('id' => $this->cm->course) )) {
             error('Course is misconfigured');
         }
 
         if ($checklist) {
             $this->checklist = $checklist;
-        } else if (! $this->checklist = get_record('checklist', 'id', $this->cm->instance)) {
-            error('assignment ID was incorrect');
+        } else if (! $this->checklist = $DB->get_record('checklist', array('id' => $this->cm->instance) )) {
+            error('checklist ID was incorrect');
         }
 
         $this->strchecklist = get_string('modulename', 'checklist');
@@ -72,44 +71,46 @@ class checklist_class {
      * 
      */
     function get_items() {
-        global $CFG;
+        //UT
+        global $DB;
         
         // Load all shared checklist items
-        $sql = 'checklist = '.$this->checklist->id;
+        $sql = 'checklist = ? ';
         $sql .= ' AND userid = 0';
-        $this->items = get_records_select('checklist_item', $sql, 'position');
+        $this->items = $DB->get_records('checklist_item', array('checklist' => $this->checklist->id, 'userid' => 0), 'position');
 
         // Makes sure all items are numbered sequentially, starting at 1
         $this->update_item_positions();
 
         // Load student's own checklist items
         if ($this->userid && $this->canaddown()) {
-            $sql = 'checklist = '.$this->checklist->id;
-            $sql .= ' AND userid = '.$this->userid;
-            $this->useritems = get_records_select('checklist_item', $sql, 'position, id');
+            //UT
+            $sql = 'checklist = ? ';//.$this->checklist->id;
+            $sql .= ' AND userid = ? ';//.$this->userid;
+            $this->useritems = $DB->get_records('checklist_item', array('checklist' => $this->checklist->id, 'userid' => $this->userid), 'position, id');
         } else {
+            //UT
             $this->useritems = false;
         }
 
         // Load the currently checked-off items
         if ($this->userid) { // && ($this->canupdateown() || $this->canviewreports() )) {
+            //UT
 
-            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
-            $sql .= 'ON (i.id = c.item AND c.userid = '.$this->userid.') WHERE i.checklist = '.$this->checklist->id;
+            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
+            $sql .= 'ON (i.id = c.item AND c.userid = ?) WHERE i.checklist = ? ';
 
-            $checks = get_records_sql($sql);
+            $checks = $DB->get_records_sql($sql, array($this->userid, $this->checklist->id));
 
-            if ($checks) {
-                foreach ($checks as $check) {
-                    $id = $check->id;
+            foreach ($checks as $check) {
+                $id = $check->id;
                 
-                    if (isset($this->items[$id])) {
-                        $this->items[$id]->checked = $check->usertimestamp > 0;
-                        $this->items[$id]->teachermark = $check->teachermark;
-                    } elseif ($this->useritems && isset($this->useritems[$id])) {
-                        $this->useritems[$id]->checked = $check->usertimestamp > 0;
-                        // User items never have a teacher mark to go with them
-                    }
+                if (isset($this->items[$id])) {
+                    $this->items[$id]->checked = $check->usertimestamp > 0;
+                    $this->items[$id]->teachermark = $check->teachermark;
+                } elseif ($this->useritems && isset($this->useritems[$id])) {
+                    $this->useritems[$id]->checked = $check->usertimestamp > 0;
+                    // User items never have a teacher mark to go with them
                 }
             }
         }
@@ -125,6 +126,9 @@ class checklist_class {
      * @param $end (optional) - where to stop offsetting positions
      */
     function update_item_positions($move=0, $start=1, $end=false) {
+        //UT
+        global $DB;
+        
         $pos = 1;
 
         if (!$this->items) {
@@ -141,7 +145,7 @@ class checklist_class {
                 $upditem = new stdClass;
                 $upditem->id = $item->id;
                 $upditem->position = $pos;
-                update_record('checklist_item', $upditem);
+                $DB->update_record('checklist_item', $upditem);
                 if ($oldpos == $end) {
                     break;
                 }
@@ -151,6 +155,8 @@ class checklist_class {
     }
 
     function get_item_at_position($position) {
+        //UT
+        
         if (!$this->items) {
             return false;
         }
@@ -163,28 +169,34 @@ class checklist_class {
     }
 
     function canupdateown() {
+        //UT
         global $USER;
         return ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canaddown() {
+        //UT
         global $USER;
         return $this->checklist->useritemsallowed && ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canpreview() {
+        //UT
         return has_capability('mod/checklist:preview', $this->context);
     }
 
     function canedit() {
+        //UT
         return has_capability('mod/checklist:edit', $this->context);
     }
 
     function canviewreports() {
+        //UT
         return has_capability('mod/checklist:viewreports', $this->context);
     }
         
     function view() {
+        //UT
         global $CFG;
         
         $this->view_header();
@@ -226,6 +238,7 @@ class checklist_class {
 
 
     function edit() {
+        //UT
         global $CFG;
         
         if (!$this->canedit()) {
@@ -248,6 +261,7 @@ class checklist_class {
     }
 
     function report() {
+        //UT
         global $CFG;
 
         if (!$this->canviewreports()) {
@@ -269,8 +283,10 @@ class checklist_class {
         $this->process_report_actions();
 
         if ($this->userid) {
+            //UT
             $this->view_items(true);
         } else {
+            //UT
             $this->view_report();
         }
         
@@ -278,10 +294,12 @@ class checklist_class {
     }
 
     function user_complete() {
+        //UT
         $this->view_items(false, true);
     }
 
     function view_header() {
+        //UT
         $navlinks = array();
         $navlinks[] = array('name' => $this->strchecklists, 'link' => "index.php?id={$this->course->id}", 'type' => 'activity');
         $navlinks[] = array('name' => format_string($this->checklist->name), 'link' => '', 'type' => 'activityinstance');
@@ -293,6 +311,7 @@ class checklist_class {
     }
 
     function view_tabs($currenttab) {
+        //UT
         global $CFG;
         
         $tabs = array();
@@ -338,6 +357,7 @@ class checklist_class {
     }
 
     function view_progressbar() {
+        //UT
         global $CFG;
 
         if (!$this->items) {
@@ -410,6 +430,7 @@ class checklist_class {
     }
 
     function get_teachermark($itemid) {
+        //UT
         global $CFG;
 
         if (!isset($this->items[$itemid])) {
@@ -429,7 +450,8 @@ class checklist_class {
     }
 
     function view_items($viewother = false, $userreport = false) {
-        global $CFG;
+        //UT
+        global $CFG, $DB;
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
 
@@ -437,12 +459,14 @@ class checklist_class {
         $editcomments = false;
         $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
         if ($viewother) {
+            //UT
             $showbars = optional_param('showbars',false,PARAM_BOOL);
             if ($comments) {
+                //UT
                 $editcomments = optional_param('editcomments', false, PARAM_BOOL);
             }
             $thispage = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
-            if (!$student = get_record('user', 'id', $this->userid)) {
+            if (!$student = $DB->get_record('user', array('id' => $this->userid) )) {
                 error('No such user!');
             }
             echo '<h2>'.get_string('checklistfor','checklist').' '.fullname($student, true);
@@ -453,6 +477,7 @@ class checklist_class {
             echo '</form>';
 
             if (!$editcomments) {
+                //UT
                 echo '<form style="display: inline;" action="'.$thispage.'" method="get">';
                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                 echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
@@ -469,19 +494,24 @@ class checklist_class {
         $showteachermark = false;
         $showcheckbox = true;
         if ($this->canupdateown() || $viewother || $userreport) {
+            //UT
             $this->view_progressbar();
             $showteachermark = ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
             $showcheckbox = ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
         }
 
         if (!$this->items) {
+            //UT
             print_string('noitems','checklist');
         } else {
+            //UT
             $focusitem = false;
             $updateform = ($showcheckbox && $this->canupdateown() && !$viewother && !$userreport) || ($viewother && ($showteachermark || $editcomments));
             $addown = $this->canaddown() && $this->useredit;
             if ($updateform) {
+                //UT
                 if ($this->canaddown() && !$viewother) {
+                    //UT
                     echo '<form style="display:inline;" action="'.$thispage.'" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     if ($addown) {
@@ -510,11 +540,14 @@ class checklist_class {
             }
 
             if ($comments) {
-                $itemids = implode(',',array_keys($this->items));
-                $commentsunsorted = get_records_select('checklist_comment',"userid = {$this->userid} AND itemid IN ({$itemids})");
+                //UT
+                list($isql, $iparams) = $DB->get_in_or_equal(array_keys($this->items));
+                $params = array_merge(array($this->userid), $iparams);
+                $commentsunsorted = $DB->get_records_select('checklist_comment',"userid = ? AND itemid $isql", $params);
                 $commentuserids = array();
                 $commentusers = array();
-                if ($commentsunsorted) {
+                if (!empty($commentsunsorted)) {
+                    //UT
                     $comments = array();
                     foreach ($commentsunsorted as $comment) {
                         $comments[$comment->itemid] = $comment;
@@ -523,7 +556,8 @@ class checklist_class {
                         }
                     }
                     $commentuserids = implode(",",array_unique($commentuserids, SORT_NUMERIC));
-                    $commentusers = get_records_select('user', 'id IN ('.$commentuserids.')');
+                    list($csql, $cparams) = $DB->get_in_or_equal(array_unique($commentuserids, SORT_NUMERIC));
+                    $commentusers = $DB->get_records_select('user', 'id '.$csql, $cparams);
                 } else {
                     $comments = false;
                 }
@@ -548,6 +582,7 @@ class checklist_class {
                 $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
                 echo '<li>';
                 if ($showteachermark) {
+                    //UT
                     if ($viewother) {
                         $selu = ($item->teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
                         $sely = ($item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
@@ -569,6 +604,7 @@ class checklist_class {
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
 
                 if ($addown) {
+                    //UT
                     $baseurl = $thispage.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
                     echo '&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemalt','checklist').'"';
@@ -576,6 +612,7 @@ class checklist_class {
                 }
 
                 if ($item->duetime) {
+                    //UT
                     if ($item->duetime > time()) {
                         echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
                     } else {
@@ -585,6 +622,7 @@ class checklist_class {
 
                 $foundcomment = false;
                 if ($comments) {
+                    //UT
                     if (array_key_exists($item->id, $comments)) {
                         $comment =  $comments[$item->id];
                         $foundcomment = true;
@@ -608,6 +646,7 @@ class checklist_class {
 
                 // Output any user-added items
                 if ($this->useritems) {
+                    //UT
                     $useritem = current($this->useritems);
 
                     if ($useritem && ($useritem->position == $item->position)) {
@@ -616,6 +655,7 @@ class checklist_class {
                             $itemname = '"item'.$useritem->id.'"';
                             $checked = ($updateform && $useritem->checked) ? ' checked="checked" ' : '';
                             if (isset($useritem->editme)) {
+                                //UT
                                 $itemtext = explode("\n", $useritem->displaytext, 2);
                                 $itemtext[] = '';
                                 $text = $itemtext[0];
@@ -646,6 +686,7 @@ class checklist_class {
 
                                 $focusitem = 'updateitembox';
                             } else {
+                                //UT
                                 echo '<li>';
                                 if ($showcheckbox) {
                                     echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
@@ -657,6 +698,7 @@ class checklist_class {
                                 echo '<label class="useritem" for='.$itemname.'>'.$text.'</label>';
 
                                 if ($addown) {
+                                    //UT
                                     $baseurl = $thispage.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem">';
                                     $title = '"'.get_string('edititem','checklist').'"';
@@ -667,6 +709,7 @@ class checklist_class {
                                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/remove.png" alt='.$title.' title='.$title.' /></a>';
                                 }
                                 if ($note != '') {
+                                    //UT
                                     echo '<div class="note">'.$note.'</div>';
                                 }
 
@@ -679,6 +722,7 @@ class checklist_class {
                 }
 
                 if ($addown && ($item->id == $this->additemafter)) {
+                    //UT
                     echo '<ol class="checklist"><li>';
                     echo '<div style="float: left;">';
                     echo '<form action="'.$thispage.'" method="post">';
@@ -711,15 +755,18 @@ class checklist_class {
             echo '</ol>';
 
             if ($updateform) {
+                //UT
                 echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 echo '</form>';
             }
 
             if ($focusitem) {
+                //UT
                 echo '<script type="text/javascript">document.getElementById("'.$focusitem.'").focus();</script>';
             }
 
             if ($addown) {
+                //UT
                 echo '<script type="text/javascript">';
                 echo 'function confirmdelete(url) {';
                 echo 'if (confirm("'.get_string('confirmdeleteitem','checklist').'")) { window.location = url; } ';
@@ -739,6 +786,7 @@ class checklist_class {
     }
 
     function print_edit_date($ts=0) {
+        //UT
         $id=rand();
         if ($ts == 0) {
             $disabled = true;
@@ -781,6 +829,7 @@ class checklist_class {
     }
 
     function view_edit_items() {
+        //UT
         global $CFG;
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
@@ -978,7 +1027,8 @@ class checklist_class {
     }
 
     function view_report() {
-        global $CFG;
+        //UT
+        global $CFG, $DB;
 
         $showbars = optional_param('showbars', false, PARAM_BOOL);
 
@@ -1020,29 +1070,30 @@ class checklist_class {
 
         switch ($this->sortby) {
         case 'firstdesc':
-            $orderby = 'ORDER BY u.firstname DESC';
+            $orderby = ' ORDER BY u.firstname DESC';
             break;
 
         case 'lastasc':
-            $orderby = 'ORDER BY u.lastname';
+            $orderby = ' ORDER BY u.lastname';
             break;
 
         case 'lastdesc':
-            $orderby = 'ORDER BY u.lastname DESC';
+            $orderby = ' ORDER BY u.lastname DESC';
             break;
             
         default:
-            $orderby = 'ORDER BY u.firstname';
+            $orderby = ' ORDER BY u.firstname';
             break;
         }
         
         $ausers = false;
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
-            $users = array_keys($users);
-            $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
+            list($usql, $uparams) = $DB->get_in_or_equal(array_keys($users));
+            $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id '.$usql.$orderby, $uparams);
         }
 
         if ($showbars) {
+            //UT
             if ($ausers) {
                 // Show just progress bars
                 if ($this->showoptional) {
@@ -1056,17 +1107,19 @@ class checklist_class {
                     }
                 }
                 $totalitems = count($itemstocount);
-                $itemstocount = implode(',',$itemstocount);
+                list($isql, $params) = $DB->get_in_or_equal($itemstocount, SQL_PARAMS_NAMED);
 
                 if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-                    $sql = 'usertimestamp > 0 AND item IN ('.$itemstocount.') AND userid = ';
+                    $sql = 'usertimestamp > 0 AND item '.$isql.' AND userid = :user ';
                 } else {
-                    $sql = 'teachermark = '.CHECKLIST_TEACHERMARK_YES.' AND item IN ('.$itemstocount.') AND userid = ';
+                    $sql = 'teachermark = '.CHECKLIST_TEACHERMARK_YES.' AND item '.$isql.' AND userid = :user ';
                 }
                 echo '<div>';
                 foreach ($ausers as $auser) {
+                    //UT
                     if ($totalitems) {
-                        $tickeditems = count_records_select('checklist_check', $sql.$auser->id);
+                        $params['user'] = $auser->id;
+                        $tickeditems = $DB->count_records_select('checklist_check', $sql, $iparams);
                         $percentcomplete = ($tickeditems * 100) / $totalitems;
                     } else {
                         $percentcomplete = 0;
@@ -1091,6 +1144,7 @@ class checklist_class {
             
         } else {
             // Show full table
+            //UT
             $firstlink = 'sortby=firstasc';
             $lastlink = 'sortby=lastasc';
             $firstarrow = '';
@@ -1127,6 +1181,7 @@ class checklist_class {
             $table->data = array();
             if ($ausers) {
                 foreach ($ausers as $auser) {
+                    //UT
                     $row = array();
                 
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
@@ -1136,11 +1191,12 @@ class checklist_class {
 
                     $row[] = $userlink.$vslink;
 
-                    $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
-                    $sql .= 'ON (i.id = c.item AND c.userid = '.$auser->id.') WHERE i.checklist = '.$this->checklist->id.' AND i.userid=0 ORDER BY i.position';
-                    $checks = get_records_sql($sql);
+                    $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
+                    $sql .= 'ON (i.id = c.item AND c.userid = ? ) WHERE i.checklist = ? AND i.userid=0 ORDER BY i.position';
+                    $checks = $B->get_records_sql($sql, array($auser->id, $this->checklist->id) );
 
                     foreach ($checks as $check) {
+                        //UT
                         if ($check->usertimestamp > 0) {
                             $row[] = array($check->teachermark,true);
                         } else {
@@ -1157,6 +1213,7 @@ class checklist_class {
     }
 
     function print_report_table($table) {
+        //UT
         global $CFG;
         
         $output = '';
@@ -1251,10 +1308,12 @@ class checklist_class {
     }
 
     function view_footer() {
+        //UT
         print_footer($this->course);
     }
 
     function process_view_actions() {
+        //UT
         $this->useredit = optional_param('useredit', false, PARAM_BOOL);
         
         $action = optional_param('action', false, PARAM_TEXT);
@@ -1314,6 +1373,7 @@ class checklist_class {
     }
     
     function process_edit_actions() {
+        //UT
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
         
@@ -1393,6 +1453,7 @@ class checklist_class {
     }
 
     function process_report_actions() {
+        //UT
         $this->showoptional = true;
         $this->sortby = optional_param('sortby', 'firstasc', PARAM_TEXT);
         
@@ -1409,6 +1470,9 @@ class checklist_class {
     }
 
     function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false) {
+        //UT
+        global $DB;
+        
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1441,8 +1505,7 @@ class checklist_class {
         }
         $item->eventid = 0;
 
-        $item->id = insert_record('checklist_item', $item);
-        $item->displaytext = stripslashes($displaytext);
+        $item->id = $DB->insert_record('checklist_item', $item);
         if ($item->id) {
             if ($userid) {
                 $this->useritems[$item->id] = $item;
@@ -1465,10 +1528,14 @@ class checklist_class {
     }
 
     function setevent($itemid, $add) {
+        //UT
+        global $DB;
+        
         $item = $this->items[$itemid];
         $update = false;
 
         if  ((!$add) || ($item->duetime == 0)) {  // Remove the event (if any)
+            //UT
             if (!$item->eventid) {
                 return; // No event to remove
             }
@@ -1478,6 +1545,7 @@ class checklist_class {
             $update = true;
             
         } else {  // Add/update event
+            //UT
             $event = new stdClass;
             $event->name = $item->displaytext;
             $event->description = get_string('calendardescription', 'checklist', $this->checklist->name);
@@ -1488,27 +1556,32 @@ class checklist_class {
             $event->timestart = $item->duetime;
 
             if ($item->eventid) {
+                //UT
                 $event->id = $item->eventid;
                 update_event($event);
             } else {
+                //UT
                 $this->items[$itemid]->eventid = add_event($event);
                 $update = true;
             }
         }
 
         if ($update) { // Event added or removed
+            //UT
             $upditem = new stdClass;
             $upditem->id = $itemid;
             $upditem->eventid = $this->items[$itemid]->eventid;
-            update_record('checklist_item', $upditem);
+            $DB->update_record('checklist_item', $upditem);
         }
     }
 
     function setallevents() {
+        //UT
         if (!$this->items) {
             return;
         }
 
+        //UT
         $add = $this->checklist->duedatesoncalendar;
         foreach ($this->items as $key => $value) {
             $this->setevent($key, $add);
@@ -1516,14 +1589,18 @@ class checklist_class {
     }
 
     function updateitemtext($itemid, $displaytext, $duetime=false) {
+        //UT
+        global $DB;
+
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
         }
 
         if (isset($this->items[$itemid])) {
+            //UT
             if ($this->canedit()) {
-                $this->items[$itemid]->displaytext = stripslashes($displaytext);
+                $this->items[$itemid]->displaytext = $displaytext;
                 $upditem = new stdClass;
                 $upditem->id = $itemid;
                 $upditem->displaytext = $displaytext;
@@ -1534,24 +1611,28 @@ class checklist_class {
                 }
                 $this->items[$itemid]->duetime = $upditem->duetime;
 
-                update_record('checklist_item', $upditem);
+                $DB->update_record('checklist_item', $upditem);
 
                 if ($this->checklist->duedatesoncalendar) {
                     $this->setevent($itemid, true);
                 }
             }
         } elseif (isset($this->useritems[$itemid])) {
+            //UT
             if ($this->canaddown()) {
-                $this->useritems[$itemid]->displaytext = stripslashes($displaytext);
+                $this->useritems[$itemid]->displaytext = $displaytext;
                 $upditem = new stdClass;
                 $upditem->id = $itemid;
                 $upditem->displaytext = $displaytext;
-                update_record('checklist_item', $upditem);
+                $DB->update_record('checklist_item', $upditem);
             }
         }
     }
 
     function deleteitem($itemid) {
+        //UT
+        global $DB;
+        
         if (isset($this->items[$itemid])) {
             if (!$this->canedit()) {
                 return;
@@ -1568,13 +1649,16 @@ class checklist_class {
             return;
         }
 
-        delete_records('checklist_item', 'id', $itemid);
-        delete_records('checklist_check', 'item', $itemid);
+        $DB->delete_records('checklist_item', array('id', $itemid) );
+        $DB->delete_records('checklist_check', array('item', $itemid) );
 
         $this->update_item_positions();
     }
 
     function moveitemto($itemid, $newposition) {
+        //UT
+        global $DB;
+        
         if (!isset($this->items[$itemid])) {
             if (isset($this->useritems[$itemid])) {
                 if ($this->canupdateown()) {
@@ -1582,7 +1666,7 @@ class checklist_class {
                     $upditem = new stdClass;
                     $upditem->id = $itemid;
                     $upditem->position = $newposition;
-                    update_record('checklist_item', $upditem);
+                    $DB->update_record('checklist_item', $upditem);
                 }
             }
             return;
@@ -1615,11 +1699,12 @@ class checklist_class {
         $upditem = new stdClass;
         $upditem->id = $itemid;
         $upditem->position = $newposition;
-        update_record('checklist_item', $upditem); // Update the database
+        $DB->update_record('checklist_item', $upditem); // Update the database
     }
 
     function moveitemup($itemid) {
         // TODO If indented, only allow move if suitable space for 'reparenting'
+        //UT
 
         if (!isset($this->items[$itemid])) {
             if (isset($this->useritems[$itemid])) {
@@ -1632,6 +1717,7 @@ class checklist_class {
 
     function moveitemdown($itemid) {
         // TODO If indented, only allow move if suitable space for 'reparenting'
+        //UT
 
         if (!isset($this->items[$itemid])) {
             if (isset($this->useritems[$itemid])) {
@@ -1643,6 +1729,9 @@ class checklist_class {
     }
         
     function indentitemto($itemid, $indent) {
+        //UT
+        global $DB;
+        
         if (!isset($this->items[$itemid])) {
             // Not able to indent useritems, as they are always parent + 1
             return;
@@ -1668,7 +1757,7 @@ class checklist_class {
         $upditem = new stdClass;
         $upditem->id = $itemid;
         $upditem->indent = $indent;
-        update_record('checklist_item', $upditem);
+        $DB->update_record('checklist_item', $upditem);
 
         // Update all 'children' of this item to new indent
         foreach ($this->items as $item) {
@@ -1678,7 +1767,7 @@ class checklist_class {
                     $upditem = new stdClass;
                     $upditem->id = $item->id;
                     $upditem->indent = $item->indent;
-                    update_record('checklist_item', $upditem);
+                    $DB->update_record('checklist_item', $upditem);
                 } else {
                     break;
                 }
@@ -1687,6 +1776,8 @@ class checklist_class {
     }
 
     function indentitem($itemid) {
+        //UT
+
         if (!isset($this->items[$itemid])) {
             // Not able to indent useritems, as they are always parent + 1
             return;
@@ -1695,6 +1786,8 @@ class checklist_class {
     }
 
     function unindentitem($itemid) {
+        //UT
+
         if (!isset($this->items[$itemid])) {
             // Not able to indent useritems, as they are always parent + 1
             return;
@@ -1703,6 +1796,9 @@ class checklist_class {
     }
 
     function makeoptional($itemid, $optional) {
+        //UT
+        global $DB;
+        
         if (!isset($this->items[$itemid])) {
             return;
         }
@@ -1711,10 +1807,13 @@ class checklist_class {
         $upditem = new stdClass;
         $upditem->id = $itemid;
         $upditem->itemoptional = $optional;
-        update_record('checklist_item', $upditem);
+        $DB->update_record('checklist_item', $upditem);
     }
 
     function updatechecks() {
+        //UT
+        global $DB;
+        
         $newchecks = optional_param('items', array(), PARAM_INT);
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing
@@ -1728,17 +1827,18 @@ class checklist_class {
                 if ($newval != $item->checked) {
                     $item->checked = $newval;
                 
-                    $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
+                    $check = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                     if ($check) {
+                        //UT
                         if ($newval) {
                             $check->usertimestamp = time();
                         } else {
                             $check->usertimestamp = 0;
                         }
-                        update_record('checklist_check', $check);
+                        $DB->update_record('checklist_check', $check);
 
                     } else {
-                    
+                        //UT
                         $check = new stdClass;
                         $check->item = $item->id;
                         $check->userid = $this->userid;
@@ -1746,7 +1846,7 @@ class checklist_class {
                         $check->teachertimestamp = 0;
                         $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
                     
-                        $check->id = insert_record('checklist_check', $check);
+                        $check->id = $DB->insert_record('checklist_check', $check);
                     }
                     checklist_update_grades($this->checklist, $this->userid);
                 }
@@ -1759,17 +1859,18 @@ class checklist_class {
                 if ($newval != $item->checked) {
                     $item->checked = $newval;
                 
-                    $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
+                    $check = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                     if ($check) {
+                        //UT
                         if ($newval) {
                             $check->usertimestamp = time();
                         } else {
                             $check->usertimestamp = 0;
                         }
-                        update_record('checklist_check', $check);
+                        $DB->update_record('checklist_check', $check);
 
                     } else {
-                    
+                        //UT
                         $check = new stdClass;
                         $check->item = $item->id;
                         $check->userid = $this->userid;
@@ -1777,7 +1878,7 @@ class checklist_class {
                         $check->teachertimestamp = 0;
                         $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
                     
-                        $check->id = insert_record('checklist_check', $check);
+                        $check->id = $DB->insert_record('checklist_check', $check);
                     }
                 }
             }
@@ -1785,7 +1886,8 @@ class checklist_class {
     }
 
     function updateteachermarks() {
-        global $USER;
+        //UT
+        global $USER, $DB;
         
         $newchecks = optional_param('items', array(), PARAM_TEXT);
         if (!is_array($newchecks)) {
@@ -1795,6 +1897,7 @@ class checklist_class {
 
         if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
 
+            //TODO - update this to set the array key to the itemid
             foreach ($newchecks as $newcheck) {
                 list($itemid, $newval) = explode(':',$newcheck, 2);
             
@@ -1807,14 +1910,16 @@ class checklist_class {
                         $newcheck->teachertimestamp = time();
                         $newcheck->teachermark = $newval;
                     
-                        $oldcheck = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
+                        $oldcheck = $DB->get_record_select('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                         if ($oldcheck) {
+                            //UT
                             $newcheck->id = $oldcheck->id;
-                            update_record('checklist_check', $newcheck);
+                            $DB->update_record('checklist_check', $newcheck);
                         } else {
+                            //UT
                             $newcheck->item = $itemid;
                             $newcheck->userid = $this->userid;
-                            $newcheck->id = insert_record('checklist_check', $newcheck);
+                            $newcheck->id = $DB->insert_record('checklist_check', $newcheck);
                         }
                         checklist_update_grades($this->checklist, $this->userid);
                     }
@@ -1826,24 +1931,25 @@ class checklist_class {
         if (!$this->checklist->teachercomments || !$newcomments || !is_array($newcomments)) {
             return;
         }
+        //UT
 
-        $itemids = implode(',',array_keys($this->items));
-        $commentsunsorted = get_records_select('checklist_comment',"userid = {$this->userid} AND itemid IN ({$itemids})");
+        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($this->items));
+        $commentsunsorted = $DB->get_records_select('checklist_comment',"userid = ? AND itemid $isql", array_merge(array($this->userid), $iparams) );
         $comments = array();
-        if ($commentsunsorted) {
-            foreach ($commentsunsorted as $comment) {
-                $comments[$comment->itemid] = $comment;
-            }
+        foreach ($commentsunsorted as $comment) {
+            $comments[$comment->itemid] = $comment;
         }
         foreach ($newcomments as $itemid => $newcomment) {
             $newcomment = trim($newcomment);
             if ($newcomment == '') {
+                //UT
                 if (array_key_exists($itemid, $comments)) {
-                    delete_records('checklist_comment', 'id', $comments[$itemid]->id);
+                    $DB->delete_records('checklist_comment', array('id' => $comments[$itemid]->id) );
                     unset($comments[$itemid]); // Should never be needed, but just in case...
                 }
             } else {
                 if (array_key_exists($itemid, $comments)) {
+                    //UT
                     if ($comments[$itemid]->text != $newcomment) {
                         $updatecomment = new stdClass;
                         $updatecomment->id = $comments[$itemid]->id;
@@ -1852,16 +1958,17 @@ class checklist_class {
                         $updatecomment->commentby = $USER->id;
                         $updatecomment->text = $newcomment;
 
-                        update_record('checklist_comment',$updatecomment);
+                        $DB->update_record('checklist_comment',$updatecomment);
                     }
                 } else {
+                    //UT
                     $addcomment = new stdClass;
                     $addcomment->itemid = $itemid;
                     $addcomment->userid = $this->userid;
                     $addcomment->commentby = $USER->id;
                     $addcomment->text = $newcomment;
 
-                    insert_record('checklist_comment',$addcomment);
+                    $DB->insert_record('checklist_comment',$addcomment);
                 }
             }
         }
@@ -1870,6 +1977,7 @@ class checklist_class {
 
     /* static function - avoiding 'static' keyword for PHP 4 compatibility */
     function print_user_progressbar($checklistid, $userid, $width='300px', $showpercent=true, $return=false) {
+        //UT
         global $CFG;
 
         list($ticked, $total) = checklist_class::get_user_progress($checklistid, $userid);
@@ -1895,31 +2003,37 @@ class checklist_class {
     }
 
     function get_user_progress($checklistid, $userid) {
+        //UT
+        global $DB;
+        
         $userid = intval($userid); // Just to be on the safe side...
 
-        $checklist = get_record('checklist', 'id', $checklistid);
+        $checklist = $DB->get_record('checklist', array('id' => $checklistid) );
         if (!$checklist) {
             return array(false, false);
         }
-        if (!$items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", '', 'id')) {
+        $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => 0), '', 'id');
+        if (empty($items)) {
             return array(false, false);
         }
         $total = count($items);
-        $itemlist = implode(',',array_keys($items));
+        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
+        $params = array_merge(array($userid), $iparams);
 
-        $sql = "userid = $userid AND item IN ($itemlist) AND ";
+        $sql = "userid = ? AND item $isql AND ";
         if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
             $sql .= 'usertimestamp > 0';
         } else {
             $sql .= 'teachermark = '.CHECKLIST_TEACHERMARK_YES;
         }
-        $ticked = count_records_select('checklist_check', $sql);
+        $ticked = $DB->count_records_select('checklist_check', $sql, $params);
 
         return array($ticked, $total);
     }
 }
 
 function checklist_itemcompare($item1, $item2) {
+    //UT
     if ($item1->position < $item2->position) {
         return -1;
     } elseif ($item1->position > $item2->position) {

@@ -29,6 +29,8 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 
    function backup_todb_chk_optional_field($data, $field, $default) {
+       //UT
+       
         if (array_key_exists($field, $data['#'])) {
             return backup_todb($data['#'][$field]['0']['#']);
         } else {
@@ -37,8 +39,8 @@ require_once(dirname(__FILE__).'/locallib.php');
     }
  
     function checklist_restore_mods($mod,$restore) {
-        
-        global $CFG,$db;
+        //UT
+        global $CFG,$DB;
 
         $status = true;
 
@@ -72,7 +74,7 @@ require_once(dirname(__FILE__).'/locallib.php');
             $checklist->duedatesoncalendar = backup_todb_chk_optional_field($info['MOD'], 'DUEDATESONCALENDAR', false);
             $checklist->teachercomments = backup_todb_chk_optional_field($info['MOD'], 'TEACHERCOMMENTS', false);
 
-            $newid = insert_record('checklist', $checklist);
+            $newid = $DB->insert_record('checklist', $checklist);
 
 
             //Do some output
@@ -103,8 +105,8 @@ require_once(dirname(__FILE__).'/locallib.php');
     }
     
     function checklist_items_restore($checklist,$info,$restore,$restore_user) {
-    
-        global $CFG;
+        //UT
+        global $CFG,$DB;
 
         $status = true;
 
@@ -151,7 +153,7 @@ require_once(dirname(__FILE__).'/locallib.php');
             }
 
             //The structure is equal to the db, so insert the checklist_item
-            $newid = insert_record ('checklist_item',$item);
+            $newid = $DB->insert_record ('checklist_item',$item);
 
             //Do some output
             if (($i+1) % 50 == 0) {
@@ -184,8 +186,8 @@ require_once(dirname(__FILE__).'/locallib.php');
     }
 
     function checklist_checks_restore($item,$info,$restore) {
-
-        global $CFG;
+        //UT
+        global $CFG, $DB;
 
         $status = true;
 
@@ -223,7 +225,7 @@ require_once(dirname(__FILE__).'/locallib.php');
             $check->userid = $check->userid->new_id;
 
             //The structure is equal to the db, so insert the checklist_check
-            $newid = insert_record ('checklist_check',$check);
+            $newid = $DB->insert_record ('checklist_check',$check);
 
 
             //Do some output
@@ -252,7 +254,7 @@ require_once(dirname(__FILE__).'/locallib.php');
     }
 
     function checklist_comments_restore($item,$info,$restore) {
-
+        //UT
         global $CFG;
 
         $status = true;
@@ -296,7 +298,7 @@ require_once(dirname(__FILE__).'/locallib.php');
                 $comment->commentby = $comment->commentby->new_id;
             }
             //The structure is equal to the db, so insert the checklist_comment
-            $newid = insert_record ('checklist_comment',$comment);
+            $newid = $DB->insert_record ('checklist_comment',$comment);
 
 
             //Do some output

@@ -11,9 +11,12 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
+//UT
+global $DB;
+
 $id = required_param('id', PARAM_INT);   // course
 
-if (! $course = get_record('course', 'id', $id)) {
+if (! $course = $DB->get_record('course', array('id' => $id) )) {
     error('Course ID is incorrect');
 }
 
@@ -39,6 +42,7 @@ print_header_simple($strchecklists, '', $navigation, '', '', true, '', navmenu($
 /// Get all the appropriate data
 
 if (! $checklists = get_all_instances_in_course('checklist', $course)) {
+    //UT
     notice('There are no instances of checklist', "../../course/view.php?id=$course->id");
     die;
 }
@@ -52,12 +56,15 @@ $strtopic = get_string('topic');
 $strprogress = get_string('progress','checklist');
 
 if ($course->format == 'weeks') {
+    //UT
     $table->head  = array ($strweek, $strname);
     $table->align = array ('center', 'left');
 } else if ($course->format == 'topics') {
+    //UT
     $table->head  = array ($strtopic, $strname);
     $table->align = array ('center', 'left', 'left', 'left');
 } else {
+    //UT
     $table->head  = array ($strname);
     $table->align = array ('left', 'left', 'left');
 }
@@ -65,6 +72,7 @@ if ($course->format == 'weeks') {
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 $canupdateown = has_capability('mod/checklist:updateown', $context);
 if ($canupdateown) {
+    //UT
     $table->head[] = $strprogress;
 }
 
