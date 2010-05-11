@@ -43,14 +43,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-    /// Adding the required "intro" field to hold the description of the instance
-        $mform->addElement('htmleditor', 'intro', get_string('checklistintro', 'checklist'));
-        $mform->setType('intro', PARAM_RAW);
-        $mform->addRule('intro', get_string('required'), 'required', null, 'client');
-        $mform->setHelpButton('intro', array('writing', 'richtext'), false, 'editorhelpbutton');
-
-    /// Adding "introformat" field
-        $mform->addElement('format', 'introformat', get_string('format'));
+        $this->add_intro_editor(true, get_string('checklistintro', 'checklist'));
 
 //-------------------------------------------------------------------------------
 

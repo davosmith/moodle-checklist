@@ -37,7 +37,6 @@ require_once(dirname(__FILE__).'/locallib.php');
  * @return int The id of the newly inserted checklist record
  */
 function checklist_add_instance($checklist) {
-    //UT
     global $DB;
 
     $checklist->timecreated = time();
@@ -58,7 +57,6 @@ function checklist_add_instance($checklist) {
  * @return boolean Success/Fail
  */
 function checklist_update_instance($checklist) {
-    //UT
     global $DB;
 
     $checklist->timemodified = time();
@@ -73,10 +71,9 @@ function checklist_update_instance($checklist) {
     //UT
     //$chk->setallevents();
 
-    //UT
-    //checklist_grade_item_update($checklist);
+    checklist_grade_item_update($checklist);
 
-    return $returnid;
+    return true;
 }
 
 
@@ -204,7 +201,6 @@ function checklist_grade_item_delete($checklist) {
 }
 
 function checklist_grade_item_update($checklist, $grades=NULL) {
-    //UT
     global $CFG;
     if (!function_exists('grade_update')) { //workaround for buggy PHP versions
         require_once($CFG->libdir.'/gradelib.php');
@@ -522,6 +518,19 @@ function checklist_refresh_events($courseid = 0) {
     }
 
     return true;
+}
+
+function checklist_supports($feature) {
+    switch($feature) {
+    case FEATURE_GROUPS:                  return true;
+    case FEATURE_GROUPINGS:               return true;
+    case FEATURE_GROUPMEMBERSONLY:        return true;
+    case FEATURE_MOD_INTRO:               return true;
+    case FEATURE_GRADE_HAS_GRADE:         return true;
+    //case FEATURE_COMPLETION_HAS_RULES:    return true;  //TODO Implement this
+
+    default: return null;
+    }
 }
 
 ?>
