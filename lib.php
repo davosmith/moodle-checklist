@@ -117,7 +117,7 @@ function checklist_delete_instance($id) {
     $result = $result && $DB->delete_records('checklist', array('id', $checklist->id));
 
     //UT
-    //checklist_grade_item_delete($checklist);
+    checklist_grade_item_delete($checklist);
 
     return $result;
 }
