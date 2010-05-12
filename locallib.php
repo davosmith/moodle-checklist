@@ -358,7 +358,7 @@ class checklist_class {
 
     function view_progressbar() {
         //UT
-        global $CFG;
+        global $OUTPUT;
 
         if (!$this->items) {
             return;
@@ -413,7 +413,7 @@ class checklist_class {
             echo get_string('percentcomplete','checklist').':&nbsp;';
             echo '</div>';
             echo '<div class="checklist_progress_outer">';
-            echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+            echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').');" >&nbsp;</div>';
             echo '</div>';
             echo '&nbsp;'.sprintf('%0d',$percentcomplete).'%';
             echo '<br style="clear:both"/>';
@@ -423,7 +423,7 @@ class checklist_class {
         echo get_string('percentcompleteall','checklist').':&nbsp;';
         echo '</div>';
         echo '<div class="checklist_progress_outer">';
-        echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+        echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').');" >&nbsp;</div>';
         echo '</div>';
         echo '&nbsp;'.sprintf('%0d',$allpercentcomplete).'%';
         echo '<br style="clear:both"/>';
@@ -431,27 +431,26 @@ class checklist_class {
 
     function get_teachermark($itemid) {
         //UT
-        global $CFG;
+        global $OUTPUT;
 
         if (!isset($this->items[$itemid])) {
             return array('','');
         }
-        $basepath = $CFG->wwwroot.'/mod/checklist/images/';
         switch ($this->items[$itemid]->teachermark) {
         case CHECKLIST_TEACHERMARK_YES:
-            return array($basepath.'tick_box.gif',get_string('teachermarkyes','checklist'));
+            return array($OUTPUT->pix_url('tick_box.gif','checklist'),get_string('teachermarkyes','checklist'));
 
         case CHECKLIST_TEACHERMARK_NO:
-            return array($basepath.'cross_box.gif',get_string('teachermarkno','checklist'));
+            return array($OUTPUT->pix_url('cross_box.gif','checklist'),get_string('teachermarkno','checklist'));
 
         default:
-            return array($basepath.'empty_box.gif',get_string('teachermarkundecided','checklist'));
+            return array($OUTPUT->pix_url('empty_box.gif','checklist'),get_string('teachermarkundecided','checklist'));
         }
     }
 
     function view_items($viewother = false, $userreport = false) {
         //UT
-        global $CFG, $DB;
+        global $CFG, $DB, $OUTPUT;
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
 
@@ -608,7 +607,7 @@ class checklist_class {
                     $baseurl = $thispage.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
                     echo '&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemalt','checklist').'"';
-                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('add.png','checklist').'" alt='.$title.' title='.$title.' /></a>';
                 }
 
                 if ($item->duetime) {
@@ -702,11 +701,11 @@ class checklist_class {
                                     $baseurl = $thispage.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem">';
                                     $title = '"'.get_string('edititem','checklist').'"';
-                                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif" alt='.$title.' title='.$title.' /></a>';
+                                    echo '<img src="'.$OUTPUT->pix_url('/t/edit.gif').'" alt='.$title.' title='.$title.' /></a>';
 
                                     echo '&nbsp;<a href="'.$baseurl.'deleteitem" class="deleteicon">';
                                     $title = '"'.get_string('deleteitem','checklist').'"';
-                                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/remove.png" alt='.$title.' title='.$title.' /></a>';
+                                    echo '<img src="'.$OUTPUT->pix_url('remove.png','checklist').'" alt='.$title.' title='.$title.' /></a>';
                                 }
                                 if ($note != '') {
                                     //UT
@@ -830,7 +829,7 @@ class checklist_class {
 
     function view_edit_items() {
         //UT
-        global $CFG;
+        global $CFG, $OUTPUT;
         
         print_box_start('generalbox boxwidthwide boxaligncenter');
 
@@ -862,12 +861,12 @@ class checklist_class {
                 if ($item->itemoptional) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
                     echo '<a href="'.$baseurl.'makerequired">';
-                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/optional.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<img src="'.$OUTPUT->pix_url('optional.png','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<a href="'.$baseurl.'makeoptional">';
-                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/required.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<img src="'.$OUTPUT->pix_url('required.png','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = '';
                 }
 
@@ -900,18 +899,18 @@ class checklist_class {
 
                     echo '<a href="'.$baseurl.'edititem">';
                     $title = '"'.get_string('edititem','checklist').'"';
-                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif"  alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/edit.gif').'"  alt='.$title.' title='.$title.' /></a>&nbsp;';
 
                     if ($item->indent > 0) {
                         echo '<a href="'.$baseurl.'unindentitem">';
                         $title = '"'.get_string('unindentitem','checklist').'"';
-                        echo '<img src="'.$CFG->pixpath.'/t/left.gif" alt='.$title.' title='.$title.'  /></a>';
+                        echo '<img src="'.$OUTPUT->pix_url('/t/left.gif').'" alt='.$title.' title='.$title.'  /></a>';
                     }
 
                     if (($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
                         echo '<a href="'.$baseurl.'indentitem">';
                         $title = '"'.get_string('indentitem','checklist').'"';
-                        echo '<img src="'.$CFG->pixpath.'/t/right.gif" alt='.$title.' title='.$title.' /></a>';
+                        echo '<img src="'.$OUTPUT->pix_url('/t/right.gif').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     echo '&nbsp;';
@@ -920,22 +919,22 @@ class checklist_class {
                     if ($item->position > 1) {
                         echo '<a href="'.$baseurl.'moveitemup">';
                     $title = '"'.get_string('moveitemup','checklist').'"';
-                    echo '<img src="'.$CFG->pixpath.'/t/up.gif" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/up.gif').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     if ($item->position < $lastitem) {
                         echo '<a href="'.$baseurl.'moveitemdown">';
                     $title = '"'.get_string('moveitemdown','checklist').'"';
-                    echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/down.gif').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
                     $title = '"'.get_string('deleteitem','checklist').'"';
-                    echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/delete.gif').'" alt='.$title.' title='.$title.' /></a>';
                     
                     echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemhere','checklist').'"';
-                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('add.png','checklist').'" alt='.$title.' title='.$title.' /></a>';
                     if ($item->duetime) {
                         if ($item->duetime > time()) {
                             echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
@@ -1128,12 +1127,12 @@ class checklist_class {
 
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'">';
-                    $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
+                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview.gif').'" /></a>';
                     $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
                     echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
                     
                     echo '<div class="checklist_progress_outer">';
-                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').');" >&nbsp;</div>';
                     echo '</div>';
                     echo '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%',$percentcomplete).'</div>';
                     echo '<div style="float:left;">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
@@ -1151,14 +1150,14 @@ class checklist_class {
             $lastarrow = '';
             if ($this->sortby == 'firstasc') {
                 $firstlink = 'sortby=firstdesc';
-                $firstarrow = '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/down.gif').'" alt="'.get_string('asc').'" />';
             } elseif ($this->sortby == 'lastasc') {
                 $lastlink = 'sortby=lastdesc';
-                $lastarrow = '<img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/down.gif').'" alt="'.get_string('asc').'" />';
             } elseif ($this->sortby == 'firstdesc') {
-                $firstarrow = '<img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/up.gif').'" alt="'.get_string('desc').'" />';
             } elseif ($this->sortby == 'lastdesc') {
-                $lastarrow = '<img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/up.gif').'" alt="'.get_string('desc').'" />';
             }
             $firstlink = preg_replace('/sortby=.*/', $firstlink, $thisurl);
             $lastlink = preg_replace('/sortby=.*/', $lastlink, $thisurl);
@@ -1186,7 +1185,7 @@ class checklist_class {
                 
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
-                    $vslink .= '<img src="'.$CFG->pixpath.'/t/preview.gif" /></a>';
+                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview.gif').'" /></a>';
                     $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
 
                     $row[] = $userlink.$vslink;
@@ -1214,7 +1213,7 @@ class checklist_class {
 
     function print_report_table($table) {
         //UT
-        global $CFG;
+        global $OUTPUT;
         
         $output = '';
 
@@ -1244,10 +1243,10 @@ class checklist_class {
         $output .= '</tr>';
 
         // Output the data
-        $tickimg = '<img src="'.$CFG->pixpath.'/i/tick_green_big.gif" alt="'.get_string('itemcomplete','checklist').'" />';
-        $teacherimg = array(CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$CFG->wwwroot.'/mod/checklist/images/empty_box.gif" alt="'.get_string('teachermarkundecided','checklist').'" />', 
-                            CHECKLIST_TEACHERMARK_YES => '<img src="'.$CFG->wwwroot.'/mod/checklist/images/tick_box.gif" alt="'.get_string('teachermarkyes','checklist').'" />', 
-                            CHECKLIST_TEACHERMARK_NO => '<img src="'.$CFG->wwwroot.'/mod/checklist/images/cross_box.gif" alt="'.get_string('teachermarkno','checklist').'" />');
+        $tickimg = '<img src="'.$OUTPUT->pix_url('/i/tick_green_big.gif').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        $teacherimg = array(CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$OUTPUT->pix_url('empty_box.gif','checklist').'" alt="'.get_string('teachermarkundecided','checklist').'" />', 
+                            CHECKLIST_TEACHERMARK_YES => '<img src="'.$OUTPUT->pix_url('tick_box.gif','checklist').'" alt="'.get_string('teachermarkyes','checklist').'" />', 
+                            CHECKLIST_TEACHERMARK_NO => '<img src="'.$OUTPUT->pix_url('cross_box.gif','checklist').'" alt="'.get_string('teachermarkno','checklist').'" />');
         $oddeven = 1;
         $keys = array_keys($table->data);
         $lastrowkey = end($keys);
@@ -1978,7 +1977,7 @@ class checklist_class {
     /* static function - avoiding 'static' keyword for PHP 4 compatibility */
     function print_user_progressbar($checklistid, $userid, $width='300px', $showpercent=true, $return=false) {
         //UT
-        global $CFG;
+        global $OUTPUT;
 
         list($ticked, $total) = checklist_class::get_user_progress($checklistid, $userid);
         if (!$total) {
@@ -1988,7 +1987,7 @@ class checklist_class {
 
         // Sadly 'styles.php' will not be included from outside the module, so I have to hard-code the styles here
         $output = '<div class="checklist_progress_outer" style="border-width: 1px; border-style: solid; border-color: black; width: '.$width.'; background-colour: transparent; height: 15px; float: left;" >';
-        $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
+        $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').'); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
         $output .= '</div>';
         if ($showpercent) {
             $output .= '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%', $percent).'</div>';
