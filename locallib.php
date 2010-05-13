@@ -305,9 +305,6 @@ class checklist_class {
     }
 
     function view_tabs($currenttab) {
-        //UT
-        global $CFG;
-        
         $tabs = array();
         $row = array();
         $inactive = array();
