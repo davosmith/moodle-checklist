@@ -195,11 +195,10 @@ class checklist_class {
     }
         
     function view() {
-        //UT
         global $CFG, $OUTPUT;
         
         if ((!$this->items) && $this->canedit()) {
-            redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id);
+            redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)) );
         }
 
         $this->view_header();
@@ -211,6 +210,7 @@ class checklist_class {
         } elseif ($this->canpreview()) {
             $currenttab = 'preview';
         } else {
+            // FIXME - Is there a more Moodle2.0 way of doing this?
             $loginurl = $CFG->wwwroot.'/login/index.php';
             if (!empty($CFG->loginhttps)) {
                 $loginurl = str_replace('http:','https:', $loginurl);
@@ -237,11 +237,10 @@ class checklist_class {
 
 
     function edit() {
-        //UT
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
         
         if (!$this->canedit()) {
-            redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
+            redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)) );
         }
 
         add_to_log($this->course->id, "checklist", "edit", "edit.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
@@ -260,11 +259,14 @@ class checklist_class {
     }
 
     function report() {
-        //UT
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
+
+        if ((!$this->items) && $this->canedit()) {
+            redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)) );
+        }
 
         if (!$this->canviewreports()) {
-            redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
+            redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)) );
         }
 
         $this->view_header();
@@ -272,10 +274,6 @@ class checklist_class {
         echo $OUTPUT->heading(format_string($this->checklist->name));
 
         $this->view_tabs('report');
-
-        if ((!$this->items) && $this->canedit()) {
-            redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id, get_string('noitems','checklist'));
-        }
 
         add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
 
@@ -298,16 +296,6 @@ class checklist_class {
     }
 
     function view_header() {
-        //UT
-        /*$navlinks = array();
-        $navlinks[] = array('name' => $this->strchecklists, 'link' => "index.php?id={$this->course->id}", 'type' => 'activity');
-        $navlinks[] = array('name' => format_string($this->checklist->name), 'link' => '', 'type' => 'activityinstance');
-
-        $navigation = build_navigation($navlinks);
-
-        print_header_simple($this->pagetitle, '', $navigation, '', '', true,
-        update_module_button($this->cm->id, $this->course->id, $this->strchecklist), navmenu($this->course, $this->cm));*/
-
         global $PAGE, $OUTPUT;
 
         $PAGE->set_title($this->pagetitle);
@@ -326,15 +314,15 @@ class checklist_class {
         $activated = array();
 
         if ($this->canupdateown()) {
-            $row[] = new tabobject('view', "$CFG->wwwroot/mod/checklist/view.php?id={$this->cm->id}", get_string('view', 'checklist'));
+            $row[] = new tabobject('view', new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)), get_string('view', 'checklist'));
         } elseif ($this->canpreview()) {
-            $row[] = new tabobject('preview', "$CFG->wwwroot/mod/checklist/view.php?id={$this->cm->id}", get_string('preview', 'checklist'));
+            $row[] = new tabobject('preview', new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)), get_string('preview', 'checklist'));
         }
         if ($this->canviewreports()) {
-            $row[] = new tabobject('report', "$CFG->wwwroot/mod/checklist/report.php?id={$this->cm->id}", get_string('report', 'checklist'));
+            $row[] = new tabobject('report', new moodle_url('/mod/checklist/report.php', array('id' => $this->cm->id)), get_string('report', 'checklist'));
         }
         if ($this->canedit()) {
-            $row[] = new tabobject('edit', "$CFG->wwwroot/mod/checklist/edit.php?id={$this->cm->id}", get_string('edit', 'checklist'));
+            $row[] = new tabobject('edit', new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)), get_string('edit', 'checklist'));
         }
 
         if ($currenttab == 'view' && count($row) == 1) {
