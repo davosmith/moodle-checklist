@@ -1920,7 +1920,7 @@ class checklist_class {
                         $newcheck->teachertimestamp = time();
                         $newcheck->teachermark = $newval;
                     
-                        $oldcheck = $DB->get_record_select('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
+                        $oldcheck = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                         if ($oldcheck) {
                             //UT
                             $newcheck->id = $oldcheck->id;
