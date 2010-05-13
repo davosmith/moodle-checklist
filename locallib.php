@@ -197,11 +197,11 @@ class checklist_class {
         
     function view() {
         //UT
-        global $CFG;
+        global $CFG, $OUTPUT;
         
         $this->view_header();
 
-        print_heading(format_string($this->checklist->name));
+        echo $OUTPUT->heading(format_string($this->checklist->name));
 
         if ($this->canupdateown()) {
             $currenttab = 'view';
@@ -215,7 +215,7 @@ class checklist_class {
             echo '<br/>';
             notice_yesno('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n</p>" .
                          get_string('liketologin') . '</p>', $loginurl, get_referer(false));
-            print_footer($this->course);
+            echo $OUTPUT->footer();
             die;
         }
 
@@ -239,7 +239,7 @@ class checklist_class {
 
     function edit() {
         //UT
-        global $CFG;
+        global $CFG, $OUTPUT;
         
         if (!$this->canedit()) {
             redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
@@ -249,7 +249,7 @@ class checklist_class {
 
         $this->view_header();
 
-        print_heading(format_string($this->checklist->name));
+        echo $OUTPUT->heading(format_string($this->checklist->name));
 
         $this->view_tabs('edit');
 
@@ -262,7 +262,7 @@ class checklist_class {
 
     function report() {
         //UT
-        global $CFG;
+        global $CFG, $OUTPUT;
 
         if (!$this->canviewreports()) {
             redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
@@ -270,7 +270,7 @@ class checklist_class {
 
         $this->view_header();
 
-        print_heading(format_string($this->checklist->name));
+        echo $OUTPUT->heading(format_string($this->checklist->name));
 
         $this->view_tabs('report');
 
@@ -300,14 +300,21 @@ class checklist_class {
 
     function view_header() {
         //UT
-        $navlinks = array();
+        /*$navlinks = array();
         $navlinks[] = array('name' => $this->strchecklists, 'link' => "index.php?id={$this->course->id}", 'type' => 'activity');
         $navlinks[] = array('name' => format_string($this->checklist->name), 'link' => '', 'type' => 'activityinstance');
 
         $navigation = build_navigation($navlinks);
 
         print_header_simple($this->pagetitle, '', $navigation, '', '', true,
-                            update_module_button($this->cm->id, $this->course->id, $this->strchecklist), navmenu($this->course, $this->cm));
+        update_module_button($this->cm->id, $this->course->id, $this->strchecklist), navmenu($this->course, $this->cm));*/
+
+        global $PAGE, $OUTPUT;
+
+        $PAGE->set_title($this->pagetitle);
+        $PAGE->set_heading($this->course->fullname);
+
+        echo $OUTPUT->header();
     }
 
     function view_tabs($currenttab) {
@@ -413,7 +420,7 @@ class checklist_class {
             echo get_string('percentcomplete','checklist').':&nbsp;';
             echo '</div>';
             echo '<div class="checklist_progress_outer">';
-            echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').');" >&nbsp;</div>';
+            echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').');" >&nbsp;</div>';
             echo '</div>';
             echo '&nbsp;'.sprintf('%0d',$percentcomplete).'%';
             echo '<br style="clear:both"/>';
@@ -423,7 +430,7 @@ class checklist_class {
         echo get_string('percentcompleteall','checklist').':&nbsp;';
         echo '</div>';
         echo '<div class="checklist_progress_outer">';
-        echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').');" >&nbsp;</div>';
+        echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').');" >&nbsp;</div>';
         echo '</div>';
         echo '&nbsp;'.sprintf('%0d',$allpercentcomplete).'%';
         echo '<br style="clear:both"/>';
@@ -438,13 +445,13 @@ class checklist_class {
         }
         switch ($this->items[$itemid]->teachermark) {
         case CHECKLIST_TEACHERMARK_YES:
-            return array($OUTPUT->pix_url('tick_box.gif','checklist'),get_string('teachermarkyes','checklist'));
+            return array($OUTPUT->pix_url('tick_box','checklist'),get_string('teachermarkyes','checklist'));
 
         case CHECKLIST_TEACHERMARK_NO:
-            return array($OUTPUT->pix_url('cross_box.gif','checklist'),get_string('teachermarkno','checklist'));
+            return array($OUTPUT->pix_url('cross_box','checklist'),get_string('teachermarkno','checklist'));
 
         default:
-            return array($OUTPUT->pix_url('empty_box.gif','checklist'),get_string('teachermarkundecided','checklist'));
+            return array($OUTPUT->pix_url('empty_box','checklist'),get_string('teachermarkundecided','checklist'));
         }
     }
 
@@ -452,7 +459,7 @@ class checklist_class {
         //UT
         global $CFG, $DB, $OUTPUT;
         
-        print_box_start('generalbox boxwidthwide boxaligncenter');
+        echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
 
         $comments = $this->checklist->teachercomments;
         $editcomments = false;
@@ -554,7 +561,7 @@ class checklist_class {
                             $commentuserids[] = $comment->commentby;
                         }
                     }
-                    $commentuserids = implode(",",array_unique($commentuserids, SORT_NUMERIC));
+                    // This line may not be quite right - need to test it carefully TODO FIXME
                     list($csql, $cparams) = $DB->get_in_or_equal(array_unique($commentuserids, SORT_NUMERIC));
                     $commentusers = $DB->get_records_select('user', 'id '.$csql, $cparams);
                 } else {
@@ -607,7 +614,7 @@ class checklist_class {
                     $baseurl = $thispage.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
                     echo '&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemalt','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('add.png','checklist').'" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('add','checklist').'" alt='.$title.' title='.$title.' /></a>';
                 }
 
                 if ($item->duetime) {
@@ -701,11 +708,11 @@ class checklist_class {
                                     $baseurl = $thispage.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem">';
                                     $title = '"'.get_string('edititem','checklist').'"';
-                                    echo '<img src="'.$OUTPUT->pix_url('/t/edit.gif').'" alt='.$title.' title='.$title.' /></a>';
+                                    echo '<img src="'.$OUTPUT->pix_url('/t/edit').'" alt='.$title.' title='.$title.' /></a>';
 
                                     echo '&nbsp;<a href="'.$baseurl.'deleteitem" class="deleteicon">';
                                     $title = '"'.get_string('deleteitem','checklist').'"';
-                                    echo '<img src="'.$OUTPUT->pix_url('remove.png','checklist').'" alt='.$title.' title='.$title.' /></a>';
+                                    echo '<img src="'.$OUTPUT->pix_url('remove','checklist').'" alt='.$title.' title='.$title.' /></a>';
                                 }
                                 if ($note != '') {
                                     //UT
@@ -781,7 +788,7 @@ class checklist_class {
             }
         }
 
-        print_box_end();
+        echo $OUTPUT->box_end();
     }
 
     function print_edit_date($ts=0) {
@@ -830,8 +837,9 @@ class checklist_class {
     function view_edit_items() {
         //UT
         global $CFG, $OUTPUT;
-        
-        print_box_start('generalbox boxwidthwide boxaligncenter');
+
+        // WHY NOT WORKING FIXME
+        echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
 
         $currindent = 0;
         $addatend = true;
@@ -861,12 +869,12 @@ class checklist_class {
                 if ($item->itemoptional) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
                     echo '<a href="'.$baseurl.'makerequired">';
-                    echo '<img src="'.$OUTPUT->pix_url('optional.png','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<img src="'.$OUTPUT->pix_url('optional','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<a href="'.$baseurl.'makeoptional">';
-                    echo '<img src="'.$OUTPUT->pix_url('required.png','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<img src="'.$OUTPUT->pix_url('required','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = '';
                 }
 
@@ -899,18 +907,18 @@ class checklist_class {
 
                     echo '<a href="'.$baseurl.'edititem">';
                     $title = '"'.get_string('edititem','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('/t/edit.gif').'"  alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/edit').'"  alt='.$title.' title='.$title.' /></a>&nbsp;';
 
                     if ($item->indent > 0) {
                         echo '<a href="'.$baseurl.'unindentitem">';
                         $title = '"'.get_string('unindentitem','checklist').'"';
-                        echo '<img src="'.$OUTPUT->pix_url('/t/left.gif').'" alt='.$title.' title='.$title.'  /></a>';
+                        echo '<img src="'.$OUTPUT->pix_url('/t/left').'" alt='.$title.' title='.$title.'  /></a>';
                     }
 
                     if (($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
                         echo '<a href="'.$baseurl.'indentitem">';
                         $title = '"'.get_string('indentitem','checklist').'"';
-                        echo '<img src="'.$OUTPUT->pix_url('/t/right.gif').'" alt='.$title.' title='.$title.' /></a>';
+                        echo '<img src="'.$OUTPUT->pix_url('/t/right').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     echo '&nbsp;';
@@ -919,22 +927,22 @@ class checklist_class {
                     if ($item->position > 1) {
                         echo '<a href="'.$baseurl.'moveitemup">';
                     $title = '"'.get_string('moveitemup','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('/t/up.gif').'" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/up').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     if ($item->position < $lastitem) {
                         echo '<a href="'.$baseurl.'moveitemdown">';
                     $title = '"'.get_string('moveitemdown','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('/t/down.gif').'" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/down').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
                     $title = '"'.get_string('deleteitem','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('/t/delete.gif').'" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/delete').'" alt='.$title.' title='.$title.' /></a>';
                     
                     echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemhere','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('add.png','checklist').'" alt='.$title.' title='.$title.' /></a>';
+                    echo '<img src="'.$OUTPUT->pix_url('add','checklist').'" alt='.$title.' title='.$title.' /></a>';
                     if ($item->duetime) {
                         if ($item->duetime > time()) {
                             echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
@@ -1022,12 +1030,12 @@ class checklist_class {
             echo '<script type="text/javascript">document.getElementById("'.$focusitem.'").focus();</script>';
         }
 
-        print_box_end();
+        echo $OUTPUT->box_end();
     }
 
     function view_report() {
         //UT
-        global $CFG, $DB;
+        global $CFG, $DB, $OUTPUT;
 
         $showbars = optional_param('showbars', false, PARAM_BOOL);
 
@@ -1106,7 +1114,7 @@ class checklist_class {
                     }
                 }
                 $totalitems = count($itemstocount);
-                list($isql, $params) = $DB->get_in_or_equal($itemstocount, SQL_PARAMS_NAMED);
+                list($isql, $iparams) = $DB->get_in_or_equal($itemstocount, SQL_PARAMS_NAMED);
 
                 if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
                     $sql = 'usertimestamp > 0 AND item '.$isql.' AND userid = :user ';
@@ -1117,7 +1125,7 @@ class checklist_class {
                 foreach ($ausers as $auser) {
                     //UT
                     if ($totalitems) {
-                        $params['user'] = $auser->id;
+                        $iparams['user'] = $auser->id;
                         $tickeditems = $DB->count_records_select('checklist_check', $sql, $iparams);
                         $percentcomplete = ($tickeditems * 100) / $totalitems;
                     } else {
@@ -1127,12 +1135,12 @@ class checklist_class {
 
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'">';
-                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview.gif').'" /></a>';
+                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
                     $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
                     echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
                     
                     echo '<div class="checklist_progress_outer">';
-                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').');" >&nbsp;</div>';
+                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').');" >&nbsp;</div>';
                     echo '</div>';
                     echo '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%',$percentcomplete).'</div>';
                     echo '<div style="float:left;">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
@@ -1150,14 +1158,14 @@ class checklist_class {
             $lastarrow = '';
             if ($this->sortby == 'firstasc') {
                 $firstlink = 'sortby=firstdesc';
-                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/down.gif').'" alt="'.get_string('asc').'" />';
+                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
             } elseif ($this->sortby == 'lastasc') {
                 $lastlink = 'sortby=lastdesc';
-                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/down.gif').'" alt="'.get_string('asc').'" />';
+                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
             } elseif ($this->sortby == 'firstdesc') {
-                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/up.gif').'" alt="'.get_string('desc').'" />';
+                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
             } elseif ($this->sortby == 'lastdesc') {
-                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/up.gif').'" alt="'.get_string('desc').'" />';
+                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
             }
             $firstlink = preg_replace('/sortby=.*/', $firstlink, $thisurl);
             $lastlink = preg_replace('/sortby=.*/', $lastlink, $thisurl);
@@ -1185,14 +1193,14 @@ class checklist_class {
                 
                     $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
-                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview.gif').'" /></a>';
+                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
                     $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
 
                     $row[] = $userlink.$vslink;
 
                     $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
                     $sql .= 'ON (i.id = c.item AND c.userid = ? ) WHERE i.checklist = ? AND i.userid=0 ORDER BY i.position';
-                    $checks = $B->get_records_sql($sql, array($auser->id, $this->checklist->id) );
+                    $checks = $DB->get_records_sql($sql, array($auser->id, $this->checklist->id) );
 
                     foreach ($checks as $check) {
                         //UT
@@ -1243,10 +1251,10 @@ class checklist_class {
         $output .= '</tr>';
 
         // Output the data
-        $tickimg = '<img src="'.$OUTPUT->pix_url('/i/tick_green_big.gif').'" alt="'.get_string('itemcomplete','checklist').'" />';
-        $teacherimg = array(CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$OUTPUT->pix_url('empty_box.gif','checklist').'" alt="'.get_string('teachermarkundecided','checklist').'" />', 
-                            CHECKLIST_TEACHERMARK_YES => '<img src="'.$OUTPUT->pix_url('tick_box.gif','checklist').'" alt="'.get_string('teachermarkyes','checklist').'" />', 
-                            CHECKLIST_TEACHERMARK_NO => '<img src="'.$OUTPUT->pix_url('cross_box.gif','checklist').'" alt="'.get_string('teachermarkno','checklist').'" />');
+        $tickimg = '<img src="'.$OUTPUT->pix_url('/i/tick_green_big').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        $teacherimg = array(CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$OUTPUT->pix_url('empty_box','checklist').'" alt="'.get_string('teachermarkundecided','checklist').'" />', 
+                            CHECKLIST_TEACHERMARK_YES => '<img src="'.$OUTPUT->pix_url('tick_box','checklist').'" alt="'.get_string('teachermarkyes','checklist').'" />', 
+                            CHECKLIST_TEACHERMARK_NO => '<img src="'.$OUTPUT->pix_url('cross_box','checklist').'" alt="'.get_string('teachermarkno','checklist').'" />');
         $oddeven = 1;
         $keys = array_keys($table->data);
         $lastrowkey = end($keys);
@@ -1307,8 +1315,9 @@ class checklist_class {
     }
 
     function view_footer() {
+        global $OUTPUT;
         //UT
-        print_footer($this->course);
+        echo $OUTPUT->footer();
     }
 
     function process_view_actions() {
@@ -1834,6 +1843,7 @@ class checklist_class {
                         } else {
                             $check->usertimestamp = 0;
                         }
+                        
                         $DB->update_record('checklist_check', $check);
 
                     } else {
@@ -1845,6 +1855,7 @@ class checklist_class {
                         $check->teachertimestamp = 0;
                         $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
                     
+                        echo "Add <br/>";
                         $check->id = $DB->insert_record('checklist_check', $check);
                     }
                     checklist_update_grades($this->checklist, $this->userid);
@@ -1987,7 +1998,7 @@ class checklist_class {
 
         // Sadly 'styles.php' will not be included from outside the module, so I have to hard-code the styles here
         $output = '<div class="checklist_progress_outer" style="border-width: 1px; border-style: solid; border-color: black; width: '.$width.'; background-colour: transparent; height: 15px; float: left;" >';
-        $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$OUTPUT->pix_url('progress.gif','checklist').'); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
+        $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').'); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
         $output .= '</div>';
         if ($showpercent) {
             $output .= '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%', $percent).'</div>';

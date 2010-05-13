@@ -173,7 +173,7 @@ function checklist_update_grades($checklist, $userid=0) {
     }
 
     list($usql, $uparams) = $DB->get_in_or_equal($users);
-    list($isql, $iparams) = $DB->get_in_or_equal($items);
+    list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
     
     $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * 100 / ? ) AS rawgrade'.$date;
     $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';

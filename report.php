@@ -19,6 +19,7 @@ $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $checklist  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
 $studentid = optional_param('studentid', false, PARAM_INT);
 
+$url = new moodle_url('/mod/checklist/report.php');
 if ($id) {
     // UT
     if (! $cm = get_coursemodule_from_id('checklist', $id)) {
@@ -33,6 +34,8 @@ if ($id) {
         error('Course module is incorrect');
     }
 
+    $url->param('id', $id);
+
 } else if ($checklist) {
     //UT
     if (! $checklist = $DB->get_record('checklist', array('id' => $checklist) )) {
@@ -45,10 +48,14 @@ if ($id) {
         error('Course Module ID was incorrect');
     }
 
+    $url->param('checklist', $checklistid);
+
 } else {
     error('You must specify a course_module ID or an instance ID');
 }
 
+$url->param('studentid', $studentid);
+$PAGE->set_url($url);
 require_login($course, true, $cm);
 
 //UT
