@@ -27,7 +27,6 @@ class checklist_class {
     var $editdates;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
-        //UT
         global $COURSE, $DB;
 
         if ($cmid == 'staticonly') {
@@ -199,6 +198,10 @@ class checklist_class {
         //UT
         global $CFG, $OUTPUT;
         
+        if ((!$this->items) && $this->canedit()) {
+            redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id);
+        }
+
         $this->view_header();
 
         echo $OUTPUT->heading(format_string($this->checklist->name));
@@ -220,10 +223,6 @@ class checklist_class {
         }
 
         $this->view_tabs($currenttab);
-
-        if ((!$this->items) && $this->canedit()) {
-            redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id, get_string('noitems','checklist'));
-        }
 
         add_to_log($this->course->id, 'checklist', 'view', "view.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);        
 
