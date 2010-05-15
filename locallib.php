@@ -1482,14 +1482,12 @@ class checklist_class {
     }
 
     function setevent($itemid, $add) {
-        //UT
         global $DB;
         
         $item = $this->items[$itemid];
         $update = false;
 
         if  ((!$add) || ($item->duetime == 0)) {  // Remove the event (if any)
-            //UT
             if (!$item->eventid) {
                 return; // No event to remove
             }
@@ -1499,7 +1497,6 @@ class checklist_class {
             $update = true;
             
         } else {  // Add/update event
-            //UT
             $event = new stdClass;
             $event->name = $item->displaytext;
             $event->description = get_string('calendardescription', 'checklist', $this->checklist->name);
@@ -1510,18 +1507,15 @@ class checklist_class {
             $event->timestart = $item->duetime;
 
             if ($item->eventid) {
-                //UT
                 $event->id = $item->eventid;
                 update_event($event);
             } else {
-                //UT
                 $this->items[$itemid]->eventid = add_event($event);
                 $update = true;
             }
         }
 
         if ($update) { // Event added or removed
-            //UT
             $upditem = new stdClass;
             $upditem->id = $itemid;
             $upditem->eventid = $this->items[$itemid]->eventid;
@@ -1530,12 +1524,10 @@ class checklist_class {
     }
 
     function setallevents() {
-        //UT
         if (!$this->items) {
             return;
         }
 
-        //UT
         $add = $this->checklist->duedatesoncalendar;
         foreach ($this->items as $key => $value) {
             $this->setevent($key, $add);

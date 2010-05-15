@@ -132,20 +132,12 @@ function checklist_update_all_grades() {
 }
 
 function checklist_update_grades($checklist, $userid=0) {
-    //UT
     global $CFG, $DB;
-
-    if ($CFG->version < 2007101500) {
-        // No gradelib for pre 1.9
-        return;
-    }
 
     $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => 0), '', 'id');
     if ($userid) {
-        //UT
         $users = $userid;
     } else {
-        //UT
         if (!$course = $DB->get_record('course', array('id '=> $checklist->course) )) {
             return;
         }
@@ -162,11 +154,9 @@ function checklist_update_grades($checklist, $userid=0) {
     $total = count($items);
 
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-        //UT
         $date = ', MAX(c.usertimestamp) AS datesubmitted';
         $where = 'c.usertimestamp > 0';
     } else {
-        //UT
         $date = ', MAX(c.teachertimestamp) AS dategraded';
         $where = 'c.teachermark = '.CHECKLIST_TEACHERMARK_YES;
     }
@@ -189,7 +179,6 @@ function checklist_update_grades($checklist, $userid=0) {
 }
 
 function checklist_grade_item_delete($checklist) {
-    //UT
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
     if (!isset($checklist->courseid)) {
@@ -389,8 +378,7 @@ function checklist_cron () {
  * @return mixed boolean/array of students
  */
 function checklist_get_participants($checklistid) {
-    //UT
-    global $CFG, $DB;
+    global $DB;
 
     $sql = 'SELECT DISTINCT u.id, u.id FROM {user} u, {checklist_item} i, {checklist_check} c ';
     $sql .= 'WHERE i.checklist = ? AND ((c.item = i.id AND c.userid = u.id) OR (i.userid = u.id))';
@@ -496,7 +484,6 @@ function checklist_reset_userdata($data) {
 }
 
 function checklist_refresh_events($courseid = 0) {
-    //UT
     global $DB;
     
     if ($courseid) {
@@ -509,7 +496,6 @@ function checklist_refresh_events($courseid = 0) {
     
     foreach ($checklists as $checklist) {
         if ($checklist->duedatesoncalendar) {
-            //UT
             $cm = get_coursemodule_from_instance('checklist', $checklist->id, $checklist->course);
             $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
             $chk->setallevents();
