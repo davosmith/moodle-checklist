@@ -9,7 +9,7 @@ $string['addownitems'] = 'Add your own items';
 $string['addownitems-stop'] = 'Stop adding your own items';
 $string['canceledititem'] = 'Cancel';
 
-$string['calendardescription'] = 'This event was added by the checklist: $a';
+$string['calendardescription'] = 'This event was added by the checklist: {$a}';
 
 $string['checkeditemsdeleted'] = 'Checked items deleted';
 

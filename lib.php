@@ -68,8 +68,7 @@ function checklist_update_instance($checklist) {
     $course = $DB->get_record('course', array('id' => $checklist->course) );
     $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id);
     $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
-    //UT
-    //$chk->setallevents();
+    $chk->setallevents();
 
     checklist_grade_item_update($checklist);
 
