@@ -32,12 +32,12 @@ ol.checklist .teachercomment {
     margin: 0 0 0 20px;
 }
 
-.itemdue {
+.checklist-itemdue {
     font-style: italic;
     color: #90d090;
 }
 
-.itemoverdue {
+.checklist-itemoverdue {
     font-style: italic;
     color: #f09090;
 }
@@ -59,39 +59,39 @@ ol.checklist .teachercomment {
     font-style: italic;
 }
 
-.checklistreport .level0 {
+.checklistreport .cell.level0 {
     background-color: #e7e7e7;
 }
 
-.checklistreport .level1 {
+.checklistreport .cell.level1 {
     background-color: #c7c7c7;
 }
 
-.checklistreport .level2 {
+.checklistreport .cell.level2 {
     background-color: #afafaf;
 }
 
-.checklistreport .level0-checked {
+.checklistreport .cell.level0-checked {
     background-color: #00ff00;
 }
 
-.checklistreport .level1-checked {
+.checklistreport .cell.level1-checked {
     background-color: #00df00;
 }
 
-.checklistreport .level2-checked {
+.checklistreport .cell.level2-checked {
     background-color: #00bf00;
 }
 
-.checklistreport .level0-unchecked {
+.checklistreport .cell.level0-unchecked {
     background-color: #ff0000;
 }
 
-.checklistreport .level1-unchecked {
+.checklistreport .cell.level1-unchecked {
     background-color: #df0000;
 }
 
-.checklistreport .level2-unchecked {
+.checklistreport .cell.level2-unchecked {
     background-color: #bf0000;
 }
 

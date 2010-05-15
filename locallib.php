@@ -70,7 +70,6 @@ class checklist_class {
      * 
      */
     function get_items() {
-        //UT
         global $DB;
         
         // Load all shared checklist items
@@ -83,19 +82,15 @@ class checklist_class {
 
         // Load student's own checklist items
         if ($this->userid && $this->canaddown()) {
-            //UT
             $sql = 'checklist = ? ';//.$this->checklist->id;
             $sql .= ' AND userid = ? ';//.$this->userid;
             $this->useritems = $DB->get_records('checklist_item', array('checklist' => $this->checklist->id, 'userid' => $this->userid), 'position, id');
         } else {
-            //UT
             $this->useritems = false;
         }
 
         // Load the currently checked-off items
         if ($this->userid) { // && ($this->canupdateown() || $this->canviewreports() )) {
-            //UT
-
             $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
             $sql .= 'ON (i.id = c.item AND c.userid = ?) WHERE i.checklist = ? ';
 
@@ -125,7 +120,6 @@ class checklist_class {
      * @param $end (optional) - where to stop offsetting positions
      */
     function update_item_positions($move=0, $start=1, $end=false) {
-        //UT
         global $DB;
         
         $pos = 1;
@@ -154,8 +148,6 @@ class checklist_class {
     }
 
     function get_item_at_position($position) {
-        //UT
-        
         if (!$this->items) {
             return false;
         }
@@ -168,29 +160,24 @@ class checklist_class {
     }
 
     function canupdateown() {
-        //UT
         global $USER;
         return ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canaddown() {
-        //UT
         global $USER;
         return $this->checklist->useritemsallowed && ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canpreview() {
-        //UT
         return has_capability('mod/checklist:preview', $this->context);
     }
 
     function canedit() {
-        //UT
         return has_capability('mod/checklist:edit', $this->context);
     }
 
     function canviewreports() {
-        //UT
         return has_capability('mod/checklist:viewreports', $this->context);
     }
         
@@ -280,10 +267,8 @@ class checklist_class {
         $this->process_report_actions();
 
         if ($this->userid) {
-            //UT
             $this->view_items(true);
         } else {
-            //UT
             $this->view_report();
         }
         
@@ -348,7 +333,6 @@ class checklist_class {
     }
 
     function view_progressbar() {
-        //UT
         global $OUTPUT;
 
         if (!$this->items) {
@@ -421,7 +405,6 @@ class checklist_class {
     }
 
     function get_teachermark($itemid) {
-        //UT
         global $OUTPUT;
 
         if (!isset($this->items[$itemid])) {
@@ -440,39 +423,38 @@ class checklist_class {
     }
 
     function view_items($viewother = false, $userreport = false) {
-        //UT
-        global $CFG, $DB, $OUTPUT;
+        global $DB, $OUTPUT;
         
         echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
 
         $comments = $this->checklist->teachercomments;
         $editcomments = false;
-        $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
+        $thispage = new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id) );
         if ($viewother) {
-            //UT
             $showbars = optional_param('showbars',false,PARAM_BOOL);
+            $sortby = optional_param('sortby','firstasc',PARAM_TEXT);
             if ($comments) {
-                //UT
                 $editcomments = optional_param('editcomments', false, PARAM_BOOL);
             }
-            $thispage = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
+            $thispage = new moodle_url('/mod/checklist/report.php', array('id' => $this->cm->id, 'studentid' => $this->userid, 'sortby' => $sortby) );
+            if ($showbars) {
+                $thispage->param('showbars','on');
+            }
+
             if (!$student = $DB->get_record('user', array('id' => $this->userid) )) {
                 error('No such user!');
             }
             echo '<h2>'.get_string('checklistfor','checklist').' '.fullname($student, true);
-            echo '&nbsp;<form style="display: inline;" action="'.$thispage.'" method="get">';
-            echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-            echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
+            echo '&nbsp;';
+            echo '<form style="display: inline;" action="'.$thispage->out_omit_querystring().'" method="get">';
+            echo html_writer::input_hidden_params($thispage, array('studentid'));
             echo '<input type="submit" name="viewall" value="'.get_string('viewall','checklist').'" />';
             echo '</form>';
 
             if (!$editcomments) {
-                //UT
-                echo '<form style="display: inline;" action="'.$thispage.'" method="get">';
-                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
+                echo '<form style="display: inline;" action="'.$thispage->out_omit_querystring().'" method="get">';
+                echo html_writer::input_hidden_params($thispage);
                 echo '<input type="hidden" name="editcomments" value="on" />';
-                echo '<input type="hidden" name="studentid" value="'.$this->userid.'" />';
                 echo ' <input type="submit" name="viewall" value="'.get_string('addcomments','checklist').'" />';
                 echo '</form>';
             }
@@ -484,28 +466,23 @@ class checklist_class {
         $showteachermark = false;
         $showcheckbox = true;
         if ($this->canupdateown() || $viewother || $userreport) {
-            //UT
             $this->view_progressbar();
             $showteachermark = ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
             $showcheckbox = ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
         }
 
         if (!$this->items) {
-            //UT
             print_string('noitems','checklist');
         } else {
-            //UT
             $focusitem = false;
             $updateform = ($showcheckbox && $this->canupdateown() && !$viewother && !$userreport) || ($viewother && ($showteachermark || $editcomments));
             $addown = $this->canaddown() && $this->useredit;
             if ($updateform) {
-                //UT
                 if ($this->canaddown() && !$viewother) {
-                    //UT
-                    echo '<form style="display:inline;" action="'.$thispage.'" method="get">';
-                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                    echo '<form style="display:inline;" action="'.$thispage->out_omit_querystring().'" method="get">';
+                    echo html_writer::input_hidden_params($thispage);
                     if ($addown) {
-                        echo '<input type="hidden" name="useredit" value="off" />';
+                        $thispage->param('useredit','on'); // Switch on for any other forms on this page (but off if this form submitted)
                         echo '<input type="submit" name="submit" value="'.get_string('addownitems-stop','checklist').'" />';
                     } else {
                         echo '<input type="hidden" name="useredit" value="on" />';
@@ -513,16 +490,10 @@ class checklist_class {
                     }
                     echo '</form>';
                 }
-                echo '<form action="'.$thispage.'" method="post">';
-                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+                echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
+                echo html_writer::input_hidden_params($thispage);
                 echo '<input type="hidden" name="action" value="updatechecks" />';
                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                if ($viewother) {
-                    echo '<input type="hidden" name="studentid" value="'.$this->userid.'" />';
-                }
-                if ($addown) {
-                    echo '<input type="hidden" name="useredit" value="on" />';
-                }
             }
 
             if ($this->useritems) {
@@ -530,14 +501,12 @@ class checklist_class {
             }
 
             if ($comments) {
-                //UT
                 list($isql, $iparams) = $DB->get_in_or_equal(array_keys($this->items));
                 $params = array_merge(array($this->userid), $iparams);
                 $commentsunsorted = $DB->get_records_select('checklist_comment',"userid = ? AND itemid $isql", $params);
                 $commentuserids = array();
                 $commentusers = array();
                 if (!empty($commentsunsorted)) {
-                    //UT
                     $comments = array();
                     foreach ($commentsunsorted as $comment) {
                         $comments[$comment->itemid] = $comment;
@@ -545,7 +514,6 @@ class checklist_class {
                             $commentuserids[] = $comment->commentby;
                         }
                     }
-                    // This line may not be quite right - need to test it carefully TODO FIXME
                     list($csql, $cparams) = $DB->get_in_or_equal(array_unique($commentuserids, SORT_NUMERIC));
                     $commentusers = $DB->get_records_select('user', 'id '.$csql, $cparams);
                 } else {
@@ -572,16 +540,15 @@ class checklist_class {
                 $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
                 echo '<li>';
                 if ($showteachermark) {
-                    //UT
                     if ($viewother) {
                         $selu = ($item->teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
                         $sely = ($item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
                         $seln = ($item->teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
                         
-                        echo '<select name="items[]" >';
-                        echo '<option value="'.$item->id.':'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
-                        echo '<option value="'.$item->id.':'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
-                        echo '<option value="'.$item->id.':'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
+                        echo '<select name="items['.$item->id.']" >';
+                        echo '<option value="'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
+                        echo '<option value="'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
+                        echo '<option value="'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
                         echo '</select>';
                     } else {
                         list($imgsrc, $titletext) = $this->get_teachermark($item->id);
@@ -594,34 +561,36 @@ class checklist_class {
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
 
                 if ($addown) {
-                    //UT
-                    $baseurl = $thispage.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
-                    echo '&nbsp;<a href="'.$baseurl.'startadditem">';
+                    echo '&nbsp;<a href="'.$thispage->out(true, array('itemid'=>$item->id, 'sesskey'=>sesskey(), 'action'=>'startadditem') ).'">';
                     $title = '"'.get_string('additemalt','checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('add','checklist').'" alt='.$title.' title='.$title.' /></a>';
                 }
 
                 if ($item->duetime) {
-                    //UT
                     if ($item->duetime > time()) {
-                        echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                        echo '<span class="checklist-itemdue"> '.date('j M Y', $item->duetime).'</span>';
                     } else {
-                        echo '<span class="itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
+                        echo '<span class="checklist-itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
                     }
                 }
 
                 $foundcomment = false;
                 if ($comments) {
-                    //UT
                     if (array_key_exists($item->id, $comments)) {
                         $comment =  $comments[$item->id];
                         $foundcomment = true;
                         echo ' <span class="teachercomment">&nbsp;';
                         if ($comment->commentby) {
-                            echo '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$comment->commentby.'&amp;course='.$this->course->id.'">'.fullname($commentusers[$comment->commentby]).'</a>: ';
+                            $userurl = new moodle_url('/user/view.php', array('id'=>$comment->commentby, 'course'=>$this->course->id) );
+                            echo '<a href="'.$userurl.'">'.fullname($commentusers[$comment->commentby]).'</a>: ';
                         }
                         if ($editcomments) {
-                            echo '<input type="text" name="teachercomment['.$item->id.']" value="'.s($comment->text).'" />';
+                            $outid = '';
+                            if (!$focusitem) {
+                                $focusitem = 'firstcomment';
+                                $outid = ' id="firstcomment" ';
+                            }
+                            echo '<input type="text" name="teachercomment['.$item->id.']" value="'.s($comment->text).'" '.$outid.'/>';
                         } else {
                             echo s($comment->text);
                         }
@@ -636,39 +605,40 @@ class checklist_class {
 
                 // Output any user-added items
                 if ($this->useritems) {
-                    //UT
                     $useritem = current($this->useritems);
 
                     if ($useritem && ($useritem->position == $item->position)) {
+                        $thisitemurl = clone $thispage;
+                        $thisitemurl->param('action', 'updateitem');
+                        $thisitemurl->param('sesskey', sesskey());
+                        
                         echo '<ol class="checklist">';
                         while ($useritem && ($useritem->position == $item->position)) {
                             $itemname = '"item'.$useritem->id.'"';
                             $checked = ($updateform && $useritem->checked) ? ' checked="checked" ' : '';
                             if (isset($useritem->editme)) {
-                                //UT
                                 $itemtext = explode("\n", $useritem->displaytext, 2);
                                 $itemtext[] = '';
                                 $text = $itemtext[0];
                                 $note = $itemtext[1];
+                                $thisitemurl->param('itemid', $useritem->id);
+
                                 echo '<li>';
                                 echo '<div style="float: left;">';
                                 if ($showcheckbox) {
                                     echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
-                                echo '<form style="display:inline" action="'.$thispage.'" method="post">';
-                                echo '<input type="hidden" name="action" value="updateitem" />';
-                                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                                echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
-                                echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+                                echo '<form style="display:inline" action="'.$thisitemurl->out_omit_querystring().'" method="post">';
+                                echo html_writer::input_hidden_params($thisitemurl);
                                 echo '<input type="text" name="displaytext" value="'.s($text).'" id="updateitembox" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '<br />';
                                 echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
                                 echo '</form>';
                                 echo '</div>';
-                                echo '<form style="display:inline;" action="'.$thispage.'" method="get">';
-                                echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                                echo '<input type="hidden" name="useredit" value="on" />';
+
+                                echo '<form style="display:inline;" action="'.$thispage->out_omit_querystring().'" method="get">';
+                                echo html_writer::input_hidden_params($thispage);
                                 echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                                 echo '</form>';
                                 echo '<br style="clear: both;" />';
@@ -676,7 +646,6 @@ class checklist_class {
 
                                 $focusitem = 'updateitembox';
                             } else {
-                                //UT
                                 echo '<li>';
                                 if ($showcheckbox) {
                                     echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
@@ -688,7 +657,6 @@ class checklist_class {
                                 echo '<label class="useritem" for='.$itemname.'>'.$text.'</label>';
 
                                 if ($addown) {
-                                    //UT
                                     $baseurl = $thispage.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem">';
                                     $title = '"'.get_string('edititem','checklist').'"';
@@ -699,7 +667,6 @@ class checklist_class {
                                     echo '<img src="'.$OUTPUT->pix_url('remove','checklist').'" alt='.$title.' title='.$title.' /></a>';
                                 }
                                 if ($note != '') {
-                                    //UT
                                     echo '<div class="note">'.$note.'</div>';
                                 }
 
@@ -712,14 +679,15 @@ class checklist_class {
                 }
 
                 if ($addown && ($item->id == $this->additemafter)) {
-                    //UT
+                    $thisitemurl = clone $thispage;
+                    $thisitemurl->param('action', 'additem');
+                    $thisitemurl->param('position', $item->position);
+                    $thisitemurl->param('sesskey', sesskey());
+                    
                     echo '<ol class="checklist"><li>';
                     echo '<div style="float: left;">';
-                    echo '<form action="'.$thispage.'" method="post">';
-                    echo '<input type="hidden" name="action" value="additem" />';
-                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                    echo '<input type="hidden" name="position" value="'.$item->position.'" />';
-                    echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+                    echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
+                    echo html_writer::input_hidden_params($thisitemurl);
                     if ($showcheckbox) {
                         echo '<input type="checkbox" disabled="disabled" />';
                     }
@@ -729,9 +697,9 @@ class checklist_class {
                     echo '<textarea name="displaytextnote" rows="3" cols="25"></textarea>';
                     echo '</form>';
                     echo '</div>';
-                    echo '<form style="display:inline" action="'.$thispage.'" method="get">';
-                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                    echo '<input type="hidden" name="useredit" value="on" />';
+                    
+                    echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="get">';
+                    echo html_writer::input_hidden_params($thispage);
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
                     echo '<br style="clear: both;" />';
@@ -745,18 +713,15 @@ class checklist_class {
             echo '</ol>';
 
             if ($updateform) {
-                //UT
                 echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 echo '</form>';
             }
 
             if ($focusitem) {
-                //UT
                 echo '<script type="text/javascript">document.getElementById("'.$focusitem.'").focus();</script>';
             }
 
             if ($addown) {
-                //UT
                 echo '<script type="text/javascript">';
                 echo 'function confirmdelete(url) {';
                 echo 'if (confirm("'.get_string('confirmdeleteitem','checklist').'")) { window.location = url; } ';
@@ -776,7 +741,8 @@ class checklist_class {
     }
 
     function print_edit_date($ts=0) {
-        //UT
+        // TODO - use fancy JS calendar instead
+        
         $id=rand();
         if ($ts == 0) {
             $disabled = true;
@@ -819,15 +785,22 @@ class checklist_class {
     }
 
     function view_edit_items() {
-        //UT
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
 
-        // WHY NOT WORKING FIXME
         echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
 
         $currindent = 0;
         $addatend = true;
         $focusitem = false;
+
+        $thispage = new moodle_url('/mod/checklist/edit.php', array('id'=>$this->cm->id, 'sesskey'=>sesskey()));
+        if ($this->additemafter) {
+            $thispage->param('additemafter', $this->additemafter);
+        }
+        if ($this->editdates) {
+            $thispage->param('editdates', 'on');
+        }
+        
         echo '<ol class="checklist">';
         if ($this->items) {
             $lastitem = count($this->items);
@@ -844,33 +817,27 @@ class checklist_class {
                 }
 
                 $itemname = '"item'.$item->id.'"';
-                $baseurl = $CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey();
-                $baseurl .= ($this->additemafter) ? '&amp;additemafter='.$this->additemafter : '';
-                $baseurl .= ($this->editdates) ? '&amp;editdates=on' : '';
-                $baseurl .= '&amp;action=';
+                $thispage->param('itemid',$item->id);
 
                 echo '<li>';
                 if ($item->itemoptional) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
-                    echo '<a href="'.$baseurl.'makerequired">';
+                    echo '<a href="'.$thispage->out(true, array('action'=>'makerequired')).'">';
                     echo '<img src="'.$OUTPUT->pix_url('optional','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
-                    echo '<a href="'.$baseurl.'makeoptional">';
+                    echo '<a href="'.$thispage->out(true, array('action'=>'makeoptional')).'">';
                     echo '<img src="'.$OUTPUT->pix_url('required','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = '';
                 }
 
                 if (isset($item->editme)) {
-                    echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
-                    echo '<input type="hidden" name="action" value="updateitem" />';
-                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                    echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
-                    echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+                    echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="post">';
                     echo '<input type="text" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
+                    echo '<input type="hidden" name="action" value="updateitem" />';
+                    echo html_writer::input_hidden_params($thispage);
                     if ($this->editdates) {
-                        echo '<input type="hidden" name="editdates" value="on" />';
                         $this->print_edit_date($item->duetime);
                     }
                     echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
@@ -878,29 +845,28 @@ class checklist_class {
 
                     $focusitem = 'updateitembox';
 
-                    echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
-                    echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                    echo '<input type="hidden" name="editdates" value="on" />';
-                    if ($this->additemafter) {
-                        echo '<input type="hidden" name="additemafter" value="'.$this->additemafter.'" />';
-                    }
+                    echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="get">';
+                    echo html_writer::input_hidden_params($thispage, array('sesskey', 'itemid') );
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
                     echo '</form>';
+
+                    $addatend = false;
+                    
                 } else {
                     echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>&nbsp;';
 
-                    echo '<a href="'.$baseurl.'edititem">';
+                    echo '<a href="'.$thispage->out(true, array('action'=>'edititem')).'">';
                     $title = '"'.get_string('edititem','checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('/t/edit').'"  alt='.$title.' title='.$title.' /></a>&nbsp;';
 
                     if ($item->indent > 0) {
-                        echo '<a href="'.$baseurl.'unindentitem">';
+                        echo '<a href="'.$thispage->out(true, array('action'=>'unindentitem')).'">';
                         $title = '"'.get_string('unindentitem','checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/left').'" alt='.$title.' title='.$title.'  /></a>';
                     }
 
                     if (($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
-                        echo '<a href="'.$baseurl.'indentitem">';
+                        echo '<a href="'.$thispage->out(true, array('action'=>'indentitem')).'">';
                         $title = '"'.get_string('indentitem','checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/right').'" alt='.$title.' title='.$title.' /></a>';
                     }
@@ -909,62 +875,62 @@ class checklist_class {
                     
                     // TODO more complex checks to take into account indentation
                     if ($item->position > 1) {
-                        echo '<a href="'.$baseurl.'moveitemup">';
-                    $title = '"'.get_string('moveitemup','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('/t/up').'" alt='.$title.' title='.$title.' /></a>';
+                        echo '<a href="'.$thispage->out(true, array('action'=>'moveitemup')).'">';
+                        $title = '"'.get_string('moveitemup','checklist').'"';
+                        echo '<img src="'.$OUTPUT->pix_url('/t/up').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     if ($item->position < $lastitem) {
-                        echo '<a href="'.$baseurl.'moveitemdown">';
-                    $title = '"'.get_string('moveitemdown','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('/t/down').'" alt='.$title.' title='.$title.' /></a>';
+                        echo '<a href="'.$thispage->out(true, array('action'=>'moveitemdown')).'">';
+                        $title = '"'.get_string('moveitemdown','checklist').'"';
+                        echo '<img src="'.$OUTPUT->pix_url('/t/down').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
-                    echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
+                    echo '&nbsp;<a href="'.$thispage->out(true, array('action'=>'deleteitem')).'">';
                     $title = '"'.get_string('deleteitem','checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('/t/delete').'" alt='.$title.' title='.$title.' /></a>';
                     
-                    echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem">';
+                    echo '&nbsp;&nbsp;&nbsp;<a href="'.$thispage->out(true, array('action'=>'startadditem')).'">';
                     $title = '"'.get_string('additemhere','checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('add','checklist').'" alt='.$title.' title='.$title.' /></a>';
                     if ($item->duetime) {
                         if ($item->duetime > time()) {
-                            echo '<span class="itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                            echo '<span class="checklist-itemdue"> '.date('j M Y', $item->duetime).'</span>';
                         } else {
-                            echo '<span class="itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
+                            echo '<span class="checklist-itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
                         }
                     }
 
-                    if ($this->additemafter == $item->id) {
-                        $addatend = false;
-                        echo '<li>';
-                        echo '<form style="display:inline;" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
-                        echo '<input type="hidden" name="action" value="additem" />';
-                        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                        echo '<input type="hidden" name="position" value="'.($item->position+1).'" />';
-                        echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
-                        echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                        echo '<input type="checkbox" disabled="disabled" />';
-                        echo '<input type="text" name="displaytext" value="" id="additembox" />';
-                        if ($this->editdates) {
-                            echo '<input type="hidden" name="editdates" value="on" />';
-                            $this->print_edit_date();
-                        }
-                        echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
-                        echo '</form>';
-                        echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
-                        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                        if ($this->editdates) {
-                            echo '<input type="hidden" name="editdates" value="on" />';
-                        }
-                        echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
-                        echo '</form>';
-                        echo '</li>';
+                }
 
-                        if (!$focusitem) {
-                            $focusitem = 'additembox';
-                        }
+                $thispage->remove_params(array('itemid'));
+                    
+                if ($this->additemafter == $item->id) {
+                    $addatend = false;
+                    echo '<li>';
+                    echo '<form style="display:inline;" action="'.$thispage->out_omit_querystring().'" method="post">';
+                    echo html_writer::input_hidden_params($thispage);
+                    echo '<input type="hidden" name="action" value="additem" />';
+                    echo '<input type="hidden" name="position" value="'.($item->position+1).'" />';
+                    echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
+                    echo '<img src="'.$OUTPUT->pix_url('required','checklist').'" /> ';
+                    echo '<input type="text" name="displaytext" value="" id="additembox" />';
+                    if ($this->editdates) {
+                        $this->print_edit_date();
                     }
+                    echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
+                    echo '</form>';
+                        
+                    echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="get">';
+                    echo html_writer::input_hidden_params($thispage, array('sesskey','additemafter'));
+                    echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem','checklist').'" />';
+                    echo '</form>';
+                    echo '</li>';
+
+                    if (!$focusitem) {
+                        $focusitem = 'additembox';
+                    }
+
 
                     $lastindent = $currindent;
                 }
@@ -972,16 +938,17 @@ class checklist_class {
                 echo '</li>';
             }
         }
+            
+        $thispage->remove_params(array('itemid'));
+        
         if ($addatend) {
             echo '<li>';
-            echo '<form action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
+            echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
+            echo html_writer::input_hidden_params($thispage);
             echo '<input type="hidden" name="action" value="additem" />';
-            echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
-            echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
             echo '<input type="text" name="displaytext" value="" id="additembox" />';
             if ($this->editdates) {
-                echo '<input type="hidden" name="editdates" value="on" />';
                 $this->print_edit_date();
             }
             echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
@@ -997,11 +964,8 @@ class checklist_class {
             echo '</ol>';
         }
 
-        echo '<form action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
-        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-        if ($this->additemafter) {
-            echo '<input type="hidden" name="additemafter" value="'.$this->additemafter.'" />';
-        }
+        echo '<form action="'.$thispage->out_omit_querystring().'" method="get">';
+        echo html_writer::input_hidden_params($thispage, array('sesskey','editdates'));
         if (!$this->editdates) {
             echo '<input type="hidden" name="editdates" value="on" />';
             echo '<input type="submit" value="'.get_string('editdatesstart','checklist').'" />';
@@ -1020,6 +984,8 @@ class checklist_class {
     function view_report() {
         //UT
         global $CFG, $DB, $OUTPUT;
+
+        //TODO update to use moodle_url
 
         $showbars = optional_param('showbars', false, PARAM_BOOL);
 
@@ -1204,7 +1170,6 @@ class checklist_class {
     }
 
     function print_report_table($table) {
-        //UT
         global $OUTPUT;
         
         $output = '';
@@ -1262,7 +1227,7 @@ class checklist_class {
                 } else {
                     $size = $table->size[$key];
                     $img = '&nbsp;';
-                    $cellclass = 'cell c'.$key.' level'.$table->level[$key];
+                    $cellclass = 'level'.$table->level[$key];
                     list($teachermark, $studentmark) = $item;
                     if ($showteachermark) {
                         if ($teachermark == CHECKLIST_TEACHERMARK_YES) {
@@ -1275,6 +1240,8 @@ class checklist_class {
                             $img = $teacherimg[CHECKLIST_TEACHERMARK_UNDECIDED];
                         }
                     }
+                    $cellclass .= ' cell c'.$key;
+                    
                     if ($showstudentmark) {
                         if ($studentmark) {
                             if (!$showteachermark) {
@@ -1300,12 +1267,10 @@ class checklist_class {
 
     function view_footer() {
         global $OUTPUT;
-        //UT
         echo $OUTPUT->footer();
     }
 
     function process_view_actions() {
-        //UT
         $this->useredit = optional_param('useredit', false, PARAM_BOOL);
         
         $action = optional_param('action', false, PARAM_TEXT);
@@ -1365,7 +1330,6 @@ class checklist_class {
     }
     
     function process_edit_actions() {
-        //UT
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
         
@@ -1445,7 +1409,6 @@ class checklist_class {
     }
 
     function process_report_actions() {
-        //UT
         $this->showoptional = true;
         $this->sortby = optional_param('sortby', 'firstasc', PARAM_TEXT);
         
@@ -1462,7 +1425,6 @@ class checklist_class {
     }
 
     function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false) {
-        //UT
         global $DB;
         
         $displaytext = trim($displaytext);
@@ -1581,7 +1543,6 @@ class checklist_class {
     }
 
     function updateitemtext($itemid, $displaytext, $duetime=false) {
-        //UT
         global $DB;
 
         $displaytext = trim($displaytext);
@@ -1590,7 +1551,6 @@ class checklist_class {
         }
 
         if (isset($this->items[$itemid])) {
-            //UT
             if ($this->canedit()) {
                 $this->items[$itemid]->displaytext = $displaytext;
                 $upditem = new stdClass;
@@ -1610,7 +1570,6 @@ class checklist_class {
                 }
             }
         } elseif (isset($this->useritems[$itemid])) {
-            //UT
             if ($this->canaddown()) {
                 $this->useritems[$itemid]->displaytext = $displaytext;
                 $upditem = new stdClass;
@@ -1622,7 +1581,6 @@ class checklist_class {
     }
 
     function deleteitem($itemid) {
-        //UT
         global $DB;
         
         if (isset($this->items[$itemid])) {
@@ -1641,14 +1599,13 @@ class checklist_class {
             return;
         }
 
-        $DB->delete_records('checklist_item', array('id', $itemid) );
-        $DB->delete_records('checklist_check', array('item', $itemid) );
+        $DB->delete_records('checklist_item', array('id' => $itemid) );
+        $DB->delete_records('checklist_check', array('item' => $itemid) );
 
         $this->update_item_positions();
     }
 
     function moveitemto($itemid, $newposition) {
-        //UT
         global $DB;
         
         if (!isset($this->items[$itemid])) {
@@ -1696,7 +1653,6 @@ class checklist_class {
 
     function moveitemup($itemid) {
         // TODO If indented, only allow move if suitable space for 'reparenting'
-        //UT
 
         if (!isset($this->items[$itemid])) {
             if (isset($this->useritems[$itemid])) {
@@ -1709,7 +1665,6 @@ class checklist_class {
 
     function moveitemdown($itemid) {
         // TODO If indented, only allow move if suitable space for 'reparenting'
-        //UT
 
         if (!isset($this->items[$itemid])) {
             if (isset($this->useritems[$itemid])) {
@@ -1721,7 +1676,6 @@ class checklist_class {
     }
         
     function indentitemto($itemid, $indent) {
-        //UT
         global $DB;
         
         if (!isset($this->items[$itemid])) {
@@ -1768,8 +1722,6 @@ class checklist_class {
     }
 
     function indentitem($itemid) {
-        //UT
-
         if (!isset($this->items[$itemid])) {
             // Not able to indent useritems, as they are always parent + 1
             return;
@@ -1778,8 +1730,6 @@ class checklist_class {
     }
 
     function unindentitem($itemid) {
-        //UT
-
         if (!isset($this->items[$itemid])) {
             // Not able to indent useritems, as they are always parent + 1
             return;
@@ -1788,7 +1738,6 @@ class checklist_class {
     }
 
     function makeoptional($itemid, $optional) {
-        //UT
         global $DB;
         
         if (!isset($this->items[$itemid])) {
@@ -1803,7 +1752,6 @@ class checklist_class {
     }
 
     function updatechecks() {
-        //UT
         global $DB;
         
         $newchecks = optional_param('items', array(), PARAM_INT);
@@ -1821,7 +1769,6 @@ class checklist_class {
                 
                     $check = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                     if ($check) {
-                        //UT
                         if ($newval) {
                             $check->usertimestamp = time();
                         } else {
@@ -1831,7 +1778,6 @@ class checklist_class {
                         $DB->update_record('checklist_check', $check);
 
                     } else {
-                        //UT
                         $check = new stdClass;
                         $check->item = $item->id;
                         $check->userid = $this->userid;
@@ -1839,7 +1785,6 @@ class checklist_class {
                         $check->teachertimestamp = 0;
                         $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
                     
-                        echo "Add <br/>";
                         $check->id = $DB->insert_record('checklist_check', $check);
                     }
                     checklist_update_grades($this->checklist, $this->userid);
@@ -1855,7 +1800,6 @@ class checklist_class {
                 
                     $check = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                     if ($check) {
-                        //UT
                         if ($newval) {
                             $check->usertimestamp = time();
                         } else {
@@ -1864,7 +1808,6 @@ class checklist_class {
                         $DB->update_record('checklist_check', $check);
 
                     } else {
-                        //UT
                         $check = new stdClass;
                         $check->item = $item->id;
                         $check->userid = $this->userid;
@@ -1880,7 +1823,6 @@ class checklist_class {
     }
 
     function updateteachermarks() {
-        //UT
         global $USER, $DB;
         
         $newchecks = optional_param('items', array(), PARAM_TEXT);
@@ -1891,10 +1833,7 @@ class checklist_class {
 
         if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
 
-            //TODO - update this to set the array key to the itemid
-            foreach ($newchecks as $newcheck) {
-                list($itemid, $newval) = explode(':',$newcheck, 2);
-            
+            foreach ($newchecks as $itemid => $newval) {
                 if (isset($this->items[$itemid])) {
                     $item = $this->items[$itemid];
                     if ($newval != $item->teachermark) {
@@ -1906,11 +1845,9 @@ class checklist_class {
                     
                         $oldcheck = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                         if ($oldcheck) {
-                            //UT
                             $newcheck->id = $oldcheck->id;
                             $DB->update_record('checklist_check', $newcheck);
                         } else {
-                            //UT
                             $newcheck->item = $itemid;
                             $newcheck->userid = $this->userid;
                             $newcheck->id = $DB->insert_record('checklist_check', $newcheck);
@@ -1925,7 +1862,6 @@ class checklist_class {
         if (!$this->checklist->teachercomments || !$newcomments || !is_array($newcomments)) {
             return;
         }
-        //UT
 
         list($isql, $iparams) = $DB->get_in_or_equal(array_keys($this->items));
         $commentsunsorted = $DB->get_records_select('checklist_comment',"userid = ? AND itemid $isql", array_merge(array($this->userid), $iparams) );
@@ -1936,14 +1872,12 @@ class checklist_class {
         foreach ($newcomments as $itemid => $newcomment) {
             $newcomment = trim($newcomment);
             if ($newcomment == '') {
-                //UT
                 if (array_key_exists($itemid, $comments)) {
                     $DB->delete_records('checklist_comment', array('id' => $comments[$itemid]->id) );
                     unset($comments[$itemid]); // Should never be needed, but just in case...
                 }
             } else {
                 if (array_key_exists($itemid, $comments)) {
-                    //UT
                     if ($comments[$itemid]->text != $newcomment) {
                         $updatecomment = new stdClass;
                         $updatecomment->id = $comments[$itemid]->id;
@@ -1955,7 +1889,6 @@ class checklist_class {
                         $DB->update_record('checklist_comment',$updatecomment);
                     }
                 } else {
-                    //UT
                     $addcomment = new stdClass;
                     $addcomment->itemid = $itemid;
                     $addcomment->userid = $this->userid;
@@ -2027,7 +1960,6 @@ class checklist_class {
 }
 
 function checklist_itemcompare($item1, $item2) {
-    //UT
     if ($item1->position < $item2->position) {
         return -1;
     } elseif ($item1->position > $item2->position) {
