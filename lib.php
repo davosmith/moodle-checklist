@@ -451,9 +451,10 @@ function checklist_reset_userdata($data) {
             return $status;
         }
 
-        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
-        $DB->delete_records_select('checklist_check', 'item '.$isql, $iparams);
+        $DB->delete_records_list('checklist_check', 'item', $items);
+        $DB->delete_records_list('checklist_comment', 'itemid', $items);
 
+        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
         $sql = "checklist $isql AND userid != 0";
         $DB->delete_records_select('checklist_item', $sql, $iparams);
 
