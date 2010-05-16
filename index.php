@@ -11,7 +11,6 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-//UT
 global $DB;
 
 $id = required_param('id', PARAM_INT);   // course
@@ -61,7 +60,6 @@ if ($course->format == 'weeks') {
     $table->head  = array ($strweek, $strname);
     $table->align = array ('center', 'left');
 } else if ($course->format == 'topics') {
-    //UT
     $table->head  = array ($strtopic, $strname);
     $table->align = array ('center', 'left', 'left', 'left');
 } else {
@@ -73,7 +71,6 @@ if ($course->format == 'weeks') {
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 $canupdateown = has_capability('mod/checklist:updateown', $context);
 if ($canupdateown) {
-    //UT
     $table->head[] = $strprogress;
 }
 

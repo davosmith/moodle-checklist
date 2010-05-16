@@ -1893,9 +1893,7 @@ class checklist_class {
 
     }
 
-    /* static function - avoiding 'static' keyword for PHP 4 compatibility */
-    function print_user_progressbar($checklistid, $userid, $width='300px', $showpercent=true, $return=false) {
-        //UT
+    static function print_user_progressbar($checklistid, $userid, $width='300px', $showpercent=true, $return=false) {
         global $OUTPUT;
 
         list($ticked, $total) = checklist_class::get_user_progress($checklistid, $userid);
@@ -1904,14 +1902,13 @@ class checklist_class {
         }
         $percent = $ticked * 100 / $total;
 
-        // Sadly 'styles.php' will not be included from outside the module, so I have to hard-code the styles here
+        // TODO - fix this now that styles.css is included
         $output = '<div class="checklist_progress_outer" style="border-width: 1px; border-style: solid; border-color: black; width: '.$width.'; background-colour: transparent; height: 15px; float: left;" >';
         $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').'); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
         $output .= '</div>';
         if ($showpercent) {
             $output .= '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%', $percent).'</div>';
         }
-        //        echo '<div style="float:left;">&nbsp;('.$ticked.'/'.$total.')</div>';
         $output .= '<br style="clear:both;" />';
         if ($return) {
             return $output;
@@ -1920,8 +1917,7 @@ class checklist_class {
         }
     }
 
-    function get_user_progress($checklistid, $userid) {
-        //UT
+    static function get_user_progress($checklistid, $userid) {
         global $DB;
         
         $userid = intval($userid); // Just to be on the safe side...
