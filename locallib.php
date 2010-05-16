@@ -197,14 +197,8 @@ class checklist_class {
         } elseif ($this->canpreview()) {
             $currenttab = 'preview';
         } else {
-            // FIXME - Is there a more Moodle2.0 way of doing this?
-            $loginurl = $CFG->wwwroot.'/login/index.php';
-            if (!empty($CFG->loginhttps)) {
-                $loginurl = str_replace('http:','https:', $loginurl);
-            }
-            echo '<br/>';
-            notice_yesno('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n</p>" .
-                         get_string('liketologin') . '</p>', $loginurl, get_referer(false));
+            echo $OUTPUT->confirm('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n<p>" .
+                get_string('liketologin') . "</p>\n", get_login_url(), get_referer(false));
             echo $OUTPUT->footer();
             die;
         }
@@ -981,25 +975,19 @@ class checklist_class {
     }
 
     function view_report() {
-        //UT
-        global $CFG, $DB, $OUTPUT;
-
-        //TODO update to use moodle_url
+        global $DB, $OUTPUT;
 
         $showbars = optional_param('showbars', false, PARAM_BOOL);
 
-        $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
-        $thisurl .= $this->showoptional ? '' : '&amp;action=hideoptional';
-        $thisurl .= $showbars ? '&amp;showbars=on' : '';
-        $thisurl .= '&amp;sortby='.$this->sortby;
+        $thisurl = new moodle_url('/mod/checklist/report.php', array('id'=>$this->cm->id, 'sortby'=>$this->sortby) );
+        if (!$this->showoptional) { $thisurl->param('action','hideoptional'); }
+        if ($showbars) { $thisurl->param('showbars','on'); }
 
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="get" />';
-        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-        echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
-        echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
+        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+        echo html_writer::input_hidden_params($thisurl, array('action'));
         if ($this->showoptional) {
             echo '<input type="hidden" name="action" value="hideoptional" />';
             echo '<input type="submit" name="submit" value="'.get_string('optionalhide','checklist').'" />';
@@ -1008,12 +996,9 @@ class checklist_class {
             echo '<input type="submit" name="submit" value="'.get_string('optionalshow','checklist').'" />';
         }
         echo '</form>';
-        
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="get" />';
-        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-        echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
-        echo $this->showoptional ? '' : '<input type="hidden" name="action" value="hideoptional" />';
+        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+        echo html_writer::input_hidden_params($thisurl, array('showbars'));
         if ($showbars) {
             echo '<input type="submit" name="submit" value="'.get_string('showfulldetails','checklist').'" />';
         } else {
@@ -1049,7 +1034,6 @@ class checklist_class {
         }
 
         if ($showbars) {
-            //UT
             if ($ausers) {
                 // Show just progress bars
                 if ($this->showoptional) {
@@ -1072,7 +1056,6 @@ class checklist_class {
                 }
                 echo '<div>';
                 foreach ($ausers as $auser) {
-                    //UT
                     if ($totalitems) {
                         $iparams['user'] = $auser->id;
                         $tickeditems = $DB->count_records_select('checklist_check', $sql, $iparams);
@@ -1082,10 +1065,11 @@ class checklist_class {
                         $tickeditems = 0;
                     }
 
-                    $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
+                    $vslink = ' <a href="'.$thisurl->out(true, array('studentid'=>$auser->id) ).'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'">';
                     $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
-                    $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
+                    $userurl = new moodle_url('/user/view.php', array('id'=>$auser->id, 'course'=>$this->course->id) );
+                    $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
                     echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
                     
                     echo '<div class="checklist_progress_outer">';
@@ -1100,7 +1084,6 @@ class checklist_class {
             
         } else {
             // Show full table
-            //UT
             $firstlink = 'sortby=firstasc';
             $lastlink = 'sortby=lastasc';
             $firstarrow = '';
@@ -1137,13 +1120,13 @@ class checklist_class {
             $table->data = array();
             if ($ausers) {
                 foreach ($ausers as $auser) {
-                    //UT
                     $row = array();
                 
-                    $vslink = ' <a href="'.$thisurl.'&amp;studentid='.$auser->id.'" ';
-                    $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'" />';
+                    $vslink = ' <a href="'.$thisurl->out(true, array('studentid'=>$auser->id) ).'" ';
+                    $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'">';
                     $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
-                    $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
+                    $userurl = new moodle_url('/user/view.php', array('id'=>$auser->id, 'course'=>$this->course->id) );
+                    $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
 
                     $row[] = $userlink.$vslink;
 
@@ -1152,7 +1135,6 @@ class checklist_class {
                     $checks = $DB->get_records_sql($sql, array($auser->id, $this->checklist->id) );
 
                     foreach ($checks as $check) {
-                        //UT
                         if ($check->usertimestamp > 0) {
                             $row[] = array($check->teachermark,true);
                         } else {
