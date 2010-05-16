@@ -276,7 +276,6 @@ class checklist_class {
     }
 
     function user_complete() {
-        //UT
         $this->view_items(false, true);
     }
 

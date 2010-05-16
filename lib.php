@@ -85,7 +85,6 @@ function checklist_update_instance($checklist) {
  * @return boolean Success/Failure
  */
 function checklist_delete_instance($id) {
-    //UT
     global $DB;
 
     if (! $checklist = $DB->get_record('checklist', array('id' => $id) )) {
@@ -94,11 +93,10 @@ function checklist_delete_instance($id) {
 
     // Remove all calendar events
     if ($checklist->duedatesoncalendar) {
-        //UT
         $checklist->duedatesoncalendar = false;
         $course = $DB->get_record('course', array('id'=>$checklist->course) );
         $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id);
-        if ($cm) { // Should not fail be false, but check, just in case...
+        if ($cm) { // Should not be false, but check, just in case...
             $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
             $chk->setallevents();
         }
@@ -108,21 +106,19 @@ function checklist_delete_instance($id) {
 
     $items = $DB->get_records('checklist_item', array('checklist'=>$checklist->id), '', 'id');
     if (!empty($items)) {
-        //UT
         $items = array_keys($items);
-        $result  = $DB->delete_records_list('checklist_check', 'item', $items);
-        $result = $result && $DB->delete_records('checklist_item', array('checklist', $checklist->id) );
+        $result = $DB->delete_records_list('checklist_check', 'item', $items);
+        $result = $DB->delete_records_list('checklist_comment', 'itemid', $items);
+        $result = $result && $DB->delete_records('checklist_item', array('checklist' => $checklist->id) );
     }
-    $result = $result && $DB->delete_records('checklist', array('id', $checklist->id));
+    $result = $result && $DB->delete_records('checklist', array('id' => $checklist->id));
 
-    //UT
     checklist_grade_item_delete($checklist);
 
     return $result;
 }
 
 function checklist_update_all_grades() {
-    //
     global $DB;
 
     $checklists = $DB->get_records('checklist');
@@ -223,7 +219,6 @@ function checklist_grade_item_update($checklist, $grades=NULL) {
  * @todo Finish documenting this function
  */
 function checklist_user_outline($course, $user, $mod, $checklist) {
-    //UT
     global $DB;
 
     $items = $DB->get_records('checklist_item',array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => 0), '', 'id');
@@ -236,11 +231,9 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
 
     $sql = "userid = ? AND item $isql AND ";
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-        //UT
         $sql .= 'usertimestamp > 0';
         $order = 'usertimestamp DESC';
     } else {
-        //UT
         $sql .= 'teachermark = '.CHECKLIST_TEACHERMARK_YES;
         $order = 'teachertimestamp DESC';
     }
@@ -250,15 +243,12 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
 
     $return = null;
     if ($checks) {
-        //UT
         $return = new stdClass;
 
         $ticked = count($checks);
         if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-            //UT
             $return->time = reset($checks)->usertimestamp;
         } else {
-            //UT
             $return->time = reset($checks)->teachertimestamp;
         }
         $percent = sprintf('%0d',($ticked * 100) / $total);
@@ -277,8 +267,6 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
  * @todo Finish documenting this function
  */
 function checklist_user_complete($course, $user, $mod, $checklist) {
-    //UT
-    
     $chk = new checklist_class($mod->id, $user->id, $checklist, $mod, $course);
 
     $chk->user_complete();
@@ -296,13 +284,11 @@ function checklist_user_complete($course, $user, $mod, $checklist) {
  * @todo Finish documenting this function
  */
 function checklist_print_recent_activity($course, $isteacher, $timestart) {
-    //UT
     return false;  //  True if anything was printed, otherwise false
 }
 
 
 function checklist_print_overview($courses, &$htmlarray) {
-    //UT
     global $USER, $CFG, $DB;
 
     if (empty($courses) || !is_array($courses) || count($courses) == 0) {
@@ -318,15 +304,12 @@ function checklist_print_overview($courses, &$htmlarray) {
     foreach ($checklists as $key => $checklist) {
         $show_all = true;
         if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-            //UT
             $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
             $show_all = !has_capability('mod/checklist:updateown', $context);
         }
         if ($show_all) { // Show all items whether or not they are checked off (as this user is unable to check them off)
-            //UT
             $date_items = $DB->get_records_select('checklist_item','checklist = ? AND duetime > 0', array($checklist->id), 'duetime');
         } else { // Show only items that have not been checked off
-            //UT
             $date_items = $DB->get_records_sql('SELECT i.* FROM {checklist_item} i JOIN {checklist_check} c ON c.item = i.id '.
                                           'WHERE i.checklist = ? AND i.duetime > 0 AND c.userid = ? AND usertimestamp = 0 '.
                                           'ORDER BY i.duetime', array($checklist->id, $USER->id));
