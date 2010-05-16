@@ -18,7 +18,6 @@ $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instanc
 
 $url = new moodle_url('/mod/checklist/view.php');
 if ($id) {
-    //UT
     if (! $cm = get_coursemodule_from_id('checklist', $id)) {
         error('Course Module ID was incorrect');
     }
@@ -32,8 +31,7 @@ if ($id) {
     }
     $url->param('id', $id);
 
-} else if ($checklist) {
-    //UT
+} else if ($checklistid) {
     if (! $checklist = $DB->get_record('checklist', array('id' => $checklistid) )) {
         error('Course module is incorrect');
     }
@@ -57,7 +55,7 @@ $userid = 0;
 if (has_capability('mod/checklist:updateown', $context)) {
     $userid = $USER->id;
 }
-//UT
+
 $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
 
 $chk->view();

@@ -11,17 +11,14 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-//UT
-
 global $DB;
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
-$checklist  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
+$checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
 $studentid = optional_param('studentid', false, PARAM_INT);
 
 $url = new moodle_url('/mod/checklist/report.php');
 if ($id) {
-    // UT
     if (! $cm = get_coursemodule_from_id('checklist', $id)) {
         error('Course Module ID was incorrect');
     }
@@ -36,9 +33,8 @@ if ($id) {
 
     $url->param('id', $id);
 
-} else if ($checklist) {
-    //UT
-    if (! $checklist = $DB->get_record('checklist', array('id' => $checklist) )) {
+} else if ($checklistid) {
+    if (! $checklist = $DB->get_record('checklist', array('id' => $checklistid) )) {
         error('Course module is incorrect');
     }
     if (! $course = $DB->get_record('course', array('id' => $checklist->course) )) {
@@ -58,7 +54,6 @@ $url->param('studentid', $studentid);
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-//UT
 $chk = new checklist_class($cm->id, $studentid, $checklist, $cm, $course);
 
 $chk->report();
