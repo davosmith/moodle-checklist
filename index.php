@@ -40,7 +40,6 @@ echo $OUTPUT->header();
 /// Get all the appropriate data
 
 if (! $checklists = get_all_instances_in_course('checklist', $course)) {
-    //UT
     notice('There are no instances of checklist', "../../course/view.php?id=$course->id");
     die;
 }
@@ -56,16 +55,14 @@ $strprogress = get_string('progress','checklist');
 $table = new html_table();
 
 if ($course->format == 'weeks') {
-    //UT
     $table->head  = array ($strweek, $strname);
-    $table->align = array ('center', 'left');
+    $table->align = array ('center', 'left', 'left');
 } else if ($course->format == 'topics') {
     $table->head  = array ($strtopic, $strname);
-    $table->align = array ('center', 'left', 'left', 'left');
+    $table->align = array ('center', 'left', 'left');
 } else {
-    //UT
     $table->head  = array ($strname);
-    $table->align = array ('left', 'left', 'left');
+    $table->align = array ('left', 'left');
 }
 
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
