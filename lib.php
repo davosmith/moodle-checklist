@@ -497,6 +497,7 @@ function checklist_supports($feature) {
     case FEATURE_MOD_INTRO:               return true;
     case FEATURE_GRADE_HAS_GRADE:         return true;
     //case FEATURE_COMPLETION_HAS_RULES:    return true;  //TODO Implement this
+    case FEATURE_BACKUP_MOODLE2:          return true;
 
     default: return null;
     }
