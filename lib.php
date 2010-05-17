@@ -107,7 +107,8 @@ function checklist_delete_instance($id) {
     $items = get_records('checklist_item', 'checklist', $checklist->id, '', 'id');
     if ($items) {
         $items = implode(',',array_keys($items));
-        $result  = delete_records_select('checklist_check', 'item IN ('.$items.')');
+        $result = delete_records_select('checklist_check', 'item IN ('.$items.')');
+        $result = $result && delete_records_select('checklist_comment', 'item IN ('.$items.')');
 
         if ($result) {
             $result = delete_records('checklist_item', 'checklist', $checklist->id);
@@ -247,10 +248,11 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
         $return = new stdClass;
 
         $ticked = count($checks);
+        $check = reset($checks);
         if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-            $return->time = reset($checks)->usertimestamp;
+            $return->time = $check->usertimestamp;
         } else {
-            $return->time = reset($checks)->teachertimestamp;
+            $return->time = $check->teachertimestamp;
         }
         $percent = sprintf('%0d',($ticked * 100) / $total);
         $return->info = get_string('progress','checklist').': '.$ticked.'/'.$total.' ('.$percent.'%)';
