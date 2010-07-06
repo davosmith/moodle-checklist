@@ -4,6 +4,7 @@ Checklist module
 **Introduction**
 This is a Moodle plugin for Moodle 1.9 & 2.0+ that allows a teacher to create a checklist for their students to work through.
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
+Note: There are separate downloads for the Moodle 1.9 and 2.0+ versions of this plugin - make sure you download the correct version.
 
 Items can be indented and marked as optional.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
