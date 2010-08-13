@@ -1480,7 +1480,7 @@ class checklist_class {
         } else {  // Add/update event
             $event = new stdClass;
             $event->name = $item->displaytext;
-            $event->description = get_string('calendardescription', 'checklist', $this->checklist->name);
+            $event->description = get_string('calendardescription', 'checklist', addslashes($this->checklist->name));
             $event->courseid = $this->course->id;
             $event->modulename = 'checklist';
             $event->instance = $this->checklist->id;
