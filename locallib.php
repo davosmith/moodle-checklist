@@ -561,9 +561,9 @@ class checklist_class {
 
                 if ($item->duetime) {
                     if ($item->duetime > time()) {
-                        echo '<span class="checklist-itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                        echo '<span class="checklist-itemdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
                     } else {
-                        echo '<span class="checklist-itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
+                        echo '<span class="checklist-itemoverdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
                     }
                 }
 
@@ -739,10 +739,10 @@ class checklist_class {
         $id=rand();
         if ($ts == 0) {
             $disabled = true;
-            $date = getdate();
+            $date = usergetdate(time());
         } else {
             $disabled = false;
-            $date = getdate($ts);
+            $date = usergetdate($ts);
         }
         $day = $date['mday'];
         $month = $date['mon'];
@@ -761,7 +761,7 @@ class checklist_class {
         }
         echo '</select>';
         echo '<select name="duetime[year]" id="timedueyear'.$id.'" >';
-        $today = getdate();
+        $today = usergetdate(time());
         $thisyear = $today['year'];
         for ($i=$thisyear-5; $i<=($thisyear + 10); $i++) {
             $selected = ($i == $year) ? 'selected="selected" ' : '';
@@ -888,9 +888,9 @@ class checklist_class {
                     echo '<img src="'.$OUTPUT->pix_url('add','checklist').'" alt='.$title.' title='.$title.' /></a>';
                     if ($item->duetime) {
                         if ($item->duetime > time()) {
-                            echo '<span class="checklist-itemdue"> '.date('j M Y', $item->duetime).'</span>';
+                            echo '<span class="checklist-itemdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
                         } else {
-                            echo '<span class="checklist-itemoverdue"> '.date('j M Y', $item->duetime).'</span>';
+                            echo '<span class="checklist-itemoverdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
                         }
                     }
 
@@ -1436,7 +1436,7 @@ class checklist_class {
         $item->itemoptional = false;
         $item->duetime = 0;
         if ($duetime) {
-            $item->duetime = gmmktime(0,0,0, $duetime['month'], $duetime['day'], $duetime['year']);
+            $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
         }
         $item->eventid = 0;
 
@@ -1532,7 +1532,7 @@ class checklist_class {
 
                 $upditem->duetime = 0;
                 if ($duetime) {
-                    $upditem->duetime = gmmktime(0,0,0, $duetime['month'], $duetime['day'], $duetime['year']);
+                    $upditem->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
                 }
                 $this->items[$itemid]->duetime = $upditem->duetime;
 
