@@ -11,6 +11,8 @@ $string['canceledititem'] = 'Cancel';
 
 $string['calendardescription'] = 'This event was added by the checklist: $a';
 
+$string['changetextcolour'] = 'Next text colour';
+
 $string['checkeditemsdeleted'] = 'Checked items deleted';
 
 $string['checklist'] = 'checklist';
