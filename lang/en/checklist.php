@@ -11,10 +11,12 @@ $string['canceledititem'] = 'Cancel';
 
 $string['calendardescription'] = 'This event was added by the checklist: {$a}';
 
+$string['changetextcolour'] = 'Next text colour';
+
 $string['checkeditemsdeleted'] = 'Checked items deleted';
 
 $string['checklist'] = 'checklist';
-$string['checklistadministration'] = 'Checklist administration';
+$string['pluginadministration'] = 'Checklist administration';
 
 $string['checklist:edit'] = 'Create and edit checklists';
 $string['checklist:preview'] = 'Preview a checklist';

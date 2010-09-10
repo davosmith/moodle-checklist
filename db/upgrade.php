@@ -121,6 +121,17 @@ function xmldb_checklist_upgrade($oldversion=0) {
         /// checklist savepoint reached
         upgrade_mod_savepoint($result, 2010050100, 'checklist');
     }
+
+    if ($result && $oldversion < 2010091003) {
+        $table = new xmldb_table('checklist_item');
+        $field = new xmldb_field('colour', XMLDB_TYPE_CHAR, '15', null, XMLDB_NOTNULL, null, 'black');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint($result, 2010091003, 'checklist');
+    }
         
     return $result;
 

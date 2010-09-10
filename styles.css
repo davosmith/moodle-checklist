@@ -22,7 +22,46 @@ ol.checklist .note {
 
 ol.checklist .itemoptional {
     font-style: italic;
+}
+   
+ol.checklist .itemblack {
+    color: #000000;
+}
+
+ol.checklist .itemblack.itemoptional {
     color: #a0a0a0;
+}
+
+ol.checklist .itemred {
+    color: #ff0000;
+}
+
+ol.checklist .itemred.itemoptional {
+    color: #ffa0a0;
+}
+
+ol.checklist .itemorange {
+    color: #ffba00;
+}
+
+ol.checklist .itemorange.itemoptional {
+    color: #ffdaa0;
+}
+
+ol.checklist .itemgreen {
+    color: #00ff00;
+}
+
+ol.checklist .itemgreen.itemoptional {
+    color: #a0ffa0;
+}
+
+ol.checklist .itempurple {
+    color: #d000ff;
+}
+
+ol.checklist .itempurple.itemoptional {
+    color: #d0a0ff;
 }
 
 ol.checklist .teachercomment {

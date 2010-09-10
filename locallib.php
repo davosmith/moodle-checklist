@@ -530,7 +530,24 @@ class checklist_class {
                 if ($viewother || $userreport) {
                     $checked .= ' disabled="disabled" ';
                 }
-                $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
+                switch ($item->colour) {
+                case 'red':
+                    $itemcolour = 'itemred';
+                    break;
+                case 'orange':
+                    $itemcolour = 'itemorange';
+                    break;
+                case 'green':
+                    $itemcolour = 'itemgreen';
+                    break;
+                case 'purple':
+                    $itemcolour = 'itempurple';
+                    break;
+                default:
+                    $itemcolour = 'itemblack';
+                }
+
+                $optional = $item->itemoptional ? ' class="itemoptional '.$itemcolour.'" ' : 'class="'.$itemcolour.'"';
                 echo '<li>';
                 if ($showteachermark) {
                     if ($viewother) {
@@ -812,17 +829,39 @@ class checklist_class {
                 $itemname = '"item'.$item->id.'"';
                 $thispage->param('itemid',$item->id);
 
+                switch ($item->colour) {
+                case 'red':
+                    $itemcolour = 'itemred';
+                    $nexticon = 'colour_orange';
+                    break;
+                case 'orange':
+                    $itemcolour = 'itemorange';
+                    $nexticon = 'colour_green';
+                    break;
+                case 'green':
+                    $itemcolour = 'itemgreen';
+                    $nexticon = 'colour_purple';
+                    break;
+                case 'purple':
+                    $itemcolour = 'itempurple';
+                    $nexticon = 'colour_black';
+                    break;
+                default:
+                    $itemcolour = 'itemblack';
+                    $nexticon = 'colour_red';
+                }
+
                 echo '<li>';
                 if ($item->itemoptional) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
                     echo '<a href="'.$thispage->out(true, array('action'=>'makerequired')).'">';
                     echo '<img src="'.$OUTPUT->pix_url('optional','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
-                    $optional = ' class="itemoptional" ';
+                    $optional = ' class="itemoptional '.$itemcolour.'" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<a href="'.$thispage->out(true, array('action'=>'makeoptional')).'">';
                     echo '<img src="'.$OUTPUT->pix_url('required','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
-                    $optional = '';
+                    $optional = ' class="'.$itemcolour.'"';
                 }
 
                 if (isset($item->editme)) {
@@ -847,6 +886,10 @@ class checklist_class {
                     
                 } else {
                     echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>&nbsp;';
+
+                    echo '<a href="'.$thispage->out(true, array('action'=>'nextcolour')).'">';
+                    $title = '"'.get_string('changetextcolour','checklist').'"';
+                    echo '<img src="'.$OUTPUT->pix_url($nexticon,'checklist').'" alt='.$title.' title='.$title.' /></a>';
 
                     echo '<a href="'.$thispage->out(true, array('action'=>'edititem')).'">';
                     $title = '"'.get_string('edititem','checklist').'"';
@@ -1380,6 +1423,9 @@ class checklist_class {
         case 'makerequired':
             $this->makeoptional($itemid, false);
             break;
+        case 'nextcolour':
+            $this->nextcolour($itemid);
+            break;
         default:
             error('Invalid action - "'.s($action).'"');
         }
@@ -1722,6 +1768,37 @@ class checklist_class {
         $upditem->id = $itemid;
         $upditem->itemoptional = $optional;
         $DB->update_record('checklist_item', $upditem);
+    }
+
+    function nextcolour($itemid) {
+        global $DB;
+        
+        if (!isset($this->items[$itemid])) {
+            return;
+        }
+
+        switch ($this->items[$itemid]->colour) {
+        case 'black':
+            $nextcolour='red';
+            break;
+        case 'red':
+            $nextcolour='orange';
+            break;
+        case 'orange':
+            $nextcolour='green';
+            break;
+        case 'green':
+            $nextcolour='purple';
+            break;
+        default:
+            $nextcolour='black';
+        }
+
+        $upditem = new stdClass;
+        $upditem->id = $itemid;
+        $upditem->colour = $nextcolour;
+        $DB->update_record('checklist_item', $upditem);
+        $this->items[$itemid]->colour = $nextcolour;
     }
 
     function updatechecks() {
