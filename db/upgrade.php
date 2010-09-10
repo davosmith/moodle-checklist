@@ -88,6 +88,15 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $table->addIndexInfo('checklist_item_user', XMLDB_INDEX_UNIQUE, array('itemid', 'userid'));
         $result = $result && create_table($table);
     }
+
+    if ($result && $oldversion < 2010091003) {
+        $table = new XMLDBTable('checklist_item');
+        $field = new XMLDBField('colour');
+
+        $field->setAttributes(XMLDB_TYPE_CHAR, '15', null, XMLDB_NOTNULL, null, null, null, 'black', 'eventid');
+
+        $result = $result && add_field($table, $field);
+    }
         
     return $result;
 

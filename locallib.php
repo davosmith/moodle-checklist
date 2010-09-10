@@ -545,7 +545,24 @@ class checklist_class {
                 if ($viewother || $userreport) {
                     $checked .= ' disabled="disabled" ';
                 }
-                $optional = $item->itemoptional ? ' class="itemoptional" ' : '';
+                switch ($item->colour) {
+                case 'red':
+                    $itemcolour = 'itemred';
+                    break;
+                case 'orange':
+                    $itemcolour = 'itemorange';
+                    break;
+                case 'green':
+                    $itemcolour = 'itemgreen';
+                    break;
+                case 'purple':
+                    $itemcolour = 'itempurple';
+                    break;
+                default:
+                    $itemcolour = 'itemblack';
+                }
+
+                $optional = $item->itemoptional ? ' class="itemoptional '.$itemcolour.'" ' : 'class="'.$itemcolour.'"';
                 echo '<li>';
                 if ($showteachermark) {
                     if ($viewother) {
@@ -809,17 +826,39 @@ class checklist_class {
                 $baseurl .= ($this->editdates) ? '&amp;editdates=on' : '';
                 $baseurl .= '&amp;action=';
 
+                switch ($item->colour) {
+                case 'red':
+                    $itemcolour = 'itemred';
+                    $nexticon = 'colour_orange.gif';
+                    break;
+                case 'orange':
+                    $itemcolour = 'itemorange';
+                    $nexticon = 'colour_green.gif';
+                    break;
+                case 'green':
+                    $itemcolour = 'itemgreen';
+                    $nexticon = 'colour_purple.gif';
+                    break;
+                case 'purple':
+                    $itemcolour = 'itempurple';
+                    $nexticon = 'colour_black.gif';
+                    break;
+                default:
+                    $itemcolour = 'itemblack';
+                    $nexticon = 'colour_red.gif';
+                }
+
                 echo '<li>';
                 if ($item->itemoptional) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
                     echo '<a href="'.$baseurl.'makerequired">';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/optional.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
-                    $optional = ' class="itemoptional" ';
+                    $optional = ' class="itemoptional '.$itemcolour.'" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<a href="'.$baseurl.'makeoptional">';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/required.png" alt='.$title.' title='.$title.' /></a>&nbsp;';
-                    $optional = '';
+                    $optional = ' class="'.$itemcolour.'"';
                 }
 
                 if (isset($item->editme)) {
@@ -840,7 +879,9 @@ class checklist_class {
 
                     echo '<form style="display:inline" action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="get">';
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-                    echo '<input type="hidden" name="editdates" value="on" />';
+                    if ($this->editdates) {
+                        echo '<input type="hidden" name="editdates" value="on" />';
+                    }
                     if ($this->additemafter) {
                         echo '<input type="hidden" name="additemafter" value="'.$this->additemafter.'" />';
                     }
@@ -849,6 +890,10 @@ class checklist_class {
                 } else {
                     echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>&nbsp;';
 
+                    echo '<a href="'.$baseurl.'nextcolour">';
+                    $title = '"'.get_string('changetextcolour','checklist').'"';
+                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/'.$nexticon.'" alt='.$title.' title='.$title.' /></a>';
+                    
                     echo '<a href="'.$baseurl.'edititem">';
                     $title = '"'.get_string('edititem','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/edit.gif"  alt='.$title.' title='.$title.' /></a>&nbsp;';
@@ -883,7 +928,7 @@ class checklist_class {
                     echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
                     $title = '"'.get_string('deleteitem','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt='.$title.' title='.$title.' /></a>';
-                    
+
                     echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemhere','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/add.png" alt='.$title.' title='.$title.' /></a>';
@@ -1383,6 +1428,9 @@ class checklist_class {
         case 'makerequired':
             $this->makeoptional($itemid, false);
             break;
+        case 'nextcolour':
+            $this->nextcolour($itemid);
+            break;
         default:
             error('Invalid action - "'.s($action).'"');
         }
@@ -1714,8 +1762,38 @@ class checklist_class {
         update_record('checklist_item', $upditem);
     }
 
+    function nextcolour($itemid) {
+        if (!isset($this->items[$itemid])) {
+            return;
+        }
+
+        switch ($this->items[$itemid]->colour) {
+        case 'black':
+            $nextcolour='red';
+            break;
+        case 'red':
+            $nextcolour='orange';
+            break;
+        case 'orange':
+            $nextcolour='green';
+            break;
+        case 'green':
+            $nextcolour='purple';
+            break;
+        default:
+            $nextcolour='black';
+        }
+
+        $upditem = new stdClass;
+        $upditem->id = $itemid;
+        $upditem->colour = $nextcolour;
+        update_record('checklist_item', $upditem);
+        $this->items[$itemid]->colour = $nextcolour;
+    }
+
     function updatechecks() {
         $newchecks = optional_param('items', array(), PARAM_INT);
+
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing
             return;
