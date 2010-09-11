@@ -7,6 +7,9 @@ $string['additemalt'] = 'Add a new item to the list';
 $string['additemhere'] = 'Insert new item after this one';
 $string['addownitems'] = 'Add your own items';
 $string['addownitems-stop'] = 'Stop adding your own items';
+
+$string['allowmodulelinks'] = 'Allow module links';
+
 $string['canceledititem'] = 'Cancel';
 
 $string['calendardescription'] = 'This event was added by the checklist: $a';
@@ -31,6 +34,7 @@ $string['checklistsettings'] = 'Settings';
 $string['checks'] = 'Check marks';
 $string['comments'] = 'Comments';
 
+$string['configallowmodulelinks'] = 'Allow checklist items to be linked to other modules (may slow down the editing of checklists)';
 $string['confirmdeleteitem'] = 'Are you sure you want to permanently delete this checklist item?';
 
 $string['deleteitem'] = 'Delete this item';
