@@ -10,6 +10,8 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
+define("TEXT_INPUT_WIDTH", 45);
+
 class checklist_class {
     var $cm;
     var $course;
@@ -647,7 +649,7 @@ class checklist_class {
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
                                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                                echo '<input type="text" name="displaytext" value="'.s($text).'" id="updateitembox" />';
+                                echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).'" id="updateitembox" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '<br />';
                                 echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
@@ -706,7 +708,7 @@ class checklist_class {
                     if ($showcheckbox) {
                         echo '<input type="checkbox" disabled="disabled" />';
                     }
-                    echo '<input type="text" name="displaytext" value="" id="additembox" />';
+                    echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
                     echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
                     echo '<br />';
                     echo '<textarea name="displaytextnote" rows="3" cols="25"></textarea>';
@@ -867,7 +869,7 @@ class checklist_class {
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
                     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                    echo '<input type="text" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
+                    echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
                     if ($this->editdates) {
                         echo '<input type="hidden" name="editdates" value="on" />';
                         $this->print_edit_date($item->duetime);
@@ -950,7 +952,7 @@ class checklist_class {
                         echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
                         echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                         echo '<input type="checkbox" disabled="disabled" />';
-                        echo '<input type="text" name="displaytext" value="" id="additembox" />';
+                        echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
                         if ($this->editdates) {
                             echo '<input type="hidden" name="editdates" value="on" />';
                             $this->print_edit_date();
@@ -984,7 +986,7 @@ class checklist_class {
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
             echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-            echo '<input type="text" name="displaytext" value="" id="additembox" />';
+            echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
             if ($this->editdates) {
                 echo '<input type="hidden" name="editdates" value="on" />';
                 $this->print_edit_date();
