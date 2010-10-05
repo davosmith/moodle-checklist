@@ -10,6 +10,8 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
+define("TEXT_INPUT_WIDTH", 45);
+
 class checklist_class {
     var $cm;
     var $course;
@@ -640,7 +642,7 @@ class checklist_class {
                                 }
                                 echo '<form style="display:inline" action="'.$thisitemurl->out_omit_querystring().'" method="post">';
                                 echo html_writer::input_hidden_params($thisitemurl);
-                                echo '<input type="text" name="displaytext" value="'.s($text).'" id="updateitembox" />';
+                                echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).'" id="updateitembox" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '<br />';
                                 echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
@@ -701,7 +703,7 @@ class checklist_class {
                     if ($showcheckbox) {
                         echo '<input type="checkbox" disabled="disabled" />';
                     }
-                    echo '<input type="text" name="displaytext" value="" id="additembox" />';
+                    echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
                     echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
                     echo '<br />';
                     echo '<textarea name="displaytextnote" rows="3" cols="25"></textarea>';
@@ -866,7 +868,7 @@ class checklist_class {
 
                 if (isset($item->editme)) {
                     echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="post">';
-                    echo '<input type="text" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
+                    echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
                     echo '<input type="hidden" name="action" value="updateitem" />';
                     echo html_writer::input_hidden_params($thispage);
                     if ($this->editdates) {
@@ -950,7 +952,7 @@ class checklist_class {
                     echo '<input type="hidden" name="position" value="'.($item->position+1).'" />';
                     echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
                     echo '<img src="'.$OUTPUT->pix_url('required','checklist').'" /> ';
-                    echo '<input type="text" name="displaytext" value="" id="additembox" />';
+                    echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
                     if ($this->editdates) {
                         $this->print_edit_date();
                     }
@@ -983,7 +985,7 @@ class checklist_class {
             echo html_writer::input_hidden_params($thispage);
             echo '<input type="hidden" name="action" value="additem" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
-            echo '<input type="text" name="displaytext" value="" id="additembox" />';
+            echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
             if ($this->editdates) {
                 $this->print_edit_date();
             }
