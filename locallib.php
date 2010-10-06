@@ -456,7 +456,7 @@ class checklist_class {
             echo '</h2>';
         }
 
-        echo '<p>'.format_string($this->checklist->intro, $this->checklist->introformat).'</p>';
+        echo format_text($this->checklist->intro, $this->checklist->introformat);
 
         $showteachermark = false;
         $showcheckbox = true;
