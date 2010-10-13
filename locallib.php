@@ -524,8 +524,10 @@ class checklist_class {
                             $commentuserids[] = $comment->commentby;
                         }
                     }
-                    $commentuserids = implode(",",array_unique($commentuserids, SORT_NUMERIC));
-                    $commentusers = get_records_select('user', 'id IN ('.$commentuserids.')');
+                    if (!empty($commentuserids)) {
+                        $commentuserids = implode(",",array_unique($commentuserids, SORT_NUMERIC));
+                        $commentusers = get_records_select('user', 'id IN ('.$commentuserids.')');
+                    }
                 } else {
                     $comments = false;
                 }
