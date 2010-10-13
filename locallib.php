@@ -509,8 +509,10 @@ class checklist_class {
                             $commentuserids[] = $comment->commentby;
                         }
                     }
-                    list($csql, $cparams) = $DB->get_in_or_equal(array_unique($commentuserids, SORT_NUMERIC));
-                    $commentusers = $DB->get_records_select('user', 'id '.$csql, $cparams);
+                    if (!empty($commentuserids)) {
+                        list($csql, $cparams) = $DB->get_in_or_equal(array_unique($commentuserids, SORT_NUMERIC));
+                        $commentusers = $DB->get_records_select('user', 'id '.$csql, $cparams);
+                    }
                 } else {
                     $comments = false;
                 }
