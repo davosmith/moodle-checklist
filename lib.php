@@ -158,6 +158,8 @@ function checklist_update_grades($checklist, $userid=0) {
     }
     
     $total = count($items);
+    $scale = 50;
+    
     $itemlist = implode(',',array_keys($items));
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
         $date = ', MAX(c.usertimestamp) AS datesubmitted';
@@ -167,7 +169,7 @@ function checklist_update_grades($checklist, $userid=0) {
         $where = 'c.teachermark = '.CHECKLIST_TEACHERMARK_YES;
     }
 
-    $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * 100 / '.$total.') AS rawgrade'.$date;
+    $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
     $sql .= " FROM {$CFG->prefix}user u LEFT JOIN {$CFG->prefix}checklist_check c ON u.id = c.userid";
     $sql .= " WHERE c.item IN ($itemlist)";
     $sql .= ' AND u.id IN ('.$users.')';
@@ -200,7 +202,7 @@ function checklist_grade_item_update($checklist, $grades=NULL) {
 
     $params = array('itemname'=>$checklist->name);
     $params['gradetype'] = GRADE_TYPE_VALUE;
-    $params['grademax']  = 100;
+    $params['grademax']  = 50;
     $params['grademin']  = 0;
 
     if ($grades  === 'reset') {
