@@ -71,6 +71,10 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('select', 'teachercomments', get_string('teachercomments', 'checklist'), $ynoptions);
         $mform->setDefault('teachercomments', 1);
         $mform->setAdvanced('teachercomments');
+
+        $mform->addElement('text', 'maxgrade', get_string('maximumgrade'), array('size'=>'10'));
+        $mform->setDefault('maxgrade', 100);
+        $mform->setAdvanced('maxgrade');      
         
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules

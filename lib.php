@@ -62,6 +62,9 @@ function checklist_update_instance($checklist) {
     $checklist->timemodified = time();
     $checklist->id = $checklist->instance;
 
+    $newmax = $checklist->maxgrade;
+    $oldmax = $DB->get_field('checklist','maxgrade',array('id'=>$checklist->id));
+
     $DB->update_record('checklist', $checklist);
 
     // Add or remove all calendar events, as needed
@@ -71,6 +74,9 @@ function checklist_update_instance($checklist) {
     $chk->setallevents();
 
     checklist_grade_item_update($checklist);
+    if ($newmax != $oldmax) {
+        checklist_update_grades($checklist);
+    }
 
     return true;
 }
@@ -160,14 +166,14 @@ function checklist_update_grades($checklist, $userid=0) {
     list($usql, $uparams) = $DB->get_in_or_equal($users);
     list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
     
-    $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * 100 / ? ) AS rawgrade'.$date;
+    $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
     $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
     $sql .= " WHERE u.id $usql";
     $sql .= " AND c.item $isql";
     $sql .= ' GROUP BY u.id';
 
     $params = array_merge($uparams, $iparams);
-    $params = array_merge(array($total), $params);
+    $params = array_merge(array($checklist->maxgrade, $total), $params);
 
     $grades = $DB->get_records_sql($sql, $params);
 
@@ -196,7 +202,7 @@ function checklist_grade_item_update($checklist, $grades=NULL) {
 
     $params = array('itemname'=>$checklist->name);
     $params['gradetype'] = GRADE_TYPE_VALUE;
-    $params['grademax']  = 100;
+    $params['grademax']  = $checklist->maxgrade;
     $params['grademin']  = 0;
 
     if ($grades  === 'reset') {
