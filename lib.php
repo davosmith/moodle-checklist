@@ -162,8 +162,8 @@ function checklist_update_grades($checklist, $userid=0) {
     
     $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * 100 / ? ) AS rawgrade'.$date;
     $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
-    $sql .= " WHERE c.item $usql";
-    $sql .= " AND u.id $isql";
+    $sql .= " WHERE u.id $usql";
+    $sql .= " AND c.item $isql";
     $sql .= ' GROUP BY u.id';
 
     $params = array_merge($uparams, $iparams);
