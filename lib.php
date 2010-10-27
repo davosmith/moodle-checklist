@@ -62,6 +62,9 @@ function checklist_update_instance($checklist) {
     $checklist->timemodified = time();
     $checklist->id = $checklist->instance;
 
+    $newmax = $checklist->maxgrade;
+    $oldmax = get_field('checklist','maxgrade','id',$checklist->id);
+
     $returnid = update_record('checklist', $checklist);
 
     // Add or remove all calendar events, as needed
@@ -72,6 +75,10 @@ function checklist_update_instance($checklist) {
 
     $checklist = stripslashes_recursive($checklist);
     checklist_grade_item_update($checklist);
+
+    if ($newmax != $oldmax) {
+        checklist_update_grades($checklist);
+    }
 
     return $returnid;
 }
@@ -158,7 +165,7 @@ function checklist_update_grades($checklist, $userid=0) {
     }
     
     $total = count($items);
-    $scale = 50;
+    $scale = $checklist->maxgrade;
     
     $itemlist = implode(',',array_keys($items));
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
@@ -202,7 +209,7 @@ function checklist_grade_item_update($checklist, $grades=NULL) {
 
     $params = array('itemname'=>$checklist->name);
     $params['gradetype'] = GRADE_TYPE_VALUE;
-    $params['grademax']  = 50;
+    $params['grademax']  = $checklist->maxgrade;
     $params['grademin']  = 0;
 
     if ($grades  === 'reset') {

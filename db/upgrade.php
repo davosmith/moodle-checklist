@@ -97,6 +97,15 @@ function xmldb_checklist_upgrade($oldversion=0) {
 
         $result = $result && add_field($table, $field);
     }
+    
+    if ($result && $oldversion < 2010102703) {
+        $table = new XMLDBTable('checklist');
+        $field = new XMLDBField('maxgrade');
+
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '100', 'teachercomments');
+
+        $result = $result && add_field($table, $field);
+    }
         
     return $result;
 
