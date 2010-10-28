@@ -47,6 +47,7 @@ $string['optionalshow'] = 'Muestra piezas opcionales';
 
 $string['percentcomplete'] = 'Piezas necesarias';
 $string['percentcompleteall'] = 'Todas las piezas';
+$string['pluginname'] = 'Lista de control';
 $string['preview'] = 'Prevista';
 
 $string['report'] = 'Ver progreso';

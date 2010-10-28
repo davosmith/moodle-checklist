@@ -49,6 +49,7 @@ $string['optionalshow'] = 'Optionale Elemente zeigen';
 
 $string['percentcomplete'] = 'Erforderliche Elemente';
 $string['percentcompleteall'] = 'Alle Elemente';
+$string['pluginname'] = 'Fortschrittliste';
 $string['preview'] = 'Vorschau';
 
 $string['report'] = 'Teilnehmer Fortschritt anschauen';

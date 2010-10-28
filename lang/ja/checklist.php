@@ -49,6 +49,7 @@ $string['optionalshow'] = '必須ではない項目を表示';
 
 $string['percentcomplete'] = '必須項目';
 $string['percentcompleteall'] = 'すべての項目';
+$string['pluginname'] = 'チェックリスト';
 $string['preview'] = 'プレビュー';
 
 $string['report'] = '進捗確認';

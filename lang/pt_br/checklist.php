@@ -62,6 +62,7 @@ $string['optionalshow'] = 'Mostrar itens opcionais';
 
 $string['percentcomplete'] = 'itens Requeridos';
 $string['percentcompleteall'] = 'Todos os itens';
+$string['pluginname'] = 'Lista de progresso';
 $string['preview'] = 'Visualizar';
 $string['progress'] = 'Progresso';
 

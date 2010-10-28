@@ -63,6 +63,7 @@ $string['optionalshow'] = 'Show optional items';
 
 $string['percentcomplete'] = 'Required items';
 $string['percentcompleteall'] = 'All items';
+$string['pluginname'] = 'Checklist';
 $string['preview'] = 'Preview';
 $string['progress'] = 'Progress';
 

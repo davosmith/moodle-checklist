@@ -60,6 +60,7 @@ $string['optionalshow'] = 'Laat optionele items zien';
 
 $string['percentcomplete'] = 'Verplichte items';
 $string['percentcompleteall'] = 'Alle items';
+$string['pluginname'] = 'Checklist';
 $string['preview'] = 'Voorvertonen';
 $string['progress'] = 'Voortgang';
 
