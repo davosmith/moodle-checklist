@@ -18,12 +18,12 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $checklist = new backup_nested_element('checklist', array('id'), array(
             'name', 'intro', 'introformat', 'timecreated', 'timemodified', 'useritemsallowed',
-            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments'));
+            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade'));
 
         $items = new backup_nested_element('items');
 
         $item = new backup_nested_element('item', array('id'), array(
-            'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime'));
+            'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime', 'colour'));
 
         $checks = new backup_nested_element('checks');
         
@@ -57,15 +57,15 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         }
 
         // Define id annotations
-        $item->annotate_ids('userid', 'userid');
-        $check->annotate_ids('userid', 'userid');
-        $comment->annotate_ids('userid', 'userid');
-        $comment->annotate_ids('userid', 'commentby');
+        $item->annotate_ids('user', 'userid');
+        $check->annotate_ids('user', 'userid');
+        $comment->annotate_ids('user', 'userid');
+        $comment->annotate_ids('user', 'commentby');
         
 
         // Define file annotations
 
-        $checklist->annotate_files(array('forum_intro'), null); // This file area hasn't itemid
+        $checklist->annotate_files('mod_checklist', 'intro', null); // This file area hasn't itemid
 
         // Return the root element (forum), wrapped into standard activity structure
         return $this->prepare_activity_structure($checklist);

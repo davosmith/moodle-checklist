@@ -31,35 +31,38 @@ class backup_checklist_activity_task extends backup_activity_task {
     static public function encode_content_links($content) {
         // I don't think there is anything needed here (but I could be wrong)
 
-        /*
+        
         global $CFG;
 
         $base = preg_quote($CFG->wwwroot,"/");
 
-        // Link to the list of forums
-        $search="/(".$base."\/mod\/forum\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FORUMINDEX*$2@$', $content);
+        // Link to the list of checklists
+        $search="/(".$base."\/mod\/checklist\/index.php\?id\=)([0-9]+)/";
+        $content= preg_replace($search, '$@CHECKLISTINDEX*$2@$', $content);
 
-        // Link to forum view by moduleid
-        $search="/(".$base."\/mod\/forum\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FORUMVIEWBYID*$2@$', $content);
+        // Link to checklist view by moduleid
+        $search="/(".$base."\/mod\/checklist\/view.php\?id\=)([0-9]+)/";
+        $content= preg_replace($search, '$@CHECKLISTVIEWBYID*$2@$', $content);
 
-        // Link to forum view by forumid
-        $search="/(".$base."\/mod\/forum\/view.php\?f\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FORUMVIEWBYF*$2@$', $content);
+        // Link to checklist view by id
+        $search="/(".$base."\/mod\/checklist\/view.php\?checklist\=)([0-9]+)/";
+        $content= preg_replace($search, '$@CHECKLISTVIEWBYCHECKLIST*$2@$', $content);
 
-        // Link to forum discussion with parent syntax
-        $search="/(".$base."\/mod\/forum\/discuss.php\?d\=)([0-9]+)\&parent\=([0-9]+)/";
-        $content= preg_replace($search, '$@FORUMDISCUSSIONVIEWPARENT*$2*$3@$', $content);
+        // Link to checklist report by moduleid
+        $search="/(".$base."\/mod\/checklist\/report.php\?id\=)([0-9]+)/";
+        $content= preg_replace($search, '$@CHECKLISTREPORTBYID*$2@$', $content);
 
-        // Link to forum discussion with relative syntax
-        $search="/(".$base."\/mod\/forum\/discuss.php\?d\=)([0-9]+)\#([0-9]+)/";
-        $content= preg_replace($search, '$@FORUMDISCUSSIONVIEWINSIDE*$2*$3@$', $content);
+        // Link to checklist report by id
+        $search="/(".$base."\/mod\/checklist\/report.php\?checklist\=)([0-9]+)/";
+        $content= preg_replace($search, '$@CHECKLISTREPORTBYCHECKLIST*$2@$', $content);
 
-        // Link to forum discussion by discussionid
-        $search="/(".$base."\/mod\/forum\/discuss.php\?d\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FORUMDISCUSSIONVIEW*$2@$', $content);
-        */
+        // Link to checklist edit by moduleid
+        $search="/(".$base."\/mod\/checklist\/edit.php\?id\=)([0-9]+)/";
+        $content= preg_replace($search, '$@CHECKLISTEDITBYID*$2@$', $content);
+
+        // Link to checklist edit by id
+        $search="/(".$base."\/mod\/checklist\/edit.php\?checklist\=)([0-9]+)/";
+        $content= preg_replace($search, '$@CHECKLISTEDITBYCHECKLIST*$2@$', $content);
 
         return $content;
     }
