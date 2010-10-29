@@ -3,25 +3,33 @@
 class block_checklist extends block_list {
     function init() {
         $this->title = get_string('checklist','block_checklist');
-        $this->version = 2010050300;
     }
 
     function instance_allow_multiple() {
         return true;
     }
 
+    function has_config() {
+        return true;
+    }
+
+    function instance_allow_config() {
+        return true;
+    }
+
     function specialization() {
+        global $DB;
+
         if (!empty($this->config->checklistid)) {
-            $checklist = get_record('checklist','id',$this->config->checklistid);
+            $checklist = $DB->get_record('checklist', array('id'=>$this->config->checklistid));
             if ($checklist) {
-                //$this->title = get_string('checklist', 'block_checklist').' - '.s($checklist->name);
                 $this->title = s($checklist->name);
             }
         }
     }
 
     function get_content() {
-        global $CFG, $USER;
+        global $CFG, $USER, $DB;
         
         if ($this->content !== NULL) {
             return $this->content;
@@ -41,7 +49,7 @@ class block_checklist extends block_list {
             return $this->content;
         } 
 
-        if (!$checklist = get_record('checklist','id',$this->config->checklistid)) {
+        if (!$checklist = $DB->get_record('checklist',array('id'=>$this->config->checklistid))) {
             $this->content->items = array(get_string('nochecklist', 'block_checklist'));
             return $this->content;
         }
@@ -61,7 +69,7 @@ class block_checklist extends block_list {
             }
             if ($users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', $showgroup, '', false)) {
                 $users = array_keys($users);
-                $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
+                $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
             }
 
             if ($ausers) {
@@ -83,9 +91,9 @@ class block_checklist extends block_list {
     }
 
     function import_checklist_plugin() {
-        global $CFG;
+        global $CFG, $DB;
         
-        $chk = get_record('modules', 'name', 'checklist');
+        $chk = $DB->get_record('modules', array('name'=>'checklist'));
         if (!$chk) {
             return false;
         }
