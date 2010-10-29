@@ -8,7 +8,7 @@ IMPORTANT - This block will only work if you have installed the
 
 1. Unzip all the files to a suitable location.
 2. Upload them to your server and place them in a folder called:
-<moodle>/blocks/checklistblock
+<moodle>/blocks/checklist
 3. Login to your server as administrator and click on 'Notifications'
 
 ==Adding a checklist block==

@@ -1,6 +1,6 @@
 <?php
 
-$string['checklistblock'] = 'Checklist';
+$string['checklist'] = 'Checklist';
 $string['choosechecklist'] = 'Choose checklist';
 $string['choosegroup'] = 'Choose group';
 $string['nochecklist'] = 'Please edit this block to select a checklist to display';
