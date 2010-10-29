@@ -341,6 +341,9 @@ class checklist_class {
         $completeitems = 0;
         $allcompleteitems = 0;
         foreach ($this->items as $item) {
+            if ($item->itemoptional == 2) {
+                continue;
+            }
             if (!$item->itemoptional) {
                 $requireditems++;
                 if ($teacherprogress) {
@@ -551,26 +554,42 @@ class checklist_class {
                     $itemcolour = 'itemblack';
                 }
 
-                $optional = $item->itemoptional ? ' class="itemoptional '.$itemcolour.'" ' : 'class="'.$itemcolour.'"';
+                if ($item->itemoptional == 2) {
+                    $optional = ' class="itemheading '.$itemcolour.'" ';
+                    $spacerimg = $OUTPUT->pix_url('check_spacer','checklist');
+                } elseif ($item->itemoptional == 1) {
+                    $optional = ' class="itemoptional '.$itemcolour.'" ';
+                } else {
+                    $optional = ' class="'.$itemcolour.'" ';
+                }
+
                 echo '<li>';
                 if ($showteachermark) {
-                    if ($viewother) {
-                        $selu = ($item->teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
-                        $sely = ($item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
-                        $seln = ($item->teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
-                        
-                        echo '<select name="items['.$item->id.']" >';
-                        echo '<option value="'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
-                        echo '<option value="'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
-                        echo '<option value="'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
-                        echo '</select>';
+                    if ($item->itemoptional == 2) {
+                        //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
-                        list($imgsrc, $titletext) = $this->get_teachermark($item->id);
-                        echo '<img src="'.$imgsrc.'" alt="'.$titletext.'" title="'.$titletext.'" />';
+                        if ($viewother) {
+                            $selu = ($item->teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
+                            $sely = ($item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
+                            $seln = ($item->teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
+                        
+                            echo '<select name="items['.$item->id.']" >';
+                            echo '<option value="'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
+                            echo '<option value="'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
+                            echo '<option value="'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
+                            echo '</select>';
+                        } else {
+                            list($imgsrc, $titletext) = $this->get_teachermark($item->id);
+                            echo '<img src="'.$imgsrc.'" alt="'.$titletext.'" title="'.$titletext.'" />';
+                        }
                     }
                 }
                 if ($showcheckbox) {
-                    echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
+                    if ($item->itemoptional == 2) {
+                        //echo '<img src="'.$spacerimg.'" alt="" title="" />';
+                    } else {
+                        echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
+                    }
                 }
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
 
@@ -856,15 +875,20 @@ class checklist_class {
                 }
 
                 echo '<li>';
-                if ($item->itemoptional) {
+                if ($item->itemoptional == 1) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
-                    echo '<a href="'.$thispage->out(true, array('action'=>'makerequired')).'">';
-                    echo '<img src="'.$OUTPUT->pix_url('optional','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<a href="'.$thispage->out(true, array('action'=>'makeheading')).'">';
+                    echo '<img src="'.$OUTPUT->pix_url('empty_box','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional '.$itemcolour.'" ';
+                } elseif ($item->itemoptional == 2) {
+                    $title = '"'.get_string('headingitem','checklist').'"';
+                    echo '<a href="'.$thispage->out(true, array('action'=>'makerequired')).'">';
+                    echo '<img src="'.$OUTPUT->pix_url('no_box','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    $optional = ' class="itemheading '.$itemcolour.'" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<a href="'.$thispage->out(true, array('action'=>'makeoptional')).'">';
-                    echo '<img src="'.$OUTPUT->pix_url('required','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo '<img src="'.$OUTPUT->pix_url('tick_box','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="'.$itemcolour.'"';
                 }
 
@@ -1084,7 +1108,12 @@ class checklist_class {
             if ($ausers) {
                 // Show just progress bars
                 if ($this->showoptional) {
-                    $itemstocount = array_keys($this->items);
+                    $itemstocount = array();
+                    foreach ($this->items as $item) {
+                        if (!$item->itemoptional != 2) {
+                            $itemstocount[] = $item->id;
+                        }
+                    }
                 } else {
                     $itemstocount = array();
                     foreach ($this->items as $item) {
@@ -1161,7 +1190,7 @@ class checklist_class {
                 $table->head[] = s($item->displaytext);
                 $table->level[] = ($item->indent < 3) ? $item->indent : 2;
                 $table->size[] = '80px';
-                $table->skip[] = (!$this->showoptional) && $item->itemoptional;
+                $table->skip[] = (!$this->showoptional) && ($item->itemoptional == 1);
             }
 
             $table->data = array();
@@ -1177,15 +1206,19 @@ class checklist_class {
 
                     $row[] = $userlink.$vslink;
 
-                    $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
+                    $sql = 'SELECT i.id, i.itemoptional, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
                     $sql .= 'ON (i.id = c.item AND c.userid = ? ) WHERE i.checklist = ? AND i.userid=0 ORDER BY i.position';
                     $checks = $DB->get_records_sql($sql, array($auser->id, $this->checklist->id) );
 
                     foreach ($checks as $check) {
-                        if ($check->usertimestamp > 0) {
-                            $row[] = array($check->teachermark,true);
+                        if ($check->itemoptional == 2) {
+                            $row[] = array(false, false, true);
                         } else {
-                            $row[] = array($check->teachermark,false);
+                            if ($check->usertimestamp > 0) {
+                                $row[] = array($check->teachermark,true,false);
+                            } else {
+                                $row[] = array($check->teachermark,false,false);
+                            }
                         }
                     }
 
@@ -1256,33 +1289,38 @@ class checklist_class {
                     $size = $table->size[$key];
                     $img = '&nbsp;';
                     $cellclass = 'level'.$table->level[$key];
-                    list($teachermark, $studentmark) = $item;
-                    if ($showteachermark) {
-                        if ($teachermark == CHECKLIST_TEACHERMARK_YES) {
-                            $cellclass .= '-checked';
-                            $img = $teacherimg[$teachermark];
-                        } elseif ($teachermark == CHECKLIST_TEACHERMARK_NO) {
-                            $cellclass .= '-unchecked';
-                            $img = $teacherimg[$teachermark];
-                        } else {
-                            $img = $teacherimg[CHECKLIST_TEACHERMARK_UNDECIDED];
-                        }
-                    }
-                    $cellclass .= ' cell c'.$key;
-                    
-                    if ($showstudentmark) {
-                        if ($studentmark) {
-                            if (!$showteachermark) {
+                    list($teachermark, $studentmark, $heading) = $item;
+                    if ($heading) {
+                        $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$key.' reportheading">&nbsp;</td>';
+                    } else {
+                        if ($showteachermark) {
+                            if ($teachermark == CHECKLIST_TEACHERMARK_YES) {
                                 $cellclass .= '-checked';
+                                $img = $teacherimg[$teachermark];
+                            } elseif ($teachermark == CHECKLIST_TEACHERMARK_NO) {
+                                $cellclass .= '-unchecked';
+                                $img = $teacherimg[$teachermark];
+                            } else {
+                                $img = $teacherimg[CHECKLIST_TEACHERMARK_UNDECIDED];
                             }
-                            $img .= $tickimg;
                         }
-                    }
-                    if ($key == $lastkey) {
-                        $cellclass .= ' lastcol';
-                    }
+                        if ($showstudentmark) {
+                            if ($studentmark) {
+                                if (!$showteachermark) {
+                                    $cellclass .= '-checked';
+                                }
+                                $img .= $tickimg;
+                            }
+                        }
+
+                        $cellclass .= ' cell c'.$key;
+                    
+                        if ($key == $lastkey) {
+                            $cellclass .= ' lastcol';
+                        }
                 
-                    $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">'.$img.'</td>';
+                        $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">'.$img.'</td>';
+                    }
                 }
             }
             $output .= '</tr>';
@@ -1426,6 +1464,9 @@ class checklist_class {
             break;
         case 'makerequired':
             $this->makeoptional($itemid, false);
+            break;
+        case 'makeheading':
+            $this->makeoptional($itemid, true, true);
             break;
         case 'nextcolour':
             $this->nextcolour($itemid);
@@ -1760,11 +1801,19 @@ class checklist_class {
         $this->indentitemto($itemid, $this->items[$itemid]->indent - 1);
     }
 
-    function makeoptional($itemid, $optional) {
+    function makeoptional($itemid, $optional, $heading=false) {
         global $DB;
         
         if (!isset($this->items[$itemid])) {
             return;
+        }
+
+        if ($heading) {
+            $optional = 2;
+        } elseif ($optional) {
+            $optional = 1;
+        } else {
+            $optional = 0;
         }
 
         $this->items[$itemid]->itemoptional = $optional;
