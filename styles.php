@@ -19,6 +19,10 @@ ol.checklist .itemoptional {
     font-style: italic;
 }
 
+ol.checklist .itemheading {
+    font-weight: bold;
+}
+
 ol.checklist .itemblack {
     color: #000000;
 }
@@ -91,6 +95,10 @@ ol.checklist .teachercomment {
 .checklistreport .head2 {
     font-weight: normal;
     font-style: italic;
+}
+
+.checklistreport .reportheading {
+    background-color: #000000;
 }
 
 .checklistreport .level0 {
