@@ -570,17 +570,17 @@ class checklist_class {
                 }
 
                 if ($item->itemoptional == 2) {
-                    $optional = ' class="itemheading" '.$itemcolour.'" ';
+                    $optional = ' class="itemheading '.$itemcolour.'" ';
                     $spacerimg = $CFG->wwwroot.'/mod/checklist/images/check_spacer.gif';
                 } elseif ($item->itemoptional == 1) {
-                    $optional = ' class="itemoptional" '.$itemcolour.'" ';
+                    $optional = ' class="itemoptional '.$itemcolour.'" ';
                 } else {
                     $optional = ' class="'.$itemcolour.'" ';
                 }
                 echo '<li>';
                 if ($showteachermark) {
                     if ($item->itemoptional == 2) {
-                        echo '<img src="'.$spacerimg.'" alt="" title="" />';
+                        //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
                         if ($viewother) {
                             $selu = ($item->teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
@@ -600,7 +600,7 @@ class checklist_class {
                 }
                 if ($showcheckbox) {
                     if ($item->itemoptional == 2) {
-                        echo '<img src="'.$spacerimg.'" alt="" title="" />';
+                        //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
                         echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
                     }
