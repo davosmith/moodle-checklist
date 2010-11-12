@@ -762,6 +762,10 @@ class checklist_class {
             if ($updateform) {
                 echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
+                if ($viewother) {
+                    echo '<input type="submit" name="savenext" value="'.get_string('saveandnext').'" />';
+                    echo '<input type="submit" name="viewnext" value="'.get_string('next').'" />';
+                }
                 echo '</form>';
             }
 
@@ -1502,7 +1506,9 @@ class checklist_class {
     function process_report_actions() {
         $this->showoptional = true;
         $this->sortby = optional_param('sortby', 'firstasc', PARAM_TEXT);
-        
+
+        $savenext = optional_param('savenext', false, PARAM_TEXT);
+        $viewnext = optional_param('viewnext', false, PARAM_TEXT);
         $action = optional_param('action', false, PARAM_TEXT);
         if (!$action) {
             return;
@@ -1511,7 +1517,13 @@ class checklist_class {
         if ($action == 'hideoptional') {
             $this->showoptional = false;
         } else if ($action == 'updatechecks' && $this->caneditother()) {
-            $this->updateteachermarks();
+            if (!$viewnext) {
+                $this->updateteachermarks();
+            }
+        }
+
+        if ($viewnext || $savenext) {
+            $this->getnextuserid();
         }
     }
 
@@ -2011,6 +2023,48 @@ class checklist_class {
             }
         }
 
+    }
+
+    // Update the userid to point to the next user to view
+    function getnextuserid() {
+        global $CFG;
+
+        $activegroup = groups_get_activity_group($this->cm, true);
+        switch ($this->sortby) {
+        case 'firstdesc':
+            $orderby = 'ORDER BY u.firstname DESC';
+            break;
+
+        case 'lastasc':
+            $orderby = 'ORDER BY u.lastname';
+            break;
+
+        case 'lastdesc':
+            $orderby = 'ORDER BY u.lastname DESC';
+            break;
+            
+        default:
+            $orderby = 'ORDER BY u.firstname';
+            break;
+        }
+        
+        $ausers = false;
+        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
+            $users = array_keys($users);
+            $ausers = get_records_sql('SELECT u.id FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
+        }
+
+        $stoponnext = false;
+        foreach ($ausers as $user) {
+            if ($stoponnext) {
+                $this->userid = $user->id;
+                return;
+            }
+            if ($user->id == $this->userid) {
+                $stoponnext = true;
+            }
+        }
+        $this->userid = false;
     }
 
     /* static function - avoiding 'static' keyword for PHP 4 compatibility */
