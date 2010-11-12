@@ -101,7 +101,7 @@ $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 
 $string['view'] = 'View checklist';
-$string['viewall'] = 'View all progress';
+$string['viewall'] = 'View all students';
 $string['viewallcancel'] = 'Cancel';
 $string['viewallsave'] = 'Save';
 
