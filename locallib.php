@@ -163,12 +163,12 @@ class checklist_class {
 
     function canupdateown() {
         global $USER;
-        return ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
+        return (!$this->userid || ($this->userid == $USER->id)) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canaddown() {
         global $USER;
-        return $this->checklist->useritemsallowed && ($this->userid == $USER->id) && has_capability('mod/checklist:updateown', $this->context);
+        return $this->checklist->useritemsallowed && (!$this->userid || ($this->userid == $USER->id)) && has_capability('mod/checklist:updateown', $this->context);
     }
 
     function canpreview() {
@@ -181,6 +181,10 @@ class checklist_class {
 
     function canviewreports() {
         return has_capability('mod/checklist:viewreports', $this->context);
+    }
+
+    function caneditother() {
+        return has_capability('mod/checklist:updateother', $this->context);
     }
         
     function view() {
@@ -250,6 +254,10 @@ class checklist_class {
 
         if (!$this->canviewreports()) {
             redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)) );
+        }
+
+        if (!$this->caneditother()) {
+            $this->userid = false;
         }
 
         $this->view_header();
@@ -1141,9 +1149,13 @@ class checklist_class {
                         $tickeditems = 0;
                     }
 
-                    $vslink = ' <a href="'.$thisurl->out(true, array('studentid'=>$auser->id) ).'" ';
-                    $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'">';
-                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
+                    if ($this->caneditother()) {
+                        $vslink = ' <a href="'.$thisurl->out(true, array('studentid'=>$auser->id) ).'" ';
+                        $vslink .= 'alt="'.get_string('viewsinglereport','checklist').'" title="'.get_string('viewsinglereport','checklist').'">';
+                        $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
+                    } else {
+                        $vslink = '';
+                    }
                     $userurl = new moodle_url('/user/view.php', array('id'=>$auser->id, 'course'=>$this->course->id) );
                     $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
                     echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
@@ -1491,7 +1503,7 @@ class checklist_class {
 
         if ($action == 'hideoptional') {
             $this->showoptional = false;
-        } else if ($action == 'updatechecks') {
+        } else if ($action == 'updatechecks' && $this->caneditother()) {
             $this->updateteachermarks();
         }
     }
