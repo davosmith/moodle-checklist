@@ -462,6 +462,7 @@ class checklist_class {
             echo '&nbsp;<form style="display: inline;" action="'.$thispage.'" method="get">';
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
             echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
+            echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
             echo '<input type="submit" name="viewall" value="'.get_string('viewall','checklist').'" />';
             echo '</form>';
 
@@ -469,6 +470,7 @@ class checklist_class {
                 echo '<form style="display: inline;" action="'.$thispage.'" method="get">';
                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                 echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
+                echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
                 echo '<input type="hidden" name="editcomments" value="on" />';
                 echo '<input type="hidden" name="studentid" value="'.$this->userid.'" />';
                 echo ' <input type="submit" name="viewall" value="'.get_string('addcomments','checklist').'" />';
@@ -759,6 +761,7 @@ class checklist_class {
 
             if ($updateform) {
                 echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
+                echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
                 echo '</form>';
             }
 
