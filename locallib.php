@@ -67,6 +67,10 @@ class checklist_class {
         $this->pagetitle = strip_tags($this->course->shortname.': '.$this->strchecklist.': '.format_string($this->checklist->name,true));
 
         $this->get_items();
+
+        if ($this->checklist->autopopulate) {
+            $this->update_items_from_course();
+        }
     }
 
     /**
@@ -115,6 +119,30 @@ class checklist_class {
                 }
             }
         }
+    }
+
+    function get_itemid_from_moduleid($moduleid) {
+        foreach ($this->items as $item) {
+            if ($item->moduleid == $moduleid) {
+                return $item->id;
+            }
+        }
+        return false;
+    }
+
+    function update_items_from_course() {
+        $mods = get_fast_modinfo($this->course);
+
+        foreach ($mods->cms as $cm) {
+            if (!$this->get_itemid_from_moduleid($cm->id)) {
+                $this->additem($cm->name, 0, 0, false, false, $cm->id);
+            }
+        }
+
+        print_r($mods);
+        
+        // Get module ids + names for all items in the course
+        // Check against the items in the list
     }
 
     /**
@@ -1527,7 +1555,7 @@ class checklist_class {
         }
     }
 
-    function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false) {
+    function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false, $moduleid=0) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1560,6 +1588,7 @@ class checklist_class {
         }
         $item->eventid = 0;
         $item->colour = 'black';
+        $item->moduleid = $moduleid;
 
         $item->id = insert_record('checklist_item', $item);
         $item->displaytext = stripslashes($displaytext);
