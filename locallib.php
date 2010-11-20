@@ -72,6 +72,10 @@ class checklist_class {
         $this->pagetitle = strip_tags($this->course->shortname.': '.$this->strchecklist.': '.format_string($this->checklist->name,true));
 
         $this->get_items();
+
+        if ($this->checklist->autopopulate) {
+            $this->update_items_from_course();
+        }
     }
 
     /**
