@@ -1558,6 +1558,7 @@ class checklist_class {
             $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
         }
         $item->eventid = 0;
+        $item->colour = 'black';
 
         $item->id = $DB->insert_record('checklist_item', $item);
         if ($item->id) {
