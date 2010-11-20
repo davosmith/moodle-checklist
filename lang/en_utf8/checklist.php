@@ -10,6 +10,9 @@ $string['addownitems-stop'] = 'Stop adding your own items';
 
 $string['allowmodulelinks'] = 'Allow module links';
 
+$string['autopopulate'] = 'Show course modules in checklist';
+$string['autoupdate'] = 'Check-off when modules complete';
+
 $string['canceledititem'] = 'Cancel';
 
 $string['calendardescription'] = 'This event was added by the checklist: $a';

@@ -19,7 +19,9 @@
         <FIELD NAME="theme" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="default" SEQUENCE="false" ENUM="false" COMMENT="The theme chosen to display the checklist to the users" PREVIOUS="teacheredit" NEXT="duedatesoncalendar"/> 
       	<FIELD NAME="duedatesoncalendar" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Add due dates to the course calendar" PREVIOUS="theme" NEXT="teachercomments"/>
 	<FIELD NAME="teachercomments" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="Are teachers allowed to add comments to a user's checklist items?" PREVIOUS="duedatesoncalendar" NEXT="maxgrade"/>
-	<FIELD NAME="maxgrade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="100.0" SEQUENCE="false" ENUM="false" PREVIOUS="teachercomments"/>
+	<FIELD NAME="maxgrade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="100.0" SEQUENCE="false" ENUM="false" PREVIOUS="teachercomments" NEXT="autopopulate"/>
+	<FIELD NAME="autopopulate" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Automatically fill in the checklist, based on the modules in the current course" PREVIOUS="maxgrade" NEXT="autoupdate"/>
+	<FIELD NAME="autoupdate" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="Automatically update items that are linked to course modules (tick them off when items are complete)" PREVIOUS="autopopulate"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -41,15 +43,16 @@
         <FIELD NAME="itemoptional" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="indent" NEXT="duetime"/> 
         <FIELD NAME="duetime" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Date/time when this item is due to be completed" PREVIOUS="itemoptional" NEXT="eventid"/> 
         <FIELD NAME="eventid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="id of the calendar event (if any) associated with this item" PREVIOUS="duetime" NEXT="colour"/>
-	<FIELD NAME="colour" TYPE="char" LENGTH="15" NOTNULL="true" DEFAULT="black" SEQUENCE="false" ENUM="false" PREVIOUS="eventid"/>
+	<FIELD NAME="colour" TYPE="char" LENGTH="15" NOTNULL="true" DEFAULT="black" SEQUENCE="false" ENUM="false" PREVIOUS="eventid" NEXT="moduleid"/>
+	<FIELD NAME="moduleid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="id of the course module (if any) associated with this item" PREVIOUS="colour"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" NEXT="checklist"/>
-
-        <INDEX NAME="checklist" UNIQUE="false" FIELDS="checklist" PREVIOUS="userid"/>
+        <INDEX NAME="checklist" UNIQUE="false" FIELDS="checklist" PREVIOUS="userid" NEXT="item_module"/>
+	<INDEX NAME="item_module" UNIQUE="false" FIELDS="moduleid" PREVIOUS="checklist"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="checklist_check" COMMENT="Records when items where checked off" PREVIOUS="checklist_item" NEXT="checklist_comment">
@@ -68,7 +71,6 @@
       <INDEXES>
         <INDEX NAME="item" UNIQUE="false" FIELDS="item" NEXT="userid"/>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" PREVIOUS="item"/>
-
       </INDEXES>
     </TABLE>
     <TABLE NAME="checklist_comment" COMMENT="A comment, added by a teacher, to an item on a user's checklist" PREVIOUS="checklist_check">
@@ -93,7 +95,6 @@
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'view', 'checklist', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'add', 'checklist', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'update', 'checklist', 'name')" />
-
       </SENTENCES>
     </STATEMENT>
   </STATEMENTS>

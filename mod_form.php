@@ -82,6 +82,15 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('text', 'maxgrade', get_string('maximumgrade'), array('size'=>'10'));
         $mform->setDefault('maxgrade', 100);
         $mform->setAdvanced('maxgrade');
+
+        $mform->addElement('select', 'autopopulate', get_string('autopopulate', 'checklist'), $ynoptions);
+        $mform->setDefault('autopopulate', 0);
+
+        $mform->addElement('select', 'autoupdate', get_string('autoupdate', 'checklist'), $ynoptions);
+        $mform->setDefault('autoupdate', 1);
+        $mform->disabledIf('autoupdate', 'autopopulate', 'eq', 0);
+        $mform->setAdvanced('autoupdate');
+
         
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules

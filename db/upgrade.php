@@ -107,6 +107,29 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $result = $result && add_field($table, $field);
     }
         
+    if ($result && $oldversion < 2010112000) {
+        $table = new XMLDBTable('checklist');
+
+        $field = new XMLDBField('autopopulate');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '0', 'maxgrade');
+        $result = $result && add_field($table, $field);
+
+        $field = new XMLDBField('autoupdate');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '1', 'autopopulate');
+        $result = $result && add_field($table, $field);
+
+        
+        $table = new XMLDBTable('checklist_item');
+
+        $field = new XMLDBField('moduleid');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'colour');
+        $result = $result && add_field($table, $field);
+
+        $index = new XMLDBIndex('item_module');
+        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('moduleid'));
+        $result = $result && add_index($table, $index);
+    }
+
     return $result;
 
 }
