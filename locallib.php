@@ -10,7 +10,12 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
-define("TEXT_INPUT_WIDTH", 45);
+define("CHECKLIST_TEXT_INPUT_WIDTH", 45);
+define("CHECKLIST_OPTIONAL_NO", 0);
+define("CHECKLIST_OPTIONAL_YES", 1);
+define("CHECKLIST_OPTIONAL_HEADING", 2);
+define("CHECKLIST_OPTIONAL_DISABLED", 3);
+define("CHECKLIST_OPTIONAL_HEADING_DISABLED", 4);
 
 class checklist_class {
     var $cm;
@@ -123,7 +128,16 @@ class checklist_class {
 
     function get_itemid_from_moduleid($moduleid) {
         foreach ($this->items as $item) {
-            if ($item->moduleid == $moduleid) {
+            if (($item->moduleid == $moduleid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
+                return $item->id;
+            }
+        }
+        return false;
+    }
+
+    function get_itemid_from_sectionid($sectionid) {
+        foreach ($this->items as $item) {
+            if (($item->moduleid == $sectionid) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
                 return $item->id;
             }
         }
@@ -133,13 +147,93 @@ class checklist_class {
     function update_items_from_course() {
         $mods = get_fast_modinfo($this->course);
 
-        foreach ($mods->cms as $cm) {
-            if (!$this->get_itemid_from_moduleid($cm->id)) {
-                $this->additem($cm->name, 0, 0, false, false, $cm->id);
+        $nextpos = 1;
+        $section = 1;
+        reset($this->items);
+        
+        while (array_key_exists($section, $mods->sections)) {
+            $sectionheading = 0;
+            while (list($itemid, $item) = each($this->items)) {
+                // Search from current position
+                echo 'Looking at: '.$item->displaytext.'<br/>';
+                if (($item->moduleid == $section) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
+                    $sectionheading = $itemid;
+                    echo 'found section: '.$section.'<br/>';
+                    break;
+                }
             }
+
+            if (!$sectionheading) {
+                // Search again from the start
+                foreach ($this->items as $item) {
+                    echo 'for Looking at: '.$item->displaytext.'<br/>';
+                    if (($item->moduleid == $section) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
+                        $sectionheading = $itemid;
+                        echo 'for found section: '.$section.'<br/>';
+                        break;
+                    }
+                }
+                reset($this->items);
+            }
+
+            if (!$sectionheading) {
+                echo 'adding section '.$section.'<br/>';
+                $name = get_string('section').' '.$section;
+                $sectionheading = $this->additem($name, 0, 0, false, false, $section, 2);
+                reset($this->items);
+            }
+            
+            if ($this->items[$sectionheading]->position < $nextpos) {
+                $this->moveitemto($sectionheading, $nextpos);
+                reset($this->items);
+            }
+            $nextpos = $this->items[$sectionheading]->position + 1;
+
+            $foundit = false;
+            foreach($mods->sections[$section] as $cmid) {
+                while(list($itemid, $item) = each($this->items)) {
+                    // Search list from current position (will usually be the next item)
+                    echo 'item looking at '.$item->displaytext.'<br/>';
+                    if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
+                        echo 'found it!<br/>';
+                        $foundit = true;
+                        if ($item->position != $nextpos) {
+                            echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
+                            $this->moveitemto($item->id, $nextpos);
+                            reset($this->items);
+                        }
+                        break;
+                    }
+                }
+                if (!$foundit) {
+                    // Search list again from the start (just in case)
+                    foreach($this->items as $item) {
+                        echo 'item for looking at '.$item->displaytext.'<br/>';
+                        if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
+                            echo 'found it!<br/>';
+                            $foundit = true;
+                            if ($item->position != $nextpos) {
+                                echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
+                                $this->moveitemto($item->id, $nextpos);
+                            }
+                            break;
+                        }
+                    }
+                    reset($this->items);
+                }
+                if (!$foundit) {
+                    $name = addslashes($mods->cms[$cmid]->name);
+                    echo 'adding item '.$name.'<br/>';
+                    $this->additem($name, 0, 0, $nextpos, false, $cmid);
+                    reset($this->items);
+                }
+                $nextpos++;
+            }
+
+            $section++;
         }
 
-        print_r($mods);
+        //print_r($mods);
         
         // Get module ids + names for all items in the course
         // Check against the items in the list
@@ -389,10 +483,10 @@ class checklist_class {
         $completeitems = 0;
         $allcompleteitems = 0;
         foreach ($this->items as $item) {
-            if ($item->itemoptional == 2) {
+            if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                 continue;
             }
-            if (!$item->itemoptional) {
+            if ($item->itemoptional == CHECKLIST_OPTIONAL_NO) {
                 $requireditems++;
                 if ($teacherprogress) {
                     if ($item->teachermark == CHECKLIST_TEACHERMARK_YES) {
@@ -607,17 +701,17 @@ class checklist_class {
                     $itemcolour = 'itemblack';
                 }
 
-                if ($item->itemoptional == 2) {
+                if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                     $optional = ' class="itemheading '.$itemcolour.'" ';
                     $spacerimg = $CFG->wwwroot.'/mod/checklist/images/check_spacer.gif';
-                } elseif ($item->itemoptional == 1) {
+                } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $optional = ' class="itemoptional '.$itemcolour.'" ';
                 } else {
                     $optional = ' class="'.$itemcolour.'" ';
                 }
                 echo '<li>';
                 if ($showteachermark) {
-                    if ($item->itemoptional == 2) {
+                    if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                         //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
                         if ($viewother) {
@@ -637,7 +731,7 @@ class checklist_class {
                     }
                 }
                 if ($showcheckbox) {
-                    if ($item->itemoptional == 2) {
+                    if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                         //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
                         echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
@@ -707,7 +801,7 @@ class checklist_class {
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
                                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                                echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).'" id="updateitembox" />';
+                                echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).'" id="updateitembox" />';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '<br />';
                                 echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
@@ -766,7 +860,7 @@ class checklist_class {
                     if ($showcheckbox) {
                         echo '<input type="checkbox" disabled="disabled" />';
                     }
-                    echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+                    echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
                     echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
                     echo '<br />';
                     echo '<textarea name="displaytextnote" rows="3" cols="25"></textarea>';
@@ -913,16 +1007,20 @@ class checklist_class {
                     $nexticon = 'colour_red.gif';
                 }
 
+                $autoitem = ($this->checklist->autopopulate) && ($item->moduleid != 0);
+
                 echo '<li>';
-                if ($item->itemoptional == 1) {
+                if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
                     echo '<a href="'.$baseurl.'makeheading">';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/empty_box.gif" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional '.$itemcolour.'" ';
-                } elseif ($item->itemoptional == 2) {
+                } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                     $title = '"'.get_string('headingitem','checklist').'"';
-                    echo '<a href="'.$baseurl.'makerequired">';
-                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/no_box.gif" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    if (!$autoitem) { echo '<a href="'.$baseurl.'makerequired">'; }
+                    echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/no_box.gif" alt='.$title.' title='.$title.' />';
+                    if (!$autoitem) { echo '</a>'; }
+                    echo '&nbsp;';
                     $optional = ' class="itemheading '.$itemcolour.'" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
@@ -937,7 +1035,7 @@ class checklist_class {
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
                     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                    echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
+                    echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
                     if ($this->editdates) {
                         echo '<input type="hidden" name="editdates" value="on" />';
                         $this->print_edit_date($item->duetime);
@@ -963,18 +1061,20 @@ class checklist_class {
                     echo '<a href="'.$baseurl.'nextcolour">';
                     $title = '"'.get_string('changetextcolour','checklist').'"';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/'.$nexticon.'" alt='.$title.' title='.$title.' /></a>';
-                    
-                    echo '<a href="'.$baseurl.'edititem">';
-                    $title = '"'.get_string('edititem','checklist').'"';
-                    echo '<img src="'.$CFG->pixpath.'/t/edit.gif"  alt='.$title.' title='.$title.' /></a>&nbsp;';
 
-                    if ($item->indent > 0) {
+                    if (!$autoitem) {
+                        echo '<a href="'.$baseurl.'edititem">';
+                        $title = '"'.get_string('edititem','checklist').'"';
+                        echo '<img src="'.$CFG->pixpath.'/t/edit.gif"  alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    }
+
+                    if (!$autoitem && $item->indent > 0) {
                         echo '<a href="'.$baseurl.'unindentitem">';
                         $title = '"'.get_string('unindentitem','checklist').'"';
                         echo '<img src="'.$CFG->pixpath.'/t/left.gif" alt='.$title.' title='.$title.'  /></a>';
                     }
 
-                    if (($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
+                    if (!$autoitem && ($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent+1) > $currindent)) {
                         echo '<a href="'.$baseurl.'indentitem">';
                         $title = '"'.get_string('indentitem','checklist').'"';
                         echo '<img src="'.$CFG->pixpath.'/t/right.gif" alt='.$title.' title='.$title.' /></a>';
@@ -983,13 +1083,13 @@ class checklist_class {
                     echo '&nbsp;';
                     
                     // TODO more complex checks to take into account indentation
-                    if ($item->position > 1) {
+                    if (!$autoitem && $item->position > 1) {
                         echo '<a href="'.$baseurl.'moveitemup">';
                     $title = '"'.get_string('moveitemup','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/up.gif" alt='.$title.' title='.$title.' /></a>';
                     }
 
-                    if ($item->position < $lastitem) {
+                    if (!$autoitem && $item->position < $lastitem) {
                         echo '<a href="'.$baseurl.'moveitemdown">';
                     $title = '"'.get_string('moveitemdown','checklist').'"';
                     echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt='.$title.' title='.$title.' /></a>';
@@ -1020,7 +1120,7 @@ class checklist_class {
                         echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
                         echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                         echo '<input type="checkbox" disabled="disabled" />';
-                        echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+                        echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
                         if ($this->editdates) {
                             echo '<input type="hidden" name="editdates" value="on" />';
                             $this->print_edit_date();
@@ -1054,7 +1154,7 @@ class checklist_class {
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
             echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-            echo '<input type="text" size="'.TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+            echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
             if ($this->editdates) {
                 echo '<input type="hidden" name="editdates" value="on" />';
                 $this->print_edit_date();
@@ -1163,14 +1263,14 @@ class checklist_class {
                 if ($this->showoptional) {
                     $itemstocount = array();
                     foreach ($this->items as $item) {
-                        if ($item->itemoptional != 2) {
+                        if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
                             $itemstocount[] = $item->id;
                         }
                     }
                 } else {
                     $itemstocount = array();
                     foreach ($this->items as $item) {
-                        if (!$item->itemoptional) {
+                        if ($item->itemoptional == CHECKLIST_OPTIONAL_NO) {
                             $itemstocount[] = $item->id;
                         }
                     }
@@ -1241,7 +1341,7 @@ class checklist_class {
                 $table->head[] = s($item->displaytext);
                 $table->level[] = ($item->indent < 3) ? $item->indent : 2;
                 $table->size[] = '80px';
-                $table->skip[] = (!$this->showoptional) && ($item->itemoptional == 1);
+                $table->skip[] = (!$this->showoptional) && ($item->itemoptional == CHECKLIST_OPTIONAL_YES);
             }
 
             $table->data = array();
@@ -1265,7 +1365,7 @@ class checklist_class {
                     $checks = get_records_sql($sql);
 
                     foreach ($checks as $check) {
-                        if ($check->itemoptional == 2) {
+                        if ($check->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                             $row[] = array(false, false, true);
                         } else {
                             if ($check->usertimestamp > 0) {
@@ -1555,19 +1655,19 @@ class checklist_class {
         }
     }
 
-    function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false, $moduleid=0) {
+    function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false, $moduleid=0, $optional=0) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
-            return;
+            return false;
         }
 
         if ($userid) {
             if (!$this->canaddown()) {
-                return;
+                return false;
             }
         } else {
             if (!$this->canedit()) {
-                return;
+                return false;
             }
         }
         
@@ -1581,7 +1681,7 @@ class checklist_class {
         }
         $item->indent = $indent;
         $item->userid = $userid;
-        $item->itemoptional = false;
+        $item->itemoptional = $optional;
         $item->duetime = 0;
         if ($duetime) {
             $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
@@ -1611,6 +1711,8 @@ class checklist_class {
                 }
             }
         }
+
+        return $item->id;
     }
 
     function setevent($itemid, $add) {
@@ -1862,6 +1964,16 @@ class checklist_class {
             $optional = 1;
         } else {
             $optional = 0;
+        }
+
+        if ($this->items[$itemid]->moduleid) {
+            if ($this->items[$itemid]->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+                return; // Topic headings must stay as headings
+            } elseif ($this->items[$itemid]->itemoptional == CHECKLIST_OPTIONAL_YES) {
+                $optional = 0; // Module links cannot become headings
+            } else {
+                $optional = 1;
+            }
         }
 
         $this->items[$itemid]->itemoptional = $optional;
