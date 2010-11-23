@@ -70,6 +70,14 @@ ol.checklist .teachercomment {
     margin: 0 0 0 20px;
 }
 
+ol.checklist .itemdisabled {
+    text-decoration: line-through;
+}
+
+ol.checklist .itemauto {
+    background-color: #d6e6e7;
+}
+
 .itemdue {
     font-style: italic;
     color: #90d090;

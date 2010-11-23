@@ -72,10 +72,6 @@ class checklist_class {
         $this->pagetitle = strip_tags($this->course->shortname.': '.$this->strchecklist.': '.format_string($this->checklist->name,true));
 
         $this->get_items();
-
-        if ($this->checklist->autopopulate) {
-            $this->update_items_from_course();
-        }
     }
 
     /**
@@ -155,10 +151,8 @@ class checklist_class {
             $sectionheading = 0;
             while (list($itemid, $item) = each($this->items)) {
                 // Search from current position
-                echo 'Looking at: '.$item->displaytext.'<br/>';
                 if (($item->moduleid == $section) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
                     $sectionheading = $itemid;
-                    echo 'found section: '.$section.'<br/>';
                     break;
                 }
             }
@@ -166,10 +160,8 @@ class checklist_class {
             if (!$sectionheading) {
                 // Search again from the start
                 foreach ($this->items as $item) {
-                    echo 'for Looking at: '.$item->displaytext.'<br/>';
                     if (($item->moduleid == $section) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
                         $sectionheading = $itemid;
-                        echo 'for found section: '.$section.'<br/>';
                         break;
                     }
                 }
@@ -177,11 +169,12 @@ class checklist_class {
             }
 
             if (!$sectionheading) {
-                echo 'adding section '.$section.'<br/>';
+                //echo 'adding section '.$section.'<br/>';
                 $name = get_string('section').' '.$section;
-                $sectionheading = $this->additem($name, 0, 0, false, false, $section, 2);
+                $sectionheading = $this->additem($name, 0, 0, false, false, $section, CHECKLIST_OPTIONAL_HEADING);
                 reset($this->items);
             }
+            $this->items[$sectionheading]->stillexists = true;
             
             if ($this->items[$sectionheading]->position < $nextpos) {
                 $this->moveitemto($sectionheading, $nextpos);
@@ -189,43 +182,53 @@ class checklist_class {
             }
             $nextpos = $this->items[$sectionheading]->position + 1;
 
-            $foundit = false;
             foreach($mods->sections[$section] as $cmid) {
+                if ($this->cm->id == $cmid) {
+                    continue; // Do not include this checklist in the list of modules
+                }
+                if ($mods->cms[$cmid]->modname == 'label') {
+                    continue; // Ignore any labels
+                }
+
+                $foundit = false;
                 while(list($itemid, $item) = each($this->items)) {
                     // Search list from current position (will usually be the next item)
-                    echo 'item looking at '.$item->displaytext.'<br/>';
                     if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
-                        echo 'found it!<br/>';
-                        $foundit = true;
-                        if ($item->position != $nextpos) {
-                            echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
-                            $this->moveitemto($item->id, $nextpos);
-                            reset($this->items);
-                        }
+                        $foundit = $item;
                         break;
+                    }
+                    if (($item->moduleid == 0) && ($item->position == $nextpos)) {
+                        // Skip any items that are not linked to modules
+                        $nextpos++;
                     }
                 }
                 if (!$foundit) {
                     // Search list again from the start (just in case)
                     foreach($this->items as $item) {
-                        echo 'item for looking at '.$item->displaytext.'<br/>';
                         if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
-                            echo 'found it!<br/>';
-                            $foundit = true;
-                            if ($item->position != $nextpos) {
-                                echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
-                                $this->moveitemto($item->id, $nextpos);
-                            }
+                            $foundit = $item;
                             break;
                         }
                     }
                     reset($this->items);
                 }
-                if (!$foundit) {
-                    $name = addslashes($mods->cms[$cmid]->name);
-                    echo 'adding item '.$name.'<br/>';
-                    $this->additem($name, 0, 0, $nextpos, false, $cmid);
+                $modname = $mods->cms[$cmid]->name;
+                if ($foundit) {
+                    $item->stillexists = true;
+                    if ($item->position != $nextpos) {
+                        //echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
+                        $this->moveitemto($item->id, $nextpos);
+                        reset($this->items);
+                    }
+                    if ($item->displaytext != $modname) {
+                        $this->updateitemtext($item->id, addslashes($modname));
+                    }
+                } else {
+                    $name = addslashes($modname);
+                    //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
+                    $itemid = $this->additem($name, 0, 0, $nextpos, false, $cmid);
                     reset($this->items);
+                    $this->items[$itemid]->stillexists = true;
                 }
                 $nextpos++;
             }
@@ -233,10 +236,15 @@ class checklist_class {
             $section++;
         }
 
-        //print_r($mods);
-        
-        // Get module ids + names for all items in the course
-        // Check against the items in the list
+        // Delete any items that are related to activities / resources that have been deleted
+        if ($this->items) {
+            foreach($this->items as $item) {
+                if ($item->moduleid && !isset($item->stillexists)) {
+                    //echo '---deleting item '.$item->displaytext.'<br/>';
+                    $this->deleteitem($item->id);
+                }
+            }
+        }
     }
 
     /**
@@ -369,6 +377,10 @@ class checklist_class {
         $this->view_tabs('edit');
 
         $this->process_edit_actions();
+
+        if ($this->checklist->autopopulate) {
+            $this->update_items_from_course();
+        }
 
         $this->view_edit_items();
 
@@ -1008,25 +1020,30 @@ class checklist_class {
                 }
 
                 $autoitem = ($this->checklist->autopopulate) && ($item->moduleid != 0);
+                if ($autoitem) {
+                    $autoclass = ' itemauto';
+                } else {
+                    $autoclass = '';
+                }
 
                 echo '<li>';
                 if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $title = '"'.get_string('optionalitem','checklist').'"';
                     echo '<a href="'.$baseurl.'makeheading">';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/empty_box.gif" alt='.$title.' title='.$title.' /></a>&nbsp;';
-                    $optional = ' class="itemoptional '.$itemcolour.'" ';
+                    $optional = ' class="itemoptional '.$itemcolour.$autoclass.'" ';
                 } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                     $title = '"'.get_string('headingitem','checklist').'"';
                     if (!$autoitem) { echo '<a href="'.$baseurl.'makerequired">'; }
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/no_box.gif" alt='.$title.' title='.$title.' />';
                     if (!$autoitem) { echo '</a>'; }
                     echo '&nbsp;';
-                    $optional = ' class="itemheading '.$itemcolour.'" ';
+                    $optional = ' class="itemheading '.$itemcolour.$autoclass.'" ';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<a href="'.$baseurl.'makeoptional">';
                     echo '<img src="'.$CFG->wwwroot.'/mod/checklist/images/tick_box.gif" alt='.$title.' title='.$title.' /></a>&nbsp;';
-                    $optional = ' class="'.$itemcolour.'"';
+                    $optional = ' class="'.$itemcolour.$autoclass.'"';
                 }
 
                 if (isset($item->editme)) {
@@ -1711,7 +1728,6 @@ class checklist_class {
                 }
             }
         }
-
         return $item->id;
     }
 
