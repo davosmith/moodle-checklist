@@ -140,6 +140,11 @@ class checklist_class {
         return false;
     }
 
+    /**
+     * Loop through all activities / resources in course and check they
+     * are in the current checklist (in the right order)
+     *
+     */
     function update_items_from_course() {
         $mods = get_fast_modinfo($this->course);
 
