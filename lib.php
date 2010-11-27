@@ -23,6 +23,10 @@ define("CHECKLIST_MARKING_STUDENT", 0);
 define("CHECKLIST_MARKING_TEACHER", 1);
 define("CHECKLIST_MARKING_BOTH", 2);
 
+define("CHECKLIST_AUTOUPDATE_NO", 0);
+define("CHECKLIST_AUTOUPDATE_YES", 2);
+define("CHECKLIST_AUTOUPDATE_YES_OVERRIDE", 1);
+
 define("CHECKLIST_MAX_INDENT", 10);
 
 require_once(dirname(__FILE__).'/locallib.php');

@@ -115,4 +115,8 @@ $string['viewallsave'] = 'Save';
 $string['viewsinglereport'] = 'View progress for this user';
 $string['viewsingleupdate'] = 'Update progress for this user';
 
+
+$string['yesnooverride'] = 'Yes, cannot override';
+$string['yesoverride'] = 'Yes, can override';
+
 ?>

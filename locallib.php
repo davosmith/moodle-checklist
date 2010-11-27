@@ -648,6 +648,7 @@ class checklist_class {
             $showteachermark = ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
             $showcheckbox = ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
         }
+        $overrideauto = ($this->checklist->autoupdate != CHECKLIST_AUTOUPDATE_YES);
 
         if (!$this->items) {
             print_string('noitems','checklist');
@@ -725,6 +726,8 @@ class checklist_class {
                 $itemname = '"item'.$item->id.'"';
                 $checked = (($updateform || $viewother || $userreport) && $item->checked) ? ' checked="checked" ' : '';
                 if ($viewother || $userreport) {
+                    $checked .= ' disabled="disabled" ';
+                } else if (!$overrideauto && $item->moduleid) {
                     $checked .= ' disabled="disabled" ';
                 }
                 switch ($item->colour) {
@@ -2174,6 +2177,10 @@ class checklist_class {
         $updategrades = false;
         if ($this->items) {
             foreach ($this->items as $item) {
+                if (($this->checklist->autoupdate == CHECKLIST_AUTOUPDATE_YES) && ($item->moduleid)) {
+                    continue; // Shouldn't get updated anyway, but just in case...
+                }
+                    
                 $newval = in_array($item->id, $newchecks);
 
                 if ($newval != $item->checked) {
