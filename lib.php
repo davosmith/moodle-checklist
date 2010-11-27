@@ -147,7 +147,7 @@ function checklist_update_grades($checklist, $userid=0) {
         return;
     }
 
-    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", ''. 'id');
+    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO, ''. 'id');
     if (!$course = get_record('course', 'id', $checklist->course)) {
         return;
     }

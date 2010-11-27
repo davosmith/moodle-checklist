@@ -70,8 +70,9 @@ ol.checklist .teachercomment {
     margin: 0 0 0 20px;
 }
 
-ol.checklist .itemdisabled {
+ol.checklist .itemauto.itemdisabled {
     text-decoration: line-through;
+    background-color: #bcc4c4;
 }
 
 ol.checklist .itemauto {
