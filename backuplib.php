@@ -69,6 +69,9 @@
         fwrite ($bf,full_tag("THEME",4,false,$checklist->theme));
         fwrite ($bf,full_tag("DUEDATESONCALENDAR",4,false,$checklist->duedatesoncalendar));
         fwrite ($bf,full_tag("TEACHERCOMMENTS",4,false,$checklist->teachercomments));
+        fwrite ($bf,full_tag("MAXGRADE",4,false,$checklist->maxgrade));
+        fwrite ($bf,full_tag("AUTOPOPULATE",4,false,$checklist->autopopulate));
+        fwrite ($bf,full_tag("AUTOUPDATE",4,false,$checklist->autoupdate));
 
         $status = backup_checklist_items($bf,$preferences,$checklist->id);
 
@@ -130,6 +133,8 @@
 				if ($status) $status = fwrite ($bf, full_tag("INDENT",6,false,$item->indent));
 				if ($status) $status = fwrite ($bf, full_tag("ITEMOPTIONAL",6,false,$item->itemoptional));
                 if ($status) $status = fwrite ($bf, full_tag("DUETIME",6,false,$item->duetime));
+                if ($status) $status = fwrite ($bf, full_tag("COLOUR",6,false,$item->colour));
+                if ($status) $status = fwrite ($bf, full_tag("MODULEID",6,false,$item->moduleid)); // Will need to be careful when restoring this
 				
                 if ($userbackup) {
                     if ($status) $status = backup_checklist_checks($bf, $preferences, $item->id);

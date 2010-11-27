@@ -71,6 +71,9 @@ require_once(dirname(__FILE__).'/locallib.php');
             $checklist->theme = backup_todb($info['MOD']['#']['THEME']['0']['#']);
             $checklist->duedatesoncalendar = backup_todb_chk_optional_field($info['MOD'], 'DUEDATESONCALENDAR', false);
             $checklist->teachercomments = backup_todb_chk_optional_field($info['MOD'], 'TEACHERCOMMENTS', false);
+            $checklist->maxgrade = backup_todb_chk_optional_field($info['MOD'], 'MAXGRADE', 100);
+            $checklist->autopopulate = backup_todb_chk_optional_field($info['MOD'], 'AUTOPOPULATE', 0);
+            $checklist->autoupdate = backup_todb_chk_optional_field($info['MOD'], 'AUTOUPDATE', 1);
 
             $newid = insert_record('checklist', $checklist);
 
@@ -135,6 +138,8 @@ require_once(dirname(__FILE__).'/locallib.php');
             $item->itemoptional = backup_todb($i_info['#']['ITEMOPTIONAL']['0']['#']);
             $item->duetime = backup_todb_chk_optional_field($i_info,'DUETIME', 0);
             $item->eventid = 0;
+            $item->colour = backup_todb_chk_optional_field($i_info,'COLOUR', 'black');
+            $item->moduleid = backup_todb_chk_optional_field($i_info,'MODULEID', 0);
             
             if ($item->userid > 0) {
                 // Ignore user-created items if not restoring userdata
@@ -148,6 +153,16 @@ require_once(dirname(__FILE__).'/locallib.php');
                     break;
                 }
                 $item->userid = $item->userid->new_id;
+            }
+
+            if ($item->moduleid > 0) {
+                if (($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                    $item->moduleid = backup_getid($restore->backup_unique_code,'course_modules',$item->moduleid);
+                    if ($item->moduleid) {
+                        $item->moduleid = $item->moduleid->new_id;
+                    }
+                    // Otherwise we'll just have to leave it blank (not sure what else I can do)
+                }
             }
 
             //The structure is equal to the db, so insert the checklist_item

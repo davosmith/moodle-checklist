@@ -119,7 +119,7 @@ function checklist_delete_instance($id) {
     if ($items) {
         $items = implode(',',array_keys($items));
         $result = delete_records_select('checklist_check', 'item IN ('.$items.')');
-        $result = $result && delete_records_select('checklist_comment', 'item IN ('.$items.')');
+        $result = $result && delete_records_select('checklist_comment', 'itemid IN ('.$items.')');
 
         if ($result) {
             $result = delete_records('checklist_item', 'checklist', $checklist->id);
