@@ -1156,9 +1156,21 @@ class checklist_class {
                     echo '<img src="'.$CFG->pixpath.'/t/down.gif" alt='.$title.' title='.$title.' /></a>';
                     }
 
-                    echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
-                    $title = '"'.get_string('deleteitem','checklist').'"';
-                    echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt='.$title.' title='.$title.' /></a>';
+                    if ($autoitem) {
+                        echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
+                        $title = '"'.get_string('','checklist').'"';
+                        if (($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) || ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                            $title = '"'.get_string('show').'"';
+                            echo '<img src="'.$CFG->pixpath.'/t/show.gif" alt='.$title.' title='.$title.' /></a>';
+                        } else {
+                            $title = '"'.get_string('hide').'"';
+                            echo '<img src="'.$CFG->pixpath.'/t/hide.gif" alt='.$title.' title='.$title.' /></a>';
+                        }
+                    } else {
+                        echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
+                        $title = '"'.get_string('deleteitem','checklist').'"';
+                        echo '<img src="'.$CFG->pixpath.'/t/delete.gif" alt='.$title.' title='.$title.' /></a>';
+                    }
 
                     echo '&nbsp;&nbsp;&nbsp;<a href="'.$baseurl.'startadditem">';
                     $title = '"'.get_string('additemhere','checklist').'"';
