@@ -6,7 +6,7 @@ This is a Moodle plugin for Moodle 1.9 & 2.0+ that allows a teacher to create a 
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
 Note: There are separate downloads for the Moodle 1.9 and 2.0+ versions of this plugin - make sure you download the correct version.
 
-Items can be indented and marked as optional.
+Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
 
 **Installation**
@@ -14,13 +14,24 @@ Unzip the contents of file you downloaded to a temporary folder.
 Upload the files to the your moodle server, placing them in the 'moodle/mod/checklist' folder.
 Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
+IMPORTANT: If you want the 'Check-off modules when complete' option to work, then you need to make the following change to the Moodle core code:
+Open the file - moodle/lib/datalib.php
+
+Find the function 'add_to_log', then add these lines to the end of it:
+
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate($courseid, $module, $action, $cm, $userid);
+
+WARNING: This will slow your Moodle site down very slightly.
+However, the difference is unlikely to be noticable.
+
 **Usage**
 Click on 'Add an activity' and choose 'Checklist'.
 Enter all the usual information.
 You can optionally allow students to add their own, private items to the list (this will not affect the overall progress, but may help students to keep note of anything extra they need to do).
 
 You can then add items to the list.
-Click on the 'star' to toggle an item between required & optional (I intend this to interact with the Moodle 2.0 'completion' tracking at some point).
+Click on the 'tick' to toggle an item between required, optional and heading
 Click on the 'edit' icon to change the text.
 Click on the 'indent' icons to change the level of indent.
 Click on the 'move' icons to move the item up/down one place.
