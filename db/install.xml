@@ -93,8 +93,10 @@
     <STATEMENT NAME="insert log_display" TYPE="insert" TABLE="log_display" COMMENT="Initial insert of records on table log_display">
       <SENTENCES>
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'view', 'checklist', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'add', 'checklist', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'update', 'checklist', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'edit', 'checklist', 'name')" />
+	<SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'update checks', 'checklist', 'name')" />
+	<SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'complete', 'checklist', 'name')" />
+	<SENTENCE TEXT="(module, action, mtable, field) VALUES ('checklist', 'report', 'checklist', 'name')" />
       </SENTENCES>
     </STATEMENT>
   </STATEMENTS>

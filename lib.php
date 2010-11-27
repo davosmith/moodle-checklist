@@ -148,15 +148,16 @@ function checklist_update_grades($checklist, $userid=0) {
     }
 
     $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = 0", ''. 'id');
+    if (!$course = get_record('course', 'id', $checklist->course)) {
+        return;
+    }
+    if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
+        return;
+    }
+
     if ($userid) {
         $users = $userid;
     } else {
-        if (!$course = get_record('course', 'id', $checklist->course)) {
-            return;
-        }
-        if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
-            return;
-        }
         $context = get_context_instance(CONTEXT_MODULE, $cm->id);
         if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
             return;
@@ -183,6 +184,15 @@ function checklist_update_grades($checklist, $userid=0) {
     $sql .= ' GROUP BY u.id';
 
     $grades = get_records_sql($sql);
+
+    if ($grades) {
+        foreach ($grades as $grade) {
+            // Log completion of checklist
+            if ($grade->rawgrade == $scale) {
+                add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", addslashes($checklist->name), $cm->id, $grade->userid);
+            }
+        }
+    }
 
     checklist_grade_item_update($checklist, $grades);
 }

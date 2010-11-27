@@ -354,7 +354,7 @@ class checklist_class {
             redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id, get_string('noitems','checklist'));
         }
 
-        add_to_log($this->course->id, 'checklist', 'view', "view.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);        
+        add_to_log($this->course->id, 'checklist', 'view', "view.php?id={$this->cm->id}", addslashes($this->checklist->name), $this->cm->id);        
 
         if ($this->canupdateown()) {
             $this->process_view_actions();
@@ -373,7 +373,7 @@ class checklist_class {
             redirect($CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id);
         }
 
-        add_to_log($this->course->id, "checklist", "edit", "edit.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
+        add_to_log($this->course->id, "checklist", "edit", "edit.php?id={$this->cm->id}", addslashes($this->checklist->name), $this->cm->id);
 
         $this->view_header();
 
@@ -413,13 +413,12 @@ class checklist_class {
             redirect($CFG->wwwroot.'/mod/checklist/edit.php?id='.$this->cm->id, get_string('noitems','checklist'));
         }
 
-        add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
-
         $this->process_report_actions();
 
         if ($this->userid) {
             $this->view_items(true);
         } else {
+            add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", addslashes($this->checklist->name), $this->cm->id);
             $this->view_report();
         }
         
@@ -597,6 +596,10 @@ class checklist_class {
             if (!$student = get_record('user', 'id', $this->userid)) {
                 error('No such user!');
             }
+
+            $info = addslashes($this->checklist->name).' ('.fullname($student, true).')';
+            add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}&studentid={$this->userid}", $info, $this->cm->id);
+            
             echo '<h2>'.get_string('checklistfor','checklist').' '.fullname($student, true);
             echo '&nbsp;<form style="display: inline;" action="'.$thispage.'" method="get">';
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
@@ -2040,12 +2043,16 @@ class checklist_class {
             // Something has gone wrong, so update nothing
             return;
         }
+
+        add_to_log($this->course->id, 'checklist', 'update checks', "report.php?id={$this->cm->id}&studentid={$this->userid}", addslashes($this->checklist->name), $this->cm->id);
         
+        $updategrades = false;
         if ($this->items) {
             foreach ($this->items as $item) {
                 $newval = in_array($item->id, $newchecks);
 
                 if ($newval != $item->checked) {
+                    $updategrades = true;
                     $item->checked = $newval;
                 
                     $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
@@ -2068,10 +2075,13 @@ class checklist_class {
                     
                         $check->id = insert_record('checklist_check', $check);
                     }
-                    checklist_update_grades($this->checklist, $this->userid);
                 }
             }
         }
+        if ($updategrades) {
+            checklist_update_grades($this->checklist, $this->userid);
+        }
+        
         if ($this->useritems) {
             foreach ($this->useritems as $item) {
                 $newval = in_array($item->id, $newchecks);
@@ -2113,7 +2123,13 @@ class checklist_class {
             return;
         }
 
+        $updategrades = false;
         if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
+            if (!$student = get_record('user', 'id', $this->userid)) {
+                error('No such user!');
+            }
+            $info = addslashes($this->checklist->name).' ('.fullname($student, true).')';
+            add_to_log($this->course->id, 'checklist', 'update checks', "report.php?id={$this->cm->id}&studentid={$this->userid}", $info, $this->cm->id);
 
             foreach ($newchecks as $newcheck) {
                 list($itemid, $newval) = explode(':',$newcheck, 2);
@@ -2121,6 +2137,7 @@ class checklist_class {
                 if (isset($this->items[$itemid])) {
                     $item = $this->items[$itemid];
                     if ($newval != $item->teachermark) {
+                        $updategrades = true;
                         $item->teachermark = $newval;
                     
                         $newcheck = new stdClass;
@@ -2136,9 +2153,11 @@ class checklist_class {
                             $newcheck->userid = $this->userid;
                             $newcheck->id = insert_record('checklist_check', $newcheck);
                         }
-                        checklist_update_grades($this->checklist, $this->userid);
                     }
                 }
+            }
+            if ($updategrades) {
+                checklist_update_grades($this->checklist, $this->userid);
             }
         }
 
