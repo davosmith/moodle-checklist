@@ -77,6 +77,8 @@ $string['progress'] = 'Progress';
 $string['report'] = 'View Progress';
 $string['reporttablesummary'] = 'Table showing the items on the checklist that each student has completed';
 
+$string['removeauto'] = 'Remove course module items';
+
 $string['requireditem'] = 'This item is required - it must be completed';
 
 $string['resetchecklistprogress'] = 'Reset checklist progress and user items';

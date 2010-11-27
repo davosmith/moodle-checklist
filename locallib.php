@@ -252,6 +252,20 @@ class checklist_class {
         }
     }
 
+    function removeauto() {
+        if ($this->checklist->autopopulate) {
+            return; // Still automatically populating the checklist, so don't remove the items
+        }
+
+        if ($this->items) {
+            foreach ($this->items as $item) {
+                if ($item->moduleid) {
+                    $this->deleteitem($item->id);
+                } 
+            }
+        }
+    }
+
     /**
      * Check all items are numbered sequentially from 1
      * then, move any items between $start and $end
@@ -984,6 +998,7 @@ class checklist_class {
         $currindent = 0;
         $addatend = true;
         $focusitem = false;
+        $hasauto = false;
         echo '<ol class="checklist">';
         if ($this->items) {
             $lastitem = count($this->items);
@@ -1033,6 +1048,7 @@ class checklist_class {
                 } else {
                     $autoclass = '';
                 }
+                $hasauto = $hasauto || ($item->moduleid != 0);
 
                 echo '<li>';
                 if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
@@ -1207,6 +1223,10 @@ class checklist_class {
             echo '<input type="submit" value="'.get_string('editdatesstart','checklist').'" />';
         } else {
             echo '<input type="submit" value="'.get_string('editdatesstop','checklist').'" />';
+        }
+        if (!$this->checklist->autopopulate && $hasauto) {
+            echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+            echo '<input type="submit" value="'.get_string('removeauto', 'checklist').'" name="removeauto" />';
         }
         echo '</form>';
 
@@ -1574,6 +1594,17 @@ class checklist_class {
     function process_edit_actions() {
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
+        $removeauto = optional_param('removeauto', false, PARAM_TEXT);
+
+        if ($removeauto) {
+            // Remove any automatically generated items from the list
+            // (if no longer using automatic items)
+            if (!confirm_sesskey()) {
+                error('Invalid sesskey');
+            }
+            $this->removeauto();
+            return;
+        }
         
         $action = optional_param('action', false, PARAM_TEXT);
         if (!$action) {
