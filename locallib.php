@@ -1457,7 +1457,9 @@ class checklist_class {
                 }
             }
         
+            echo '<div style="overflow:auto">';
             $this->print_report_table($table);
+            echo '</div>';
         }
     }
 
