@@ -68,6 +68,9 @@ function checklist_update_instance($checklist) {
 
     $newmax = $checklist->maxgrade;
     $oldmax = $DB->get_field('checklist','maxgrade',array('id'=>$checklist->id));
+    
+    $newcompletion = $checklist->completionpercent;
+    $oldcompletion = $DB->get_field('checklist', 'completionpercent',array('id'=>$checklist->id));
 
     $DB->update_record('checklist', $checklist);
 
@@ -80,6 +83,14 @@ function checklist_update_instance($checklist) {
     checklist_grade_item_update($checklist);
     if ($newmax != $oldmax) {
         checklist_update_grades($checklist);
+    } elseif ($newcompletion != $oldcompletion) {
+        // This will already be updated if checklist_update_grades() is called
+        $ci = new completion_info($course);
+        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+        foreach ($users as $user) {
+            $ci->update_state($cm, COMPLETION_UNKNOWN, $user->id);
+        }
     }
 
     return true;
@@ -185,6 +196,8 @@ function checklist_update_grades($checklist, $userid=0) {
         if ($grade->rawgrade == $checklist->maxgrade) {
             add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", $checklist->name, $cm->id, $grade->userid);
         }
+        $ci = new completion_info($course);
+        $ci->update_state($cm, COMPLETION_UNKNOWN, $grade->userid);
     }
 
     checklist_grade_item_update($checklist, $grades);
@@ -512,11 +525,33 @@ function checklist_supports($feature) {
     case FEATURE_GROUPMEMBERSONLY:        return true;
     case FEATURE_MOD_INTRO:               return true;
     case FEATURE_GRADE_HAS_GRADE:         return true;
-    //case FEATURE_COMPLETION_HAS_RULES:    return true;  //TODO Implement this
+    case FEATURE_COMPLETION_HAS_RULES:    return true;
     case FEATURE_BACKUP_MOODLE2:          return true;
 
     default: return null;
     }
+}
+
+function checklist_get_completion_state($course, $cm, $userid, $type) {
+    global $DB;
+
+    if (!($checklist=$DB->get_record('checklist',array('id'=>$cm->instance)))) {
+        throw new Exception("Can't find checklist {$cm->instance}");
+    }
+
+    $result=$type; // Default return value
+
+    if ($checklist->completionpercent) {
+        list($ticked, $total) = checklist_class::get_user_progress($cm->instance, $userid);
+        $value = $checklist->completionpercent <= ($ticked * 100 / $total);
+        if ($type == COMPLETION_AND) {
+            $result = $result && $value;
+        } else {
+            $result = $result || $value;
+        }
+    }
+
+    return $result;
 }
 
 ?>

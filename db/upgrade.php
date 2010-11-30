@@ -166,6 +166,16 @@ function xmldb_checklist_upgrade($oldversion=0) {
         upgrade_mod_savepoint($result, 2010112000, 'checklist');
     }
 
+    if ($result && $oldversion < 2010113000) {
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('completionpercent', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint($result, 2010113000, 'checklist');
+    }
+
     return $result;
 
 }

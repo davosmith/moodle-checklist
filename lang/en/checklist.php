@@ -44,6 +44,9 @@ $string['checklistsettings'] = 'Settings';
 $string['checks'] = 'Check marks';
 $string['comments'] = 'Comments';
 
+$string['completionpercentgroup'] = 'Require checked-off';
+$string['completionpercent'] = 'Percentage of items that should be checked-off:';
+
 $string['confirmdeleteitem'] = 'Are you sure you want to permanently delete this checklist item?';
 
 $string['deleteitem'] = 'Delete this item';
