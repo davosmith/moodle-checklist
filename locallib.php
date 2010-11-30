@@ -2150,7 +2150,7 @@ class checklist_class {
 
         if ($this->items[$itemid]->moduleid) {
             $op = $this->items[$itemid]->itemoptional;
-            if (($op == CHECKLIST_OPTIONAL_HEADING)||($op == CHECKLSIT_OPTIONAL_HEADING_DISABLED)||($op == CHECKLIST_OPTIONAL_DISABLED)) {
+            if (($op == CHECKLIST_OPTIONAL_HEADING)||($op == CHECKLIST_OPTIONAL_HEADING_DISABLED)||($op == CHECKLIST_OPTIONAL_DISABLED)) {
                 return; // Topic headings must stay as headings (and disabled items should not change either)
             } elseif ($this->items[$itemid]->itemoptional == CHECKLIST_OPTIONAL_YES) {
                 $optional = 0; // Module links cannot become headings
