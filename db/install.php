@@ -9,8 +9,10 @@ function xmldb_checklist_install() {
     global $DB;
 
 /// Install logging support
-    update_log_display_entry('checklist', 'view', 'checklist', 'name');
-    update_log_display_entry('checklist', 'add', 'checklist', 'name');
-    update_log_display_entry('checklist', 'update', 'checklist', 'name');
+/*    update_log_display_entry('checklist', 'view', 'checklist', 'name');
+    update_log_display_entry('checklist', 'edit', 'checklist', 'name');
+    update_log_display_entry('checklist', 'update checks', 'checklist', 'name');
+    update_log_display_entry('checklist', 'complete', 'checklist', 'name');
+    update_log_display_entry('checklist', 'report', 'checklist', 'name');*/
 
 }

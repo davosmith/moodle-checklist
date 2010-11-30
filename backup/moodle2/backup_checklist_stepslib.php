@@ -18,12 +18,13 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $checklist = new backup_nested_element('checklist', array('id'), array(
             'name', 'intro', 'introformat', 'timecreated', 'timemodified', 'useritemsallowed',
-            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade'));
+            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade', 
+            'autopopulate', 'autoupdate'));
 
         $items = new backup_nested_element('items');
 
         $item = new backup_nested_element('item', array('id'), array(
-            'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime', 'colour'));
+            'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime', 'colour', 'moduleid'));
 
         $checks = new backup_nested_element('checks');
         
@@ -58,10 +59,10 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         // Define id annotations
         $item->annotate_ids('user', 'userid');
+        $item->annotate_ids('course_modules', 'moduleid');
         $check->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'commentby');
-        
 
         // Define file annotations
 

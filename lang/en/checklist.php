@@ -7,6 +7,18 @@ $string['additemalt'] = 'Add a new item to the list';
 $string['additemhere'] = 'Insert new item after this one';
 $string['addownitems'] = 'Add your own items';
 $string['addownitems-stop'] = 'Stop adding your own items';
+
+$string['autopopulate'] = 'Show course modules in checklist';
+$string['autopopulate_help'] = 'This will automatically add a list of all the resources and activities in the current course into the checklist.<br />
+This list will be updated with any changes in the course, whenever you visit the \'Edit\' page for the checklist.<br />
+Items can be hidden from the list, by clicking on the \'hide\' icon beside them.<br />
+To remove the automatic items from the list, change this option back to \'No\', then click on \'Remove course module items\' on the \'Edit\' page.';
+$string['autoupdate'] = 'Check-off when modules complete';
+$string['autoupdate_help'] = 'This will automatically check-off items in your checklist when you complete the relevant activity in the course.<br />
+\'Completing\' an activity varies from one activity to another - \'view\' a resource, \'submit\' a quiz or assignment, \'post\' to a forum or join in with a chat, etc.<br />
+If a Moodle 2.0 completion tracking is switched on for a particular activity, that will be used to tick-off the item in the list<br />
+For details of exactly what causes an activity to be marked as \'complete\', ask your site administrator to look in the file \'mod/checklist/autoupdate.php\'<br />';
+
 $string['canceledititem'] = 'Cancel';
 
 $string['calendardescription'] = 'This event was added by the checklist: {$a}';
@@ -69,6 +81,8 @@ $string['pluginname'] = 'Checklist';
 $string['preview'] = 'Preview';
 $string['progress'] = 'Progress';
 
+$string['removeauto'] = 'Remove course module items';
+
 $string['report'] = 'View Progress';
 $string['reporttablesummary'] = 'Table showing the items on the checklist that each student has completed';
 
@@ -107,5 +121,9 @@ $string['viewallsave'] = 'Save';
 
 $string['viewsinglereport'] = 'View progress for this user';
 $string['viewsingleupdate'] = 'Update progress for this user';
+
+$string['yesnooverride'] = 'Yes, cannot override';
+$string['yesoverride'] = 'Yes, can override';
+
 
 ?>

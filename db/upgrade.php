@@ -144,6 +144,28 @@ function xmldb_checklist_upgrade($oldversion=0) {
         upgrade_mod_savepoint($result, 2010102703, 'checklist');
     }
         
+    if ($result && $oldversion < 2010112000) {
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('autopopulate', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('autoupdate', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, '1');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('checklist_item');
+        $field = new xmldb_field('moduleid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table->add_index('item_module', XMLDB_INDEX_NOTUNIQUE, array('moduleid'));
+
+        upgrade_mod_savepoint($result, 2010112000, 'checklist');
+    }
+
     return $result;
 
 }

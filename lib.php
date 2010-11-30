@@ -23,6 +23,10 @@ define("CHECKLIST_MARKING_STUDENT", 0);
 define("CHECKLIST_MARKING_TEACHER", 1);
 define("CHECKLIST_MARKING_BOTH", 2);
 
+define("CHECKLIST_AUTOUPDATE_NO", 0);
+define("CHECKLIST_AUTOUPDATE_YES", 2);
+define("CHECKLIST_AUTOUPDATE_YES_OVERRIDE", 1);
+
 define("CHECKLIST_MAX_INDENT", 10);
 
 require_once(dirname(__FILE__).'/locallib.php');
@@ -136,23 +140,23 @@ function checklist_update_all_grades() {
 function checklist_update_grades($checklist, $userid=0) {
     global $CFG, $DB;
 
-    $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => 0), '', 'id');
+    $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => CHECKLIST_OPTIONAL_NO), '', 'id');
+    if (!$course = $DB->get_record('course', array('id' => $checklist->course) )) {
+        return;
+    }
+    if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
+        return;
+    }
     if ($userid) {
         $users = $userid;
     } else {
-        if (!$course = $DB->get_record('course', array('id '=> $checklist->course) )) {
-            return;
-        }
-        if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
-            return;
-        }
         $context = get_context_instance(CONTEXT_MODULE, $cm->id);
         if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
             return;
         }
         $users = array_keys($users);
     }
-    
+
     $total = count($items);
 
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
@@ -176,6 +180,12 @@ function checklist_update_grades($checklist, $userid=0) {
     $params = array_merge(array($checklist->maxgrade, $total), $params);
 
     $grades = $DB->get_records_sql($sql, $params);
+    foreach ($grades as $grade) {
+        // Log completion of checklist
+        if ($grade->rawgrade == $checklist->maxgrade) {
+            add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", $checklist->name, $cm->id, $grade->userid);
+        }
+    }
 
     checklist_grade_item_update($checklist, $grades);
 }
