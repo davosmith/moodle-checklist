@@ -1269,7 +1269,7 @@ class checklist_class {
 
         $showbars = optional_param('showbars', false, PARAM_BOOL);
 
-        $thisurl = new moodle_url('/mod/checklist/report.php', array('id'=>$this->cm->id, 'sortby'=>$this->sortby) );
+        $thisurl = new moodle_url('/mod/checklist/report.php', array('id'=>$this->cm->id, 'sortby'=>$this->sortby, 'sesskey'=>sesskey()) );
         if (!$this->showoptional) { $thisurl->param('action','hideoptional'); }
         if ($showbars) { $thisurl->param('showbars','on'); }
 
