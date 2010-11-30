@@ -1158,7 +1158,6 @@ class checklist_class {
 
                     if ($autoitem) {
                         echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
-                        $title = '"'.get_string('','checklist').'"';
                         if (($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) || ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
                             $title = '"'.get_string('show').'"';
                             echo '<img src="'.$CFG->pixpath.'/t/show.gif" alt='.$title.' title='.$title.' /></a>';
