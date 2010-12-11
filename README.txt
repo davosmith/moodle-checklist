@@ -14,13 +14,39 @@ Unzip the contents of file you downloaded to a temporary folder.
 Upload the files to the your moodle server, placing them in the 'moodle/mod/checklist' folder.
 Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
-IMPORTANT: If you want the 'Check-off modules when complete' option to work, then you need to make the following change to the Moodle core code:
-Open the file - moodle/lib/datalib.php
+IMPORTANT: If you want the 'Check-off modules when complete' option to work, then you need to make the following changes to the Moodle core code:
+To make this work, you need to open up the following files:
 
+* Open the file: moodle/lib/datalib.php
 Find the function 'add_to_log', then add these lines to the end of it:
 
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
     checklist_autoupdate($courseid, $module, $action, $cm, $userid);
+
+* Open the file: moodle/mod/quiz/lib.php
+Find the function 'quiz_grade_item_update', then add these lines just before the final 'return' line:
+
+    // Inserted to allow autoupdating items in checklist
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('quiz', $quiz->course, $quiz->id, $grades);
+    // Inserted to allow autoupdating items in checklist
+
+* Open the file: moodle/mod/forum/lib.php
+Find the function 'forum_grade_item_update', then add these lines just before the final 'return' line:
+
+    // Inserted to allow autoupdating items in checklist
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('forum', $forum->course, $forum->id, $grades);
+    // Inserted to allow autoupdating items in checklist
+
+
+* Open the file: moodle/mod/assignment/lib.php
+Find the function 'assignment_grade_item_update', then add these lines just before the final 'return' line:
+
+    // Inserted to allow autoupdating items in checklist
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('assignment', $assignment->courseid, $assignment->id, $grades);
+    // Inserted to allow autoupdating items in checklist
 
 WARNING: This will slow your Moodle site down very slightly.
 However, the difference is unlikely to be noticable.
