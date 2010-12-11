@@ -1311,10 +1311,6 @@ class checklist_class {
         }
 
         print_box_end();
-
-        if ($this->checklist->autopopulate && $this->checklist->autoupdate) {
-            echo '<br/><a href="'.$CFG->wwwroot.'/mod/checklist/forceupdate.php?id='.$this->cm->id.'">'.get_string('forceupdate','checklist').'</a>';
-        }
     }
 
     function view_report() {
@@ -2418,6 +2414,7 @@ class checklist_class {
             return;
         }
 
+        $changed = false;
         foreach ($newscores as $itemid=>$newscore) {
             if (!isset($this->items[$itemid])) {
                 continue;
@@ -2433,7 +2430,195 @@ class checklist_class {
                 $upditem->id = $item->id;
                 $upditem->complete_score = $newscore;
                 update_record('checklist_item', $upditem);
+                $changed = true;
             }
+        }
+
+        if ($changed) {
+            $this->update_all_checks_from_completion_scores();
+        }
+    }
+
+    function update_all_checks_from_completion_scores() {
+        global $CFG;
+
+        $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+        if (!$users) {
+            return;
+        }
+        $users = implode(',',array_keys($users));
+        $updategrades = false;
+        
+        // Get a list of all the checklist items with a module linked to them (and no score needed to complete them)
+        $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid
+        FROM {$CFG->prefix}modules m, {$CFG->prefix}course_modules cm, {$CFG->prefix}checklist_item i
+        WHERE m.id = cm.module AND cm.id = i.moduleid AND i.moduleid > 0 AND i.checklist = {$this->checklist->id} AND i.complete_score = 0";
+
+        $items = get_records_sql($sql);
+        if ($items) {
+            foreach ($items as $item) {
+                $logaction = '';
+                $logaction2 = false;
+
+                switch($item->mod_name) {
+                case 'survey':
+                    $logaction = 'submit';
+                    break;
+                case 'quiz':
+                    $logaction = 'close attempt';
+                    break;
+                case 'forum':
+                    $logaction = 'add post';
+                    $logaction2 = 'add discussion';
+                    break;
+                case 'resource':
+                    $logaction = 'view';
+                    break;
+                case 'hotpot':
+                    $logaction = 'submit';
+                    break;
+                case 'wiki':
+                    $logaction = 'edit';
+                    break;
+                case 'checklist':
+                    $logaction = 'complete';
+                    break;
+                case 'choice':
+                    $logaction = 'choose';
+                    break;
+                case 'lams':
+                    $logaction = 'view';
+                    break;
+                case 'scorm':
+                    $logaction = 'view';
+                    break;
+                case 'assignment':
+                    $logaction = 'upload';
+                    break;
+                case 'journal':
+                    $logaction = 'add entry';
+                    break;
+                case 'lesson':
+                    $logaction = 'end';
+                    break;
+                case 'realtimequiz':
+                    $logaction = 'submit';
+                    break;
+                case 'workshop':
+                    $logaction = 'submit';
+                    break;
+                case 'glossary':
+                    $logaction = 'add entry';
+                    break;
+                case 'data':
+                    $logaction = 'add';
+                    break;
+                case 'chat':
+                    $logaction = 'talk';
+                    break;
+                case 'feedback':
+                    $logaction = 'submit';
+                    break;
+                default:
+                    continue 2;
+                    break;
+                }
+
+                $sql = 'SELECT DISTINCT userid ';
+                $sql .= "FROM {$CFG->prefix}log ";
+                $sql .= "WHERE cmid = {$item->cmid} AND (action = '{$logaction}'";
+                if ($logaction2) {
+                    $sql .= " OR action = '{$logaction2}'";
+                }
+                $sql .= ") AND userid IN ($users)";
+                $log_entries = get_records_sql($sql);
+
+                if (!$log_entries) {
+                    continue;
+                }
+
+                foreach ($log_entries as $entry) {
+                    //echo "User: {$entry->userid} has completed '{$item->mod_name}' with cmid {$item->cmid}, so updating checklist item {$item->itemid}<br />\n";
+
+                    $check = get_record('checklist_check', 'item', $item->itemid, 'userid', $entry->userid);
+                    if ($check) {
+                        if ($check->usertimestamp) {
+                            continue;
+                        }
+                        $check->usertimestamp = time();
+                        update_record('checklist_check', $check);
+                        $updategrades = true;
+                    } else {
+                        $check = new stdClass;
+                        $check->item = $item->itemid;
+                        $check->userid = $entry->userid;
+                        $check->usertimestamp = time();
+                        $check->teachertimestamp = 0;
+                        $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+                    
+                        $check->id = insert_record('checklist_check', $check);
+                        $updategrades = true;
+                    }
+                }
+            }
+        }
+
+        // Get a list of all the items which care about the score
+        $sql = "SELECT cm.id AS cmid, cm.instance AS instanceid, m.name AS mod_name, i.id AS itemid, i.complete_score AS complete_score
+        FROM {$CFG->prefix}modules m, {$CFG->prefix}course_modules cm, {$CFG->prefix}checklist_item i
+        WHERE m.id = cm.module AND cm.id = i.moduleid AND i.moduleid > 0 AND i.checklist = {$this->checklist->id} AND i.complete_score > 0";
+
+        $items = get_records_sql($sql);
+        if ($items) {
+            // For each item, get a list of users with their grades
+            foreach ($items as $item) {
+                $sql = 'SELECT gg.userid AS userid, gg.rawgrade';
+                $sql .= " FROM {$CFG->prefix}grade_grades gg, {$CFG->prefix}grade_items gi";
+                $sql .= " WHERE gg.itemid = gi.id AND gi.itemmodule = '{$item->mod_name}' AND gi.iteminstance = {$item->instanceid}";
+                $sql .= " AND gg.userid IN ($users)";
+                $grades = get_records_sql($sql);
+
+                if ($grades) {
+                    foreach ($grades as $grade) {
+                        $complete = $grade->rawgrade >= $item->complete_score;
+                        $check = get_record('checklist_check', 'item', $item->itemid, 'userid', $grade->userid);
+                        if ($check) {
+                            if ($complete) {
+                                if ($check->usertimestamp) {
+                                    continue;
+                                }
+                                $check->usertimestamp = time();
+                                update_record('checklist_check', $check);
+                                $updategrades = true;
+                            } else {
+                                if ($check->usertimestamp == 0) {
+                                    continue;
+                                }
+                                $check->usertimestamp = 0;
+                                update_record('checklist_check', $check);
+                                $updategrades = true;
+                            }
+                        } else {
+                            if (!$complete) {
+                                continue;
+                            }
+                            $check = new stdClass;
+                            $check->item = $item->itemid;
+                            $check->userid = $grade->userid;
+                            $check->usertimestamp = time();
+                            $check->teachertimestamp = 0;
+                            $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+                    
+                            $check->id = insert_record('checklist_check', $check);
+                            $updategrades = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($updategrades) {
+            checklist_update_grades($this->checklist);
         }
     }
 
