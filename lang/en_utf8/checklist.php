@@ -10,6 +10,8 @@ $string['addownitems-stop'] = 'Stop adding your own items';
 
 $string['allowmodulelinks'] = 'Allow module links';
 
+$string['anygrade'] = 'Any';
+
 $string['autopopulate'] = 'Show course modules in checklist';
 $string['autoupdate'] = 'Check-off when modules complete';
 
@@ -52,6 +54,9 @@ $string['editdatesstart'] = 'Edit dates';
 $string['editdatesstop'] = 'Stop editing dates';
 $string['edititem'] = 'Edit this item';
 
+$string['forceupdate'] = 'Update checks for all automatic items';
+
+$string['gradetocomplete'] = 'Grade to complete:';
 $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['headingitem'] = 'This item is a heading - it will not have a checkbox beside it';
@@ -105,6 +110,7 @@ $string['teacheralongsidecheck'] = 'Student and teacher';
 
 $string['theme'] = 'Checklist display theme';
 
+$string['updatecompletescore'] = 'Save completion grades';
 $string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';
 $string['useritemsallowed'] = 'User can add their own items';

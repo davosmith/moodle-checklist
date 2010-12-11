@@ -195,8 +195,14 @@ class checklist_class {
                 if ($this->cm->id == $cmid) {
                     continue; // Do not include this checklist in the list of modules
                 }
-                if ($mods->cms[$cmid]->modname == 'label') {
+                $modname = $mods->cms[$cmid]->modname;
+                if ($modname == 'label') {
                     continue; // Ignore any labels
+                }
+                if ($modname == 'assignment' || $modname == 'quiz' || $modname == 'forum') {
+                    $showscore = true;
+                } else {
+                    $showscore = false;
                 }
 
                 $foundit = false;
@@ -224,6 +230,7 @@ class checklist_class {
                 $modname = $mods->cms[$cmid]->name;
                 if ($foundit) {
                     $item->stillexists = true;
+                    $item->showscore = $showscore;
                     if ($item->position != $nextpos) {
                         //echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
                         $this->moveitemto($item->id, $nextpos);
@@ -238,6 +245,7 @@ class checklist_class {
                     $itemid = $this->additem($name, 0, 0, $nextpos, false, $cmid);
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
+                    $this->items[$itemid]->showscore = $showscore;
                 }
                 $nextpos++;
             }
@@ -1015,6 +1023,15 @@ class checklist_class {
         $addatend = true;
         $focusitem = false;
         $hasauto = false;
+
+        if ($this->checklist->autopopulate && $this->checklist->autoupdate) {
+            $url = "{$CFG->wwwroot}/mod/checklist/edit.php?id={$this->cm->id}&amp;sesskey=".sesskey();
+            $url .= ($this->additemafter) ? '&amp;additemafter='.$this->additemafter : '';
+            $url .= ($this->editdates) ? '&amp;editdates=on' : '';
+            echo "<form action='$url' method='POST'>";
+            echo '<input type="submit" name="update_complete_score" value="'.get_string('updatecompletescore','checklist').'" />';
+        }
+
         echo '<ol class="checklist">';
         if ($this->items) {
             $lastitem = count($this->items);
@@ -1161,7 +1178,7 @@ class checklist_class {
                     }
 
                     if ($autoitem) {
-                        echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
+                        echo '&nbsp;&nbsp;<a href="'.$baseurl.'deleteitem">';
                         if (($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) || ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
                             $title = '"'.get_string('show').'"';
                             echo '<img src="'.$CFG->pixpath.'/t/show.gif" alt='.$title.' title='.$title.' /></a>';
@@ -1169,6 +1186,26 @@ class checklist_class {
                             $title = '"'.get_string('hide').'"';
                             echo '<img src="'.$CFG->pixpath.'/t/hide.gif" alt='.$title.' title='.$title.' /></a>';
                         }
+
+                        if (isset($item->showscore) && $item->showscore) {
+                            echo '&nbsp;<span class="itemauto">';
+                            print_string('gradetocomplete','checklist');
+                            echo "&nbsp;<select name='complete_score[$item->id]'>";
+                            if ($item->complete_score == 0) {
+                                echo '<option value="0" selected="selected">'.get_string('anygrade','checklist').'</option>';
+                            } else {
+                                echo '<option value="0">'.get_string('anygrade','checklist').'</option>';
+                            }
+                            for ($sc = 100; $sc > 0; $sc--) {
+                                if ($item->complete_score == $sc) {
+                                    echo "<option value='$sc' selected='selected'>$sc</option>";
+                                } else {
+                                    echo "<option value='$sc'>$sc</option>";
+                                }
+                            }
+                            echo '</select></span>';
+                        }
+
                     } else {
                         echo '&nbsp;<a href="'.$baseurl.'deleteitem">';
                         $title = '"'.get_string('deleteitem','checklist').'"';
@@ -1223,6 +1260,10 @@ class checklist_class {
                 echo '</li>';
             }
         }
+        if ($this->checklist->autopopulate && $this->checklist->autoupdate) {
+            echo '</form>';
+        }
+
         if ($addatend) {
             echo '<li>';
             echo '<form action="'.$CFG->wwwroot.'/mod/checklist/edit.php" method="post">';
@@ -1270,6 +1311,10 @@ class checklist_class {
         }
 
         print_box_end();
+
+        if ($this->checklist->autopopulate && $this->checklist->autoupdate) {
+            echo '<br/><a href="'.$CFG->wwwroot.'/mod/checklist/forceupdate.php?id='.$this->cm->id.'">'.get_string('forceupdate','checklist').'</a>';
+        }
     }
 
     function view_report() {
@@ -1638,6 +1683,7 @@ class checklist_class {
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
         $removeauto = optional_param('removeauto', false, PARAM_TEXT);
+        $update_complete_scores = optional_param('update_complete_score', false, PARAM_TEXT);
 
         if ($removeauto) {
             // Remove any automatically generated items from the list
@@ -1646,6 +1692,14 @@ class checklist_class {
                 error('Invalid sesskey');
             }
             $this->removeauto();
+            return;
+        }
+
+        if ($update_complete_scores) {
+            if (!confirm_sesskey()) {
+                error('Invalid sesskey');
+            }
+            $this->update_complete_scores();
             return;
         }
         
@@ -2352,6 +2406,35 @@ class checklist_class {
             }
         }
 
+    }
+
+    function update_complete_scores() {
+        if (!$this->checklist->autopopulate || !$this->checklist->autoupdate) {
+            return;
+        }
+
+        $newscores = optional_param('complete_score', false, PARAM_INT);
+        if (!$newscores || !is_array($newscores)) {
+            return;
+        }
+
+        foreach ($newscores as $itemid=>$newscore) {
+            if (!isset($this->items[$itemid])) {
+                continue;
+            }
+            $item = $this->items[$itemid];
+            if (!$item->moduleid) {
+                continue;
+            }
+
+            if ($item->complete_score != $newscore) {
+                $item->complete_score = $newscore;
+                $upditem = new stdClass;
+                $upditem->id = $item->id;
+                $upditem->complete_score = $newscore;
+                update_record('checklist_item', $upditem);
+            }
+        }
     }
 
     // Update the userid to point to the next user to view

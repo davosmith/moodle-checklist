@@ -168,6 +168,8 @@ if ($updategrades) {
     echo "<p>The checklist '{$checklist->name}' did not need updating</p>";
 }
 
+print_continue($CFG->wwwroot.'/mod/checklist/view.php?id='.$id);
+
 ?>
 </body>
 </html>

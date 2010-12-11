@@ -44,7 +44,8 @@
         <FIELD NAME="duetime" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Date/time when this item is due to be completed" PREVIOUS="itemoptional" NEXT="eventid"/> 
         <FIELD NAME="eventid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="id of the calendar event (if any) associated with this item" PREVIOUS="duetime" NEXT="colour"/>
 	<FIELD NAME="colour" TYPE="char" LENGTH="15" NOTNULL="true" DEFAULT="black" SEQUENCE="false" ENUM="false" PREVIOUS="eventid" NEXT="moduleid"/>
-	<FIELD NAME="moduleid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="id of the course module (if any) associated with this item" PREVIOUS="colour"/>
+	<FIELD NAME="moduleid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="id of the course module (if any) associated with this item" PREVIOUS="colour" NEXT="complete_score"/>
+	<FIELD NAME="complete_score" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="score needed for this item to be counted as 'complete'" PREVIOUS="moduleid"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

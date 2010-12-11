@@ -130,6 +130,13 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $result = $result && add_index($table, $index);
     }
 
+    if ($result && $oldversion < 2010121100) {
+        $table = new XMLDBTable('checklist_item');
+        $field = new XMLDBField('complete_score');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', 'moduleid');
+        $result = $result && add_field($table, $field);
+    }
+
     return $result;
 
 }
