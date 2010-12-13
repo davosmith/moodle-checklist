@@ -7,7 +7,7 @@ $string['alldistrict'] = 'All';
 $string['choosechecklist'] = 'Checklist to export';
 $string['choosedistrict'] = 'District to include';
 
-$string['checklist:view'] = 'View Checklist report';
+$string['checklist:view'] = 'View Checklist report (Excel)';
 $string['checklist:viewall'] = 'View Checklist report for all students on course';
 $string['checklist:viewdistrict'] = 'View Checklist report for students in same district';
 
