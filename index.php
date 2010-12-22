@@ -62,7 +62,7 @@ if (intval($relver[0]) == 1 && intval($relver[1]) == 9 && intval($relver[2]) < 5
 }
 
 // Get list of appropriate checklists
-$checklists = get_records_select('checklist', "course = $course->id AND autoupdate = 1 AND autopopulate = 1");
+$checklists = get_records('checklist', 'course', $course->id);
 
 if (!$checklists) {
     print_error('nochecklists','gradereport_checklist');
