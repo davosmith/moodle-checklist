@@ -37,12 +37,12 @@ if (!$checklist = get_record('checklist','id', $checklistid)) {
 
 $strchecklistreport = get_string('checklistreport','gradereport_checklist');
 
-$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname', '', '', '', '', false);
+$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname, u.username', '', '', '', '', false);
 
 
 if ($district != 'ALL' && $users) {
     $users = implode(',',array_keys($users));
-    $sql = "SELECT u.id, u.firstname, u.lastname FROM ({$CFG->prefix}user u JOIN {$CFG->prefix}user_info_data ud ON u.id = ud.userid) JOIN {$CFG->prefix}user_info_field uf ON ud.fieldid = uf.id ";
+    $sql = "SELECT u.id, u.firstname, u.lastname, u.username FROM ({$CFG->prefix}user u JOIN {$CFG->prefix}user_info_data ud ON u.id = ud.userid) JOIN {$CFG->prefix}user_info_field uf ON ud.fieldid = uf.id ";
     $sql .= "WHERE u.id IN ($users) AND uf.shortname = 'district' AND ud.data = '$district'";
     $users = get_records_sql($sql);
 }
@@ -83,11 +83,12 @@ $myxls->write_string(0,0,'Region');
 $myxls->write_string(0,1,'Disrict');
 $myxls->write_string(0,2,'Last Name');
 $myxls->write_string(0,3,'First Name');
-$myxls->write_string(0,4,'Position');
-$myxls->write_string(0,5,'Position_2');
-$myxls->write_string(0,6,'Dealer Name');
-$myxls->write_string(0,7,'Dealer #');
-$pos=8;
+$myxls->write_string(0,4,'Username');
+$myxls->write_string(0,5,'Position');
+$myxls->write_string(0,6,'Position_2');
+$myxls->write_string(0,7,'Dealer Name');
+$myxls->write_string(0,8,'Dealer #');
+$pos=9;
 
 $columns = get_records_select('checklist_item',"checklist = {$checklist->id} AND itemoptional < 2",'position'); // 2 - optional / not optional (but not heading / disabled)
 if ($columns) {
@@ -107,10 +108,11 @@ foreach ($users as $user) {
     safe_write_string($myxls, $row, 1, $extra, 'district');
     $myxls->write_string($row,2,$user->lastname);
     $myxls->write_string($row,3,$user->firstname);
-    //safe_write_string($myxls, $row, 4, $extra, '????'); //'position'
-    safe_write_string($myxls, $row, 5, $extra, 'role'); // 'position_2'
-    safe_write_string($myxls, $row, 6, $extra, 'dealername');
-    safe_write_string($myxls, $row, 7, $extra, 'dealernumber');
+    $myxls->write_string($row,4,$user->username);
+    //safe_write_string($myxls, $row, 5, $extra, '????'); //'position'
+    safe_write_string($myxls, $row, 6, $extra, 'role'); // 'position_2'
+    safe_write_string($myxls, $row, 7, $extra, 'dealername');
+    safe_write_string($myxls, $row, 8, $extra, 'dealernumber');
 
     $sql = "SELECT i.position, c.usertimestamp ";
     $sql .= "FROM {$CFG->prefix}checklist_item i LEFT JOIN ";
@@ -120,7 +122,7 @@ foreach ($users as $user) {
     $sql .= 'ORDER BY i.position';
     $checks = get_records_sql($sql);
 
-    $col = 8;
+    $col = 9;
     foreach ($checks as $check) {
         if ($check->usertimestamp > 0) {
             $myxls->write_number($row, $col, 1);
