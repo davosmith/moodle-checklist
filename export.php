@@ -50,17 +50,17 @@ if (!$users) {
     print_error('nousers','gradereport_checklist');
 }
 
-/*
+
 // Useful for debugging
-class FakeMoodleExcelWorkbook {
+/*class FakeMoodleExcelWorkbook {
     function FakeMoodleExcelWorkbook($ignore) {}
     function send($ignore) {}
     function write_string($row, $col, $data) { echo "($row, $col) = $data<br/>"; }
     function write_number($row, $col, $data) { echo "($row, $col) = $data<br/>"; }
     function add_worksheet($ignore) { return new FakeMoodleExcelWorkbook($ignore); }
     function close() {}
-    }
-*/
+    }*/
+
 
 // Only write the data if it exists
 function safe_write_string($myxls, $row, $col, $data, $element) {
@@ -79,21 +79,22 @@ $workbook->send($downloadfilename);
 $myxls =& $workbook->add_worksheet($checklist->name);
 
 /// Print names of all the fields
-$myxls->write_string(0,0,'Region');
-$myxls->write_string(0,1,'Disrict');
-$myxls->write_string(0,2,'Last Name');
-$myxls->write_string(0,3,'First Name');
-$myxls->write_string(0,4,'Username');
-$myxls->write_string(0,5,'Position');
-$myxls->write_string(0,6,'Position_2');
-$myxls->write_string(0,7,'Dealer Name');
-$myxls->write_string(0,8,'Dealer #');
-$pos=9;
+$col = 0;
+$myxls->write_string(0,$col++,'Region');
+$myxls->write_string(0,$col++,'Disrict');
+$myxls->write_string(0,$col++,'Last Name');
+$myxls->write_string(0,$col++,'First Name');
+$myxls->write_string(0,$col++,'Username');
+$myxls->write_string(0,$col++,'Group(s)');
+$myxls->write_string(0,$col++,'Position');
+//$myxls->write_string(0,$col++,'Position_2');
+$myxls->write_string(0,$col++,'Dealer Name');
+$myxls->write_string(0,$col++,'Dealer #');
 
-$columns = get_records_select('checklist_item',"checklist = {$checklist->id} AND itemoptional < 2",'position'); // 2 - optional / not optional (but not heading / disabled)
-if ($columns) {
-    foreach($columns as $col) {
-        $myxls->write_string(0, $pos++, strip_tags($col->displaytext));
+$headings = get_records_select('checklist_item',"checklist = {$checklist->id} AND itemoptional < 2",'position'); // 2 - optional / not optional (but not heading / disabled)
+if ($headings) {
+    foreach($headings as $heading) {
+        $myxls->write_string(0, $col++, strip_tags($heading->displaytext));
     }
 }
 
@@ -104,15 +105,28 @@ foreach ($users as $user) {
     $sql .= "FROM {$CFG->prefix}user_info_data ud JOIN {$CFG->prefix}user_info_field uf ON uf.id = ud.fieldid ";
     $sql .= "WHERE ud.userid = {$user->id}";
     $extra = get_records_sql($sql);
-    safe_write_string($myxls, $row, 0, $extra, 'region');
-    safe_write_string($myxls, $row, 1, $extra, 'district');
-    $myxls->write_string($row,2,$user->lastname);
-    $myxls->write_string($row,3,$user->firstname);
-    $myxls->write_string($row,4,$user->username);
-    //safe_write_string($myxls, $row, 5, $extra, '????'); //'position'
-    safe_write_string($myxls, $row, 6, $extra, 'role'); // 'position_2'
-    safe_write_string($myxls, $row, 7, $extra, 'dealername');
-    safe_write_string($myxls, $row, 8, $extra, 'dealernumber');
+    $groups = groups_get_all_groups($course->id, $user->id, 0, 'g.id, g.name');
+    if ($groups) {
+        $groups = array_values($groups);
+        $first = reset($groups);
+        $groups_str = $first->name;
+        while ($next = next($groups)) {
+            $groups_str .= ', '.$next->name;
+        }
+    } else {
+        $groups_str = '';
+    }
+    $col = 0;
+    safe_write_string($myxls, $row, $col++, $extra, 'region');
+    safe_write_string($myxls, $row, $col++, $extra, 'district');
+    $myxls->write_string($row, $col++, $user->lastname);
+    $myxls->write_string($row, $col++, $user->firstname);
+    $myxls->write_string($row, $col++, $user->username);
+    $myxls->write_string($row, $col++, $groups_str);
+    safe_write_string($myxls, $row, $col++, $extra, 'role'); // 'position'
+    //safe_write_string($myxls, $row, $col++, $extra, '????'); //'position_2'
+    safe_write_string($myxls, $row, $col++, $extra, 'dealername');
+    safe_write_string($myxls, $row, $col++, $extra, 'dealernumber');
 
     $sql = "SELECT i.position, c.usertimestamp ";
     $sql .= "FROM {$CFG->prefix}checklist_item i LEFT JOIN ";
@@ -122,7 +136,6 @@ foreach ($users as $user) {
     $sql .= 'ORDER BY i.position';
     $checks = get_records_sql($sql);
 
-    $col = 9;
     foreach ($checks as $check) {
         if ($check->usertimestamp > 0) {
             $myxls->write_number($row, $col, 1);
