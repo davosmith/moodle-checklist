@@ -28,8 +28,9 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        $newitemid = $DB->insert_record('checklist', $data);
-        $this->apply_activity_instance($newitemid);
+        $newid = $DB->insert_record('checklist', $data);
+        $this->set_mapping('checklist', $oldid, $newid);
+        $this->apply_activity_instance($newid);
     }
 
     protected function process_checklist_item($data) {
@@ -44,8 +45,8 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
             $data->userid = $this->get_mappingid('user', $data->userid);
         }
 
-        $newitemid = $DB->insert_record('checklist_item', $data);
-        $this->set_mapping('checklist_item', $oldid, $newitemid);
+        $newid = $DB->insert_record('checklist_item', $data);
+        $this->set_mapping('checklist_item', $oldid, $newid);
     }
 
     protected function process_checklist_check($data) {
@@ -63,8 +64,8 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         }
         $data->userid = $this->get_mappingid('user', $data->userid);
 
-        $newitemid = $DB->insert_record('checklist_check', $data);
-        $this->set_mapping('checklist_check', $oldid, $newitemid);
+        $newid = $DB->insert_record('checklist_check', $data);
+        $this->set_mapping('checklist_check', $oldid, $newid);
     }
 
     protected function process_checklist_comment($data) {
@@ -79,8 +80,8 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
             $data->commentby = $this->get_mappingid('user', $data->commentby);
         }
 
-        $newitemid = $DB->insert_record('checklist_comment', $data);
-        $this->set_mapping('checklist_comment', $oldid, $newitemid);
+        $newid = $DB->insert_record('checklist_comment', $data);
+        $this->set_mapping('checklist_comment', $oldid, $newid);
     }
 
     protected function after_execute() {
