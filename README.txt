@@ -25,6 +25,8 @@ Find the function 'add_to_log', then add these lines to the end of it:
 WARNING: This will slow your Moodle site down very slightly.
 However, the difference is unlikely to be noticable.
 
+You then need to log in as an administrator and tick the 'Allow checklists to automatically update' option on the 'Administration/Modules/Activities/Checklist' page (this is to prevent users from being confused by the option not working when the above changes have not been made).
+
 **Usage**
 Click on 'Add an activity' and choose 'Checklist'.
 Enter all the usual information.
