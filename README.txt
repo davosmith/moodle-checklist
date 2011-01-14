@@ -34,6 +34,7 @@ line '$this->internal_set_data($cm, $current);':
 WARNING: This will slow your Moodle site down very slightly.
 However, the difference is unlikely to be noticable.
 
+You then need to log in as administrator and tick the 'Allow checklists to automatically update' option on the 'Administration/Plugins/Activity modules/Checklist' page (this is to prevent users from being confused by the option not working when the above changes have not been made).
 
 **Usage**
 Click on 'Add an activity' and choose 'Checklist'.
@@ -41,7 +42,7 @@ Enter all the usual information.
 You can optionally allow students to add their own, private items to the list (this will not affect the overall progress, but may help students to keep note of anything extra they need to do).
 
 You can then add items to the list.
-Click on the 'tick' to toggle an item between required & optional
+Click on the 'tick' to toggle an item between required, optional and heading
 Click on the 'edit' icon to change the text.
 Click on the 'indent' icons to change the level of indent.
 Click on the 'move' icons to move the item up/down one place.

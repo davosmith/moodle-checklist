@@ -36,6 +36,8 @@ $string['checklist:updateother'] = 'Update students\' checklist marks';
 $string['checklist:updateown'] = 'Update your checklist marks';
 $string['checklist:viewreports'] = 'View students\' progress';
 
+$string['checklistautoupdate'] = 'Allow checklists to automatically update';
+
 $string['checklistfor'] = 'Checklist for';
 
 $string['checklistintro'] = 'Introduction';
@@ -46,6 +48,8 @@ $string['comments'] = 'Comments';
 
 $string['completionpercentgroup'] = 'Require checked-off';
 $string['completionpercent'] = 'Percentage of items that should be checked-off:';
+
+$string['configchecklistautoupdate'] = 'Before allowing this you must make a few changes to the core Moodle code, please see mod/checklist/README.txt for details';
 
 $string['confirmdeleteitem'] = 'Are you sure you want to permanently delete this checklist item?';
 
