@@ -340,20 +340,20 @@ function checklist_print_overview($courses, &$htmlarray) {
                                           'WHERE i.checklist = '.$checklist->id.' AND i.duetime > 0 AND c.userid = '.$USER->id.' AND usertimestamp = 0 '.
                                           'ORDER BY i.duetime');
         }
-        if (!$date_items) {
-            continue;
-        }
 
         $str = '<div class="checklist overview"><div class="name">'.$strchecklist.': '.
             '<a title="'.$strchecklist.'" href="'.$CFG->wwwroot.'/mod/checklist/view.php?id='.$checklist->coursemodule.'">'.$checklist->name.'</a></div>';
-        foreach ($date_items as $item) {
-            $str .= '<div class="info">'.$item->displaytext.': ';
-            if ($item->duetime > time()) {
-                $str .= '<span class="itemdue">';
-            } else {
-                $str .= '<span class="itemoverdue">';
+        $str .= '<div class="info">'.checklist_class::print_user_progressbar($checklist->id, $USER->id, '300px', true, true).'</div>';
+        if ($date_items) {
+            foreach ($date_items as $item) {
+                $str .= '<div class="info">'.$item->displaytext.': ';
+                if ($item->duetime > time()) {
+                    $str .= '<span class="itemdue">';
+                } else {
+                    $str .= '<span class="itemoverdue">';
+                }
+                $str .= date('j M Y', $item->duetime).'</span></div>';
             }
-            $str .= date('j M Y', $item->duetime).'</span></div>';
         }
         $str .= '</div>';
         if (empty($htmlarray[$checklist->course]['checklist'])) {
