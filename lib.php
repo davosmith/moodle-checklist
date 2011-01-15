@@ -343,12 +343,10 @@ function checklist_print_overview($courses, &$htmlarray) {
                                           'WHERE i.checklist = ? AND i.duetime > 0 AND c.userid = ? AND usertimestamp = 0 '.
                                           'ORDER BY i.duetime', array($checklist->id, $USER->id));
         }
-        if (!$date_items) {
-            continue;
-        }
 
         $str = '<div class="checklist overview"><div class="name">'.$strchecklist.': '.
             '<a title="'.$strchecklist.'" href="'.$CFG->wwwroot.'/mod/checklist/view.php?id='.$checklist->coursemodule.'">'.$checklist->name.'</a></div>';
+        $str .= '<div class="info">'.checklist_class::print_user_progressbar($checklist->id, $USER->id, '300px', true, true).'</div>';
         foreach ($date_items as $item) {
             $str .= '<div class="info">'.$item->displaytext.': ';
             if ($item->duetime > time()) {
