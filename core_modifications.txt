@@ -1,0 +1,257 @@
+To help with modifying the core code to get the 'Check-off modules when complete' feature working, I have included below what the functions will look like after the modification has taken place. Look for the comment '/**** These are the extra lines of code to add for the checklist plugin *****/' to see where the changes have been made.
+
+NOTE: This code is taken form Moodle 1.9.9. Do NOT copy and paste the whole functions, as this may not be compatible with your current Moodle version. 
+Please only use this as a guide as to where to insert the extra lines of code.
+
+*** lib/datalib.php:
+
+function add_to_log($courseid, $module, $action, $url='', $info='', $cm=0, $user=0) {
+    // Note that this function intentionally does not follow the normal Moodle DB access idioms.
+    // This is for a good reason: it is the most frequently used DB update function,
+    // so it has been optimised for speed.
+    global $db, $CFG, $USER;
+
+    // sanitize all incoming data
+    $courseid = clean_param($courseid, PARAM_INT);
+    $module   = clean_param($module, PARAM_SAFEDIR);
+    $action   = addslashes($action);
+    // url cleaned bellow
+    // info cleaned bellow
+    $cm       = clean_param($cm, PARAM_INT);
+    $user     = clean_param($user, PARAM_INT);
+
+    if ($user) {
+        $userid = $user;
+    } else {
+        if (!empty($USER->realuser)) {  // Don't log
+            return;
+        }
+        $userid = empty($USER->id) ? '0' : $USER->id;
+    }
+
+    $REMOTE_ADDR = getremoteaddr();
+    if (empty($REMOTE_ADDR)) {
+        $REMOTE_ADDR = '0.0.0.0';
+    }
+
+    $timenow = time();
+    if (!empty($url)) { // could break doing html_entity_decode on an empty var.
+        $url = html_entity_decode($url); // for php < 4.3.0 this is defined in moodlelib.php
+    }
+
+    // Restrict length of log lines to the space actually available in the
+    // database so that it doesn't cause a DB error. Log a warning so that
+    // developers can avoid doing things which are likely to cause this on a
+    // routine basis.
+    $tl=textlib_get_instance();
+    if(!empty($info) && $tl->strlen($info)>255) {
+        $info=$tl->substr($info,0,252).'...';
+        debugging('Warning: logged very long info',DEBUG_DEVELOPER);
+    }
+    $info = addslashes($info);
+    // Note: Unlike $info, URL appears to be already slashed before this function
+    // is called. Since database limits are for the data before slashes, we need
+    // to remove them...
+    $url=stripslashes($url);
+    // If the 100 field size is changed, also need to alter print_log in course/lib.php
+    if(!empty($url) && $tl->strlen($url)>100) {
+        $url=$tl->substr($url,0,97).'...';
+        debugging('Warning: logged very long URL',DEBUG_DEVELOPER);
+    }
+    $url=addslashes($url);
+
+    if (defined('MDL_PERFDB')) { global $PERF ; $PERF->dbqueries++; $PERF->logwrites++;};
+
+    $info = empty($info) ? sql_empty() : $info; // Use proper empties for each database
+    $url  = empty($url)  ? sql_empty() : $url;
+    $sql ='INSERT INTO '. $CFG->prefix .'log (time, userid, course, ip, module, cmid, action, url, info)
+        VALUES (' . "'$timenow', '$userid', '$courseid', '$REMOTE_ADDR', '$module', '$cm', '$action', '$url', '$info')";
+
+    $result = $db->Execute($sql);
+
+    // MDL-11893, alert $CFG->supportemail if insert into log failed
+    if (!$result && $CFG->supportemail) {
+        $site = get_site();
+        $subject = 'Insert into log failed at your moodle site '.$site->fullname;
+        $message = "Insert into log table failed at ". date('l dS \of F Y h:i:s A') .".\n It is possible that your disk is full.\n\n";
+        $message .= "The failed SQL is:\n\n" . $sql;
+
+        // email_to_user is not usable because email_to_user tries to write to the logs table,
+        // and this will get caught in an infinite loop, if disk is full
+        if (empty($CFG->noemailever)) {
+            $lasttime = get_config('admin', 'lastloginserterrormail');
+            if(empty($lasttime) || time() - $lasttime > 60*60*24) { // limit to 1 email per day
+                mail($CFG->supportemail, $subject, $message);
+                set_config('lastloginserterrormail', time(), 'admin');
+            }
+        }
+    }
+
+    if (!$result) {
+        debugging('Error: Could not insert a new entry to the Moodle log', DEBUG_ALL);
+    }
+
+    /**** These are the extra lines of code to add for the checklist plugin *****/
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate($courseid, $module, $action, $cm, $userid);
+    /***** End of extra lines of code *****/
+}
+
+
+*** mod/quiz/lib.php:
+
+function quiz_grade_item_update($quiz, $grades=NULL) {
+    global $CFG;
+    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+        require_once($CFG->libdir.'/gradelib.php');
+    }
+
+    if (array_key_exists('cmidnumber', $quiz)) { //it may not be always present
+        $params = array('itemname'=>$quiz->name, 'idnumber'=>$quiz->cmidnumber);
+    } else {
+        $params = array('itemname'=>$quiz->name);
+    }
+
+    if ($quiz->grade > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax']  = $quiz->grade;
+        $params['grademin']  = 0;
+
+    } else {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+    }
+
+/* description by TJ:
+1/ If the quiz is set to not show scores while the quiz is still open, and is set to show scores after
+   the quiz is closed, then create the grade_item with a show-after date that is the quiz close date.
+2/ If the quiz is set to not show scores at either of those times, create the grade_item as hidden.
+3/ If the quiz is set to show scores, create the grade_item visible.
+*/
+    if (!($quiz->review & QUIZ_REVIEW_SCORES & QUIZ_REVIEW_CLOSED)
+    and !($quiz->review & QUIZ_REVIEW_SCORES & QUIZ_REVIEW_OPEN)) {
+        $params['hidden'] = 1;
+
+    } else if ( ($quiz->review & QUIZ_REVIEW_SCORES & QUIZ_REVIEW_CLOSED)
+           and !($quiz->review & QUIZ_REVIEW_SCORES & QUIZ_REVIEW_OPEN)) {
+        if ($quiz->timeclose) {
+            $params['hidden'] = $quiz->timeclose;
+        } else {
+            $params['hidden'] = 1;
+        }
+
+    } else {
+        // a) both open and closed enabled
+        // b) open enabled, closed disabled - we can not "hide after", grades are kept visible even after closing
+        $params['hidden'] = 0;
+    }
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
+    }
+    
+    $gradebook_grades = grade_get_grades($quiz->course, 'mod', 'quiz', $quiz->id);
+    if (!empty($gradebook_grades->items)) {
+        $grade_item = $gradebook_grades->items[0];
+        if ($grade_item->locked) {
+            $confirm_regrade = optional_param('confirm_regrade', 0, PARAM_INT);
+            if (!$confirm_regrade) {
+                $message = get_string('gradeitemislocked', 'grades');
+                $back_link = $CFG->wwwroot . '/mod/quiz/report.php?q=' . $quiz->id . '&amp;mode=overview';
+                $regrade_link = qualified_me() . '&amp;confirm_regrade=1';
+                print_box_start('generalbox', 'notice');
+                echo '<p>'. $message .'</p>';
+                echo '<div class="buttons">';
+                print_single_button($regrade_link, null, get_string('regradeanyway', 'grades'), 'post', $CFG->framename);
+                print_single_button($back_link,  null,  get_string('cancel'),  'post',  $CFG->framename);
+                echo '</div>';
+                print_box_end();
+    
+                return GRADE_UPDATE_ITEM_LOCKED;
+            }
+        }
+    }
+
+    /**** These are the extra lines of code to add for the checklist plugin *****/
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('quiz', $quiz->course, $quiz->id, $grades);
+    /***** End of extra lines of code *****/
+
+    return grade_update('mod/quiz', $quiz->course, 'mod', 'quiz', $quiz->id, 0, $grades, $params);
+}
+
+*** mod/assignment/lib.php:
+
+function assignment_grade_item_update($assignment, $grades=NULL) {
+    global $CFG;
+    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+        require_once($CFG->libdir.'/gradelib.php');
+    }
+
+    if (!isset($assignment->courseid)) {
+        $assignment->courseid = $assignment->course;
+    }
+
+    $params = array('itemname'=>$assignment->name, 'idnumber'=>$assignment->cmidnumber);
+
+    if ($assignment->grade > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax']  = $assignment->grade;
+        $params['grademin']  = 0;
+
+    } else if ($assignment->grade < 0) {
+        $params['gradetype'] = GRADE_TYPE_SCALE;
+        $params['scaleid']   = -$assignment->grade;
+
+    } else {
+        $params['gradetype'] = GRADE_TYPE_TEXT; // allow text comments only
+    }
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
+    }
+
+    /**** These are the extra lines of code to add for the checklist plugin *****/
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('assignment', $assignment->courseid, $assignment->id, $grades);
+    /***** End of extra lines of code *****/
+
+    return grade_update('mod/assignment', $assignment->courseid, 'mod', 'assignment', $assignment->id, 0, $grades, $params);
+}
+
+**** mod/forum/lib.php:
+
+function forum_grade_item_update($forum, $grades=NULL) {
+    global $CFG;
+    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+        require_once($CFG->libdir.'/gradelib.php');
+    }
+
+    $params = array('itemname'=>$forum->name, 'idnumber'=>$forum->cmidnumber);
+
+    if (!$forum->assessed or $forum->scale == 0) {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+
+    } else if ($forum->scale > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax']  = $forum->scale;
+        $params['grademin']  = 0;
+
+    } else if ($forum->scale < 0) {
+        $params['gradetype'] = GRADE_TYPE_SCALE;
+        $params['scaleid']   = -$forum->scale;
+    }
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
+    }
+
+    /**** These are the extra lines of code to add for the checklist plugin *****/
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('forum', $forum->course, $forum->id, $grades);
+    /***** End of extra lines of code *****/
+
+    return grade_update('mod/forum', $forum->course, 'mod', 'forum', $forum->id, 0, $grades, $params);
+}
