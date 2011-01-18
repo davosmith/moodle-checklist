@@ -102,6 +102,17 @@ class checklist_class {
             $this->useritems = false;
         }
 
+        if ($this->items) {
+            foreach ($this->items as $key=>$item) {
+                $this->items[$key]->checked = false;
+            }
+        }
+        if ($this->useritems) {
+            foreach ($this->useritems as $key=>$item) {
+                $this->items[$key]->checked = false;
+            }
+        }
+
         // Load the currently checked-off items
         if ($this->userid) { // && ($this->canupdateown() || $this->canviewreports() )) {
 
@@ -229,8 +240,8 @@ class checklist_class {
                 }
                 $modname = $mods->cms[$cmid]->name;
                 if ($foundit) {
-                    $item->stillexists = true;
-                    $item->showscore = $showscore;
+                    $this->items[$item->id]->stillexists = true;
+                    $this->items[$item->id]->showscore = $showscore;
                     if ($item->position != $nextpos) {
                         //echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
                         $this->moveitemto($item->id, $nextpos);
@@ -246,6 +257,7 @@ class checklist_class {
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
                     $this->items[$itemid]->showscore = $showscore;
+                    $this->items[$itemid]->checked = false;
                 }
                 $nextpos++;
             }
@@ -297,14 +309,14 @@ class checklist_class {
         if (!$this->items) {
             return;
         }
-        foreach($this->items as $item) {
+        foreach($this->items as $key=>$item) {
             if ($pos == $start) {
                 $pos += $move;
                 $start = -1;
             }
             if ($item->position != $pos) {
                 $oldpos = $item->position;
-                $item->position = $pos;
+                $this->items[$key]->position = $pos;
                 $upditem = new stdClass;
                 $upditem->id = $item->id;
                 $upditem->position = $pos;
@@ -1977,7 +1989,7 @@ class checklist_class {
             update_record('checklist_item', $upditem);
 
             if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                foreach ($this->items as $it) {
+                foreach ($this->items as $key=>$it) {
                     if ($it->position <= $item->position) {
                         continue;
                     }
@@ -1988,7 +2000,7 @@ class checklist_class {
                         continue;
                     }
                     if ($it->itemoptional == CHECKLIST_OPTIONAL_DISABLED) {
-                        $it->itemoptional = CHECKLIST_OPTIONAL_NO;
+                        $this->items[$key]->itemoptional = CHECKLIST_OPTIONAL_NO;
                         $upditem = new stdClass;
                         $upditem->id = $it->id;
                         $upditem->itemoptional = $it->itemoptional;
@@ -1997,7 +2009,7 @@ class checklist_class {
                 }
 
             } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED) {
-                foreach ($this->items as $it) {
+                foreach ($this->items as $key=>$it) {
                     if ($it->position <= $item->position) {
                         continue;
                     }
@@ -2008,7 +2020,7 @@ class checklist_class {
                         continue;
                     }
                     if (($it->itemoptional == CHECKLIST_OPTIONAL_YES) || ($it->itemoptional == CHECKLIST_OPTIONAL_NO)) {
-                        $it->itemoptional = CHECKLIST_OPTIONAL_DISABLED;
+                        $this->items[$key]->itemoptional = CHECKLIST_OPTIONAL_DISABLED;
                         $upditem = new stdClass;
                         $upditem->id = $it->id;
                         $upditem->itemoptional = $it->itemoptional;
@@ -2139,10 +2151,10 @@ class checklist_class {
         update_record('checklist_item', $upditem);
 
         // Update all 'children' of this item to new indent
-        foreach ($this->items as $item) {
+        foreach ($this->items as $key=>$item) {
             if ($item->position > $position) {
                 if ($item->indent > $oldindent) {
-                    $item->indent += $adjust;
+                    $this->items[$key]->indent += $adjust;
                     $upditem = new stdClass;
                     $upditem->id = $item->id;
                     $upditem->indent = $item->indent;
@@ -2241,7 +2253,7 @@ class checklist_class {
         
         $updategrades = false;
         if ($this->items) {
-            foreach ($this->items as $item) {
+            foreach ($this->items as $key=>$item) {
                 if (($this->checklist->autoupdate == CHECKLIST_AUTOUPDATE_YES) && ($item->moduleid)) {
                     continue; // Shouldn't get updated anyway, but just in case...
                 }
@@ -2250,7 +2262,7 @@ class checklist_class {
 
                 if ($newval != $item->checked) {
                     $updategrades = true;
-                    $item->checked = $newval;
+                    $this->items[$key]->checked = $newval;
                 
                     $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
                     if ($check) {
@@ -2280,11 +2292,11 @@ class checklist_class {
         }
         
         if ($this->useritems) {
-            foreach ($this->useritems as $item) {
+            foreach ($this->useritems as $key=>$item) {
                 $newval = in_array($item->id, $newchecks);
 
                 if ($newval != $item->checked) {
-                    $item->checked = $newval;
+                    $this->useritems[$key]->checked = $newval;
                 
                     $check = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
                     if ($check) {
@@ -2332,7 +2344,7 @@ class checklist_class {
                 list($itemid, $newval) = explode(':',$newcheck, 2);
             
                 if (isset($this->items[$itemid])) {
-                    $item = $this->items[$itemid];
+                    $item =& $this->items[$itemid];
                     if ($newval != $item->teachermark) {
                         $updategrades = true;
                         $item->teachermark = $newval;
@@ -2419,7 +2431,7 @@ class checklist_class {
             if (!isset($this->items[$itemid])) {
                 continue;
             }
-            $item = $this->items[$itemid];
+            $item =& $this->items[$itemid];
             if (!$item->moduleid) {
                 continue;
             }
