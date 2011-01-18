@@ -15,7 +15,7 @@ Upload the files to the your moodle server, placing them in the 'moodle/mod/chec
 Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
 IMPORTANT: If you want the 'Check-off modules when complete' option to work, then you need to make the following changes to the Moodle core code:
-To make this work, you need to open up the following files (for extra help with this, look in 'mod/checklist/core_modifications.txt':
+To make this work, you need to open up the following files (for extra help with this, look in 'mod/checklist/core_modifications.txt'):
 
 * Open the file: moodle/lib/datalib.php
 Find the function 'add_to_log', then add these lines to the end of it:
