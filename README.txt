@@ -5,6 +5,7 @@ Checklist module
 This is a Moodle plugin for Moodle 1.9 & 2.0+ that allows a teacher to create a checklist for their students to work through.
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
 Note: There are separate downloads for the Moodle 1.9 and 2.0+ versions of this plugin - make sure you download the correct version.
+This is the Moodle 2.0+ version.
 
 Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
@@ -14,13 +15,13 @@ Unzip the contents of file you downloaded to a temporary folder.
 Upload the files to the your moodle server, placing them in the 'moodle/mod/checklist' folder.
 Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
-IMPORTANT: If you want the 'Check-off modules when complete' option to work, then you need to make the following changes to the Moodle core code:
+IMPORTANT: If you want the 'Check-off modules when complete' option to work, then you need to make the following changes to the Moodle core code (for extra help with this, look in 'mod/checklist/core_modifications.txt'):
 Open the file - moodle/lib/datalib.php
 
 Find the function 'add_to_log', then add these lines to the end of it:
 
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
-    checklist_autoupdate($courseid, $module, $action, $cm, $userid);
+    checklist_autoupdate($courseid, $module, $action, $cm, $userid, $url);
 
 Now, open the file - moodle/lib/completionlib.php
 
