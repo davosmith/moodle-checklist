@@ -163,10 +163,12 @@ class checklist_class {
     function update_items_from_course() {
         $mods = get_fast_modinfo($this->course);
 
+        $changes = false;
+
         $nextpos = 1;
         $section = 1;
         reset($this->items);
-        
+
         while (array_key_exists($section, $mods->sections)) {
             $sectionheading = 0;
             while (list($itemid, $item) = each($this->items)) {
@@ -254,6 +256,7 @@ class checklist_class {
                     $name = addslashes($modname);
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
                     $itemid = $this->additem($name, 0, 0, $nextpos, false, $cmid);
+                    $changes = true;
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
                     $this->items[$itemid]->showscore = $showscore;
@@ -273,6 +276,10 @@ class checklist_class {
                     $this->deleteitem($item->id);
                 }
             }
+        }
+
+        if ($changes) {
+            update_all_checks_from_completion_scores();
         }
     }
 
