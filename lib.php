@@ -197,7 +197,9 @@ function checklist_update_grades($checklist, $userid=0) {
             add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", $checklist->name, $cm->id, $grade->userid);
         }
         $ci = new completion_info($course);
-        $ci->update_state($cm, COMPLETION_UNKNOWN, $grade->userid);
+        if ($cm->completion == COMPLETION_TRACKING_AUTOMATIC) {
+            $ci->update_state($cm, COMPLETION_UNKNOWN, $grade->userid);
+        }
     }
 
     checklist_grade_item_update($checklist, $grades);
