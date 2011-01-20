@@ -70,6 +70,10 @@ class checklist_class {
         $this->pagetitle = strip_tags($this->course->shortname.': '.$this->strchecklist.': '.format_string($this->checklist->name,true));
 
         $this->get_items();
+
+        if ($this->checklist->autopopulate) {
+            $this->update_items_from_course();
+        }
     }
 
     /**
@@ -145,6 +149,7 @@ class checklist_class {
 
         $nextpos = 1;
         $section = 1;
+        $changes = false;
         reset($this->items);
         
         while (array_key_exists($section, $mods->sections)) {
@@ -226,6 +231,7 @@ class checklist_class {
                 } else {
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
                     $itemid = $this->additem($modname, 0, 0, $nextpos, false, $cmid);
+                    $changes = true;
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
                 }
@@ -243,6 +249,10 @@ class checklist_class {
                     $this->deleteitem($item->id);
                 }
             }
+        }
+
+        if ($changes) {
+            $this->update_all_autoupdate_checks();
         }
     }
 
@@ -391,10 +401,6 @@ class checklist_class {
         $this->view_tabs('edit');
 
         $this->process_edit_actions();
-
-        if ($this->checklist->autopopulate) {
-            $this->update_items_from_course();
-        }
 
         $this->view_edit_items();
 
@@ -2368,7 +2374,170 @@ class checklist_class {
 
     }
 
-     // Update the userid to point to the next user to view
+    function update_all_autoupdate_checks() {
+        global $DB;
+
+        $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+        if (!$users) {
+            return;
+        }
+        $userids = implode(',',array_keys($users));
+        $updategrades = false;
+        
+        // Get a list of all the checklist items with a module linked to them (ignoring headings)
+        $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid, cm.completion AS completion
+        FROM {modules} m, {course_modules} cm, {checklist_item} i
+        WHERE m.id = cm.module AND cm.id = i.moduleid AND i.moduleid > 0 AND i.checklist = ? AND i.itemoptional != 2";
+
+        $completion = new completion_info($this->course);
+        $using_completion = $completion->is_enabled();
+
+        $items = $DB->get_records_sql($sql, array($this->checklist->id));
+        foreach ($items as $item) {
+            if ($using_completion && $item->completion) {
+                $fakecm = new stdClass;
+                $fakecm->id = $item->cmid;
+
+                foreach ($users as $user) {
+                    $comp_data = $completion->get_data($fakecm, false, $user->id);
+                    if ($comp_data->completionstate == COMPLETION_COMPLETE || $comp_data->completionstate == COMPLETION_COMPLETE_PASS) {
+                        $check = $DB->get_record('checklist_check', array('item' => $item->itemid, 'userid' => $user->id));
+                        if ($check) {
+                            if ($check->usertimestamp) {
+                                continue;
+                            }
+                            $check->usertimestamp = time();
+                            $DB->update_record('checklist_check', $check);
+                            $updategrades = true;
+                        } else {
+                            $check = new stdClass;
+                            $check->item = $item->itemid;
+                            $check->userid = $user->id;
+                            $check->usertimestamp = time();
+                            $check->teachertimestamp = 0;
+                            $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+                    
+                            $check->id = $DB->insert_record('checklist_check', $check);
+                            $updategrades = true;
+                        }
+                    }
+                }
+                    
+                continue;
+            }
+                
+            $logaction = '';
+            $logaction2 = false;
+
+            switch($item->mod_name) {
+            case 'survey':
+                $logaction = 'submit';
+                break;
+            case 'quiz':
+                $logaction = 'close attempt';
+                break;
+            case 'forum':
+                $logaction = 'add post';
+                $logaction2 = 'add discussion';
+                break;
+            case 'resource':
+                $logaction = 'view';
+                break;
+            case 'hotpot':
+                $logaction = 'submit';
+                break;
+            case 'wiki':
+                $logaction = 'edit';
+                break;
+            case 'checklist':
+                $logaction = 'complete';
+                break;
+            case 'choice':
+                $logaction = 'choose';
+                break;
+            case 'lams':
+                $logaction = 'view';
+                break;
+            case 'scorm':
+                $logaction = 'view';
+                break;
+            case 'assignment':
+                $logaction = 'upload';
+                break;
+            case 'journal':
+                $logaction = 'add entry';
+                break;
+            case 'lesson':
+                $logaction = 'end';
+                break;
+            case 'realtimequiz':
+                $logaction = 'submit';
+                break;
+            case 'workshop':
+                $logaction = 'submit';
+                break;
+            case 'glossary':
+                $logaction = 'add entry';
+                break;
+            case 'data':
+                $logaction = 'add';
+                break;
+            case 'chat':
+                $logaction = 'talk';
+                break;
+            case 'feedback':
+                $logaction = 'submit';
+                break;
+            default:
+                continue 2;
+                break;
+            }
+
+            $sql = 'SELECT DISTINCT userid ';
+            $sql .= "FROM {log} ";
+            $sql .= "WHERE cmid = ? AND (action = ?";
+            if ($logaction2) {
+                $sql .= ' OR action = ?';
+            }
+            $sql .= ") AND userid IN ($userids)";
+            $log_entries = $DB->get_records_sql($sql, array($item->cmid, $logaction, $logaction2));
+
+            if (!$log_entries) {
+                continue;
+            }
+
+            foreach ($log_entries as $entry) {
+                //echo "User: {$entry->userid} has completed '{$item->mod_name}' with cmid {$item->cmid}, so updating checklist item {$item->itemid}<br />\n";
+
+                $check = $DB->get_record('checklist_check', array('item' => $item->itemid, 'userid' => $entry->userid));
+                if ($check) {
+                    if ($check->usertimestamp) {
+                        continue;
+                    }
+                    $check->usertimestamp = time();
+                    $DB->update_record('checklist_check', $check);
+                    $updategrades = true;
+                } else {
+                    $check = new stdClass;
+                    $check->item = $item->itemid;
+                    $check->userid = $entry->userid;
+                    $check->usertimestamp = time();
+                    $check->teachertimestamp = 0;
+                    $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+                    
+                    $check->id = $DB->insert_record('checklist_check', $check);
+                    $updategrades = true;
+                }
+            }
+
+            if ($updategrades) {
+                checklist_update_grades($this->checklist);
+            }
+        }
+    }
+
+    
+    // Update the userid to point to the next user to view
     function getnextuserid() {
         global $DB;
 
