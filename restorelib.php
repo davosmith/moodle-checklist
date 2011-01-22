@@ -149,8 +149,8 @@ require_once(dirname(__FILE__).'/locallib.php');
 
                 $item->userid = backup_getid($restore->backup_unique_code,'user',$item->userid);
                 if (!$item->userid) {
-                    $status = false;
-                    break;
+                    //$status = false;
+                    continue; // Item for user not included in this backup - ignore it
                 }
                 $item->userid = $item->userid->new_id;
             }
@@ -232,8 +232,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 
             $check->userid = backup_getid($restore->backup_unique_code,'user',$check->userid);
             if (!$check->userid) {
-                $status = false;
-                break;
+                continue; // Check for user not included in the backup
             }
             $check->userid = $check->userid->new_id;
 
@@ -297,16 +296,14 @@ require_once(dirname(__FILE__).'/locallib.php');
 
             $comment->userid = backup_getid($restore->backup_unique_code,'user',$comment->userid);
             if (!$comment->userid) {
-                $status = false;
-                break;
+                continue; // Comment for user not included in the backup - ignore
             }
             $comment->userid = $comment->userid->new_id;
 
             if ($comment->commentby) {
                 $comment->commentby = backup_getid($restore->backup_unique_code,'user',$comment->commentby);
                 if (!$comment->commentby) {
-                    $status = false;
-                    break;
+                    continue; // Comment by user not included in backup - ignore
                 }
                 $comment->commentby = $comment->commentby->new_id;
             }
