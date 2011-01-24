@@ -167,6 +167,9 @@ class checklist_class {
 
         $nextpos = 1;
         $section = 1;
+        if (!$this->items) {
+            $this->items = array();
+        }
         reset($this->items);
 
         while (array_key_exists($section, $mods->sections)) {
@@ -279,7 +282,7 @@ class checklist_class {
         }
 
         if ($changes) {
-            update_all_checks_from_completion_scores();
+            $this->update_all_checks_from_completion_scores();
         }
     }
 
@@ -1877,6 +1880,7 @@ class checklist_class {
                     $this->update_item_positions(1, $position);
                 }
                 $this->items[$item->id] = $item;
+                $this->items[$item->id]->checked = false;
                 uasort($this->items, 'checklist_itemcompare');
                 if ($this->checklist->duedatesoncalendar) {
                     $this->setevent($item->id, true);
@@ -2471,7 +2475,7 @@ class checklist_class {
         // Get a list of all the checklist items with a module linked to them (and no score needed to complete them)
         $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid
         FROM {$CFG->prefix}modules m, {$CFG->prefix}course_modules cm, {$CFG->prefix}checklist_item i
-        WHERE m.id = cm.module AND cm.id = i.moduleid AND i.moduleid > 0 AND i.checklist = {$this->checklist->id} AND i.complete_score = 0";
+        WHERE m.id = cm.module AND cm.id = i.moduleid AND i.moduleid > 0 AND i.checklist = {$this->checklist->id} AND i.complete_score = 0 AND i.itemoptional != ".CHECKLIST_OPTIONAL_HEADING;
 
         $items = get_records_sql($sql);
         if ($items) {
