@@ -97,6 +97,7 @@ function add_to_log($courseid, $module, $action, $url='', $info='', $cm=0, $user
     /***** End of extra lines of code *****/
 }
 
+*** end of changes to lib/datalib.php
 
 *** mod/quiz/lib.php:
 
@@ -180,6 +181,8 @@ function quiz_grade_item_update($quiz, $grades=NULL) {
     return grade_update('mod/quiz', $quiz->course, 'mod', 'quiz', $quiz->id, 0, $grades, $params);
 }
 
+*** end of changes to mod/quiz/lib.php
+
 *** mod/assignment/lib.php:
 
 function assignment_grade_item_update($assignment, $grades=NULL) {
@@ -219,6 +222,8 @@ function assignment_grade_item_update($assignment, $grades=NULL) {
 
     return grade_update('mod/assignment', $assignment->courseid, 'mod', 'assignment', $assignment->id, 0, $grades, $params);
 }
+
+*** end of changes to mod/assignment/lib.php
 
 **** mod/forum/lib.php:
 
