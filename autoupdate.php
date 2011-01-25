@@ -125,6 +125,7 @@ function checklist_set_check($itemid, $userid, $set) {
             }
             $check->usertimestamp = 0;
             update_record('checklist_check',$check);
+            return true;
         }
     } else {
         if (!$set) {
