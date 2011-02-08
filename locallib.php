@@ -1759,6 +1759,7 @@ class checklist_class {
 
         if ($viewnext || $savenext) {
             $this->getnextuserid();
+            $this->get_items();
         }
     }
 
