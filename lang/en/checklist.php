@@ -8,6 +8,9 @@ $string['additemhere'] = 'Insert new item after this one';
 $string['addownitems'] = 'Add your own items';
 $string['addownitems-stop'] = 'Stop adding your own items';
 
+$string['allowmodulelinks'] = 'Allow module links';
+
+$string['anygrade'] = 'Any';
 $string['autopopulate'] = 'Show course modules in checklist';
 $string['autopopulate_help'] = 'This will automatically add a list of all the resources and activities in the current course into the checklist.<br />
 This list will be updated with any changes in the course, whenever you visit the \'Edit\' page for the checklist.<br />
@@ -62,6 +65,9 @@ $string['editdatesstart'] = 'Edit dates';
 $string['editdatesstop'] = 'Stop editing dates';
 $string['edititem'] = 'Edit this item';
 
+$string['forceupdate'] = 'Update checks for all automatic items';
+
+$string['gradetocomplete'] = 'Grade to complete:';
 $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['headingitem'] = 'This item is a heading - it will not have a checkbox beside it';
@@ -116,6 +122,7 @@ $string['teacheralongsidecheck'] = 'Student and teacher';
 
 $string['theme'] = 'Checklist display theme';
 
+$string['updatecompletescore'] = 'Save completion grades';
 $string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';
 $string['useritemsallowed'] = 'User can add their own items';
