@@ -1,89 +1,90 @@
-<?php
+<?PHP // $Id$ 
+      // checklist.php - created with Moodle 1.9.10+ (Build: 20110112) (2007101591)
 
+
+$string['addcomments'] = 'コメントを追加する';
 $string['additem'] = '追加';
-$string['additemalt'] = 'リストに新しい項目を追加';
-$string['additemhere'] = '下に追加';
-$string['addownitems'] = '自分の項目を追加';
-$string['addownitems-stop'] = '項目の追加を中止';
+$string['additemalt'] = 'リストに新しいアイテムを追加する';
+$string['additemhere'] = 'このアイテムの下に新しいアイテムを追加する';
+$string['addownitems'] = 'あなたの独自アイテムを追加する';
+$string['addownitems-stop'] = 'あなたの独自アイテム追加を終了する';
+$string['allowmodulelinks'] = 'モジュールリンクを許可する';
+$string['anygrade'] = 'すべて';
+$string['autopopulate'] = 'チェックリストにコースモジュールを表示する';
+$string['autoupdate'] = 'モジュール完了時に完了チェックする';
+$string['calendardescription'] = 'このイベントは次のチェックリスト「 $a 」によって追加されました。';
 $string['canceledititem'] = 'キャンセル';
-
-$string['checkeditemsdeleted'] = 'チェックした項目を削除';
-
+$string['changetextcolour'] = '次のテキスト色';
+$string['checkeditemsdeleted'] = 'チェックしたアイテムが削除されました。';
 $string['checklist'] = 'チェックリスト';
-
-$string['checklist:edit'] = '作成と編集';
-$string['checklist:preview'] = 'プレビュー';
-$string['checklist:updateother'] = '学生の完了チェックを更新';
-$string['checklist:updateown'] = '自分の完了チェックを更新';
-$string['checklist:viewreports'] = '学生の進捗を見る';
-
-$string['checklistfor'] = 'チェックリスト for ';
-
-$string['checklistintro'] = '説明文';
+$string['checklist:edit'] = 'チェックリストを作成および編集する';
+$string['checklist:preview'] = 'チェックリストをプレビューする';
+$string['checklist:updateother'] = '学生のチェックリストマークを更新する';
+$string['checklist:updateown'] = 'あなたのチェックリストマークを更新する';
+$string['checklist:viewreports'] = '学生の進捗を表示する';
+$string['checklistautoupdate'] = 'チェックリストの自動更新を許可する';
+$string['checklistfor'] = 'チェックリスト -';
+$string['checklistintro'] = 'イントロダクション';
 $string['checklistsettings'] = '設定';
-
-$string['checks'] = '完了にする';
-
-$string['deleteitem'] = '削除';
-
-$string['edit'] = '編集';
-$string['edititem'] = '編集';
-
-$string['guestsno'] = 'このチェックリストを閲覧する権限がありません。';
-
-$string['indentitem'] = '右へインデント';
-$string['itemcomplete'] = '完了';
-$string['items'] = '項目';
-
+$string['checks'] = 'チェックマークをつける';
+$string['comments'] = 'コメント';
+$string['configallowmodulelinks'] = 'チェックリストアイテムから他モジュールへのリンクを許可する (チェックリストの編集が遅くなります)';
+$string['configchecklistautoupdate'] = 'この設定を許可する前に、あなたは少しだけコアMoodleコードを修正する必要があります。詳細は、mod/checklist/README.txtをご覧ください。';
+$string['confirmdeleteitem'] = '本当にこのチェックリストアイテムを完全に削除してもよろしいですか?';
+$string['deleteitem'] = 'このアイテムを削除する';
+$string['duedatesoncalendar'] = 'カレンダーに締切日を追加する';
+$string['edit'] = 'チェックリストを編集する';
+$string['editdatesstart'] = '日付を編集する';
+$string['editdatesstop'] = '日付の編集を終了する';
+$string['edititem'] = 'このアイテムを編集する';
+$string['forceupdate'] = 'すべての自動アイテムのチェックを更新する';
+$string['gradetocomplete'] = '完了点';
+$string['guestsno'] = 'あなたにはこのチェックリストを閲覧するパーミッションがありません。';
+$string['headingitem'] = 'このアイテムは見出しです - 横にチェックボックスは表示されません。';
+$string['indentitem'] = 'アイテムをインデントする';
+$string['itemcomplete'] = '完了済み';
+$string['items'] = 'チェックリストアイテム';
 $string['modulename'] = 'チェックリスト';
 $string['modulenameplural'] = 'チェックリスト';
-
-$string['moveitemdown'] = '下へ移動';
-$string['moveitemup'] = '上へ移動';
-
-$string['noitems'] = '項目がありません';
-
-$string['optionalitem'] = 'この項目は必須ではありません。';
-$string['optionalhide'] = '必須ではない項目を隠す';
-$string['optionalshow'] = '必須ではない項目を表示';
-
-$string['percentcomplete'] = '必須項目';
-$string['percentcompleteall'] = 'すべての項目';
+$string['moveitemdown'] = 'アイテムを下へ移動する';
+$string['moveitemup'] = 'アイテムを上へ移動する';
+$string['noitems'] = 'チェックボックスにアイテムがありません。';
+$string['optionalhide'] = '任意アイテムを非表示にする';
+$string['optionalitem'] = 'このアイテムは任意です。';
+$string['optionalshow'] = '任意アイテムを表示する';
+$string['percentcomplete'] = '必須アイテム';
+$string['percentcompleteall'] = 'すべてのアイテム';
 $string['preview'] = 'プレビュー';
-
-$string['report'] = '進捗確認';
-$string['reporttablesummary'] = 'サマリーレポート';
-
-$string['requireditem'] = 'この項目は必須です。必ず完了させる必要があります。';
-
-$string['resetchecklistprogress'] = '進捗とユーザーの項目をリセットする。';
-
+$string['progress'] = '進捗';
+$string['removeauto'] = 'コースモジュールアイテムを削除する';
+$string['report'] = '進捗を表示する';
+$string['reporttablesummary'] = 'それぞれの学生が完了したチェックリストのアイテムを表示するテーブル';
+$string['requireditem'] = 'このアイテムは必須です - 完了する必要があります。';
+$string['resetchecklistprogress'] = 'チェックリスト進捗およびユーザアイテムをリセットする';
 $string['savechecks'] = '保存';
-
-
-$string['teacheredit'] = '編集可能なロール';
-
-$string['teachermarkundecided'] = '教師がまだ完了にしていません。';
-$string['teachermarkyes'] = '教師が完了にしました。';
-$string['teachermarkno'] = '教師がまだ完了していないと言っています。';
-
+$string['showfulldetails'] = '全詳細を表示する';
+$string['showprogressbars'] = '進捗バーを表示する';
+$string['teacheralongsidecheck'] = '学生および教師';
+$string['teachercomments'] = '教師はコメントを追加できる';
+$string['teacheredit'] = '更新者';
+$string['teachermarkno'] = '教師はあなたがこのアイテムを完了していないと判断しています。';
+$string['teachermarkundecided'] = '教師はまだこのアイテムをチェックしていません。';
+$string['teachermarkyes'] = '教師はあなたがこのアイテムを完了したと判断しています。';
 $string['teachernoteditcheck'] = '学生のみ';
 $string['teacheroverwritecheck'] = '教師のみ';
-$string['teacheralongsidecheck'] = '学生と教師';
-
-$string['theme'] = 'テーマ';
-
-$string['unindentitem'] = '左へインデント';
+$string['theme'] = 'チェックリスト表示テーマ';
+$string['unindentitem'] = 'アイテムのインデントを解除する';
+$string['updatecompletescore'] = '完了点を保存する';
 $string['updateitem'] = '更新';
-$string['useritemsallowed'] = 'ユーザーが独自の項目を追加';
-$string['useritemsdeleted'] = 'ユーザー項目は削除されました。';
-
-$string['view'] = '表示';
-$string['viewall'] = 'すべての進捗を表示';
+$string['useritemsallowed'] = 'ユーザ独自アイテムを追加できる';
+$string['useritemsdeleted'] = 'ユーザ独自アイテムが削除されました。';
+$string['view'] = 'チェックリストを表示する';
+$string['viewall'] = 'すべての学生を表示する';
 $string['viewallcancel'] = 'キャンセル';
 $string['viewallsave'] = '保存';
-
-$string['viewsinglereport'] = 'このユーザーの進捗を表示';
-$string['viewsingleupdate'] = 'このユーザーの進捗を更新';
+$string['viewsinglereport'] = 'このユーザの進捗を表示する';
+$string['viewsingleupdate'] = 'このユーザの進捗を更新する';
+$string['yesnooverride'] = 'はい、オーバーライドできない';
+$string['yesoverride'] = 'はい、オーバーライドできる';
 
 ?>
