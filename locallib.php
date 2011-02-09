@@ -104,12 +104,12 @@ class checklist_class {
 
         if ($this->items) {
             foreach ($this->items as $key=>$item) {
-                $this->items[$key]->checked = false;
+                $this->items[$item->id]->checked = false;
             }
         }
         if ($this->useritems) {
             foreach ($this->useritems as $key=>$item) {
-                $this->items[$key]->checked = false;
+                $this->useritems[$item->id]->checked = false;
             }
         }
 
