@@ -1,49 +1,10 @@
 <?php
 
-/*
-
-To make this work, you need to open up the following files:
-
-* moodle/lib/datalib.php
-Find the function 'add_to_log', then add these lines to the end of it:
-
-    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
-    checklist_autoupdate($courseid, $module, $action, $cm, $userid);
-
-* moodle/mod/quiz/lib.php
-Find the function 'quiz_grade_item_update', then add these lines just before the final 'return' line:
-
-    // Inserted to allow autoupdating items in checklist
-    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
-    checklist_autoupdate_score('quiz', $quiz->course, $quiz->id, $grades);
-    // Inserted to allow autoupdating items in checklist
-
-* moodle/mod/forum/lib.php
-Find the function 'forum_grade_item_update', then add these lines just before the final 'return' line:
-
-    // Inserted to allow autoupdating items in checklist
-    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
-    checklist_autoupdate_score('forum', $forum->course, $forum->id, $grades);
-    // Inserted to allow autoupdating items in checklist
-
-
-* moodle/mod/assignment/lib.php
-Find the function 'assignment_grade_item_update', then add these lines just before the final 'return' line:
-
-    // Inserted to allow autoupdating items in checklist
-    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
-    checklist_autoupdate_score('assignment', $assignment->courseid, $assignment->id, $grades);
-    // Inserted to allow autoupdating items in checklist
-
-
-WARNING: This will slow your Moodle site down very slightly.
-However, the difference is unlikely to be noticable.
-
-*/
-
 function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
     global $CFG;
 
+    echo "checking module: $module; action: $action";
+    
     if ($module == 'course') { return; }
     if ($module == 'user') { return;  }
     if ($module == 'role') { return;  }
@@ -58,6 +19,7 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
     if ($module == 'library') { return; }
     if ($module == 'upload') { return; }
 
+    echo 'passed first test';
     
     if (
         (($module == 'survey') && ($action == 'submit'))
@@ -81,10 +43,14 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
         || (($module == 'feedback') && ($action == 'submit'))
         ) {
 
+        echo 'something to update';
+
         $checklists = get_records_sql("SELECT * FROM {$CFG->prefix}checklist WHERE course = $courseid AND autoupdate > 0");
         if (!$checklists) {
             return;
         }
+
+        echo 'found checklists';
 
         // Find all checklist_item records which are related to these $checklists which have a moduleid matching $module
         // and do not have a related checklist_check record that is filled in
@@ -96,11 +62,14 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
             return;
         }
 
+        echo 'found items';
+
         $updategrades = false;
         foreach ($items as $item) {
             $updategrades = checklist_set_check($item->id, $userid, true) || $updategrades;
         }
         if ($updategrades) {
+            echo 'grades updated';
             require_once($CFG->dirroot.'/mod/checklist/lib.php');
             foreach ($checklists as $checklist) {
                 checklist_update_grades($checklist, $userid);

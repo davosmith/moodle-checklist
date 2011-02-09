@@ -373,7 +373,29 @@ function checklist_print_overview($courses, &$htmlarray) {
  * @todo Finish documenting this function
  **/
 function checklist_cron () {
-    return true;
+    global $CFG;
+
+    $lastcron = get_field('modules', 'lastcron', 'name', 'checklist');
+    if (!$lastcron) {
+        // First time run - checklists will take care of any updates before now
+        return true;
+    }
+
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    
+    $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
+    
+    $logs = get_logs("l.time >= $lastlogtime", 'l.time ASC', '', '', $totalcount);
+    if ($logs) {
+        foreach ($logs as $log) {
+            echo "\n";
+            checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid);
+        }
+    }
+
+    // Get all grade changes since last update
+    
+    return false;
 }
 
 
