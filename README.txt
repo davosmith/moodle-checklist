@@ -52,14 +52,9 @@ Find the function 'assignment_grade_item_update', then add these lines just befo
 WARNING: This will slow your Moodle site down very slightly.
 However, the difference is unlikely to be noticable.
 
-You then need to log in as an administrator and tick the 'Allow checklists to automatically update' option on the 'Administration/Modules/Activities/Checklist' page (this is to prevent users from being confused by the option not working when the above changes have not been made).
-
 You should also disable the cron updates, by changing the following line in 'mod/checklist/autoupdate.php' (it is at the top of the file):
-
 $CFG->checklist_autoupdate_use_cron = true;
-
 should be changed to:
-
 $CFG->checklist_autoupdate_use_cron = false;
 
 **Usage**
