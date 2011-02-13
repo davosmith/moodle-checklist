@@ -414,7 +414,7 @@ function checklist_cron () {
         mtrace("Updated $gradeupdate checkmark(s) from grade changes");
     }
     
-    return false;
+    return true;
 }
 
 
