@@ -3,24 +3,20 @@
 function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
     global $CFG;
 
-    echo "checking module: $module; action: $action";
-    
-    if ($module == 'course') { return; }
-    if ($module == 'user') { return;  }
-    if ($module == 'role') { return;  }
-    if ($module == 'notes') { return;  }
-    if ($module == 'calendar') { return; }
-    if ($module == 'message') { return; }
-    if ($module == 'admin/mnet') { return; }
-    if ($module == 'blog') { return; }
-    if ($module == 'tag') { return; }
-    if ($module == 'blocks/tag_youtube') { return; }
-    if ($module == 'login') { return; }
-    if ($module == 'library') { return; }
-    if ($module == 'upload') { return; }
+    if ($module == 'course') { return 0; }
+    if ($module == 'user') { return 0;  }
+    if ($module == 'role') { return 0;  }
+    if ($module == 'notes') { return 0;  }
+    if ($module == 'calendar') { return 0; }
+    if ($module == 'message') { return 0; }
+    if ($module == 'admin/mnet') { return 0; }
+    if ($module == 'blog') { return 0; }
+    if ($module == 'tag') { return 0; }
+    if ($module == 'blocks/tag_youtube') { return 0; }
+    if ($module == 'login') { return 0; }
+    if ($module == 'library') { return 0; }
+    if ($module == 'upload') { return 0; }
 
-    echo 'passed first test';
-    
     if (
         (($module == 'survey') && ($action == 'submit'))
         || (($module == 'quiz') && ($action == 'close attempt'))
@@ -43,14 +39,10 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
         || (($module == 'feedback') && ($action == 'submit'))
         ) {
 
-        echo 'something to update';
-
         $checklists = get_records_sql("SELECT * FROM {$CFG->prefix}checklist WHERE course = $courseid AND autoupdate > 0");
         if (!$checklists) {
-            return;
+            return 0;
         }
-
-        echo 'found checklists';
 
         // Find all checklist_item records which are related to these $checklists which have a moduleid matching $module
         // and do not have a related checklist_check record that is filled in
@@ -59,23 +51,25 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
         // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
         // not loading defines from mod/checklist/locallib.php to reduce overhead
         if (!$items) {
-            return;
+            return 0;
         }
 
-        echo 'found items';
-
-        $updategrades = false;
+        $updatecount = 0;
         foreach ($items as $item) {
-            $updategrades = checklist_set_check($item->id, $userid, true) || $updategrades;
+            if (checklist_set_check($item->id, $userid, true)) {
+                $updatecount++;
+            }
         }
-        if ($updategrades) {
-            echo 'grades updated';
+        if ($updatecount) {
             require_once($CFG->dirroot.'/mod/checklist/lib.php');
             foreach ($checklists as $checklist) {
                 checklist_update_grades($checklist, $userid);
             }
+            return $updatecount;
         }
     }
+
+    return 0;
 }
 
 function checklist_set_check($itemid, $userid, $set) {
@@ -116,12 +110,12 @@ function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
     global $CFG;
 
     if (!$grades) {
-        return;
+        return 0;
     }
 
     $checklists = get_records_sql("SELECT * FROM {$CFG->prefix}checklist WHERE course = $courseid AND autoupdate > 0 AND autopopulate > 0");
     if (!$checklists) {
-        return;
+        return 0;
     }
 
     $checklistids = '('.implode(',', array_keys($checklists)).')';
@@ -132,22 +126,24 @@ function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
     // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
     // not loading defines from mod/checklist/locallib.php to reduce overhead
     if (!$items) {
-        return;
+        return 0;
     }
 
     if (!is_array($grades)) {
         $grades = array($grades);
     }
 
-    $updategrades = false;
+    $updatecount = 0;
     foreach ($grades as $grade) {
         foreach ($items as $item) {
             $complete = $grade->rawgrade >= $item->complete_score;
-            $updategrades = checklist_set_check($item->id, $grade->userid, $complete) || $updategrades;
+            if (checklist_set_check($item->id, $grade->userid, $complete)) {
+                $updatecount++;
+            }
         }
     }
     
-    if ($updategrades) {
+    if ($updatecount) {
         require_once($CFG->dirroot.'/mod/checklist/lib.php');
         foreach ($checklists as $checklist) {
             foreach ($grades as $grade) {
@@ -155,6 +151,8 @@ function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
             }
         }
     }
+
+    return $updatecount;
 }
 
 ?>

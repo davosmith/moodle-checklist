@@ -385,15 +385,34 @@ function checklist_cron () {
     
     $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
     
+    $logupdate = 0;
     $logs = get_logs("l.time >= $lastlogtime", 'l.time ASC', '', '', $totalcount);
     if ($logs) {
         foreach ($logs as $log) {
-            echo "\n";
-            checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid);
+            $logupdate += checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid);
         }
     }
 
-    // Get all grade changes since last update
+    if ($logupdate) {
+        mtrace(" Updated $logupdate checkmark(s) from log changes");
+    }
+
+    $sql = 'SELECT g.id, i.itemmodule, i.courseid, i.iteminstance, g.rawgrade, g.userid ';
+    $sql .= "FROM {$CFG->prefix}grade_items i, {$CFG->prefix}grade_grades g ";
+    $sql .= "WHERE g.itemid = i.id AND g.timemodified >= $lastlogtime ";
+    $sql .= 'AND i.itemmodule IN ("quiz","assignment","forum")';
+
+    $gradeupdate = 0;
+    $grades = get_records_sql($sql);
+    if ($grades) {
+        foreach ($grades as $grade) {
+            $gradeupdate += checklist_autoupdate_score($grade->itemmodule, $grade->courseid, $grade->iteminstance, $grade);
+        }
+    }
+
+    if ($gradeupdate) {
+        mtrace("Updated $gradeupdate checkmark(s) from grade changes");
+    }
     
     return false;
 }
