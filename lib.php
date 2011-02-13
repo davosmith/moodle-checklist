@@ -382,6 +382,9 @@ function checklist_cron () {
     }
 
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    if (!$CFG->checklist_autoupdate_use_cron) {
+        return true;
+    }
     
     $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
     

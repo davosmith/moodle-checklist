@@ -14,8 +14,9 @@ Unzip the contents of file you downloaded to a temporary folder.
 Upload the files to the your moodle server, placing them in the 'moodle/mod/checklist' folder.
 Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
-IMPORTANT: If you want the 'Check-off modules when complete' option to work, then you need to make the following changes to the Moodle core code:
-To make this work, you need to open up the following files (for extra help with this, look in 'mod/checklist/core_modifications.txt'):
+IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds, between a student completing an activity and their checklist being updated.
+** If you are happy with this delay, then ignore all of these suggested changes below **
+If this is not acceptable, then you should make the following changes to the Moodle core code (for extra help with this, look in 'mod/checklist/core_modifications.txt'):
 
 * Open the file: moodle/lib/datalib.php
 Find the function 'add_to_log', then add these lines to the end of it:
@@ -53,6 +54,14 @@ However, the difference is unlikely to be noticable.
 
 You then need to log in as an administrator and tick the 'Allow checklists to automatically update' option on the 'Administration/Modules/Activities/Checklist' page (this is to prevent users from being confused by the option not working when the above changes have not been made).
 
+You should also disable the cron updates, by changing the following line in 'mod/checklist/autoupdate.php' (it is at the top of the file):
+
+$CFG->checklist_autoupdate_use_cron = true;
+
+should be changed to:
+
+$CFG->checklist_autoupdate_use_cron = false;
+
 **Usage**
 Click on 'Add an activity' and choose 'Checklist'.
 Enter all the usual information.
@@ -87,6 +96,6 @@ Download the latest version: http://download.moodle.org/download.php/plugins/mod
 Report a bug, or suggest an improvement: http://tracker.moodle.org/browse/CONTRIB/component/10608
 
 **Contact details**
-Any questions to:
-moodle@davosmith.co.uk
+Any questions, suggested improvements (or offers to pay for specific customisations) to:
+davo@davodev.co.uk
 

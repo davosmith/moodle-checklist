@@ -1,5 +1,7 @@
 <?php
 
+$CFG->checklist_autoupdate_use_cron = true;
+
 function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
     global $CFG;
 
