@@ -1,48 +1,25 @@
 <?php
 
-/*
-
-To make this work, you need to open up the following file:
-* moodle/lib/datalib.php
-
-Find the function 'add_to_log', then add these lines to the end of it:
-
-    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
-    checklist_autoupdate($courseid, $module, $action, $cm, $userid, $url);
-
-You also need to edit this file:
-* moodle/lib/completionlib.php
-
-Find the function 'update_state', then add these lines, just after the
-line '$this->internal_set_data($cm, $current);':
-
-    global $CFG;
-    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
-    checklist_completion_autoupdate($cm->id, $userid, $newstate);
-
-WARNING: This will slow your Moodle site down very slightly.
-However, the difference is unlikely to be noticable.
-
-*/
-
 defined('MOODLE_INTERNAL') || die();
+
+$CFG->checklist_autoupdate_use_cron = true;
 
 function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url) {
     global $CFG, $DB;
 
-    if ($module == 'course') { return; }
-    if ($module == 'user') { return;  }
-    if ($module == 'role') { return;  }
-    if ($module == 'notes') { return;  }
-    if ($module == 'calendar') { return; }
-    if ($module == 'message') { return; }
-    if ($module == 'admin/mnet') { return; }
-    if ($module == 'blog') { return; }
-    if ($module == 'tag') { return; }
-    if ($module == 'blocks/tag_youtube') { return; }
-    if ($module == 'login') { return; }
-    if ($module == 'library') { return; }
-    if ($module == 'upload') { return; }
+    if ($module == 'course') { return 0; }
+    if ($module == 'user') { return 0;  }
+    if ($module == 'role') { return 0;  }
+    if ($module == 'notes') { return 0;  }
+    if ($module == 'calendar') { return 0; }
+    if ($module == 'message') { return 0; }
+    if ($module == 'admin/mnet') { return 0; }
+    if ($module == 'blog') { return 0; }
+    if ($module == 'tag') { return 0; }
+    if ($module == 'blocks/tag_youtube') { return 0; }
+    if ($module == 'login') { return 0; }
+    if ($module == 'library') { return 0; }
+    if ($module == 'upload') { return 0; }
 
     if (
         (($module == 'survey') && ($action == 'submit'))
@@ -69,14 +46,14 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
         if ($cmid == 0) {
             $matches = array();
             if (!preg_match('/id=(\d+)/i', $url, $matches)) {
-                return;
+                return 0;
             }
             $cmid = $matches[1];
         }
 
         $checklists = $DB->get_records_select('checklist', 'course = ? AND autoupdate > 0', array($courseid));
         if (empty($checklists)) {
-            return;
+            return 0;
             // No checklists in this course that are auto-updating
         }
 
@@ -87,7 +64,7 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
             if ($coursecompletion) {
                 $cmcompletion = $DB->get_field('course_modules', 'completion', array('id'=>$cmid));
                 if ($cmcompletion) {
-                    return;
+                    return 0;
                 }
             }
         }
@@ -100,10 +77,10 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
         // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
         // not loading defines from mod/checklist/locallib.php to reduce overhead
         if (empty($items)) {
-            return;
+            return 0;
         }
 
-        $updategrades = false;
+        $updatecount = 0;
         foreach ($items as $item) {
             $check = $DB->get_record('checklist_check', array('item'=>$item->id, 'userid'=>$userid));
             if ($check) {
@@ -112,7 +89,7 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
                 }
                 $check->usertimestamp = time();
                 $DB->update_record('checklist_check', $check);
-                $updategrades = true;
+                $updatecount++;
             } else {
                 $check = new stdClass;
                 $check->item = $item->id;
@@ -122,16 +99,19 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
                 $check->teachermark = 0; // CHECKLIST_TEACHERMARK_UNDECIDED - not loading from mod/checklist/lib.php to reduce overhead
                     
                 $check->id = $DB->insert_record('checklist_check', $check);
-                $updategrades = true;
+                $updatecount++;
             }
         }
-        if ($updategrades) {
+        if ($updatecount) {
             require_once($CFG->dirroot.'/mod/checklist/lib.php');
             foreach ($checklists as $checklist) {
                 checklist_update_grades($checklist, $userid);
             }
+            return $updatecount;
         }
     }
+
+    return 0;
 }
 
 function checklist_completion_autoupdate($cmid, $userid, $newstate) {
@@ -146,9 +126,10 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
     // not loading defines from mod/checklist/locallib.php to reduce overhead
     if (empty($items)) {
-        return;
+        return 0;
     }
 
+    $updatecount = 0;
     $updatechecklists = array();
     foreach ($items as $item) {
         $check = $DB->get_record('checklist_check', array('item'=>$item->id, 'userid'=>$userid));
@@ -160,6 +141,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
                 $check->usertimestamp = time();
                 $DB->update_record('checklist_check', $check);
                 $updatechecklists[] = $item->checklist;
+                $updatecount++;
             } else {
                 if (!$check->usertimestamp) {
                     continue;
@@ -167,6 +149,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
                 $check->usertimestamp = 0;
                 $DB->update_record('checklist_check', $check);
                 $updatechecklists[] = $item->checklist;
+                $updatecount++;
             }
         } else {
             if (!$newstate) {
@@ -181,6 +164,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
                     
             $check->id = $DB->insert_record('checklist_check', $check);
             $updatechecklists[] = $item->checklist;
+            $updatecount++;
         }
     }
     if (!empty($updatechecklists)) {
@@ -192,6 +176,8 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
             checklist_update_grades($checklist, $userid);
         }
     }
+
+    return $updatecount;
 }
 
 ?>

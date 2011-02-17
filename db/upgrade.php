@@ -176,6 +176,19 @@ function xmldb_checklist_upgrade($oldversion=0) {
         upgrade_mod_savepoint($result, 2010113000, 'checklist');
     }
 
+    if ($result && $oldversion < 2011021600) {
+
+        // I really should not have to update the 'cron' field manually
+        $chkmod = $DB->get_record('modules', array('name' => 'checklist'));
+        if ($chkmod) {
+            $chkmod_upd = new stdClass;
+            $chkmod_upd->id = $chkmod->id;
+            $chkmod_upd->cron = 60;
+            $DB->update_record('modules', $chkmod_upd);
+        }
+        
+    }
+
     return $result;
 
 }

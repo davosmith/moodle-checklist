@@ -80,15 +80,13 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('autopopulate', 0);
         $mform->addHelpButton('autopopulate', 'autopopulate', 'checklist');
 
-        if ($CFG->checklist_auto_update) {
-            $autoupdate_options = array( CHECKLIST_AUTOUPDATE_NO => get_string('no'), 
-                                         CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'), 
-                                         CHECKLIST_AUTOUPDATE_YES_OVERRIDE => get_string('yesoverride', 'checklist'));
-            $mform->addElement('select', 'autoupdate', get_string('autoupdate', 'checklist'), $autoupdate_options);
-            $mform->setDefault('autoupdate', 1);
-            $mform->disabledIf('autoupdate', 'autopopulate', 'eq', 0);
-            $mform->addHelpButton('autoupdate', 'autoupdate', 'checklist');
-        }
+        $autoupdate_options = array( CHECKLIST_AUTOUPDATE_NO => get_string('no'), 
+                                     CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'), 
+                                     CHECKLIST_AUTOUPDATE_YES_OVERRIDE => get_string('yesoverride', 'checklist'));
+        $mform->addElement('select', 'autoupdate', get_string('autoupdate', 'checklist'), $autoupdate_options);
+        $mform->setDefault('autoupdate', 1);
+        $mform->disabledIf('autoupdate', 'autopopulate', 'eq', 0);
+        $mform->addHelpButton('autoupdate', 'autoupdate', 'checklist');
 
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules

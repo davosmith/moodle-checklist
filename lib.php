@@ -30,6 +30,7 @@ define("CHECKLIST_AUTOUPDATE_YES_OVERRIDE", 1);
 define("CHECKLIST_MAX_INDENT", 10);
 
 require_once(dirname(__FILE__).'/locallib.php');
+require_once($CFG->libdir.'/completionlib.php');
 
 /**
  * Given an object containing all the necessary data,
@@ -376,7 +377,48 @@ function checklist_print_overview($courses, &$htmlarray) {
  * @todo Finish documenting this function
  **/
 function checklist_cron () {
-    return true;
+    global $CFG, $DB;
+    
+    $lastcron = $DB->get_field('modules', 'lastcron', array('name' => 'checklist'));
+    if (!$lastcron) {
+        // First time run - checklists will take care of any updates before now
+        return true;
+    }
+
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    if (!$CFG->checklist_autoupdate_use_cron) {
+        return true;
+    }
+    
+    $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
+    
+    // Process all logs since the last cron update
+    $logupdate = 0;
+    $totalcount = 0;
+    $logs = get_logs("l.time >= ?", array($lastlogtime), 'l.time ASC', '', '', $totalcount);
+    if ($logs) {
+        foreach ($logs as $log) {
+            $logupdate += checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid, $log->url);
+        }
+    }
+
+    if ($logupdate) {
+        mtrace(" Updated $logupdate checkmark(s) from log changes");
+    }
+
+    // Process all the completion changes since the last cron update
+    // Need the cmid, userid and newstate
+    $completionupdate = 0;
+    $completions = $DB->get_records_select('course_modules_completion', 'timemodified > ?', array($lastlogtime));
+    foreach ($completions as $completion) {
+        $completionupdate += checklist_completion_autoupdate($completion->coursemoduleid, $completion->userid, $completion->completionstate);
+    }
+
+    if ($completionupdate) {
+        mtrace(" Updated $completionupdate checkmark(s) from completion changes");
+    }
+    
+    return false;
 }
 
 
