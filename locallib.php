@@ -151,8 +151,14 @@ class checklist_class {
         $section = 1;
         $changes = false;
         reset($this->items);
-        
-        while (array_key_exists($section, $mods->sections)) {
+
+
+        while ($section <=  $this->course->numsections) {
+            if (!array_key_exists($section, $mods->sections)) {
+                $section++;
+                continue;
+            }
+            
             $sectionheading = 0;
             while (list($itemid, $item) = each($this->items)) {
                 // Search from current position
@@ -182,7 +188,7 @@ class checklist_class {
             $this->items[$sectionheading]->stillexists = true;
             
             if ($this->items[$sectionheading]->position < $nextpos) {
-                $this->moveitemto($sectionheading, $nextpos);
+                $this->moveitemto($sectionheading, $nextpos, true);
                 reset($this->items);
             }
             $nextpos = $this->items[$sectionheading]->position + 1;
@@ -222,7 +228,7 @@ class checklist_class {
                     $item->stillexists = true;
                     if ($item->position != $nextpos) {
                         //echo 'reposition '.$item->displaytext.' => '.$nextpos.'<br/>';
-                        $this->moveitemto($item->id, $nextpos);
+                        $this->moveitemto($item->id, $nextpos, true);
                         reset($this->items);
                     }
                     if ($item->displaytext != $modname) {
@@ -246,7 +252,7 @@ class checklist_class {
             foreach($this->items as $item) {
                 if ($item->moduleid && !isset($item->stillexists)) {
                     //echo '---deleting item '.$item->displaytext.'<br/>';
-                    $this->deleteitem($item->id);
+                    $this->deleteitem($item->id, true);
                 }
             }
         }
@@ -1777,7 +1783,8 @@ class checklist_class {
                 return false;
             }
         } else {
-            if (!$this->canedit()) {
+            if (!$moduleid && !$this->canedit()) {
+                // $moduleid entries are added automatically, if the activity exists; ignore canedit check
                 return false;
             }
         }
@@ -1800,6 +1807,7 @@ class checklist_class {
         $item->eventid = 0;
         $item->colour = 'black';
         $item->moduleid = $moduleid;
+        $item->checked = false;
 
         $item->id = $DB->insert_record('checklist_item', $item);
         if ($item->id) {
@@ -1984,11 +1992,11 @@ class checklist_class {
         }
     }
 
-    function deleteitem($itemid) {
+    function deleteitem($itemid, $forcedelete=false) {
         global $DB;
         
         if (isset($this->items[$itemid])) {
-            if (!$this->canedit()) {
+            if (!$forcedelete && !$this->canedit()) {
                 return;
             }
             $this->setevent($itemid, false); // Remove any calendar events
@@ -2009,7 +2017,7 @@ class checklist_class {
         $this->update_item_positions();
     }
 
-    function moveitemto($itemid, $newposition) {
+    function moveitemto($itemid, $newposition, $forceupdate=false) {
         global $DB;
         
         if (!isset($this->items[$itemid])) {
@@ -2025,7 +2033,7 @@ class checklist_class {
             return;
         }
 
-        if (!$this->canedit()) {
+        if (!$forceupdate && !$this->canedit()) {
             return;
         }
 
