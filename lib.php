@@ -418,7 +418,7 @@ function checklist_cron () {
         mtrace(" Updated $completionupdate checkmark(s) from completion changes");
     }
     
-    return false;
+    return true;
 }
 
 
