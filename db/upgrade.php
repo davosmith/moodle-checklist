@@ -189,6 +189,28 @@ function xmldb_checklist_upgrade($oldversion=0) {
         
     }
 
+    if ($result && $oldversion < 2011021900) {
+        $table = new xmldb_table('checklist_item');
+        $field = new xmldb_field('hidden', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Switch alll 'hidden headings' to being headings & hidden
+        $sql = 'UPDATE {checklist_item} ';
+        $sql .= 'SET hidden=1, itemoptional=2 ';
+        $sql .= 'WHERE itemoptional=4';
+        $DB->execute($sql);
+
+        // Switch all 'hidden items' to being required items & hidden
+        $sql = 'UPDATE {checklist_item} ';
+        $sql .= 'SET hidden=1, itemoptional=0 ';
+        $sql .= 'WHERE itemoptional=3';
+        $DB->execute($sql);
+
+        upgrade_mod_savepoint($result, 2011021900, 'checklist');
+    }
+
     return $result;
 
 }

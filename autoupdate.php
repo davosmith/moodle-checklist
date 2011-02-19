@@ -74,7 +74,7 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
         list($csql, $cparams) = $DB->get_in_or_equal(array_keys($checklists));
         $params = array_merge($cparams, array($cmid));
         $items = $DB->get_records_select('checklist_item', "checklist $csql AND moduleid = ? AND itemoptional < 2", $params);
-        // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
+        // itemoptional - 0: required; 1: optional; 2: heading; 
         // not loading defines from mod/checklist/locallib.php to reduce overhead
         if (empty($items)) {
             return 0;
@@ -123,7 +123,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
 
     $items = $DB->get_records_sql('SELECT i.* FROM {checklist_item} i JOIN {checklist} c ON i.checklist = c.id 
               WHERE c.autoupdate > 0 AND i.moduleid = ? AND i.itemoptional < 2', array($cmid));
-    // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
+    // itemoptional - 0: required; 1: optional; 2: heading; 
     // not loading defines from mod/checklist/locallib.php to reduce overhead
     if (empty($items)) {
         return 0;

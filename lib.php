@@ -253,7 +253,7 @@ function checklist_grade_item_update($checklist, $grades=NULL) {
 function checklist_user_outline($course, $user, $mod, $checklist) {
     global $DB;
 
-    $items = $DB->get_records('checklist_item',array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => 0), '', 'id');
+    $items = $DB->get_records('checklist_item',array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => CHECKLIST_OPTIONAL_NO), '', 'id');
     if (!$items) {
         return null;
     }

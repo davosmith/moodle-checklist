@@ -53,6 +53,14 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
                 return;
             }
         }
+        // Update to new data structure, where 'hidden' status is stored in separate field
+        if ($data->itemoptional == 3) {
+            $data->itemoptional = 0;
+            $data->hidden = 1;
+        } elseif ($data->itemoptional == 4) {
+            $data->itemoptional = 2;
+            $data->hidden = 1;
+        }
 
         $newid = $DB->insert_record('checklist_item', $data);
         $this->set_mapping('checklist_item', $oldid, $newid);

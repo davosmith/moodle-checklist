@@ -14,8 +14,12 @@ define("CHECKLIST_TEXT_INPUT_WIDTH", 45);
 define("CHECKLIST_OPTIONAL_NO", 0);
 define("CHECKLIST_OPTIONAL_YES", 1);
 define("CHECKLIST_OPTIONAL_HEADING", 2);
-define("CHECKLIST_OPTIONAL_DISABLED", 3);
-define("CHECKLIST_OPTIONAL_HEADING_DISABLED", 4);
+//define("CHECKLIST_OPTIONAL_DISABLED", 3);  // Removed as new 'hidden' field added
+//define("CHECKLIST_OPTIONAL_HEADING_DISABLED", 4);
+
+define("CHECKLIST_HIDDEN_NO", 0);
+define("CHECKLIST_HIDDEN_MANUAL", 1);
+define("CHECKLIST_HIDDEN_BYMODULE", 2);
 
 class checklist_class {
     var $cm;
@@ -127,6 +131,8 @@ class checklist_class {
      *
      */
     function update_items_from_course() {
+        global $DB;
+
         $mods = get_fast_modinfo($this->course);
 
         $nextpos = 1;
@@ -144,7 +150,7 @@ class checklist_class {
             $sectionheading = 0;
             while (list($itemid, $item) = each($this->items)) {
                 // Search from current position
-                if (($item->moduleid == $section) && (($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)||($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED))) {
+                if (($item->moduleid == $section) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
                     $sectionheading = $itemid;
                     break;
                 }
@@ -153,7 +159,7 @@ class checklist_class {
             if (!$sectionheading) {
                 // Search again from the start
                 foreach ($this->items as $item) {
-                    if (($item->moduleid == $section) && (($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)||($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED))) {
+                    if (($item->moduleid == $section) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
                         $sectionheading = $itemid;
                         break;
                     }
@@ -186,7 +192,7 @@ class checklist_class {
                 $foundit = false;
                 while(list($itemid, $item) = each($this->items)) {
                     // Search list from current position (will usually be the next item)
-                    if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                    if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
                         $foundit = $item;
                         break;
                     }
@@ -198,7 +204,7 @@ class checklist_class {
                 if (!$foundit) {
                     // Search list again from the start (just in case)
                     foreach($this->items as $item) {
-                        if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                        if (($item->moduleid == $cmid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
                             $foundit = $item;
                             break;
                         }
@@ -215,6 +221,21 @@ class checklist_class {
                     }
                     if ($item->displaytext != $modname) {
                         $this->updateitemtext($item->id, $modname);
+                    }
+                    if (($item->hidden == CHECKLIST_HIDDEN_BYMODULE) && $mods->cms[$cmid]->visible) {
+                        // Course module was hidden and now is not
+                        $item->hidden = CHECKLIST_HIDDEN_NO;
+                        $upd = new stdClass;
+                        $upd->id = $item->id;
+                        $upd->hidden = $item->hidden;
+                        $DB->update_record('checklist_item', $upd);
+                    } elseif (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->cms[$cmid]->visible) {
+                        // Course module is now hidden
+                        $item->hidden = CHECKLIST_HIDDEN_BYMODULE;
+                        $upd = new stdClass;
+                        $upd->id = $item->id;
+                        $upd->hidden = $item->hidden;
+                        $DB->update_record('checklist_item', $upd);
                     }
                 } else {
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
@@ -499,7 +520,7 @@ class checklist_class {
         $allcompleteitems = 0;
         
         foreach ($this->items as $item) {
-            if (($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)||($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED)||($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) { 
+            if (($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)||($item->hidden)) {
                 continue;
             }
             if ($item->itemoptional == CHECKLIST_OPTIONAL_NO) {
@@ -688,7 +709,7 @@ class checklist_class {
             $currindent = 0;
             foreach ($this->items as $item) {
 
-                if (($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) || ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                if ($item->hidden) {
                     continue;
                 }
                 
@@ -1064,23 +1085,25 @@ class checklist_class {
                     echo '<img src="'.$OUTPUT->pix_url('empty_box','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional '.$itemcolour.$autoclass.'" ';
                 } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                    $title = '"'.get_string('headingitem','checklist').'"';
-                    if (!$autoitem) {
-                        echo '<a href="'.$thispage->out(true, array('action'=>'makerequired')).'">';
+                    if ($item->hidden) {
+                        $title = '"'.get_string('headingitem','checklist').'"';
+                        echo '<img src="'.$OUTPUT->pix_url('no_box','checklist').'" alt='.$title.' title='.$title.' />&nbsp;';
+                        $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
+                    } else {
+                        $title = '"'.get_string('headingitem','checklist').'"';
+                        if (!$autoitem) {
+                            echo '<a href="'.$thispage->out(true, array('action'=>'makerequired')).'">';
+                        }
+                        echo '<img src="'.$OUTPUT->pix_url('no_box','checklist').'" alt='.$title.' title='.$title.' />';
+                        if (!$autoitem) {
+                            echo '</a>';
+                        }
+                        echo '&nbsp;';
+                        $optional = ' class="itemheading '.$itemcolour.$autoclass.'" ';
                     }
-                    echo '<img src="'.$OUTPUT->pix_url('no_box','checklist').'" alt='.$title.' title='.$title.' />';
-                    if (!$autoitem) {
-                        echo '</a>';
-                    }
-                    echo '&nbsp;';
-                    $optional = ' class="itemheading '.$itemcolour.$autoclass.'" ';
-                } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) {
+                } elseif ($item->hidden) {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('tick_box','checklist').'" alt='.$title.' title='.$title.' />&nbsp;';
-                    $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
-                } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED) {
-                    $title = '"'.get_string('headingitem','checklist').'"';
-                    echo '<img src="'.$OUTPUT->pix_url('no_box','checklist').'" alt='.$title.' title='.$title.' />&nbsp;';
                     $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
                 } else {
                     $title = '"'.get_string('requireditem','checklist').'"';
@@ -1151,12 +1174,14 @@ class checklist_class {
 
                     if ($autoitem) {
                         echo '&nbsp;<a href="'.$thispage->out(true, array('action'=>'deleteitem')).'">';
-                        if (($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) || ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
-                            $title = '"'.get_string('show').'"';
-                            echo '<img src="'.$OUTPUT->pix_url('/t/show').'" alt='.$title.' title='.$title.' /></a>';
-                        } else {
-                            $title = '"'.get_string('hide').'"';
-                            echo '<img src="'.$OUTPUT->pix_url('/t/hide').'" alt='.$title.' title='.$title.' /></a>';
+                        if ($item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
+                            if ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
+                                $title = '"'.get_string('show').'"';
+                                echo '<img src="'.$OUTPUT->pix_url('/t/show').'" alt='.$title.' title='.$title.' /></a>';
+                            } else {
+                                $title = '"'.get_string('hide').'"';
+                                echo '<img src="'.$OUTPUT->pix_url('/t/hide').'" alt='.$title.' title='.$title.' /></a>';
+                            }
                         }
                     } else {
                         echo '&nbsp;<a href="'.$thispage->out(true, array('action'=>'deleteitem')).'">';
@@ -1324,15 +1349,19 @@ class checklist_class {
                 if ($this->showoptional) {
                     $itemstocount = array();
                     foreach ($this->items as $item) {
-                        if (($item->itemoptional == CHECKLIST_OPTIONAL_YES) || ($item->itemoptional == CHECKLIST_OPTIONAL_NO)) {
-                            $itemstocount[] = $item->id;
+                        if (!$item->hidden) {
+                            if (($item->itemoptional == CHECKLIST_OPTIONAL_YES) || ($item->itemoptional == CHECKLIST_OPTIONAL_NO)) {
+                                $itemstocount[] = $item->id;
+                            }
                         }
                     }
                 } else {
                     $itemstocount = array();
                     foreach ($this->items as $item) {
-                        if ($item->itemoptional == CHECKLIST_OPTIONAL_NO) {
-                            $itemstocount[] = $item->id;
+                        if (!$item->hidden) {
+                            if ($item->itemoptional == CHECKLIST_OPTIONAL_NO) {
+                                $itemstocount[] = $item->id;
+                            }
                         }
                     }
                 }
@@ -1405,7 +1434,7 @@ class checklist_class {
             $table->size = array('100px');
             $table->skip = array(false);
             foreach ($this->items as $item) {
-                if (($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) || ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                if ($item->hidden) {
                     continue;
                 }
                 
@@ -1428,12 +1457,12 @@ class checklist_class {
 
                     $row[] = $userlink.$vslink;
 
-                    $sql = 'SELECT i.id, i.itemoptional, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
+                    $sql = 'SELECT i.id, i.itemoptional, i.hidden, c.usertimestamp, c.teachermark FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
                     $sql .= 'ON (i.id = c.item AND c.userid = ? ) WHERE i.checklist = ? AND i.userid=0 ORDER BY i.position';
                     $checks = $DB->get_records_sql($sql, array($auser->id, $this->checklist->id) );
 
                     foreach ($checks as $check) {
-                        if (($check->itemoptional == CHECKLIST_OPTIONAL_DISABLED) || ($check->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                        if ($check->hidden) {
                             continue;
                         }
                 
@@ -1752,7 +1781,7 @@ class checklist_class {
         }
     }
 
-    function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false, $moduleid=0, $optional=CHECKLIST_OPTIONAL_NO) {
+    function additem($displaytext, $userid=0, $indent=0, $position=false, $duetime=false, $moduleid=0, $optional=CHECKLIST_OPTIONAL_NO, $hidden=CHECKLIST_HIDDEN_NO) {
         global $DB;
         
         $displaytext = trim($displaytext);
@@ -1782,6 +1811,7 @@ class checklist_class {
         $item->indent = $indent;
         $item->userid = $userid;
         $item->itemoptional = $optional;
+        $item->hidden = $hidden;
         $item->duetime = 0;
         if ($duetime) {
             $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
@@ -1915,59 +1945,58 @@ class checklist_class {
             }
 
             $item = $this->items[$itemid];
-            if ($item->itemoptional == CHECKLIST_OPTIONAL_DISABLED) {
-                $item->itemoptional = CHECKLIST_OPTIONAL_NO;
-            } elseif (($item->itemoptional == CHECKLIST_OPTIONAL_YES)||($item->itemoptional == CHECKLIST_OPTIONAL_NO)) {
-                $item->itemoptional = CHECKLIST_OPTIONAL_DISABLED;
-            } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED) {
-                $item->itemoptional = CHECKLIST_OPTIONAL_HEADING;
-            } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                $item->itemoptional = CHECKLIST_OPTIONAL_HEADING_DISABLED;
+            if ($item->hidden == CHECKLIST_HIDDEN_NO) {
+                $item->hidden = CHECKLIST_HIDDEN_MANUAL;
+            } elseif ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
+                $item->hidden = CHECKLIST_HIDDEN_NO;
             }
             
             $upditem = new stdClass;
             $upditem->id = $itemid;
-            $upditem->itemoptional = $item->itemoptional;
+            $upditem->hidden = $item->hidden;
             $DB->update_record('checklist_item', $upditem);
 
             // If the item is a section heading, then show/hide all items in that section
             if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                foreach ($this->items as $it) {
-                    if ($it->position <= $item->position) {
-                        continue;
+                if ($item->hidden) {
+                    foreach ($this->items as $it) {
+                        if ($it->position <= $item->position) {
+                            continue;
+                        }
+                        if ($it->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+                            break;
+                        }
+                        if (!$it->moduleid) {
+                            continue;
+                        }
+                        if ($it->hidden == CHECKLIST_HIDDEN_NO) {
+                            $it->hidden = CHECKLIST_HIDDEN_MANUAL;
+                            $upditem = new stdClass;
+                            $upditem->id = $it->id;
+                            $upditem->hidden = $it->hidden;
+                            $DB->update_record('checklist_item', $upditem);
+                        }
                     }
-                    if (($it->itemoptional == CHECKLIST_OPTIONAL_HEADING) || ($it->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
-                        break;
-                    }
-                    if (!$it->moduleid) {
-                        continue;
-                    }
-                    if ($it->itemoptional == CHECKLIST_OPTIONAL_DISABLED) {
-                        $it->itemoptional = CHECKLIST_OPTIONAL_NO;
-                        $upditem = new stdClass;
-                        $upditem->id = $it->id;
-                        $upditem->itemoptional = $it->itemoptional;
-                        $DB->update_record('checklist_item', $upditem);
-                    }
-                }
 
-            } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED) {
-                foreach ($this->items as $it) {
-                    if ($it->position <= $item->position) {
-                        continue;
-                    }
-                    if (($it->itemoptional == CHECKLIST_OPTIONAL_HEADING) || ($it->itemoptional == CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
-                        break;
-                    }
-                    if (!$it->moduleid) {
-                        continue;
-                    }
-                    if (($it->itemoptional == CHECKLIST_OPTIONAL_YES) || ($it->itemoptional == CHECKLIST_OPTIONAL_NO)) {
-                        $it->itemoptional = CHECKLIST_OPTIONAL_DISABLED;
-                        $upditem = new stdClass;
-                        $upditem->id = $it->id;
-                        $upditem->itemoptional = $it->itemoptional;
-                        $DB->update_record('checklist_item', $upditem);
+                } else {
+
+                    foreach ($this->items as $it) {
+                        if ($it->position <= $item->position) {
+                            continue;
+                        }
+                        if ($it->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+                            break;
+                        }
+                        if (!$it->moduleid) {
+                            continue;
+                        }
+                        if ($it->hidden == CHECKLIST_HIDDEN_MANUAL) {
+                            $it->hidden = CHECKLIST_HIDDEN_NO;
+                            $upditem = new stdClass;
+                            $upditem->id = $it->id;
+                            $upditem->hidden = $it->hidden;
+                            $DB->update_record('checklist_item', $upditem);
+                        }
                     }
                 }
             }
@@ -2139,21 +2168,21 @@ class checklist_class {
         }
 
         if ($heading) {
-            $optional = 2;
+            $optional = CHECKLIST_OPTIONAL_HEADING;
         } elseif ($optional) {
-            $optional = 1;
+            $optional = CHECKLIST_OPTIONAL_YES;
         } else {
-            $optional = 0;
+            $optional = CHECKLIST_OPTIONAL_NO;
         }
 
         if ($this->items[$itemid]->moduleid) {
             $op = $this->items[$itemid]->itemoptional;
-            if (($op == CHECKLIST_OPTIONAL_HEADING)||($op == CHECKLIST_OPTIONAL_HEADING_DISABLED)||($op == CHECKLIST_OPTIONAL_DISABLED)) {
-                return; // Topic headings must stay as headings (and disabled items should not change either)
+            if ($op == CHECKLIST_OPTIONAL_HEADING) {
+                return; // Topic headings must stay as headings
             } elseif ($this->items[$itemid]->itemoptional == CHECKLIST_OPTIONAL_YES) {
-                $optional = 0; // Module links cannot become headings
+                $optional = CHECKLIST_OPTIONAL_NO; // Module links cannot become headings
             } else {
-                $optional = 1;
+                $optional = CHECKLIST_OPTIONAL_YES;
             }
         }
 
