@@ -121,24 +121,6 @@ class checklist_class {
         }
     }
 
-    function get_itemid_from_moduleid($moduleid) {
-        foreach ($this->items as $item) {
-            if (($item->moduleid == $moduleid) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING)) {
-                return $item->id;
-            }
-        }
-        return false;
-    }
-
-    function get_itemid_from_sectionid($sectionid) {
-        foreach ($this->items as $item) {
-            if (($item->moduleid == $sectionid) && ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)) {
-                return $item->id;
-            }
-        }
-        return false;
-    }
-
     /**
      * Loop through all activities / resources in course and check they
      * are in the current checklist (in the right order)
