@@ -137,6 +137,23 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $result = $result && add_field($table, $field);
     }
 
+    if ($result && $oldversion < 2011021900) {
+        $table = new XMLDBTable('checklist_item');
+        $field = new XMLDBField('hidden');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', 'complete_score');
+        $result = $result && add_field($table, $field);
+
+        $sql = "UPDATE {$CFG->prefix}checklist_item ";
+        $sql .= 'SET hidden=1, itemoptional=2 ';
+        $sql .= 'WHERE itemoptional=4';
+        $result = $result && execute_sql($sql);
+
+        $sql = "UPDATE {$CFG->prefix}checklist_item ";
+        $sql .= 'SET hidden=1, itemoptional=0 ';
+        $sql .= 'WHERE itemoptional=3';
+        $result = $result && execute_sql($sql);
+    }
+
     return $result;
 
 }

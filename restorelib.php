@@ -140,6 +140,8 @@ require_once(dirname(__FILE__).'/locallib.php');
             $item->eventid = 0;
             $item->colour = backup_todb_chk_optional_field($i_info,'COLOUR', 'black');
             $item->moduleid = backup_todb_chk_optional_field($i_info,'MODULEID', 0);
+            $item->complete_score = backup_todb_chk_optional_field($i_info,'COMPLETE_SCORE', 0);
+            $item->hidden = backup_todb_chk_optional_field($i_info,'HIDDEN', 0);
             
             if ($item->userid > 0) {
                 // Ignore user-created items if not restoring userdata
@@ -160,9 +162,21 @@ require_once(dirname(__FILE__).'/locallib.php');
                     $item->moduleid = backup_getid($restore->backup_unique_code,'course_modules',$item->moduleid);
                     if ($item->moduleid) {
                         $item->moduleid = $item->moduleid->new_id;
+                    } else {
+                        // We've tried our best, but now it's time to skip this entry (it will be automatically recreated when the checklist is next viewed)
+                        continue;
                     }
-                    // Otherwise we'll just have to leave it blank (not sure what else I can do)
                 }
+            }
+
+            if ($item->itemoptional == 3) {
+                // Was required & hidden - now split across 2 fields
+                $item->itemoptional = 0;
+                $item->hidden = 1;
+            } elseif ($item->itemoptional == 4) {
+                // What heading & hidden - now split across 2 fields
+                $item->itemoptional = 2;
+                $item->hidden = 1;
             }
 
             //The structure is equal to the db, so insert the checklist_item

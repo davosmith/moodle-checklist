@@ -50,7 +50,7 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
         // and do not have a related checklist_check record that is filled in
         $checklistids = '('.implode(',', array_keys($checklists)).')';
         $items = get_records_sql("SELECT * FROM {$CFG->prefix}checklist_item i WHERE i.checklist IN {$checklistids} AND i.moduleid = $cm AND i.itemoptional < 2 AND i.complete_score = 0");
-        // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
+        // itemoptional - 0: required; 1: optional; 2: heading;
         // not loading defines from mod/checklist/locallib.php to reduce overhead
         if (!$items) {
             return 0;
@@ -125,7 +125,7 @@ function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
     $cm = get_coursemodule_from_instance($modname, $instanceid, $courseid);
     $sql = "SELECT * FROM {$CFG->prefix}checklist_item i WHERE i.checklist IN {$checklistids} AND i.moduleid = {$cm->id} AND i.itemoptional < 2 AND i.complete_score > 0";
     $items = get_records_sql($sql);
-    // itemoptional - 0: required; 1: optional; 2: heading; 3: disabled; 4: disabled heading
+    // itemoptional - 0: required; 1: optional; 2: heading; 
     // not loading defines from mod/checklist/locallib.php to reduce overhead
     if (!$items) {
         return 0;

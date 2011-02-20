@@ -135,6 +135,8 @@
                 if ($status) $status = fwrite ($bf, full_tag("DUETIME",6,false,$item->duetime));
                 if ($status) $status = fwrite ($bf, full_tag("COLOUR",6,false,$item->colour));
                 if ($status) $status = fwrite ($bf, full_tag("MODULEID",6,false,$item->moduleid)); // Will need to be careful when restoring this
+                if ($status) $status = fwrite ($bf, full_tag("COMPLETE_SCORE",6,false,$item->complete_score));
+                if ($status) $status = fwrite ($bf, full_tag("HIDDEN",6,false,$item->hidden));
 				
                 if ($userbackup) {
                     if ($status) $status = backup_checklist_checks($bf, $preferences, $item->id);
