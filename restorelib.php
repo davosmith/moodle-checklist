@@ -158,7 +158,7 @@ require_once(dirname(__FILE__).'/locallib.php');
             }
 
             if ($item->moduleid > 0) {
-                if (($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) && ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING_DISABLED)) {
+                if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
                     $item->moduleid = backup_getid($restore->backup_unique_code,'course_modules',$item->moduleid);
                     if ($item->moduleid) {
                         $item->moduleid = $item->moduleid->new_id;

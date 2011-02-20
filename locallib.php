@@ -2016,7 +2016,7 @@ class checklist_class {
 
             if ($this->items[$itemid]->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                 $headpos = $this->items[$itemid]->position;
-                if ($item->hidden) {
+                if ($this->items[$itemid]->hidden) {
                     foreach ($this->items as $key=>$it) {
                         if ($it->position <= $headpos) {
                             continue;
