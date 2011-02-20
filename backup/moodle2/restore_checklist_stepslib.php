@@ -44,15 +44,6 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         if ($data->userid > 0) {
             $data->userid = $this->get_mappingid('user', $data->userid);
         }
-        if ($data->moduleid > 0) {
-            $data->moduleid = $this->get_mappingid('course_modules', $data->moduleid);
-            // If this does not work, I'm not sure how to handle this case
-            // Probably best to skip the item, then let it get properly recreated when
-            // the checklist is next edited
-            if (!$data->moduleid) {
-                return;
-            }
-        }
         // Update to new data structure, where 'hidden' status is stored in separate field
         if ($data->itemoptional == 3) {
             $data->itemoptional = 0;
@@ -62,6 +53,15 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
             $data->hidden = 1;
         }
 
+        if (($data->moduleid > 0) && ($data->itemoptional < 2)) { // Do not match up headings with modules
+            $data->moduleid = $this->get_mappingid('course_modules', $data->moduleid);
+            // If this does not work, I'm not sure how to handle this case
+            // Probably best to skip the item, then let it get properly recreated when
+            // the checklist is next edited
+            if (!$data->moduleid) {
+                return;
+            }
+        }
         $newid = $DB->insert_record('checklist_item', $data);
         $this->set_mapping('checklist_item', $oldid, $newid);
     }
