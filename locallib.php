@@ -239,7 +239,8 @@ class checklist_class {
                     }
                 } else {
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
-                    $itemid = $this->additem($modname, 0, 0, $nextpos, false, $cmid);
+                    $hidden = $mods->cms[$cmid]->visible ? CHECKLIST_HIDDEN_NO : CHECKLIST_HIDDEN_BYMODULE;
+                    $itemid = $this->additem($modname, 0, 0, $nextpos, false, $cmid, CHECKLIST_OPTIONAL_NO, $hidden);
                     $changes = true;
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
