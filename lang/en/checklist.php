@@ -77,6 +77,8 @@ $string['indentitem'] = 'Indent item';
 $string['itemcomplete'] = 'Completed';
 $string['items'] = 'Checklist items';
 
+$string['linktomodule'] = 'Link to this module';
+
 $string['modulename'] = 'Checklist';
 $string['modulenameplural'] = 'Checklists';
 

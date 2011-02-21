@@ -134,7 +134,7 @@ class checklist_class {
         global $DB;
 
         $mods = get_fast_modinfo($this->course);
-
+        
         $nextpos = 1;
         $section = 1;
         $changes = false;
@@ -237,6 +237,7 @@ class checklist_class {
                         $upd->hidden = $item->hidden;
                         $DB->update_record('checklist_item', $upd);
                     }
+                    $item->modulelink = new moodle_url('/mod/'.$mods->cms[$cmid]->modname.'/view.php', array('id' => $cmid));
                 } else {
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
                     $hidden = $mods->cms[$cmid]->visible ? CHECKLIST_HIDDEN_NO : CHECKLIST_HIDDEN_BYMODULE;
@@ -784,6 +785,9 @@ class checklist_class {
                     }
                 }
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
+                if (isset($item->modulelink)) {
+                    echo '&nbsp;<a href="'.$item->modulelink.'"><img src="'.$OUTPUT->pix_url('follow_link','checklist').'" alt="'.get_string('linktomodule','checklist').'" /></a>';
+                }
 
                 if ($addown) {
                     echo '&nbsp;<a href="'.$thispage->out(true, array('itemid'=>$item->id, 'sesskey'=>sesskey(), 'action'=>'startadditem') ).'">';
