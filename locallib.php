@@ -147,6 +147,8 @@ class checklist_class {
      *
      */
     function update_items_from_course() {
+        global $CFG;
+        
         $mods = get_fast_modinfo($this->course);
 
         $changes = false;
@@ -274,6 +276,8 @@ class checklist_class {
                     $this->items[$itemid]->showscore = $showscore;
                     $this->items[$itemid]->checked = false;
                 }
+                $this->items[$itemid]->modulelink = $CFG->wwwroot.'/mod/'.$mods->cms[$cmid]->modname.'/view.php?id='.$cmid;
+                
                 $nextpos++;
             }
 
@@ -827,6 +831,11 @@ class checklist_class {
                     }
                 }
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
+
+                if (isset($item->modulelink)) {
+                    $imgurl = $CFG->wwwroot.'/mod/checklist/images/follow_link.png';
+                    echo '&nbsp;<a href="'.$item->modulelink.'"><img src="'.$imgurl.'" alt="'.get_string('linktomodule','checklist').'" /></a>';
+                }                    
 
                 if ($addown) {
                     $baseurl = $thispage.'&amp;itemid='.$item->id.'&amp;sesskey='.sesskey().'&amp;action=';
