@@ -2318,7 +2318,7 @@ class checklist_class {
 
         $updategrades = false;
         if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
-            if (!$student = get_record('user', 'id', $this->userid)) {
+            if (!$student = $DB->get_record('user', array('id' => $this->userid))) {
                 error('No such user!');
             }
             $info = $this->checklist->name.' ('.fullname($student, true).')';
