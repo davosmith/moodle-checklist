@@ -11,16 +11,19 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
+global $DB;
+
 $id = required_param('id', PARAM_INT);   // course
 
-if (! $course = get_record('course', 'id', $id)) {
+if (! $course = $DB->get_record('course', array('id' => $id) )) {
     error('Course ID is incorrect');
 }
 
+$PAGE->set_url('/mod/checklist/index.php',array('id'=>$course->id));
 require_course_login($course);
+$PAGE->set_pagelayout('incourse');
 
 add_to_log($course->id, 'checklist', 'view all', "index.php?id=$course->id", '');
-
 
 /// Get all required stringsnewmodule
 
@@ -30,11 +33,9 @@ $strchecklist  = get_string('modulename', 'checklist');
 
 /// Print the header
 
-$navlinks = array();
-$navlinks[] = array('name' => $strchecklists, 'link' => '', 'type' => 'activity');
-$navigation = build_navigation($navlinks);
-
-print_header_simple($strchecklists, '', $navigation, '', '', true, '', navmenu($course));
+$PAGE->navbar->add($strchecklists);
+$PAGE->set_title($strchecklists);
+echo $OUTPUT->header();
 
 /// Get all the appropriate data
 
@@ -51,15 +52,17 @@ $strweek  = get_string('week');
 $strtopic = get_string('topic');
 $strprogress = get_string('progress','checklist');
 
+$table = new html_table();
+
 if ($course->format == 'weeks') {
     $table->head  = array ($strweek, $strname);
-    $table->align = array ('center', 'left');
+    $table->align = array ('center', 'left', 'left');
 } else if ($course->format == 'topics') {
     $table->head  = array ($strtopic, $strname);
-    $table->align = array ('center', 'left', 'left', 'left');
+    $table->align = array ('center', 'left', 'left');
 } else {
     $table->head  = array ($strname);
-    $table->align = array ('left', 'left', 'left');
+    $table->align = array ('left', 'left');
 }
 
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
@@ -91,11 +94,11 @@ foreach ($checklists as $checklist) {
     $table->data[] = $row;
 }
 
-print_heading($strchecklists);
-print_table($table);
+echo $OUTPUT->heading($strchecklists);
+echo html_writer::table($table);
 
 /// Finish the page
 
-print_footer($course);
+echo $OUTPUT->footer();
 
 ?>

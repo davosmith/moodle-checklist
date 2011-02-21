@@ -30,7 +30,7 @@ class mod_checklist_mod_form extends moodleform_mod {
 
     function definition() {
 
-        global $COURSE;
+        global $COURSE, $CFG;
         $mform =& $this->_form;
 
 //-------------------------------------------------------------------------------
@@ -43,14 +43,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-    /// Adding the required "intro" field to hold the description of the instance
-        $mform->addElement('htmleditor', 'intro', get_string('checklistintro', 'checklist'));
-        $mform->setType('intro', PARAM_RAW);
-        $mform->addRule('intro', get_string('required'), 'required', null, 'client');
-        $mform->setHelpButton('intro', array('writing', 'richtext'), false, 'editorhelpbutton');
-
-    /// Adding "introformat" field
-        $mform->addElement('format', 'introformat', get_string('format'));
+        $this->add_intro_editor(true, get_string('checklistintro', 'checklist'));
 
 //-------------------------------------------------------------------------------
 
@@ -78,19 +71,76 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('select', 'teachercomments', get_string('teachercomments', 'checklist'), $ynoptions);
         $mform->setDefault('teachercomments', 1);
         $mform->setAdvanced('teachercomments');
-        
+
+        $mform->addElement('text', 'maxgrade', get_string('maximumgrade'), array('size'=>'10'));
+        $mform->setDefault('maxgrade', 100);
+        $mform->setAdvanced('maxgrade');      
+
+        $mform->addElement('select', 'autopopulate', get_string('autopopulate', 'checklist'), $ynoptions);
+        $mform->setDefault('autopopulate', 0);
+        $mform->addHelpButton('autopopulate', 'autopopulate', 'checklist');
+
+        $autoupdate_options = array( CHECKLIST_AUTOUPDATE_NO => get_string('no'), 
+                                     CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'), 
+                                     CHECKLIST_AUTOUPDATE_YES_OVERRIDE => get_string('yesoverride', 'checklist'));
+        $mform->addElement('select', 'autoupdate', get_string('autoupdate', 'checklist'), $autoupdate_options);
+        $mform->setDefault('autoupdate', 1);
+        $mform->disabledIf('autoupdate', 'autopopulate', 'eq', 0);
+        $mform->addHelpButton('autoupdate', 'autoupdate', 'checklist');
+
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules
-        $features = new stdClass;
-        $features->groups = true;
-        $features->groupings = true;
-        $features->groupmembersonly = true;
-        $this->standard_coursemodule_elements($features);
+        $this->standard_coursemodule_elements();
+
 //-------------------------------------------------------------------------------
         // add standard buttons, common to all modules
         $this->add_action_buttons();
 
     }
+
+    function data_preprocessing(&$default_values) {
+        parent::data_preprocessing($default_values);
+
+        // Set up the completion checkboxes which aren't part of standard data.
+        // We also make the default value (if you turn on the checkbox) for those
+        // numbers to be 1, this will not apply unless checkbox is ticked.
+        $default_values['completionpercentenabled']=
+            !empty($default_values['completionpercent']) ? 1 : 0;
+        if (empty($default_values['completionpercent'])) {
+            $default_values['completionpercent']=100;
+        }
+    }
+
+    function add_completion_rules() {
+        $mform =& $this->_form;
+
+        $group=array();
+        $group[] =& $mform->createElement('checkbox', 'completionpercentenabled', '', get_string('completionpercent','checklist'));
+        $group[] =& $mform->createElement('text', 'completionpercent', '', array('size'=>3));
+        $mform->setType('completionpercent',PARAM_INT);
+        $mform->addGroup($group, 'completionpercentgroup', get_string('completionpercentgroup','checklist'), array(' '), false);
+        $mform->disabledIf('completionpercent','completionpercentenabled','notchecked');
+
+        return array('completionpercentgroup');
+    }
+
+    function completion_rule_enabled($data) {
+        return (!empty($data['completionpercentenabled']) && $data['completionpercent']!=0);
+    }
+
+    function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return false;
+        }
+        // Turn off completion settings if the checkboxes aren't ticked
+        $autocompletion = !empty($data->completion) && $data->completion==COMPLETION_TRACKING_AUTOMATIC;
+        if (empty($data->completionpercentenabled) || !$autocompletion) {
+            $data->completionpercent = 0;
+        }
+        return $data;
+    }
+    
 }
 
 ?>

@@ -1,5 +1,10 @@
 /* -*-CSS-*- */
 
+ol.checklist {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 ol.checklist li {
     list-style-type: none;
 }
@@ -17,7 +22,50 @@ ol.checklist .note {
 
 ol.checklist .itemoptional {
     font-style: italic;
+}
+
+ol.checklist .itemheading {
+    font-weight: bold;
+}
+   
+ol.checklist .itemblack {
+    color: #000000;
+}
+
+ol.checklist .itemblack.itemoptional {
     color: #a0a0a0;
+}
+
+ol.checklist .itemred {
+    color: #ff0000;
+}
+
+ol.checklist .itemred.itemoptional {
+    color: #ffa0a0;
+}
+
+ol.checklist .itemorange {
+    color: #ffba00;
+}
+
+ol.checklist .itemorange.itemoptional {
+    color: #ffdaa0;
+}
+
+ol.checklist .itemgreen {
+    color: #00ff00;
+}
+
+ol.checklist .itemgreen.itemoptional {
+    color: #a0ffa0;
+}
+
+ol.checklist .itempurple {
+    color: #d000ff;
+}
+
+ol.checklist .itempurple.itemoptional {
+    color: #d0a0ff;
 }
 
 ol.checklist .teachercomment {
@@ -27,12 +75,21 @@ ol.checklist .teachercomment {
     margin: 0 0 0 20px;
 }
 
-.itemdue {
+ol.checklist .itemauto.itemdisabled {
+    text-decoration: line-through;
+    background-color: #bcc4c4;
+}
+
+ol.checklist .itemauto {
+    background-color: #d6e6e7;
+}
+
+.checklist-itemdue {
     font-style: italic;
     color: #90d090;
 }
 
-.itemoverdue {
+.checklist-itemoverdue {
     font-style: italic;
     color: #f09090;
 }
@@ -54,39 +111,43 @@ ol.checklist .teachercomment {
     font-style: italic;
 }
 
-.checklistreport .level0 {
+.checklistreport .cell.reportheading {
+    background-color: black;
+}
+
+.checklistreport .cell.level0 {
     background-color: #e7e7e7;
 }
 
-.checklistreport .level1 {
+.checklistreport .cell.level1 {
     background-color: #c7c7c7;
 }
 
-.checklistreport .level2 {
+.checklistreport .cell.level2 {
     background-color: #afafaf;
 }
 
-.checklistreport .level0-checked {
+.checklistreport .cell.level0-checked {
     background-color: #00ff00;
 }
 
-.checklistreport .level1-checked {
+.checklistreport .cell.level1-checked {
     background-color: #00df00;
 }
 
-.checklistreport .level2-checked {
+.checklistreport .cell.level2-checked {
     background-color: #00bf00;
 }
 
-.checklistreport .level0-unchecked {
+.checklistreport .cell.level0-unchecked {
     background-color: #ff0000;
 }
 
-.checklistreport .level1-unchecked {
+.checklistreport .cell.level1-unchecked {
     background-color: #df0000;
 }
 
-.checklistreport .level2-unchecked {
+.checklistreport .cell.level2-unchecked {
     background-color: #bf0000;
 }
 
