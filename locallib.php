@@ -237,7 +237,6 @@ class checklist_class {
                         $upd->hidden = $item->hidden;
                         $DB->update_record('checklist_item', $upd);
                     }
-                    $item->modulelink = new moodle_url('/mod/'.$mods->cms[$cmid]->modname.'/view.php', array('id' => $cmid));
                 } else {
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
                     $hidden = $mods->cms[$cmid]->visible ? CHECKLIST_HIDDEN_NO : CHECKLIST_HIDDEN_BYMODULE;
@@ -246,6 +245,7 @@ class checklist_class {
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
                 }
+                $item->modulelink = new moodle_url('/mod/'.$mods->cms[$cmid]->modname.'/view.php', array('id' => $cmid));
                 $nextpos++;
             }
 
