@@ -1,4 +1,4 @@
-<?PHP // $Id$ 
+<?PHP // $Id: checklist.php,v 1.3 2011/02/08 20:30:54 davosmith Exp $ 
       // checklist.php - created with Moodle 1.9.10+ (Build: 20110112) (2007101591)
 
 
