@@ -2748,7 +2748,7 @@ class checklist_class {
         if (!$checklist) {
             return array(false, false);
         }
-        if (!$items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO, '', 'id')) {
+        if (!$items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND hidden = ".CHECKLIST_HIDDEN_NO." AND itemoptional = ".CHECKLIST_OPTIONAL_NO, '', 'id')) {
             return array(false, false);
         }
         $total = count($items);
