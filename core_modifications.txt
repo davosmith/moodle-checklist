@@ -1,7 +1,7 @@
 The changes shown in this file are only needed if you are worried about a short (60 second) delay between students completing an activity and it being checked-off on the checklist.
 
 ** If you are happy with this delay, then ignore all of these suggested changes below **
-If this is not acceptable, then you should make the following changes to the Moodle core code (for extra help with this, look in 'mod/checklist/core_modifications.txt'):
+If this is not acceptable, then you should make the following changes to the Moodle core code (for extra help with this, scroll down to the bottom of this file to see, roughly, what the modified functions should look like):
 
 * Open the file: moodle/lib/datalib.php
 Find the function 'add_to_log', then add these lines to the end of it:
