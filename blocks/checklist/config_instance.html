@@ -1,0 +1,62 @@
+<table cellpadding="9" cellspacing="0">
+  <tr valign="top">
+    <td align="right">
+       <?php print_string('choosechecklist', 'block_checklist'); ?>:
+    </td>
+    <td>
+<?php
+   global $COURSE;
+
+   $options = array();
+$checklists = get_records('checklist','course',$COURSE->id);
+if ($checklists) {
+foreach ($checklists as $checklist) {
+$options[$checklist->id] = s($checklist->name);
+}
+   }
+
+echo '<select name="checklistid">';
+  foreach ($options as $id => $item) {
+    $selected = '';
+    if ($id == $this->config->checklistid) {
+      $selected = 'selected="selected" ';
+  }
+    echo '<option value="'.$id.'" '.$selected.'>'.$item.'</option>';
+  }
+
+?>
+    </td>
+  </tr>
+  <tr valign="top">
+    <td align="right">
+      <?php print_string('choosegroup', 'block_checklist'); ?>:
+    </td>
+    <td>
+<?php
+   global $COURSE;
+
+   $options = array(0 => get_string('allparticipants'));
+   $groups = get_records('groups','courseid',$COURSE->id);
+   if ($groups) {
+       foreach ($groups as $group) {
+           $options[$group->id] = s($group->name);
+       }
+   }
+   echo '<select name="groupid">';
+   foreach ($options as $id => $item) {
+      $selected = '';
+      if ($id == $this->config->groupid) {
+        $selected = 'selected="selected" ';
+      }
+      echo '<option value="'.$id.'" '.$selected.'>'.$item.'</option>';
+   }
+?>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <input type="submit" value="<?php print_string('savechanges') ?>" />
+    </td>
+  </tr>
+</table>
+ 
