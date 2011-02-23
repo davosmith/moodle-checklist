@@ -1,3 +1,48 @@
+The changes shown in this file are only needed if you are worried about a short (60 second) delay between students completing an activity and it being checked-off on the checklist.
+
+** If you are happy with this delay, then ignore all of these suggested changes below **
+If this is not acceptable, then you should make the following changes to the Moodle core code (for extra help with this, look in 'mod/checklist/core_modifications.txt'):
+
+* Open the file: moodle/lib/datalib.php
+Find the function 'add_to_log', then add these lines to the end of it:
+
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate($courseid, $module, $action, $cm, $userid);
+
+* Open the file: moodle/mod/quiz/lib.php
+Find the function 'quiz_grade_item_update', then add these lines just before the final 'return' line:
+
+    // Inserted to allow autoupdating items in checklist
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('quiz', $quiz->course, $quiz->id, $grades);
+    // Inserted to allow autoupdating items in checklist
+
+* Open the file: moodle/mod/forum/lib.php
+Find the function 'forum_grade_item_update', then add these lines just before the final 'return' line:
+
+    // Inserted to allow autoupdating items in checklist
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('forum', $forum->course, $forum->id, $grades);
+    // Inserted to allow autoupdating items in checklist
+
+
+* Open the file: moodle/mod/assignment/lib.php
+Find the function 'assignment_grade_item_update', then add these lines just before the final 'return' line:
+
+    // Inserted to allow autoupdating items in checklist
+    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+    checklist_autoupdate_score('assignment', $assignment->courseid, $assignment->id, $grades);
+    // Inserted to allow autoupdating items in checklist
+
+WARNING: This will slow your Moodle site down very slightly.
+However, the difference is unlikely to be noticable.
+
+You should also disable the cron updates, by changing the following line in 'mod/checklist/autoupdate.php' (it is at the top of the file):
+$CFG->checklist_autoupdate_use_cron = true;
+should be changed to:
+$CFG->checklist_autoupdate_use_cron = false;
+
+
 To help with modifying the core code to get the 'Check-off modules when complete' feature working, I have included below what the functions will look like after the modification has taken place. Look for the comment '/**** These are the extra lines of code to add for the checklist plugin *****/' to see where the changes have been made.
 
 NOTE: This code is taken form Moodle 1.9.9. Do NOT copy and paste the whole functions, as this may not be compatible with your current Moodle version. 
