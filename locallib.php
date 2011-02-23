@@ -2638,7 +2638,7 @@ class checklist_class {
         if (!$checklist) {
             return array(false, false);
         }
-        $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => CHECKLIST_OPTIONAL_NO), '', 'id');
+        $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => CHECKLIST_OPTIONAL_NO, 'hidden' => CHECKLIST_HIDDEN_NO), '', 'id');
         if (empty($items)) {
             return array(false, false);
         }
