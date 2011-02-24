@@ -23,7 +23,7 @@
 //                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
-$gradeexport_checklist_capabilities = array(
+$capabilities = array(
 
     'gradeexport/checklist:view' => array(
         'riskbitmask' => RISK_PERSONAL,
@@ -32,7 +32,7 @@ $gradeexport_checklist_capabilities = array(
         'legacy' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -43,7 +43,7 @@ $gradeexport_checklist_capabilities = array(
         'legacy' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -54,7 +54,7 @@ $gradeexport_checklist_capabilities = array(
         'legacy' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     )
 
