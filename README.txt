@@ -11,18 +11,24 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Installation==
 1. Unzip the contents of file you downloaded to a temporary folder.
-2. Upload the files to the your moodle server, placing the 'mod/checklist' files in the '[moodlefolder]/mod/checklist' folder and (optionally) the 'blocks/checklist' files in the '[moodlefolder]/blocks/checklist' folder.
+2. Upload the files to the your moodle server, placing the 'mod/checklist' files in the '[moodlefolder]/mod/checklist' folder, (optionally) the 'blocks/checklist' files in the '[moodlefolder]/blocks/checklist' folder and (optionally) the 'grade/export/checklist' files into the '[moodlefolder]/grade/export/checklist' folder.
 3. Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
+
+IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds, between a student completing an activity and their checklist being updated.
+
+If you are not happy with this delay, then make the changes found in the file core_modifications.txt
+
 
 ==Adding a checklist block==
 1. Click 'Turn editing on', in a course view.
 2. Under 'blocks', choose 'Checklist'
 3. Click on the 'Edit' icon in the new block to set the checklist to  display and (optionally) which group of users to display.
 
-
-IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds, between a student completing an activity and their checklist being updated.
-
-If you are not happy with this delay, then make the changes found in the file core_modifications.txt
+==Exporting checklist entries==
+1. In a course, click 'Grades'
+2. From the dropdown menu, choose 'Export => Checklist Export'
+3. Choose the checklist you want to export and click 'Export Excel'
+If you want to change the user information that is included in the export ('First name', 'Surname', etc.), then edit the file 'grade/export/checklist/columns.php' - instructions can be found inside the file itself.
 
 ==Usage==
 Click on 'Add an activity' and choose 'Checklist'.
