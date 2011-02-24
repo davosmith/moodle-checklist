@@ -24,7 +24,7 @@ If you are not happy with this delay, then make the changes found in the file co
 2. Under 'blocks', choose 'Checklist'
 3. Click on the 'Edit' icon in the new block to set the checklist to  display and (optionally) which group of users to display.
 
-==Exporting checklist entries==
+==Exporting checklist progress (Excel)==
 1. In a course, click 'Grades'
 2. From the dropdown menu, choose 'Export => Checklist Export'
 3. Choose the checklist you want to export and click 'Export Excel'
