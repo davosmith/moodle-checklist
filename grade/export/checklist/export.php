@@ -10,46 +10,46 @@ $courseid = required_param('id', PARAM_INT);                   // course id
 $district = optional_param('choosedistrict', false, PARAM_TEXT);
 $checklistid = required_param('choosechecklist', PARAM_INT);
 
-if (!$course = get_record('course', 'id', $courseid)) {
+if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('nocourseid');
 }
 
 require_login($course->id);
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 
-require_capability('gradereport/checklist:view', $context);
-$viewall = has_capability('gradereport/checklist:viewall', $context);
-$viewdistrict = has_capability('gradereport/checklist:viewdistrict', $context);
+require_capability('gradeexport/checklist:view', $context);
+$viewall = has_capability('gradeexport/checklist:viewall', $context);
+$viewdistrict = has_capability('gradeexport/checklist:viewdistrict', $context);
 if (!$viewall && (!$viewdistrict || !$district)) {
-    error('You do not have permission to view this report');
+    print_error('nopermission','gradeexport_checklist');
 }
 
 if (!$viewall) {
-    $sql = "SELECT ud.data AS district FROM {$CFG->prefix}user_info_data ud, {$CFG->prefix}user_info_field uf ";
-    $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district' AND ud.userid = {$USER->id}";
-    $mydistrict = get_record_sql($sql);
+    $sql = "SELECT ud.data AS district FROM {user_info_data} ud, {user_info_field} uf ";
+    $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district' AND ud.userid = ?";
+    $mydistrict = $DB->get_record_sql($sql, array($USER->id));
     if ($district != $mydistrict->district) {
-        print_error('wrongdistrict','gradereport_checklist');
+        print_error('wrongdistrict','gradeexport_checklist');
     }
 }
 
-if (!$checklist = get_record('checklist','id', $checklistid)) {
-    print_error('checklistnotfound','gradereport_checklist');
+if (!$checklist = $DB->get_record('checklist', array('id' => $checklistid))) {
+    print_error('checklistnotfound','gradeexport_checklist');
 }
 
-$strchecklistreport = get_string('checklistreport','gradereport_checklist');
+$strchecklistreport = get_string('checklistreport','gradeexport_checklist');
 
 $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.*', '', '', '', '', false);
 
-
 if ($district && $district != 'ALL' && $users) {
-    $users = implode(',',array_keys($users));
-    $sql = "SELECT u.* FROM ({$CFG->prefix}user u JOIN {$CFG->prefix}user_info_data ud ON u.id = ud.userid) JOIN {$CFG->prefix}user_info_field uf ON ud.fieldid = uf.id ";
-    $sql .= "WHERE u.id IN ($users) AND uf.shortname = 'district' AND ud.data = '$district'";
-    $users = get_records_sql($sql);
+    list($usql, $uparam) = $DB->get_in_or_equal(array_keys($users));
+
+    $sql = "SELECT u.* FROM ({user} u JOIN {user_info_data} ud ON u.id = ud.userid) JOIN {user_info_field} uf ON ud.fieldid = uf.id ";
+    $sql .= "WHERE u.id $usql AND uf.shortname = 'district' AND ud.data = ?";
+    $users = $DB->get_records_sql($sql, array_merge($uparam, array($district)));
 }
 if (!$users) {
-    print_error('nousers','gradereport_checklist');
+    print_error('nousers','gradeexport_checklist');
 }
 
 require_once(dirname(__FILE__).'/columns.php');
@@ -91,7 +91,9 @@ foreach ($checklist_report_user_columns as $field => $headerstr) {
     $myxls->write_string(0,$col++,$headerstr);
 }
 
-$headings = get_records_select('checklist_item',"checklist = {$checklist->id} AND userid = 0 AND itemoptional < 2 AND hidden = 0",'position'); // 2 - optional / not optional (but not heading)
+$headings = $DB->get_records_select('checklist_item',
+                                    "checklist = ? AND userid = 0 AND itemoptional < 2 AND hidden = 0",
+                                    array($checklist->id), 'position'); // 2 - optional / not optional (but not heading)
 if ($headings) {
     foreach($headings as $heading) {
         $myxls->write_string(0, $col++, strip_tags($heading->displaytext));
@@ -102,9 +104,9 @@ if ($headings) {
 $row = 1;
 foreach ($users as $user) {
     $sql = "SELECT uf.shortname, ud.data ";
-    $sql .= "FROM {$CFG->prefix}user_info_data ud JOIN {$CFG->prefix}user_info_field uf ON uf.id = ud.fieldid ";
-    $sql .= "WHERE ud.userid = {$user->id}";
-    $extra = get_records_sql($sql);
+    $sql .= "FROM {user_info_data} ud JOIN {user_info_field} uf ON uf.id = ud.fieldid ";
+    $sql .= "WHERE ud.userid = ?";
+    $extra = $DB->get_records_sql($sql, array($user->id));
     $groups = groups_get_all_groups($course->id, $user->id, 0, 'g.id, g.name');
     if ($groups) {
         $groups = array_values($groups);
@@ -128,12 +130,12 @@ foreach ($users as $user) {
     }
     
     $sql = "SELECT i.position, c.usertimestamp ";
-    $sql .= "FROM {$CFG->prefix}checklist_item i LEFT JOIN ";
-    $sql .= "(SELECT ch.item, ch.usertimestamp FROM {$CFG->prefix}checklist_check ch WHERE ch.userid = {$user->id}) c ";
+    $sql .= "FROM {checklist_item} i LEFT JOIN ";
+    $sql .= "(SELECT ch.item, ch.usertimestamp FROM {checklist_check} ch WHERE ch.userid = ?) c ";
     $sql .= "ON c.item = i.id ";
-    $sql .= "WHERE i.checklist = {$checklist->id} AND userid = 0 AND i.itemoptional < 2 AND i.hidden = 0 ";
+    $sql .= "WHERE i.checklist = ? AND userid = 0 AND i.itemoptional < 2 AND i.hidden = 0 ";
     $sql .= 'ORDER BY i.position';
-    $checks = get_records_sql($sql);
+    $checks = $DB->get_records_sql($sql, array($user->id, $checklist->id));
 
     foreach ($checks as $check) {
         if ($check->usertimestamp > 0) {

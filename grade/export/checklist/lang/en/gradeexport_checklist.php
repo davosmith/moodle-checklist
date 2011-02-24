@@ -18,6 +18,7 @@ $string['export'] = 'Export Excel file';
 
 $string['nochecklists'] = 'No suitable checklists found';
 $string['nodistrict'] = 'Error: current user has no district';
+$string['nopermission'] = 'You do not have permission to do this export';
 $string['nousers'] = 'No users to export';
 
 $string['pluginname'] = 'Checklist export';

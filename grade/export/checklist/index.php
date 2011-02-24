@@ -30,50 +30,41 @@ require_once($CFG->dirroot.'/grade/lib.php');
 
 $courseid = required_param('id', PARAM_INT);                   // course id
 
-if (!$course = get_record('course', 'id', $courseid)) {
+$PAGE->set_url(new moodle_url('/grade/export/checklist/index.php', array('id'=>$courseid)));
+if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('nocourseid');
 }
 
 require_login($course->id);
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
+$PAGE->set_context($context);
 
 require_capability('gradeexport/checklist:view', $context);
 $viewall = has_capability('gradeexport/checklist:viewall', $context);
 $viewdistrict = has_capability('gradeexport/checklist:viewdistrict', $context);
 if (!$viewall && !$viewdistrict) {
-    error('You do not have permission to do this export');
+    print_error('nopermission', 'gradeexport_checklist');
 }
 
 // Build navigation
 $strgrades = get_string('grades');
-$strchkgrades = get_string('modulename', 'gradeexport_checklist');
+$strchkgrades = get_string('pluginname', 'gradeexport_checklist');
 
-$navigation = grade_build_nav(__FILE__, $strchkgrades, $course->id);
-
-/// Print header
-$release = explode(' ', $CFG->release);
-$relver = explode('.', $release[0]);
-if (intval($relver[0]) == 1 && intval($relver[1]) == 9 && intval($relver[2]) < 5) {
-    print_header_simple($strgrades.':'.$strchkgrades, ':'.$strgrades, $navigation, '', '', true);
-    print_grade_plugin_selector($courseid, 'export', 'checklist');
-    print_heading($strchkgrades);
-} else {
-    print_grade_page_head($COURSE->id, 'export', 'checklist', $strchkgrades, false, null);
-}
+print_grade_page_head($COURSE->id, 'export', 'checklist', $strchkgrades);
 
 // Get list of appropriate checklists
-$checklists = get_records('checklist', 'course', $course->id);
+$checklists = $DB->get_records('checklist', array('course' => $course->id));
 
-if (!$checklists) {
+if (empty($checklists)) {
     print_error('nochecklists','gradeexport_checklist');
 }
 
 // Get list of districts
-if (get_record('user_info_field', 'shortname', 'district')) {
+if ($DB->get_record('user_info_field', array('shortname' => 'district'))) {
     if (!$viewall) {
-        $sql = "SELECT ud.data AS district FROM {$CFG->prefix}user_info_data ud, {$CFG->prefix}user_info_field uf ";
-        $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district' AND ud.userid = {$USER->id}";
-        $district = get_record_sql($sql);
+        $sql = "SELECT ud.data AS district FROM {user_info_data} ud, {user_info_field} uf ";
+        $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district' AND ud.userid = ?";
+        $district = $DB->get_record_sql($sql, array($USER->id));
 
         if ($district) {
             $districts = array($district->district);
@@ -82,9 +73,9 @@ if (get_record('user_info_field', 'shortname', 'district')) {
         }
 
     } else {
-        $sql = "SELECT DISTINCT ud.data AS district FROM {$CFG->prefix}user_info_data ud, {$CFG->prefix}user_info_field uf ";
+        $sql = "SELECT DISTINCT ud.data AS district FROM {user_info_data} ud, {user_info_field} uf ";
         $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district'";
-        $districts = get_records_sql($sql);
+        $districts = $DB->get_records_sql($sql, array());
 
         $districts = array_keys($districts);
     }
@@ -92,7 +83,7 @@ if (get_record('user_info_field', 'shortname', 'district')) {
     $districts = false;
 }
 
-echo "<div style='width: 800px; margin: 0px auto;'><form action='{$CFG->wwwroot}/grade/export/checklist/export.php' method='post'>";
+echo "<br /><div style='width: 800px; margin: 0px auto;'><form action='{$CFG->wwwroot}/grade/export/checklist/export.php' method='post'>";
 
 echo '<label for="choosechecklist">'.get_string('choosechecklist','gradeexport_checklist').': <select id="choosechecklist" name="choosechecklist">';
 $selected = ' selected="selected" ';
@@ -123,6 +114,6 @@ echo '<input type="submit" name="export" value="'.get_string('export','gradeexpo
 
 echo '</form></div>';
 
-print_footer($course);
+echo $OUTPUT->footer();
 
 ?>
