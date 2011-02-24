@@ -37,16 +37,16 @@ if (!$course = get_record('course', 'id', $courseid)) {
 require_login($course->id);
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 
-require_capability('gradereport/checklist:view', $context);
-$viewall = has_capability('gradereport/checklist:viewall', $context);
-$viewdistrict = has_capability('gradereport/checklist:viewdistrict', $context);
+require_capability('gradeexport/checklist:view', $context);
+$viewall = has_capability('gradeexport/checklist:viewall', $context);
+$viewdistrict = has_capability('gradeexport/checklist:viewdistrict', $context);
 if (!$viewall && !$viewdistrict) {
-    error('You do not have permission to view this report');
+    error('You do not have permission to do this export');
 }
 
 // Build navigation
 $strgrades = get_string('grades');
-$strchkgrades = get_string('modulename', 'gradereport_checklist');
+$strchkgrades = get_string('modulename', 'gradeexport_checklist');
 
 $navigation = grade_build_nav(__FILE__, $strchkgrades, $course->id);
 
@@ -55,42 +55,46 @@ $release = explode(' ', $CFG->release);
 $relver = explode('.', $release[0]);
 if (intval($relver[0]) == 1 && intval($relver[1]) == 9 && intval($relver[2]) < 5) {
     print_header_simple($strgrades.':'.$strchkgrades, ':'.$strgrades, $navigation, '', '', true);
-    print_grade_plugin_selector($courseid, 'report', 'checklist');
+    print_grade_plugin_selector($courseid, 'export', 'checklist');
     print_heading($strchkgrades);
 } else {
-    print_grade_page_head($COURSE->id, 'report', 'checklist', $strchkgrades, false, null);
+    print_grade_page_head($COURSE->id, 'export', 'checklist', $strchkgrades, false, null);
 }
 
 // Get list of appropriate checklists
 $checklists = get_records('checklist', 'course', $course->id);
 
 if (!$checklists) {
-    print_error('nochecklists','gradereport_checklist');
+    print_error('nochecklists','gradeexport_checklist');
 }
 
 // Get list of districts
-if (!$viewall) {
-    $sql = "SELECT ud.data AS district FROM {$CFG->prefix}user_info_data ud, {$CFG->prefix}user_info_field uf ";
-    $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district' AND ud.userid = {$USER->id}";
-    $district = get_record_sql($sql);
+if (get_record('user_info_field', 'shortname', 'district')) {
+    if (!$viewall) {
+        $sql = "SELECT ud.data AS district FROM {$CFG->prefix}user_info_data ud, {$CFG->prefix}user_info_field uf ";
+        $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district' AND ud.userid = {$USER->id}";
+        $district = get_record_sql($sql);
 
-    if ($district) {
-        $districts = array($district->district);
+        if ($district) {
+            $districts = array($district->district);
+        } else {
+            $districts = array(get_string('nodistrict','gradeexport_checklist'));
+        }
+
     } else {
-        $districts = array(get_string('nodistrict','gradereport_checklist'));
+        $sql = "SELECT DISTINCT ud.data AS district FROM {$CFG->prefix}user_info_data ud, {$CFG->prefix}user_info_field uf ";
+        $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district'";
+        $districts = get_records_sql($sql);
+
+        $districts = array_keys($districts);
     }
-
 } else {
-    $sql = "SELECT DISTINCT ud.data AS district FROM {$CFG->prefix}user_info_data ud, {$CFG->prefix}user_info_field uf ";
-    $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district'";
-    $districts = get_records_sql($sql);
-
-    $districts = array_keys($districts);
+    $districts = false;
 }
 
-echo "<div style='width: 800px; margin: 0px auto;'><form action='{$CFG->wwwroot}/grade/report/checklist/export.php' method='post'>";
+echo "<div style='width: 800px; margin: 0px auto;'><form action='{$CFG->wwwroot}/grade/export/checklist/export.php' method='post'>";
 
-echo '<label for="choosechecklist">'.get_string('choosechecklist','gradereport_checklist').': <select id="choosechecklist" name="choosechecklist">';
+echo '<label for="choosechecklist">'.get_string('choosechecklist','gradeexport_checklist').': <select id="choosechecklist" name="choosechecklist">';
 $selected = ' selected="selected" ';
 foreach ($checklists as $checklist) {
     echo "<option $selected value='{$checklist->id}'>{$checklist->name}</option>";
@@ -98,22 +102,24 @@ foreach ($checklists as $checklist) {
 }
 echo '</select>&nbsp;';
 
-echo '<label for="choosedistrict">'.get_string('choosedistrict','gradereport_checklist').': <select id="choosedistrict" name="choosedistrict">';
-if ($viewall) {
-    echo '<option selected="selected" value="ALL">'.get_string('alldistrict','gradereport_checklist').'</option>';
-    $selected = '';
-} else {
-    $selected = ' selected="selected" ';
+if ($districts) {
+    echo '<label for="choosedistrict">'.get_string('choosedistrict','gradeexport_checklist').': <select id="choosedistrict" name="choosedistrict">';
+    if ($viewall) {
+        echo '<option selected="selected" value="ALL">'.get_string('alldistrict','gradeexport_checklist').'</option>';
+        $selected = '';
+    } else {
+        $selected = ' selected="selected" ';
+    }
+    foreach ($districts as $district) {
+        echo "<option $selected value='{$district}'>{$district}</option>";
+        $selected = '';
+    }
+    echo '</select>&nbsp;';
 }
-foreach ($districts as $district) {
-    echo "<option $selected value='{$district}'>{$district}</option>";
-    $selected = '';
-}
-echo '</select>&nbsp;';
 
 echo '<input type="hidden" name="id" value="'.$course->id.'" />';
 
-echo '<input type="submit" name="export" value="'.get_string('export','gradereport_checklist').'" />';
+echo '<input type="submit" name="export" value="'.get_string('export','gradeexport_checklist').'" />';
 
 echo '</form></div>';
 

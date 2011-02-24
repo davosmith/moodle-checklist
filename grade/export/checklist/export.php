@@ -1,11 +1,13 @@
 <?php
 
+// Note - to adjust the user columns included in the report, edit 'columns.php'
+
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once($CFG->dirroot.'/grade/export/lib.php');
 require_once($CFG->dirroot.'/lib/excellib.class.php');
 
 $courseid = required_param('id', PARAM_INT);                   // course id
-$district = required_param('choosedistrict', PARAM_TEXT);
+$district = optional_param('choosedistrict', false, PARAM_TEXT);
 $checklistid = required_param('choosechecklist', PARAM_INT);
 
 if (!$course = get_record('course', 'id', $courseid)) {
@@ -18,7 +20,7 @@ $context = get_context_instance(CONTEXT_COURSE, $course->id);
 require_capability('gradereport/checklist:view', $context);
 $viewall = has_capability('gradereport/checklist:viewall', $context);
 $viewdistrict = has_capability('gradereport/checklist:viewdistrict', $context);
-if (!$viewall && !$viewdistrict) {
+if (!$viewall && (!$viewdistrict || !$district)) {
     error('You do not have permission to view this report');
 }
 
@@ -37,12 +39,12 @@ if (!$checklist = get_record('checklist','id', $checklistid)) {
 
 $strchecklistreport = get_string('checklistreport','gradereport_checklist');
 
-$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname, u.username', '', '', '', '', false);
+$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.*', '', '', '', '', false);
 
 
-if ($district != 'ALL' && $users) {
+if ($district && $district != 'ALL' && $users) {
     $users = implode(',',array_keys($users));
-    $sql = "SELECT u.id, u.firstname, u.lastname, u.username FROM ({$CFG->prefix}user u JOIN {$CFG->prefix}user_info_data ud ON u.id = ud.userid) JOIN {$CFG->prefix}user_info_field uf ON ud.fieldid = uf.id ";
+    $sql = "SELECT u.* FROM ({$CFG->prefix}user u JOIN {$CFG->prefix}user_info_data ud ON u.id = ud.userid) JOIN {$CFG->prefix}user_info_field uf ON ud.fieldid = uf.id ";
     $sql .= "WHERE u.id IN ($users) AND uf.shortname = 'district' AND ud.data = '$district'";
     $users = get_records_sql($sql);
 }
@@ -50,6 +52,7 @@ if (!$users) {
     print_error('nousers','gradereport_checklist');
 }
 
+require_once(dirname(__FILE__).'/columns.php');
 
 // Useful for debugging
 /*class FakeMoodleExcelWorkbook {
@@ -63,9 +66,11 @@ if (!$users) {
 
 
 // Only write the data if it exists
-function safe_write_string($myxls, $row, $col, $data, $element) {
-    if (isset($data[$element])) {
-        $myxls->write_string($row, $col, $data[$element]->data);
+function safe_write_string($myxls, $row, $col, $user, $extra, $element) {
+    if (isset($user[$element])) {
+        $myxls->write_string($row, $col, $user[$element]);
+    } elseif (isset($extra[$element])) {
+        $myxls->write_string($row, $col, $extra[$element]->data);
     }
 }
 
@@ -82,18 +87,11 @@ $myxls =& $workbook->add_worksheet($wsname);
 
 /// Print names of all the fields
 $col = 0;
-$myxls->write_string(0,$col++,'Region');
-$myxls->write_string(0,$col++,'Disrict');
-$myxls->write_string(0,$col++,'Last Name');
-$myxls->write_string(0,$col++,'First Name');
-$myxls->write_string(0,$col++,'Username');
-$myxls->write_string(0,$col++,'Group(s)');
-$myxls->write_string(0,$col++,'Position');
-//$myxls->write_string(0,$col++,'Position_2');
-$myxls->write_string(0,$col++,'Dealer Name');
-$myxls->write_string(0,$col++,'Dealer #');
+foreach ($checklist_report_user_columns as $field => $headerstr) {
+    $myxls->write_string(0,$col++,$headerstr);
+}
 
-$headings = get_records_select('checklist_item',"checklist = {$checklist->id} AND itemoptional < 2",'position'); // 2 - optional / not optional (but not heading / disabled)
+$headings = get_records_select('checklist_item',"checklist = {$checklist->id} AND userid = 0 AND itemoptional < 2 AND hidden = 0",'position'); // 2 - optional / not optional (but not heading)
 if ($headings) {
     foreach($headings as $heading) {
         $myxls->write_string(0, $col++, strip_tags($heading->displaytext));
@@ -119,22 +117,21 @@ foreach ($users as $user) {
         $groups_str = '';
     }
     $col = 0;
-    safe_write_string($myxls, $row, $col++, $extra, 'region');
-    safe_write_string($myxls, $row, $col++, $extra, 'district');
-    $myxls->write_string($row, $col++, $user->lastname);
-    $myxls->write_string($row, $col++, $user->firstname);
-    $myxls->write_string($row, $col++, $user->username);
-    $myxls->write_string($row, $col++, $groups_str);
-    safe_write_string($myxls, $row, $col++, $extra, 'role'); // 'position'
-    //safe_write_string($myxls, $row, $col++, $extra, '????'); //'position_2'
-    safe_write_string($myxls, $row, $col++, $extra, 'dealername');
-    safe_write_string($myxls, $row, $col++, $extra, 'dealernumber');
 
+    $userarray = (array)$user;
+    foreach ($checklist_report_user_columns as $field => $header) {
+        if ($field == '_groups') {
+            $myxls->write_string($row, $col++, $groups_str);
+        } else {
+            safe_write_string($myxls, $row, $col++, $userarray, $extra, $field);
+        }
+    }
+    
     $sql = "SELECT i.position, c.usertimestamp ";
     $sql .= "FROM {$CFG->prefix}checklist_item i LEFT JOIN ";
     $sql .= "(SELECT ch.item, ch.usertimestamp FROM {$CFG->prefix}checklist_check ch WHERE ch.userid = {$user->id}) c ";
     $sql .= "ON c.item = i.id ";
-    $sql .= "WHERE i.checklist = {$checklist->id} AND i.itemoptional < 2 ";
+    $sql .= "WHERE i.checklist = {$checklist->id} AND userid = 0 AND i.itemoptional < 2 AND i.hidden = 0 ";
     $sql .= 'ORDER BY i.position';
     $checks = get_records_sql($sql);
 

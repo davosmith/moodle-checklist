@@ -23,9 +23,9 @@
 //                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
-$gradereport_checklist_capabilities = array(
+$gradeexport_checklist_capabilities = array(
 
-    'gradereport/checklist:view' => array(
+    'gradeexport/checklist:view' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
@@ -36,7 +36,7 @@ $gradereport_checklist_capabilities = array(
         )
     ),
 
-    'gradereport/checklist:viewall' => array(
+    'gradeexport/checklist:viewall' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
@@ -47,7 +47,7 @@ $gradereport_checklist_capabilities = array(
         )
     ),
 
-    'gradereport/checklist:viewdistrict' => array(
+    'gradeexport/checklist:viewdistrict' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,

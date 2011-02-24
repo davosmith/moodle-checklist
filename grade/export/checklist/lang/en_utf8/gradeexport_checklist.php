@@ -1,6 +1,6 @@
 <?php
 
-$string['modulename'] = 'Checklist report';
+$string['modulename'] = 'Checklist export';
 
 $string['alldistrict'] = 'All';
 
