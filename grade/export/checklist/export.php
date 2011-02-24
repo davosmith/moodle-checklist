@@ -17,9 +17,9 @@ if (!$course = get_record('course', 'id', $courseid)) {
 require_login($course->id);
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 
-require_capability('gradereport/checklist:view', $context);
-$viewall = has_capability('gradereport/checklist:viewall', $context);
-$viewdistrict = has_capability('gradereport/checklist:viewdistrict', $context);
+require_capability('gradeexport/checklist:view', $context);
+$viewall = has_capability('gradeexport/checklist:viewall', $context);
+$viewdistrict = has_capability('gradeexport/checklist:viewdistrict', $context);
 if (!$viewall && (!$viewdistrict || !$district)) {
     error('You do not have permission to view this report');
 }
@@ -29,15 +29,15 @@ if (!$viewall) {
     $sql .= "WHERE ud.fieldid = uf.id AND uf.shortname = 'district' AND ud.userid = {$USER->id}";
     $mydistrict = get_record_sql($sql);
     if ($district != $mydistrict->district) {
-        print_error('wrongdistrict','gradereport_checklist');
+        print_error('wrongdistrict','gradeexport_checklist');
     }
 }
 
 if (!$checklist = get_record('checklist','id', $checklistid)) {
-    print_error('checklistnotfound','gradereport_checklist');
+    print_error('checklistnotfound','gradeexport_checklist');
 }
 
-$strchecklistreport = get_string('checklistreport','gradereport_checklist');
+$strchecklistreport = get_string('checklistreport','gradeexport_checklist');
 
 $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.*', '', '', '', '', false);
 
@@ -49,7 +49,7 @@ if ($district && $district != 'ALL' && $users) {
     $users = get_records_sql($sql);
 }
 if (!$users) {
-    print_error('nousers','gradereport_checklist');
+    print_error('nousers','gradeexport_checklist');
 }
 
 require_once(dirname(__FILE__).'/columns.php');
