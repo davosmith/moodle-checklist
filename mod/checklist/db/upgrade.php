@@ -154,6 +154,13 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $result = $result && execute_sql($sql);
     }
 
+    if ($result && $oldversion < 2011022700) {
+        $table = new XMLDBTable('checklist_item');
+        $field = new XMLDBField('grouping');
+        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'hidden');
+        $result = $result && add_field($table, $field);
+    }
+        
     return $result;
 
 }

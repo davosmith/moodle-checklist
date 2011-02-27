@@ -256,6 +256,8 @@ class checklist_class {
                         $upd->id = $item->id;
                         $upd->hidden = CHECKLIST_HIDDEN_NO;
                         update_record('checklist_item', $upd);
+                        $changes = true;
+                        
                     } elseif (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->cms[$cmid]->visible) {
                         // Course module is now hidden
                         $this->items[$item->id]->hidden = CHECKLIST_HIDDEN_BYMODULE;
@@ -263,6 +265,28 @@ class checklist_class {
                         $upd->id = $item->id;
                         $upd->hidden = CHECKLIST_HIDDEN_BYMODULE;
                         update_record('checklist_item', $upd);
+                        $changes = true;
+                    }
+
+                    $groupingid = $mods->cms[$cmid]->groupingid;
+                    if ($groupingid && $mods->cms[$cmid]->groupmembersonly) {
+                        if ($item->grouping != $groupingid) {
+                            $this->items[$item->id]->grouping = $groupingid;
+                            $upd = new stdClass;
+                            $upd->id = $item->id;
+                            $upd->grouping = $groupingid;
+                            update_record('checklist_item', $upd);
+                            $changes = true;
+                        }
+                    } else {
+                        if ($item->grouping) {
+                            $this->items[$item->id]->grouping = 0;
+                            $upd = new stdClass;
+                            $upd->id = $item->id;
+                            $upd->grouping = 0;
+                            update_record('checklist_item', $upd);
+                            $changes = true;
+                        }
                     }
                         
                 } else {
@@ -290,6 +314,7 @@ class checklist_class {
                 if ($item->moduleid && !isset($item->stillexists)) {
                     //echo '---deleting item '.$item->displaytext.'<br/>';
                     $this->deleteitem($item->id, true);
+                    $changes = true;
                 }
             }
         }

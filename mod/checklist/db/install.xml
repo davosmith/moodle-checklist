@@ -46,7 +46,8 @@
 	<FIELD NAME="colour" TYPE="char" LENGTH="15" NOTNULL="true" DEFAULT="black" SEQUENCE="false" ENUM="false" PREVIOUS="eventid" NEXT="moduleid"/>
 	<FIELD NAME="moduleid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="id of the course module (if any) associated with this item" PREVIOUS="colour" NEXT="complete_score"/>
 	<FIELD NAME="complete_score" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="score needed for this item to be counted as 'complete'" PREVIOUS="moduleid" NEXT="hidden"/>
-	<FIELD NAME="hidden" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Whether or not the item should be hidden from students" PREVIOUS="complete_score"/>
+	<FIELD NAME="hidden" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Whether or not the item should be hidden from students" PREVIOUS="complete_score" NEXT="grouping"/>
+	<FIELD NAME="grouping" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Grouping that the item's module belongs to" PREVIOUS="hidden"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
