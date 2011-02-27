@@ -40,7 +40,7 @@ $string['checklistsettings'] = 'Settings';
 
 $string['checks'] = 'Check marks';
 $string['comments'] = 'Comments';
-
+$string['completiongradehelp'] = 'Completion grades are raw scores, not percentages';
 $string['configallowmodulelinks'] = 'Allow checklist items to be linked to other modules (may slow down the editing of checklists)';
 $string['configchecklistautoupdate'] = 'Before allowing this you must make a few changes to the core Moodle code, please see mod/checklist/README.txt for details';
 $string['confirmdeleteitem'] = 'Are you sure you want to permanently delete this checklist item?';

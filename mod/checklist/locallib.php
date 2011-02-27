@@ -1069,7 +1069,8 @@ class checklist_class {
             $url .= ($this->additemafter) ? '&amp;additemafter='.$this->additemafter : '';
             $url .= ($this->editdates) ? '&amp;editdates=on' : '';
             echo "<form action='$url' method='POST'>";
-            echo '<input type="submit" name="update_complete_score" value="'.get_string('updatecompletescore','checklist').'" />';
+            echo '<input type="submit" name="update_complete_score" value="'.get_string('updatecompletescore','checklist').'" /> ';
+            print_string('completiongradehelp','checklist');
         }
 
         echo '<ol class="checklist">';
