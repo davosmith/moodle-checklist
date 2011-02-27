@@ -151,7 +151,7 @@ function checklist_update_grades($checklist, $userid=0) {
         return;
     }
 
-    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO, ''. 'id');
+    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO.' AND hidden = '.CHECKLIST_HIDDEN_NO, ''. 'id');
     if (!$course = get_record('course', 'id', $checklist->course)) {
         return;
     }
@@ -159,20 +159,17 @@ function checklist_update_grades($checklist, $userid=0) {
         return;
     }
 
-    if ($userid) {
-        $users = $userid;
-    } else {
-        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-        if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
-            return;
+    $checkgroupings = false;
+    if ($checklist->autopopulate) {
+        foreach ($items as $item) {
+            if ($item->grouping) {
+                $checkgroupings = true;
+                break;
+            }
         }
-        $users = implode(',',array_keys($users));
     }
-    
-    $total = count($items);
+
     $scale = $checklist->maxgrade;
-    
-    $itemlist = implode(',',array_keys($items));
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
         $date = ', MAX(c.usertimestamp) AS datesubmitted';
         $where = 'c.usertimestamp > 0';
@@ -180,14 +177,88 @@ function checklist_update_grades($checklist, $userid=0) {
         $date = ', MAX(c.teachertimestamp) AS dategraded';
         $where = 'c.teachermark = '.CHECKLIST_TEACHERMARK_YES;
     }
+    
+    // Autopopulate is on and checklist has at least one item with a grouping
+    if ($checkgroupings) {
+        if ($userid) {
+            $users = array($userid);
+        } else {
+            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+                return;
+            }
+        }
 
-    $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
-    $sql .= " FROM {$CFG->prefix}user u LEFT JOIN {$CFG->prefix}checklist_check c ON u.id = c.userid";
-    $sql .= " WHERE c.item IN ($itemlist)";
-    $sql .= ' AND u.id IN ('.$users.')';
-    $sql .= ' GROUP BY u.id';
+        $grades = array();
 
-    $grades = get_records_sql($sql);
+        // With groupings, need to update each user individually (as each has different groupings)
+        foreach ($users as $user) {
+            $groupings = checklist_class::get_user_groupings($user->id, $course->id);
+
+            $total = 0;
+            $itemlist = '';
+            foreach ($items as $item) {
+                if ($item->grouping) {
+                    if (!in_array($item->grouping, $groupings)) {
+                        continue;
+                    }
+                }
+                $itemlist .= $item->id.',';
+                $total++;
+            }
+            
+            if (!$total) { // No items - set score to 0
+                $ugrade = new stdClass;
+                $ugrade->userid = $user->id;
+                $ugrade->rawgrade = 0;
+                $ugrade->date = time();
+
+            } else {
+                $itemlist = substr($itemlist, 0, -1);
+                
+                $sql = 'SELECT '.$user->id.' AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
+                $sql .= " FROM {$CFG->prefix}checklist_check c ";
+                $sql .= " WHERE c.item IN ($itemlist)";
+                $sql .= ' AND c.userid = '.$user->id;
+
+                $ugrade = get_record_sql($sql);
+                if (!$ugrade) {
+                    $ugrade = new stdClass;
+                    $ugrade->userid = $user->id;
+                    $ugrade->rawgrade = 0;
+                    $ugrade->date = time();
+                }
+            }
+            
+            $grades[$user->id] = $ugrade;
+        }
+        
+    } else {
+        // No need to check groupings, so update all student grades at once
+
+        if ($userid) {
+            $users = $userid;
+        } else {
+            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+                return;
+            }
+            $users = implode(',',array_keys($users));
+        }
+    
+        $total = count($items);
+    
+        $itemlist = implode(',',array_keys($items));
+
+        $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
+        $sql .= " FROM {$CFG->prefix}user u LEFT JOIN {$CFG->prefix}checklist_check c ON u.id = c.userid";
+        $sql .= " WHERE c.item IN ($itemlist)";
+        $sql .= ' AND u.id IN ('.$users.')';
+        $sql .= ' GROUP BY u.id';
+
+        $grades = get_records_sql($sql);
+
+    }
 
     if ($grades) {
         foreach ($grades as $grade) {
@@ -197,7 +268,6 @@ function checklist_update_grades($checklist, $userid=0) {
             }
         }
     }
-
     checklist_grade_item_update($checklist, $grades);
 }
 
@@ -248,7 +318,12 @@ function checklist_grade_item_update($checklist, $grades=NULL) {
 function checklist_user_outline($course, $user, $mod, $checklist) {
     global $CFG;
 
-    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO, '', 'id');
+    $groupings_sel = '';
+    if ($checklist->autopopulate) {
+        $groupings = checklist_class::get_user_groupings($user->id, $checklist->course);
+        $groupings_sel = ' AND grouping IN (0, '.implode(',',$groupings).') ';
+    }
+    $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO.' AND hidden = '.CHECKLIST_HIDDEN_NO.$groupings_sel, '', 'id');
     if (!$items) {
         return null;
     }
@@ -333,6 +408,8 @@ function checklist_print_overview($courses, &$htmlarray) {
             $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
             $show_all = !has_capability('mod/checklist:updateown', $context);
         }
+
+        // Do now worry about hidden items / groupings as automatic items cannot have dates (and manual items cannot be hidden / have groupings)
         if ($show_all) { // Show all items whether or not they are checked off (as this user is unable to check them off)
             $date_items = get_records_select('checklist_item','checklist = '.$checklist->id.' AND duetime > 0','duetime');
         } else { // Show only items that have not been checked off
