@@ -1224,11 +1224,11 @@ class checklist_class {
                         echo '&nbsp;&nbsp;<a href="'.$baseurl.'deleteitem">';
                         if ($item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
                             if ($item->hidden != CHECKLIST_HIDDEN_MANUAL) {
-                                $title = '"'.get_string('show').'"';
-                                echo '<img src="'.$CFG->pixpath.'/t/show.gif" alt='.$title.' title='.$title.' /></a>';
-                            } else {
                                 $title = '"'.get_string('hide').'"';
                                 echo '<img src="'.$CFG->pixpath.'/t/hide.gif" alt='.$title.' title='.$title.' /></a>';
+                            } else {
+                                $title = '"'.get_string('show').'"';
+                                echo '<img src="'.$CFG->pixpath.'/t/show.gif" alt='.$title.' title='.$title.' /></a>';
                             }
                         }
 
@@ -2066,6 +2066,8 @@ class checklist_class {
                     }
                 }
             } 
+            
+            $this->update_all_checks_from_completion_scores();
         }
     }
 
