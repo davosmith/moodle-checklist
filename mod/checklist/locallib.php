@@ -131,7 +131,7 @@ class checklist_class {
      *
      */
     function update_items_from_course() {
-        global $DB;
+        global $DB, $CFG;
 
         $mods = get_fast_modinfo($this->course);
         
@@ -249,7 +249,7 @@ class checklist_class {
                             $upd = new stdClass;
                             $upd->id = $item->id;
                             $upd->grouping = $groupingid;
-                            update_record('checklist_item', $upd);
+                            $DB->update_record('checklist_item', $upd);
                             $changes = true;
                         }
                     } else {
@@ -258,7 +258,7 @@ class checklist_class {
                             $upd = new stdClass;
                             $upd->id = $item->id;
                             $upd->grouping = 0;
-                            update_record('checklist_item', $upd);
+                            $DB->update_record('checklist_item', $upd);
                             $changes = true;
                         }
                     }
