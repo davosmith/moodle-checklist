@@ -322,7 +322,8 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
     $groupings_sel = '';
     if ($checklist->autopopulate) {
         $groupings = checklist_class::get_user_groupings($user->id, $checklist->course);
-        $groupings_sel = ' AND grouping IN (0, '.implode(',',$groupings).') ';
+        $groupings[] = 0;
+        $groupings_sel = ' AND grouping IN ('.implode(',',$groupings).') ';
     }
     $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO.' AND hidden = '.CHECKLIST_HIDDEN_NO.$groupings_sel, '', 'id');
     if (!$items) {
