@@ -187,13 +187,14 @@ function checklist_update_grades($checklist, $userid=0) {
             if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
                 return;
             }
+            $users = array_keys($users);
         }
 
         $grades = array();
 
         // With groupings, need to update each user individually (as each has different groupings)
-        foreach ($users as $user) {
-            $groupings = checklist_class::get_user_groupings($user->id, $course->id);
+        foreach ($users as $userid) {
+            $groupings = checklist_class::get_user_groupings($userid, $course->id);
 
             $total = 0;
             $itemlist = '';
@@ -209,28 +210,28 @@ function checklist_update_grades($checklist, $userid=0) {
             
             if (!$total) { // No items - set score to 0
                 $ugrade = new stdClass;
-                $ugrade->userid = $user->id;
+                $ugrade->userid = $userid;
                 $ugrade->rawgrade = 0;
                 $ugrade->date = time();
 
             } else {
                 $itemlist = substr($itemlist, 0, -1);
                 
-                $sql = 'SELECT '.$user->id.' AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
+                $sql = 'SELECT '.$userid.' AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
                 $sql .= " FROM {$CFG->prefix}checklist_check c ";
                 $sql .= " WHERE c.item IN ($itemlist)";
-                $sql .= ' AND c.userid = '.$user->id;
+                $sql .= ' AND c.userid = '.$userid;
 
                 $ugrade = get_record_sql($sql);
                 if (!$ugrade) {
                     $ugrade = new stdClass;
-                    $ugrade->userid = $user->id;
+                    $ugrade->userid = $userid;
                     $ugrade->rawgrade = 0;
                     $ugrade->date = time();
                 }
             }
             
-            $grades[$user->id] = $ugrade;
+            $grades[$userid] = $ugrade;
         }
         
     } else {
