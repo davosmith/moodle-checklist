@@ -306,6 +306,7 @@ class checklist_class {
                     $this->items[$itemid]->stillexists = true;
                     $this->items[$itemid]->showscore = $showscore;
                     $this->items[$itemid]->checked = false;
+                    $this->items[$itemid]->grouping = $mods->cms[$cmid]->groupmembersonly ? $mods->cms[$cmid]->groupingid : 0;
                 }
                 $this->items[$itemid]->modulelink = $CFG->wwwroot.'/mod/'.$mods->cms[$cmid]->modname.'/view.php?id='.$cmid;
                 
