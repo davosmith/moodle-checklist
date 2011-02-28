@@ -152,24 +152,23 @@ function checklist_update_all_grades() {
 function checklist_update_grades($checklist, $userid=0) {
     global $CFG, $DB;
 
-    $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => CHECKLIST_OPTIONAL_NO), '', 'id');
+    $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0, 'itemoptional' => CHECKLIST_OPTIONAL_NO, 'hidden' => CHECKLIST_HIDDEN_NO, ), '', 'id');
     if (!$course = $DB->get_record('course', array('id' => $checklist->course) )) {
         return;
     }
     if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
         return;
     }
-    if ($userid) {
-        $users = $userid;
-    } else {
-        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-        if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
-            return;
-        }
-        $users = array_keys($users);
-    }
 
-    $total = count($items);
+    $checkgroupings = false; // Don't check items against groupings unless we really have to
+    if (isset($CFG->enablegroupsonly) && $CFG->enablegroupsonly && $checklist->autopopulate) {
+        foreach ($items as $item) {
+            if ($item->grouping) {
+                $checkgroupings = true;
+                break;
+            }
+        }
+    }
 
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
         $date = ', MAX(c.usertimestamp) AS datesubmitted';
@@ -179,19 +178,46 @@ function checklist_update_grades($checklist, $userid=0) {
         $where = 'c.teachermark = '.CHECKLIST_TEACHERMARK_YES;
     }
 
-    list($usql, $uparams) = $DB->get_in_or_equal($users);
-    list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
+    if ($checkgroupings) {
+        if ($userid) {
+            $users = array($userid);
+        } else {
+            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+                return;
+            }
+        }
+
+        $grades = array();
+        
+    } else {
     
-    $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
-    $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
-    $sql .= " WHERE u.id $usql";
-    $sql .= " AND c.item $isql";
-    $sql .= ' GROUP BY u.id';
+        if ($userid) {
+            $users = $userid;
+        } else {
+            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+                return;
+            }
+            $users = array_keys($users);
+        }
 
-    $params = array_merge($uparams, $iparams);
-    $params = array_merge(array($checklist->maxgrade, $total), $params);
+        $total = count($items);
 
-    $grades = $DB->get_records_sql($sql, $params);
+        list($usql, $uparams) = $DB->get_in_or_equal($users);
+        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
+    
+        $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
+        $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
+        $sql .= " WHERE u.id $usql";
+        $sql .= " AND c.item $isql";
+        $sql .= ' GROUP BY u.id';
+
+        $params = array_merge($uparams, $iparams);
+        $params = array_merge(array($checklist->maxgrade, $total), $params);
+
+        $grades = $DB->get_records_sql($sql, $params);
+    }
     foreach ($grades as $grade) {
         // Log completion of checklist
         if ($grade->rawgrade == $checklist->maxgrade) {
