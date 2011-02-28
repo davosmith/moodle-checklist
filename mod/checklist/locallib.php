@@ -140,6 +140,7 @@ class checklist_class {
         $changes = false;
         reset($this->items);
 
+        $groupmembersonly = isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly;
 
         while ($section <=  $this->course->numsections) {
             if (!array_key_exists($section, $mods->sections)) {
@@ -229,6 +230,8 @@ class checklist_class {
                         $upd->id = $item->id;
                         $upd->hidden = $item->hidden;
                         $DB->update_record('checklist_item', $upd);
+                        $changes = true;
+                        
                     } elseif (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->cms[$cmid]->visible) {
                         // Course module is now hidden
                         $item->hidden = CHECKLIST_HIDDEN_BYMODULE;
@@ -236,6 +239,28 @@ class checklist_class {
                         $upd->id = $item->id;
                         $upd->hidden = $item->hidden;
                         $DB->update_record('checklist_item', $upd);
+                        $changes = true;
+                    }
+
+                    $groupingid = $mods->cms[$cmid]->groupingid;
+                    if ($groupmembersonly && $groupingid && $mods->cms[$cmid]->groupmembersonly) {
+                        if ($item->grouping != $groupingid) {
+                            $item->grouping = $groupingid;
+                            $upd = new stdClass;
+                            $upd->id = $item->id;
+                            $upd->grouping = $groupingid;
+                            update_record('checklist_item', $upd);
+                            $changes = true;
+                        }
+                    } else {
+                        if ($item->grouping) {
+                            $item->grouping = 0;
+                            $upd = new stdClass;
+                            $upd->id = $item->id;
+                            $upd->grouping = 0;
+                            update_record('checklist_item', $upd);
+                            $changes = true;
+                        }
                     }
                 } else {
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
@@ -258,6 +283,7 @@ class checklist_class {
                 if ($item->moduleid && !isset($item->stillexists)) {
                     //echo '---deleting item '.$item->displaytext.'<br/>';
                     $this->deleteitem($item->id, true);
+                    $changes = true;
                 }
             }
         }
