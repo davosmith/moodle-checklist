@@ -36,6 +36,7 @@ class checklist_class {
     var $sortby;
     var $additemafter;
     var $editdates;
+    var $groupings;
 
     function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
         global $COURSE;
@@ -68,7 +69,13 @@ class checklist_class {
         if ($checklist) {
             $this->checklist = $checklist;
         } else if (! $this->checklist = get_record('checklist', 'id', $this->cm->instance)) {
-            error('assignment ID was incorrect');
+            error('checklist ID was incorrect');
+        }
+
+        if ($checklist->autopopulate && $userid) {
+            $this->groupings = $this->get_user_groupings($userid, $this->course->id);
+        } else {
+            $this->groupings = false;
         }
 
         $this->strchecklist = get_string('modulename', 'checklist');
@@ -256,6 +263,8 @@ class checklist_class {
                         $upd->id = $item->id;
                         $upd->hidden = CHECKLIST_HIDDEN_NO;
                         update_record('checklist_item', $upd);
+                        $changes = true;
+                        
                     } elseif (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->cms[$cmid]->visible) {
                         // Course module is now hidden
                         $this->items[$item->id]->hidden = CHECKLIST_HIDDEN_BYMODULE;
@@ -263,6 +272,28 @@ class checklist_class {
                         $upd->id = $item->id;
                         $upd->hidden = CHECKLIST_HIDDEN_BYMODULE;
                         update_record('checklist_item', $upd);
+                        $changes = true;
+                    }
+
+                    $groupingid = $mods->cms[$cmid]->groupingid;
+                    if ($groupingid && $mods->cms[$cmid]->groupmembersonly) {
+                        if ($item->grouping != $groupingid) {
+                            $this->items[$item->id]->grouping = $groupingid;
+                            $upd = new stdClass;
+                            $upd->id = $item->id;
+                            $upd->grouping = $groupingid;
+                            update_record('checklist_item', $upd);
+                            $changes = true;
+                        }
+                    } else {
+                        if ($item->grouping) {
+                            $this->items[$item->id]->grouping = 0;
+                            $upd = new stdClass;
+                            $upd->id = $item->id;
+                            $upd->grouping = 0;
+                            update_record('checklist_item', $upd);
+                            $changes = true;
+                        }
                     }
                         
                 } else {
@@ -275,6 +306,7 @@ class checklist_class {
                     $this->items[$itemid]->stillexists = true;
                     $this->items[$itemid]->showscore = $showscore;
                     $this->items[$itemid]->checked = false;
+                    $this->items[$itemid]->grouping = $mods->cms[$cmid]->groupmembersonly ? $mods->cms[$cmid]->groupingid : 0;
                 }
                 $this->items[$itemid]->modulelink = $CFG->wwwroot.'/mod/'.$mods->cms[$cmid]->modname.'/view.php?id='.$cmid;
                 
@@ -290,6 +322,7 @@ class checklist_class {
                 if ($item->moduleid && !isset($item->stillexists)) {
                     //echo '---deleting item '.$item->displaytext.'<br/>';
                     $this->deleteitem($item->id, true);
+                    $changes = true;
                 }
             }
         }
@@ -563,9 +596,15 @@ class checklist_class {
         $requireditems = 0;
         $completeitems = 0;
         $allcompleteitems = 0;
+        $checkgroupings = $this->checklist->autopopulate && $this->groupings;
         foreach ($this->items as $item) {
             if (($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)||($item->hidden)) {
                 continue;
+            }
+            if ($checkgroupings && $item->grouping) {
+                if (!in_array($item->grouping, $this->groupings)) {
+                    continue;  // Current user is not a member of this item's grouping, so skip
+                }
             }
             if ($item->itemoptional == CHECKLIST_OPTIONAL_NO) {
                 $requireditems++;
@@ -696,6 +735,7 @@ class checklist_class {
             $showcheckbox = ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
         }
         $overrideauto = ($this->checklist->autoupdate != CHECKLIST_AUTOUPDATE_YES);
+        $checkgroupings = $this->checklist->autopopulate && $this->groupings;
 
         if (!$this->items) {
             print_string('noitems','checklist');
@@ -760,6 +800,12 @@ class checklist_class {
 
                 if ($item->hidden) {
                     continue;
+                }
+
+                if ($checkgroupings && $item->grouping) {
+                    if (!in_array($item->grouping, $this->groupings)) {
+                        continue;  // Current user is not a member of this item's grouping, so skip
+                    }
                 }
                 
                 while ($item->indent > $currindent) {
@@ -2751,7 +2797,13 @@ class checklist_class {
         if (!$checklist) {
             return array(false, false);
         }
-        if (!$items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND hidden = ".CHECKLIST_HIDDEN_NO." AND itemoptional = ".CHECKLIST_OPTIONAL_NO, '', 'id')) {
+        $groupings_sel = '';
+        if ($checklist->autopopulate) {
+            $groupings = checklist_class::get_user_groupings($userid, $checklist->course);
+            $groupings[] = 0;
+            $groupings_sel = ' AND grouping IN ('.implode(',',$groupings).') ';
+        }
+        if (!$items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND hidden = ".CHECKLIST_HIDDEN_NO." AND itemoptional = ".CHECKLIST_OPTIONAL_NO.$groupings_sel, '', 'id')) {
             return array(false, false);
         }
         $total = count($items);
@@ -2766,6 +2818,19 @@ class checklist_class {
         $ticked = count_records_select('checklist_check', $sql);
 
         return array($ticked, $total);
+    }
+
+    function get_user_groupings($userid, $courseid) {
+        global $CFG;
+        $sql = "SELECT gg.groupingid 
+                  FROM ({$CFG->prefix}groups g JOIN {$CFG->prefix}groups_members gm ON g.id = gm.groupid)
+                  JOIN {$CFG->prefix}groupings_groups gg ON gg.groupid = g.id
+                  WHERE gm.userid = $userid AND g.courseid = $courseid";
+        $groupings = get_records_sql($sql);
+        if ($groupings) {
+            return array_keys($groupings);
+        }
+        return array();
     }
 }
 
