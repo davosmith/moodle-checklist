@@ -73,6 +73,8 @@ $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['headingitem'] = 'This item is a heading - it will not have a checkbox beside it';
 
+$string['importfromsection'] = 'Current section';
+$string['importfromcourse'] = 'Whole course';
 $string['indentitem'] = 'Indent item';
 $string['itemcomplete'] = 'Completed';
 $string['items'] = 'Checklist items';

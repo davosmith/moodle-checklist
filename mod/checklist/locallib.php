@@ -141,7 +141,16 @@ class checklist_class {
         global $DB, $CFG;
 
         $mods = get_fast_modinfo($this->course);
-        
+
+        $importsection = -1;
+        if ($this->checklist->autopopulate == CHECKLIST_AUTOPOPULATE_SECTION) {
+            foreach ($mods->sections as $num => $section) {
+                if (in_array($this->cm->id, $section)) {
+                    $importsection = $num;
+                }
+            }
+        }
+
         $nextpos = 1;
         $section = 1;
         $changes = false;
@@ -155,6 +164,11 @@ class checklist_class {
                 continue;
             }
             
+            if ($importsection > 0 && $importsection != $section) {
+                $section++; // Only importing the section with the checklist in it
+                continue;
+            }
+
             $sectionheading = 0;
             while (list($itemid, $item) = each($this->items)) {
                 // Search from current position
@@ -446,6 +460,11 @@ class checklist_class {
         $this->view_tabs('edit');
 
         $this->process_edit_actions();
+
+        if ($this->checklist->autopopulate) {
+            // Needs to be done again, just in case the edit actions have changed something
+            $this->update_items_from_course();
+        }
 
         $this->view_edit_items();
 

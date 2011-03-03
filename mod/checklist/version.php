@@ -8,7 +8,7 @@
  * @package mod/checklist
  */
 
-$module->version  = 2011022700;  // The current module version (Date: YYYYMMDDXX)
+$module->version  = 2011030300;  // The current module version (Date: YYYYMMDDXX)
 $module->cron     = 60;          // Period for cron to check this module (secs)
 
 ?>
