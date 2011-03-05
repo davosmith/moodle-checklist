@@ -13,17 +13,27 @@ $string['allowmodulelinks'] = 'Povoliť odkazy na modul';
 $string['anygrade'] = 'Akúkoľvek';
 
 $string['autopopulate'] = 'Zobraziť v zozname aj moduly kurzu';
+$string['autopopulate_help'] = 'Tým sa automaticky pridá zoznam všetkých zdrojov a činností v aktuálnom kurze do zoznamu. <br />
+Tento zoznam bude aktualizovaný pri každej zmene v kurze, pri každej návšteve \'Upraviť \' na stránke zoznamu. <br />
+Položky môžu byť skryté zo zoznamu kliknutím na ikonu \'skryť \' vedľa nich. <br />
+Ak chcete odstrániť automatické položky zo zoznamu, zmente túto možnosť späť na \'Nie \', potom kliknite na \'Odstrániť položky na moduly kurzu \' na stránke \'Upraviť \' .';
 $string['autoupdate'] = 'Zaškrtnúť, ak je modul kompletný';
+$string['autoupdate_help'] = 'Tým sa automaticky zaškrtnú položky v zozname Po dokončení predmetnej činnosti v kurze. <br />
+\'Dokončenie \' činnosť záleží nadruhu aktivity - \'Zobrazenie \' zdroja, \'odoslanie \' testu alebo úlohy, \'pridanie \' do fóra alebo sa pripojiť na chat, atď <br />
+Ak je zapnute sledovanie dokončení v Moodle 2.0 pre určitú činnosť, ktoré bude použité na zaškrtnutie položky v zozname <br />
+To, že čo presne spôsobuje, že činnosť bude označená ako \'dokončené \', požiadajte správcu webu aby to pozrel v súbore \'mod / zoznam / autoupdate.php \' <br />
+Poznámka: môže trvať až 60 sekúnd kým sa zmena aktivity odrází v zozname pre študenta ';
 
 $string['canceledititem'] = 'Zrušiť';
 
-$string['calendardescription'] = 'Táto udalosť bola pridaná z kontrolného zoznamu: $a';
+$string['calendardescription'] = 'Táto udalosť bola pridaná z kontrolného zoznamu: {$a}';
 
 $string['changetextcolour'] = 'Ďalšia farba textu';
 
 $string['checkeditemsdeleted'] = 'Zaškrtnuté položky odstránené';
 
 $string['checklist'] = 'Kontrolný zoznam';
+$string['pluginadministration'] = ' Spravovať kontrolný zoznam';
 
 $string['checklist:edit'] = 'Vytvoriť a upravovať zoznamy';
 $string['checklist:preview'] = 'Náhľad zoznamu';
@@ -41,8 +51,8 @@ $string['checklistsettings'] = 'Nastavenia';
 $string['checks'] = 'Zaškrtnúť položku';
  $string['comments'] = 'Poznámky';
 
-$string['completiongradehelp'] = 'Známka za dokončenie je surové skóre, nie percento';
-$string['configallowmodulelinks'] = 'Povoliť prepojenie položky zoznamu na inýmé modulmi (môže spomaliť editáciu zoznamy)';
+$string['completionpercentgroup'] = 'Vyžadovať odškrtnutie';
+$string['completionpercent'] = 'Percento položiek, ktoré by mali byť odškrtnuté:';
 $string['configchecklistautoupdate'] = 'Pred povolením tejto funkcie musíte urobiť niekoľko zmien v kóde jadra Moodle, podrobnosti nájdete v mod/checklist/README.txt ';
 $string['confirmdeleteitem'] = 'Ste si istý ?';
  
@@ -62,6 +72,8 @@ $string['guestsno'] = 'Nemáte oprávnenie na prezeranie tohto zoznamu';
  
 $string['headingitem'] = 'Táto položka je len hlavička - to nebude mať začiarkavacie políčko vedľa';
  
+$string['importfromsection'] = 'Z aktuálnej sekcie';
+$string['importfromcourse'] = 'Z celého kurzu';
 $string['indentitem'] = 'Zarážka bodu';
 $string['itemcomplete'] = 'Dokončiť';
 $string['items'] = 'Položky kontrolného zoznamu';
@@ -82,15 +94,15 @@ $string['optionalshow'] = 'Zobraziť nepovinné položky';
 
 $string['percentcomplete'] = 'Povinné položky';
 $string['percentcompleteall'] = 'Všetky položky';
+$string['pluginname'] = 'Checklist';
 $string['preview'] = 'Prezrieť';
 $string['progress'] = 'Výkon';
+$string['removeauto'] = 'Odstrániť položky na moduly kurzu';
 
 $string['report'] = 'Zobraziť výkon';
 $string['reporttablesummary'] = 'Tabuľka zobrazuje položky, ktoré každý účastník splnil';
 
-$string['removeauto'] = 'Odstrániť položky na moduly kurzu';
-
-$string['requireditem'] = 'Táto položka je vyžadovaná';
+$string['requireditem'] = 'Táto položka je povinná - musí byť dokončená';
 
 $string['resetchecklistprogress'] = 'Nuluj zoznam pokroku a užívateľské položky';
 
