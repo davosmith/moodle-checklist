@@ -18,6 +18,8 @@ IMPORTANT: The 'Check-off modules when complete' option now works via cron, by d
 
 If you are not happy with this delay, then make the changes found in the file core_modifications.txt
 
+If you are upgrading from a previous version, please remove the file 'mod/checklist/settings.php' from your server, as it is no longer needed.
+
 
 ==Adding a checklist block==
 1. Click 'Turn editing on', in a course view.
