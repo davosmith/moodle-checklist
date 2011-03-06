@@ -59,10 +59,10 @@ If you allow a checklist to be updated by teachers (either exclusively, or in ad
 
 ==Further information==
 Moodle plugins database entry: http://moodle.org/mod/data/view.php?d=13&rid=3582
-Browse the code: http://cvs.moodle.org/contrib/plugins/mod/checklist
 Report a bug, or suggest an improvement: http://tracker.moodle.org/browse/CONTRIB/component/10608
 
 ==Contact details==
 Any questions, suggested improvements (or offers to pay for specific customisations) to:
 davo@davodev.co.uk
+http://www.davodev.co.uk
 
