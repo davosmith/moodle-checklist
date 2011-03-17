@@ -8,15 +8,15 @@
 // The second part of each array entry is the text to appear at the top of the column
 
 $checklist_report_user_columns = Array(
-                                       'region' => 'Region',    // Requested by a specific client
-                                       'district' => 'District', // Requested by a specific client
+                                       //'region' => 'Region',    // Requested by a specific client
+                                       //'district' => 'District', // Requested by a specific client
                                        'lastname' => get_string('lastname'),
                                        'firstname' => get_string('firstname'),
                                        'username' => get_string('username'),
                                        '_groups' => 'Groups(s)',
-                                       'role' => 'Position', // Requested by a specific client
-                                       'dealername' => 'Dealer Name', // Requested by a specific client
-                                       'dealernumber' => 'Dealer #', // Requested by a specific client
+                                       //'role' => 'Position', // Requested by a specific client
+                                       //'dealername' => 'Dealer Name', // Requested by a specific client
+                                       //'dealernumber' => 'Dealer #', // Requested by a specific client
                                        '_enroldate' => 'Enrol date',
                                        '_startdate' => 'Start date'
                                        );
