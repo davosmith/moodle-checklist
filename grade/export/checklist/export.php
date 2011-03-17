@@ -122,6 +122,25 @@ foreach ($users as $user) {
     foreach ($checklist_report_user_columns as $field => $header) {
         if ($field == '_groups') {
             $myxls->write_string($row, $col++, $groups_str);
+
+        } elseif ($field == '_enroldate') {
+            $enrolement = get_records_select('role_assignments', "contextid = $context->id AND userid = $user->id", 'timestart ASC', 'id, timestart', 0, 1);
+            $datestr = '';
+            if ($enrolement) {
+                $enrolement = reset($enrolement);
+                $datestr = userdate($enrolement->timestart, get_string('strftimedate'));
+            }
+            $myxls->write_string($row, $col++, $datestr);
+
+        } elseif ($field == '_startdate') {
+            $firstview = get_records_select('log', "userid = $user->id AND course = $course->id AND module = 'course' AND action = 'view'", 'time ASC', 'id, time', 0, 1);
+            $datestr = '';
+            if ($firstview) {
+                $firstview = reset($firstview);
+                $datestr = userdate($firstview->time, get_string('strftimedate'));
+            }
+            $myxls->write_string($row, $col++, $datestr);
+            
         } else {
             safe_write_string($myxls, $row, $col++, $userarray, $extra, $field);
         }
