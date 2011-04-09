@@ -1,5 +1,20 @@
 <?php
 
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Stores all the functions for manipulating a checklist
  *
@@ -38,7 +53,7 @@ class checklist_class {
     var $editdates;
     var $groupings;
 
-    function checklist_class($cmid='staticonly', $userid=0, $checklist=NULL, $cm=NULL, $course=NULL) {
+    function checklist_class($cmid='staticonly', $userid=0, $checklist=null, $cm=null, $course=null) {
         global $COURSE, $DB, $CFG;
 
         if ($cmid == 'staticonly') {
@@ -124,7 +139,7 @@ class checklist_class {
                 if (isset($this->items[$id])) {
                     $this->items[$id]->checked = $check->usertimestamp > 0;
                     $this->items[$id]->teachermark = $check->teachermark;
-                } elseif ($this->useritems && isset($this->useritems[$id])) {
+                } else if ($this->useritems && isset($this->useritems[$id])) {
                     $this->useritems[$id]->checked = $check->usertimestamp > 0;
                     // User items never have a teacher mark to go with them
                 }
@@ -253,7 +268,7 @@ class checklist_class {
                         $DB->update_record('checklist_item', $upd);
                         $changes = true;
 
-                    } elseif (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->cms[$cmid]->visible) {
+                    } else if (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->cms[$cmid]->visible) {
                         // Course module is now hidden
                         $item->hidden = CHECKLIST_HIDDEN_BYMODULE;
                         $upd = new stdClass;
@@ -421,7 +436,7 @@ class checklist_class {
 
         if ($this->canupdateown()) {
             $currenttab = 'view';
-        } elseif ($this->canpreview()) {
+        } else if ($this->canpreview()) {
             $currenttab = 'preview';
         } else {
             echo $OUTPUT->confirm('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n<p>" .
@@ -525,7 +540,7 @@ class checklist_class {
 
         if ($this->canupdateown()) {
             $row[] = new tabobject('view', new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)), get_string('view', 'checklist'));
-        } elseif ($this->canpreview()) {
+        } else if ($this->canpreview()) {
             $row[] = new tabobject('preview', new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)), get_string('preview', 'checklist'));
         }
         if ($this->canviewreports()) {
@@ -590,11 +605,11 @@ class checklist_class {
                         $completeitems++;
                         $allcompleteitems++;
                     }
-                } elseif ($item->checked) {
+                } else if ($item->checked) {
                     $completeitems++;
                     $allcompleteitems++;
                 }
-            } elseif ($teacherprogress) {
+            } else if ($teacherprogress) {
                 if ($item->teachermark == CHECKLIST_TEACHERMARK_YES) {
                     $allcompleteitems++;
                 }
@@ -815,7 +830,7 @@ class checklist_class {
                 if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                     $optional = ' class="itemheading '.$itemcolour.'" ';
                     $spacerimg = $OUTPUT->pix_url('check_spacer','checklist');
-                } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
+                } else if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $optional = ' class="itemoptional '.$itemcolour.'" ';
                 } else {
                     $optional = ' class="'.$itemcolour.'" ';
@@ -1154,7 +1169,7 @@ class checklist_class {
                     echo '<a href="'.$thispage->out(true, array('action'=>'makeheading')).'">';
                     echo '<img src="'.$OUTPUT->pix_url('empty_box','checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional '.$itemcolour.$autoclass.'" ';
-                } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+                } else if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                     if ($item->hidden) {
                         $title = '"'.get_string('headingitem','checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('no_box','checklist').'" alt='.$title.' title='.$title.' />&nbsp;';
@@ -1171,7 +1186,7 @@ class checklist_class {
                         echo '&nbsp;';
                         $optional = ' class="itemheading '.$itemcolour.$autoclass.'" ';
                     }
-                } elseif ($item->hidden) {
+                } else if ($item->hidden) {
                     $title = '"'.get_string('requireditem','checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('tick_box','checklist').'" alt='.$title.' title='.$title.' />&nbsp;';
                     $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
@@ -1484,12 +1499,12 @@ class checklist_class {
             if ($this->sortby == 'firstasc') {
                 $firstlink = 'sortby=firstdesc';
                 $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
-            } elseif ($this->sortby == 'lastasc') {
+            } else if ($this->sortby == 'lastasc') {
                 $lastlink = 'sortby=lastdesc';
                 $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
-            } elseif ($this->sortby == 'firstdesc') {
+            } else if ($this->sortby == 'firstdesc') {
                 $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
-            } elseif ($this->sortby == 'lastdesc') {
+            } else if ($this->sortby == 'lastdesc') {
                 $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
             }
             $firstlink = preg_replace('/sortby=.*/', $firstlink, $thisurl);
@@ -1624,7 +1639,7 @@ class checklist_class {
                             if ($teachermark == CHECKLIST_TEACHERMARK_YES) {
                                 $cellclass .= '-checked';
                                 $img = $teacherimg[$teachermark];
-                            } elseif ($teachermark == CHECKLIST_TEACHERMARK_NO) {
+                            } else if ($teachermark == CHECKLIST_TEACHERMARK_NO) {
                                 $cellclass .= '-unchecked';
                                 $img = $teacherimg[$teachermark];
                             } else {
@@ -1995,7 +2010,7 @@ class checklist_class {
                     $this->setevent($itemid, true);
                 }
             }
-        } elseif (isset($this->useritems[$itemid])) {
+        } else if (isset($this->useritems[$itemid])) {
             if ($this->canaddown()) {
                 $this->useritems[$itemid]->displaytext = $displaytext;
                 $upditem = new stdClass;
@@ -2017,7 +2032,7 @@ class checklist_class {
             $item = $this->items[$itemid];
             if ($item->hidden == CHECKLIST_HIDDEN_NO) {
                 $item->hidden = CHECKLIST_HIDDEN_MANUAL;
-            } elseif ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
+            } else if ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
                 $item->hidden = CHECKLIST_HIDDEN_NO;
             }
 
@@ -2083,7 +2098,7 @@ class checklist_class {
             }
             $this->setevent($itemid, false); // Remove any calendar events
             unset($this->items[$itemid]);
-        } elseif (isset($this->useritems[$itemid])) {
+        } else if (isset($this->useritems[$itemid])) {
             if (!$this->canaddown()) {
                 return;
             }
@@ -2122,7 +2137,7 @@ class checklist_class {
         $itemcount = count($this->items);
         if ($newposition < 1) {
             $newposition = 1;
-        } elseif ($newposition > $itemcount) {
+        } else if ($newposition > $itemcount) {
             $newposition = $itemcount;
         }
 
@@ -2184,7 +2199,7 @@ class checklist_class {
 
         if ($indent < 0) {
             $indent = 0;
-        } elseif ($indent > CHECKLIST_MAX_INDENT) {
+        } else if ($indent > CHECKLIST_MAX_INDENT) {
             $indent = CHECKLIST_MAX_INDENT;
         }
 
@@ -2240,7 +2255,7 @@ class checklist_class {
 
         if ($heading) {
             $optional = CHECKLIST_OPTIONAL_HEADING;
-        } elseif ($optional) {
+        } else if ($optional) {
             $optional = CHECKLIST_OPTIONAL_YES;
         } else {
             $optional = CHECKLIST_OPTIONAL_NO;
@@ -2250,7 +2265,7 @@ class checklist_class {
             $op = $this->items[$itemid]->itemoptional;
             if ($op == CHECKLIST_OPTIONAL_HEADING) {
                 return; // Topic headings must stay as headings
-            } elseif ($this->items[$itemid]->itemoptional == CHECKLIST_OPTIONAL_YES) {
+            } else if ($this->items[$itemid]->itemoptional == CHECKLIST_OPTIONAL_YES) {
                 $optional = CHECKLIST_OPTIONAL_NO; // Module links cannot become headings
             } else {
                 $optional = CHECKLIST_OPTIONAL_YES;
@@ -2746,12 +2761,12 @@ class checklist_class {
 function checklist_itemcompare($item1, $item2) {
     if ($item1->position < $item2->position) {
         return -1;
-    } elseif ($item1->position > $item2->position) {
+    } else if ($item1->position > $item2->position) {
         return 1;
     }
     if ($item1->id < $item2->id) {
         return -1;
-    } elseif ($item1->id > $item2->id) {
+    } else if ($item1->id > $item2->id) {
         return 1;
     }
     return 0;

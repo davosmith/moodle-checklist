@@ -1,5 +1,20 @@
 <?php
 
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 class restore_checklist_activity_structure_step extends restore_activity_structure_step {
 
     protected function define_structure() {
@@ -48,7 +63,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         if ($data->itemoptional == 3) {
             $data->itemoptional = 0;
             $data->hidden = 1;
-        } elseif ($data->itemoptional == 4) {
+        } else if ($data->itemoptional == 4) {
             $data->itemoptional = 2;
             $data->hidden = 1;
         }
