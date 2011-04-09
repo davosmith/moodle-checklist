@@ -140,12 +140,12 @@ foreach ($users as $user) {
                 $datestr = userdate($firstview->time, get_string('strftimedate'));
             }
             $myxls->write_string($row, $col++, $datestr);
-            
+
         } else {
             safe_write_string($myxls, $row, $col++, $userarray, $extra, $field);
         }
     }
-    
+
     $sql = "SELECT i.position, c.usertimestamp ";
     $sql .= "FROM {$CFG->prefix}checklist_item i LEFT JOIN ";
     $sql .= "(SELECT ch.item, ch.usertimestamp FROM {$CFG->prefix}checklist_check ch WHERE ch.userid = {$user->id}) c ";

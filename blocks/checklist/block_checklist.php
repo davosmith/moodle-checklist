@@ -22,7 +22,7 @@ class block_checklist extends block_list {
 
     function get_content() {
         global $CFG, $USER, $COURSE;
-        
+
         if ($this->content !== NULL) {
             return $this->content;
         }
@@ -34,12 +34,12 @@ class block_checklist extends block_list {
         if (!$this->import_checklist_plugin()) {
             $this->content->items = array(get_string('nochecklistplugin','block_checklist'));
             return $this->content;
-        } 
+        }
 
         if (empty($this->config->checklistid)) {
             $this->content->items = array(get_string('nochecklist','block_checklist'));
             return $this->content;
-        } 
+        }
 
         if (!$checklist = get_record('checklist','id',$this->config->checklistid)) {
             $this->content->items = array(get_string('nochecklist', 'block_checklist'));
@@ -87,7 +87,7 @@ class block_checklist extends block_list {
             } else {
                 $this->content->items = array(get_string('nousers','block_checklist'));
             }
-            
+
         } else {
             $link = '<a href="'.$CFG->wwwroot.'/mod/checklist/view.php?id='.$cm->id.'" >&nbsp;';
             $this->content->items = array($link.checklist_class::print_user_progressbar($checklist->id, $USER->id, '150px', false, true).'</a>');
@@ -98,7 +98,7 @@ class block_checklist extends block_list {
 
     function import_checklist_plugin() {
         global $CFG;
-        
+
         $chk = get_record('modules', 'name', 'checklist');
         if (!$chk) {
             return false;
@@ -111,7 +111,7 @@ class block_checklist extends block_list {
         if (!file_exists($CFG->dirroot.'/mod/checklist/locallib.php')) {
             return false;
         }
-        
+
         require_once($CFG->dirroot.'/mod/checklist/locallib.php');
         return true;
     }

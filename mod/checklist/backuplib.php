@@ -8,7 +8,7 @@
     //                            checklist
     //                            (CL,pk->id)
     //                                 |
-    //                                 |       
+    //                                 |
     //                                 |
     //                          checklist_item
     //                        (UL,pk->id, fk->checklist)
@@ -16,7 +16,7 @@
     //                                 |
     //                                 |
     //                          checklist_check
-    //                     (UL,pk->id,fk->item) 
+    //                     (UL,pk->id,fk->item)
     //
     // Meaning: pk->primary key field of the table
     //          fk->foreign key to link with parent
@@ -26,7 +26,7 @@
     //-----------------------------------------------------------
 
     function checklist_backup_mods($bf,$preferences) {
-       
+
         global $CFG;
 
         $status = true;
@@ -44,19 +44,19 @@
 
 
     function checklist_backup_one_mod($bf,$preferences,$checklist) {
-    
+
         global $CFG;
-        
+
         if (is_numeric($checklist)) {
             $checklist = get_record('checklist','id',$checklist);
         }
         $instanceid = $checklist->id;
-        
+
         $status = true;
-        
+
         //Start mod
         fwrite ($bf,start_tag("MOD",3,true));
-        
+
         fwrite ($bf,full_tag("ID",4,false,$checklist->id));
         fwrite ($bf,full_tag("MODTYPE",4,false,"checklist"));
         fwrite ($bf,full_tag("NAME",4,false,$checklist->name));
@@ -76,7 +76,7 @@
         $status = backup_checklist_items($bf,$preferences,$checklist->id);
 
         if ($status) $status = fwrite ($bf,end_tag("MOD",3,true));
-        
+
         return $status;
     }
 
@@ -87,14 +87,14 @@
         $info[$instance->id.'1'][0] = get_string('items','checklist');
         $userdata = !empty($instance->userdata);
         if ($ids = checklist_item_ids_by_instance ($instance->id, $userdata)) {
-                $info[$instance->id.'1'][1] = count($ids);        
+                $info[$instance->id.'1'][1] = count($ids);
         } else {
                 $info[$instance->id.'1'][1] = 0;
         }
         if ($userdata) {
             $info[$instance->id.'2'][0] = get_string('checks','checklist');
             if ($ids = checklist_check_ids_by_instance ($instance->id)) {
-                $info[$instance->id.'2'][1] = count($ids);        
+                $info[$instance->id.'2'][1] = count($ids);
             } else {
                 $info[$instance->id.'2'][1] = 0;
             }
@@ -105,17 +105,17 @@
                 $info[$instance->id.'3'][1] = 0;
             }
         }
-        
+
         return $info;
     }
 
 
 	function backup_checklist_items($bf, $preferences,$checklist) {
 		global $CFG;
-		
+
 		$status = true;
         $userbackup = backup_userdata_selected($preferences,'checklist',$checklist);
-		
+
         if ($userbackup) {
             $checklist_items = get_records('checklist_item','checklist',$checklist,'id');
         } else {
@@ -137,7 +137,7 @@
                 if ($status) $status = fwrite ($bf, full_tag("MODULEID",6,false,$item->moduleid)); // Will need to be careful when restoring this
                 if ($status) $status = fwrite ($bf, full_tag("COMPLETE_SCORE",6,false,$item->complete_score));
                 if ($status) $status = fwrite ($bf, full_tag("HIDDEN",6,false,$item->hidden));
-				
+
                 if ($userbackup) {
                     if ($status) $status = backup_checklist_checks($bf, $preferences, $item->id);
                 }
@@ -145,15 +145,15 @@
 			}
 			if ($status) $status = fwrite($bf, end_tag("ITEMS",4,true));
 		}
-		
+
 		return $status;
 	}
 
 	function backup_checklist_checks($bf, $preferences, $item) {
 		global $CFG;
-		
+
 		$status = true;
-		
+
 		$checklist_checks = get_records('checklist_check','item',$item,'id');
 		if ($checklist_checks) {
 		    $status = fwrite($bf, start_tag('CHECKS',7,true));
@@ -165,9 +165,9 @@
 		        if ($status) $status = fwrite($bf, full_tag("USERTIMESTAMP",9,false,$check->usertimestamp));
                 if ($status) $status = fwrite($bf, full_tag("TEACHERMARK",9,false,$check->teachermark));
                 if ($status) $status = fwrite($bf, full_tag("TEACHERTIMESTAMP",9,false,$check->teachertimestamp));
-		        if ($status) $status = fwrite($bf, end_tag("CHECK", 8, true));		        
+		        if ($status) $status = fwrite($bf, end_tag("CHECK", 8, true));
 		    }
-		
+
 		    if ($status) $status = fwrite($bf, end_tag("CHECKS",7,true));
 		}
 
@@ -185,14 +185,14 @@
 
             $status = $status && fwrite($bf, end_tag('COMMENTS', 7, true));
         }
-				
+
 		return $status;
-	
+
 	}
 
 ////Return an array of info (name,value)
    function checklist_check_backup_mods($course,$user_data=false,$backup_unique_code,$instances=null) {
-       
+
        if (!empty($instances) && is_array($instances) && count($instances)) {
            $info = array();
            foreach ($instances as $id => $instance) {
@@ -207,7 +207,7 @@
         } else {
             $info[0][1] = 0;
         }
-        
+
         $info[1][0] = get_string('items','checklist');
         if ($ids = checklist_item_ids_by_course($course, $user_data)) {
             $info[1][1] = count($ids);
@@ -290,14 +290,14 @@ function checklist_item_ids_by_course ($course, $userdata) {
         } else {
             $userid = ' AND i.userid = 0 ';
         }
-        
-        return get_records_sql ("SELECT i.id, i.checklist      
-                                 FROM {$CFG->prefix}checklist_item i,    
-                                      {$CFG->prefix}checklist c 
+
+        return get_records_sql ("SELECT i.id, i.checklist
+                                 FROM {$CFG->prefix}checklist_item i,
+                                      {$CFG->prefix}checklist c
                                  WHERE c.course = '$course' AND
-                                       i.checklist = c.id".$userid); 
+                                       i.checklist = c.id".$userid);
 }
-    
+
 function checklist_item_ids_by_instance ($instanceid, $userdata) {
 
         global $CFG;
@@ -308,57 +308,57 @@ function checklist_item_ids_by_instance ($instanceid, $userdata) {
             $userid = ' AND i.userid = 0 ';
         }
 
-        return get_records_sql ("SELECT i.id, i.checklist      
+        return get_records_sql ("SELECT i.id, i.checklist
                                  FROM {$CFG->prefix}checklist_item i
-                                 WHERE i.checklist = $instanceid".$userid); 
+                                 WHERE i.checklist = $instanceid".$userid);
 }
-    
+
 function checklist_check_ids_by_course ($course) {
 
         global $CFG;
 
-        return get_records_sql ("SELECT k.id, k.item 
+        return get_records_sql ("SELECT k.id, k.item
                                  FROM {$CFG->prefix}checklist_check k,
-                                      {$CFG->prefix}checklist_item i,    
-                                      {$CFG->prefix}checklist c 
+                                      {$CFG->prefix}checklist_item i,
+                                      {$CFG->prefix}checklist c
                                  WHERE c.course = '$course' AND
                                        i.checklist = c.id AND
-                                       k.item = i.id"); 
+                                       k.item = i.id");
 }
-    
+
 function checklist_check_ids_by_instance ($instanceid) {
 
         global $CFG;
 
         return get_records_sql ("SELECT k.id, k.item
                                  FROM {$CFG->prefix}checklist_check k,
-                                      {$CFG->prefix}checklist_item i     
+                                      {$CFG->prefix}checklist_item i
                                  WHERE i.checklist = $instanceid AND
-                                       k.item = i.id"); 
+                                       k.item = i.id");
 }
 
 function checklist_comment_ids_by_course ($course) {
 
         global $CFG;
 
-        return get_records_sql ("SELECT t.id, t.itemid 
+        return get_records_sql ("SELECT t.id, t.itemid
                                  FROM {$CFG->prefix}checklist_comment t,
-                                      {$CFG->prefix}checklist_item i,    
-                                      {$CFG->prefix}checklist c 
+                                      {$CFG->prefix}checklist_item i,
+                                      {$CFG->prefix}checklist c
                                  WHERE c.course = '$course' AND
                                        i.checklist = c.id AND
-                                       t.itemid = i.id"); 
+                                       t.itemid = i.id");
 }
-    
+
 function checklist_comment_ids_by_instance ($instanceid) {
 
         global $CFG;
 
         return get_records_sql ("SELECT t.id, t.itemid
                                  FROM {$CFG->prefix}checklist_comment t,
-                                      {$CFG->prefix}checklist_item i     
+                                      {$CFG->prefix}checklist_item i
                                  WHERE i.checklist = $instanceid AND
-                                       t.itemid = i.id"); 
+                                       t.itemid = i.id");
 }
-    
+
 ?>

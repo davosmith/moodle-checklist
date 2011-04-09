@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * This file defines the main checklist configuration form
@@ -69,7 +69,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('duedatesoncalendar', 0);
 
         // These settings are all disabled, as they are not currently implemented
-        
+
         /*
         $themes = array('default' => 'default');
         $mform->addElement('select', 'theme', get_string('theme', 'checklist'), $themes);
@@ -90,14 +90,14 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('autopopulate', 0);
         $mform->setHelpButton('autopopulate', array('autopopulate', get_string('autopopulate','checklist'), 'checklist'));
 
-        $autoupdate_options = array( CHECKLIST_AUTOUPDATE_NO => get_string('no'), 
-                                     CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'), 
+        $autoupdate_options = array( CHECKLIST_AUTOUPDATE_NO => get_string('no'),
+                                     CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'),
                                      CHECKLIST_AUTOUPDATE_YES_OVERRIDE => get_string('yesoverride', 'checklist'));
         $mform->addElement('select', 'autoupdate', get_string('autoupdate', 'checklist'), $autoupdate_options);
         $mform->setDefault('autoupdate', 1);
         $mform->disabledIf('autoupdate', 'autopopulate', 'eq', 0);
         $mform->setHelpButton('autoupdate', array('autoupdate', get_string('autoupdate','checklist'), 'checklist'));
-        
+
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules
         $features = new stdClass;
