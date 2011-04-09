@@ -3,7 +3,7 @@
  * Capability definitions for the checklist module
  */
 
-$mod_checklist_capabilities = array(
+$capabilities = array(
       // Ability to view and update own checklist
       'mod/checklist:updateown' => array(
           'riskbitmask' => RISK_SPAM,
@@ -22,7 +22,7 @@ $mod_checklist_capabilities = array(
           'legacy' => array(
               'teacher' => CAP_ALLOW,
               'editingteacher' => CAP_ALLOW,
-              'admin' => CAP_ALLOW
+              'manager' => CAP_ALLOW
           )
       ),
 
@@ -33,7 +33,7 @@ $mod_checklist_capabilities = array(
           'legacy' => array(
               'teacher' => CAP_ALLOW,
               'editingteacher' => CAP_ALLOW,
-              'admin' => CAP_ALLOW
+              'manager' => CAP_ALLOW
           )
       ),
 
@@ -46,7 +46,7 @@ $mod_checklist_capabilities = array(
           'legacy' => array(
               'teacher' => CAP_ALLOW,
               'editingteacher' => CAP_ALLOW,
-              'admin' => CAP_ALLOW
+              'manager' => CAP_ALLOW
           )
       ),
 
@@ -58,7 +58,7 @@ $mod_checklist_capabilities = array(
           'contextlevel' => CONTEXT_MODULE,
           'legacy' => array(
               'editingteacher' => CAP_ALLOW,
-              'admin' => CAP_ALLOW
+              'manager' => CAP_ALLOW
           )
       )
 
