@@ -31,7 +31,7 @@ class backup_checklist_activity_task extends backup_activity_task {
     static public function encode_content_links($content) {
         // I don't think there is anything needed here (but I could be wrong)
 
-        
+
         global $CFG;
 
         $base = preg_quote($CFG->wwwroot,"/");

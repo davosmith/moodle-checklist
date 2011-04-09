@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * This page lists all the instances of newmodule in a particular course
@@ -80,7 +80,7 @@ foreach ($checklists as $checklist) {
         $link = '<a href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
     }
 
-    
+
     if ($course->format == 'weeks' or $course->format == 'topics') {
         $row = array ($checklist->section, $link);
     } else {
@@ -100,5 +100,3 @@ echo html_writer::table($table);
 /// Finish the page
 
 echo $OUTPUT->footer();
-
-?>

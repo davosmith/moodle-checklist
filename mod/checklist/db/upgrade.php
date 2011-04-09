@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 function xmldb_checklist_upgrade($oldversion=0) {
 
@@ -20,16 +20,16 @@ function xmldb_checklist_upgrade($oldversion=0) {
     if ($result && $oldversion < 2010022800) {
         // All checklists created before this point were 'student only' checklists
         // Update the default & previously created checklists to reflect this
-        
+
         $sql = 'UPDATE {checklist} ';
         $sql .= 'SET teacheredit=0 ';
         $sql .= 'WHERE teacheredit=2';
         $DB->execute($sql);
-        
+
         $table = new xmldb_table('checklist');
         $field = new xmldb_field('teacheredit', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, '0', 'useritemsallowed');
         $dbman->change_field_type($table, $field);
-    
+
         /// checklist savepoint reached
         upgrade_mod_savepoint($result, 2010022800, 'checklist');
     }
@@ -143,7 +143,7 @@ function xmldb_checklist_upgrade($oldversion=0) {
 
         upgrade_mod_savepoint($result, 2010102703, 'checklist');
     }
-        
+
     if ($result && $oldversion < 2010112000) {
         $table = new xmldb_table('checklist');
         $field = new xmldb_field('autopopulate', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, '0');
@@ -186,7 +186,7 @@ function xmldb_checklist_upgrade($oldversion=0) {
             $chkmod_upd->cron = 60;
             $DB->update_record('modules', $chkmod_upd);
         }
-        
+
     }
 
     if ($result && $oldversion < 2011021900) {
@@ -224,5 +224,3 @@ function xmldb_checklist_upgrade($oldversion=0) {
     return $result;
 
 }
-
-?>

@@ -63,4 +63,3 @@ $mod_checklist_capabilities = array(
       )
 
 );
-?>

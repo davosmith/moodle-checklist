@@ -46,5 +46,3 @@ require_login($course, true, $cm);
 if ($chk = new checklist_class($cm->id, 0, $checklist, $cm, $course)) {
     $chk->edit();
 }
-
-?>

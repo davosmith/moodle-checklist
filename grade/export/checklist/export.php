@@ -124,7 +124,7 @@ foreach ($users as $user) {
     foreach ($checklist_report_user_columns as $field => $header) {
         if ($field == '_groups') {
             $myxls->write_string($row, $col++, $groups_str);
-            
+
         } elseif ($field == '_enroldate') {
             $sql = 'SELECT ue.id, ue.timestart FROM {user_enrolments} ue, {enrol} e ';
             $sql .= 'WHERE e.id = ue.enrolid AND e.courseid = ? AND ue.userid = ? AND e.enrol <> "guest" ';
@@ -136,7 +136,7 @@ foreach ($users as $user) {
                 $datestr = userdate($enrolement->timestart, get_string('strftimedate'));
             }
             $myxls->write_string($row, $col++, $datestr);
-            
+
         } elseif ($field == '_startdate') {
             $firstview = $DB->get_records_select('log', 'userid = ? AND course = ? AND module = "course" AND action = "view"', array($user->id, $course->id), 'time ASC', 'id, time', 0, 1);
             $datestr = '';
@@ -145,12 +145,12 @@ foreach ($users as $user) {
                 $datestr = userdate($firstview->time, get_string('strftimedate'));
             }
             $myxls->write_string($row, $col++, $datestr);
-            
+
         } else {
             safe_write_string($myxls, $row, $col++, $userarray, $extra, $field);
         }
     }
-    
+
     $sql = "SELECT i.position, c.usertimestamp ";
     $sql .= "FROM {checklist_item} i LEFT JOIN ";
     $sql .= "(SELECT ch.item, ch.usertimestamp FROM {checklist_check} ch WHERE ch.userid = ?) c ";
@@ -170,5 +170,3 @@ foreach ($users as $user) {
 
 $workbook->close();
 exit;
-
-?>

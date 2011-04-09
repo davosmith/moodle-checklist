@@ -116,4 +116,3 @@ echo '</form></div>';
 
 echo $OUTPUT->footer();
 
-?>

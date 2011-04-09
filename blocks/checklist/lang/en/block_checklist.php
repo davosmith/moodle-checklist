@@ -7,5 +7,3 @@ $string['nochecklist'] = 'Please edit this block to select a checklist to displa
 $string['nochecklistplugin'] = 'You need to install the latest version of the checklist plugin for this block to work';
 $string['nousers'] = 'No users';
 $string['pluginname'] = 'Checklist';
-
-?>

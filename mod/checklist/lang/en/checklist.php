@@ -143,6 +143,3 @@ $string['viewsingleupdate'] = 'Update progress for this user';
 
 $string['yesnooverride'] = 'Yes, cannot override';
 $string['yesoverride'] = 'Yes, can override';
-
-
-?>

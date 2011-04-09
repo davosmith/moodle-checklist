@@ -18,7 +18,7 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $checklist = new backup_nested_element('checklist', array('id'), array(
             'name', 'intro', 'introformat', 'timecreated', 'timemodified', 'useritemsallowed',
-            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade', 
+            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade',
             'autopopulate', 'autoupdate'));
 
         $items = new backup_nested_element('items');
@@ -27,7 +27,7 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
                                                                      'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime', 'colour', 'moduleid', 'hidden'));
 
         $checks = new backup_nested_element('checks');
-        
+
         $check = new backup_nested_element('check', array('id'), array(
             'userid', 'usertimestamp', 'teachermark', 'teachertimestamp'));
 
@@ -35,7 +35,7 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $comment = new backup_nested_element('comment', array('id'), array(
             'userid', 'commentby', 'text'));
-                                           
+
         // Build the tree
         $checklist->add_child($items);
         $items->add_child($item);

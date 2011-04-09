@@ -24,5 +24,3 @@ $string['nousers'] = 'No users to export';
 $string['pluginname'] = 'Checklist export';
 
 $string['wrongdistrict'] = 'You do not have permission to view reports from that district';
-
-?>
