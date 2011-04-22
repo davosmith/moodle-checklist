@@ -5,14 +5,14 @@ class block_checklist_edit_form extends block_edit_form {
         global $DB, $COURSE;
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
-        
+
         $options = array();
         $checklists = $DB->get_records('checklist', array('course'=>$COURSE->id));
         foreach ($checklists as $checklist) {
             $options[$checklist->id] = s($checklist->name);
         }
         $mform->addElement('select', 'config_checklistid', get_string('choosechecklist', 'block_checklist'), $options);
-        
+
         $options = array(0 => get_string('allparticipants'));
         $groups = $DB->get_records('groups', array('courseid'=>$COURSE->id));
         foreach ($groups as $group) {

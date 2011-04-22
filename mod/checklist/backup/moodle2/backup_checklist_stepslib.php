@@ -1,5 +1,20 @@
 <?php
 
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Define all the backup steps that will be used by the backup_forum_activity_task
  */
@@ -18,16 +33,17 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $checklist = new backup_nested_element('checklist', array('id'), array(
             'name', 'intro', 'introformat', 'timecreated', 'timemodified', 'useritemsallowed',
-            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade', 
+            'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade',
             'autopopulate', 'autoupdate'));
 
         $items = new backup_nested_element('items');
 
-        $item = new backup_nested_element('item', array('id'), array(
-                                                                     'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime', 'colour', 'moduleid', 'hidden'));
+        $item = new backup_nested_element('item', array('id'),
+                                          array('userid', 'displaytext', 'position', 'indent',
+                                                'itemoptional', 'duetime', 'colour', 'moduleid', 'hidden'));
 
         $checks = new backup_nested_element('checks');
-        
+
         $check = new backup_nested_element('check', array('id'), array(
             'userid', 'usertimestamp', 'teachermark', 'teachertimestamp'));
 
@@ -35,7 +51,7 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $comment = new backup_nested_element('comment', array('id'), array(
             'userid', 'commentby', 'text'));
-                                           
+
         // Build the tree
         $checklist->add_child($items);
         $items->add_child($item);

@@ -1,4 +1,19 @@
-<?php 
+<?php
+
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This file defines the main checklist configuration form
@@ -62,7 +77,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('duedatesoncalendar', 0);
 
         // These settings are all disabled, as they are not currently implemented
-        
+
         /*
         $themes = array('default' => 'default');
         $mform->addElement('select', 'theme', get_string('theme', 'checklist'), $themes);
@@ -74,7 +89,7 @@ class mod_checklist_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'maxgrade', get_string('maximumgrade'), array('size'=>'10'));
         $mform->setDefault('maxgrade', 100);
-        $mform->setAdvanced('maxgrade');      
+        $mform->setAdvanced('maxgrade');
 
         $autopopulateoptions = array (CHECKLIST_AUTOPOPULATE_NO => get_string('no'),
                                       CHECKLIST_AUTOPOPULATE_SECTION => get_string('importfromsection','checklist'),
@@ -83,8 +98,8 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('autopopulate', 0);
         $mform->addHelpButton('autopopulate', 'autopopulate', 'checklist');
 
-        $autoupdate_options = array( CHECKLIST_AUTOUPDATE_NO => get_string('no'), 
-                                     CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'), 
+        $autoupdate_options = array( CHECKLIST_AUTOUPDATE_NO => get_string('no'),
+                                     CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'),
                                      CHECKLIST_AUTOUPDATE_YES_OVERRIDE => get_string('yesoverride', 'checklist'));
         $mform->addElement('select', 'autoupdate', get_string('autoupdate', 'checklist'), $autoupdate_options);
         $mform->setDefault('autoupdate', 1);
@@ -143,7 +158,5 @@ class mod_checklist_mod_form extends moodleform_mod {
         }
         return $data;
     }
-    
-}
 
-?>
+}

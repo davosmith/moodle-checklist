@@ -17,13 +17,11 @@ $checklist_report_user_columns = Array(
                                        //'role' => 'Position', // Requested by a specific client
                                        //'dealername' => 'Dealer Name', // Requested by a specific client
                                        //'dealernumber' => 'Dealer #', // Requested by a specific client
-                                       '_enroldate' => 'Enrol date', 
+                                       '_enroldate' => 'Enrol date',
                                        '_startdate' => 'Start date'
                                        );
 
 // The output from the default setting above would be:
 // | Surname | First name | Username | Groups(s)        | Checklistitem1 | Checklistitem2 | etc.
-// | Smith   | Bob        | bobsmith | Group A, Group B |                |              1 | 
+// | Smith   | Bob        | bobsmith | Group A, Group B |                |              1 |
 // Where '1' indicates the item is checked-off
-
-?>

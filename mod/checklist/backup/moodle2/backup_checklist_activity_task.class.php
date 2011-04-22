@@ -1,5 +1,20 @@
 <?php
 
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 require_once($CFG->dirroot . '/mod/checklist/backup/moodle2/backup_checklist_stepslib.php'); // Because it exists (must)
 require_once($CFG->dirroot . '/mod/checklist/backup/moodle2/backup_checklist_settingslib.php'); // Because it exists (optional)
 
@@ -30,8 +45,6 @@ class backup_checklist_activity_task extends backup_activity_task {
      */
     static public function encode_content_links($content) {
         // I don't think there is anything needed here (but I could be wrong)
-
-        
         global $CFG;
 
         $base = preg_quote($CFG->wwwroot,"/");

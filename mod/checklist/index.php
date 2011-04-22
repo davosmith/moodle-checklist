@@ -1,7 +1,22 @@
-<?php 
+<?php
+
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page lists all the instances of newmodule in a particular course
+ * This page lists all the instances of checklist in a particular course
  *
  * @author  David Smith <moodle@davosmith.co.uk>
  * @package mod/checklist
@@ -19,7 +34,7 @@ if (! $course = $DB->get_record('course', array('id' => $id) )) {
     error('Course ID is incorrect');
 }
 
-$PAGE->set_url('/mod/checklist/index.php',array('id'=>$course->id));
+$PAGE->set_url('/mod/checklist/index.php', array('id'=>$course->id));
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
 
@@ -50,7 +65,7 @@ $timenow  = time();
 $strname  = get_string('name');
 $strweek  = get_string('week');
 $strtopic = get_string('topic');
-$strprogress = get_string('progress','checklist');
+$strprogress = get_string('progress', 'checklist');
 
 $table = new html_table();
 
@@ -80,7 +95,7 @@ foreach ($checklists as $checklist) {
         $link = '<a href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
     }
 
-    
+
     if ($course->format == 'weeks' or $course->format == 'topics') {
         $row = array ($checklist->section, $link);
     } else {
@@ -100,5 +115,3 @@ echo html_writer::table($table);
 /// Finish the page
 
 echo $OUTPUT->footer();
-
-?>

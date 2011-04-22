@@ -183,5 +183,3 @@ foreach ($users as $user) {
 
 $workbook->close();
 exit;
-
-?>
