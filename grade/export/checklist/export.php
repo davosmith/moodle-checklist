@@ -3,6 +3,7 @@
 // Note - to adjust the user columns included in the report, edit 'columns.php'
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
+require_once($CFG->dirroot.'/mod/checklist/lib.php'); // For CHECKLIST_* definitions
 require_once($CFG->dirroot.'/grade/export/lib.php');
 require_once($CFG->dirroot.'/lib/excellib.class.php');
 
@@ -124,7 +125,7 @@ foreach ($users as $user) {
     foreach ($checklist_report_user_columns as $field => $header) {
         if ($field == '_groups') {
             $myxls->write_string($row, $col++, $groups_str);
-            
+
         } elseif ($field == '_enroldate') {
             $sql = 'SELECT ue.id, ue.timestart FROM {user_enrolments} ue, {enrol} e ';
             $sql .= 'WHERE e.id = ue.enrolid AND e.courseid = ? AND ue.userid = ? AND e.enrol <> "guest" ';
@@ -136,7 +137,7 @@ foreach ($users as $user) {
                 $datestr = userdate($enrolement->timestart, get_string('strftimedate'));
             }
             $myxls->write_string($row, $col++, $datestr);
-            
+
         } elseif ($field == '_startdate') {
             $firstview = $DB->get_records_select('log', 'userid = ? AND course = ? AND module = "course" AND action = "view"', array($user->id, $course->id), 'time ASC', 'id, time', 0, 1);
             $datestr = '';
@@ -145,24 +146,36 @@ foreach ($users as $user) {
                 $datestr = userdate($firstview->time, get_string('strftimedate'));
             }
             $myxls->write_string($row, $col++, $datestr);
-            
+
         } else {
             safe_write_string($myxls, $row, $col++, $userarray, $extra, $field);
         }
     }
-    
-    $sql = "SELECT i.position, c.usertimestamp ";
+
+    $sql = "SELECT i.position, c.usertimestamp, c.teachermark ";
     $sql .= "FROM {checklist_item} i LEFT JOIN ";
-    $sql .= "(SELECT ch.item, ch.usertimestamp FROM {checklist_check} ch WHERE ch.userid = ?) c ";
+    $sql .= "(SELECT ch.item, ch.usertimestamp, ch.teachermark FROM {checklist_check} ch WHERE ch.userid = ?) c ";
     $sql .= "ON c.item = i.id ";
     $sql .= "WHERE i.checklist = ? AND userid = 0 AND i.itemoptional < 2 AND i.hidden = 0 ";
     $sql .= 'ORDER BY i.position';
     $checks = $DB->get_records_sql($sql, array($user->id, $checklist->id));
 
+    $studentmark = $checklist->teacheredit != CHECKLIST_MARKING_TEACHER;
+    $teachermark = $checklist->teacheredit != CHECKLIST_MARKING_STUDENT;
+
     foreach ($checks as $check) {
-        if ($check->usertimestamp > 0) {
-            $myxls->write_number($row, $col, 1);
+        $out = '';
+        if ($teachermark) {
+            if ($check->teachermark == CHECKLIST_TEACHERMARK_NO) {
+                $out .= 'N';
+            } else if ($check->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                $out .= 'Y';
+            }
         }
+        if ($studentmark && $check->usertimestamp > 0) {
+            $out .= '1';
+        }
+        $myxls->write_string($row, $col, $out);
         $col++;
     }
     $row++;
