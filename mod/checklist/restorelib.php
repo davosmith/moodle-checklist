@@ -8,7 +8,7 @@
     //                            checklist
     //                            (CL,pk->id)
     //                                 |
-    //                                 |       
+    //                                 |
     //                                 |
     //                          checklist_item
     //                        (UL,pk->id, fk->checklist)
@@ -16,7 +16,7 @@
     //                                 |
     //                                 |
     //                          checklist_check
-    //                     (UL,pk->id,fk->item) 
+    //                     (UL,pk->id,fk->item)
     //
     // Meaning: pk->primary key field of the table
     //          fk->foreign key to link with parent
@@ -35,9 +35,9 @@ require_once(dirname(__FILE__).'/locallib.php');
             return $default;
         }
     }
- 
+
     function checklist_restore_mods($mod,$restore) {
-        
+
         global $CFG,$db;
 
         $status = true;
@@ -90,34 +90,34 @@ require_once(dirname(__FILE__).'/locallib.php');
                              $mod->id, $newid);
 
                 $checklist->id = $newid;
-                
+
                 $restore_user = restore_userdata_selected($restore,'checklist',$mod->id);
                 $status = checklist_items_restore($newid, $info, $restore, $restore_user);
 
             } else {
                 $status = false;
             }
-                
+
         } else {
             $status = false;
         }
 
         return $status;
     }
-    
+
     function checklist_items_restore($checklist,$info,$restore,$restore_user) {
-    
+
         global $CFG;
 
         $status = true;
 
         //Get the items array
         $items = array();
-        
+
         if (!empty($info['MOD']['#']['ITEMS']['0']['#']['ITEM'])) {
             $items = $info['MOD']['#']['ITEMS']['0']['#']['ITEM'];
         }
-        
+
         //Iterate over discussions
         for($i = 0; $i < sizeof($items); $i++) {
             $i_info = $items[$i];
@@ -142,7 +142,7 @@ require_once(dirname(__FILE__).'/locallib.php');
             $item->moduleid = backup_todb_chk_optional_field($i_info,'MODULEID', 0);
             $item->complete_score = backup_todb_chk_optional_field($i_info,'COMPLETE_SCORE', 0);
             $item->hidden = backup_todb_chk_optional_field($i_info,'HIDDEN', 0);
-            
+
             if ($item->userid > 0) {
                 // Ignore user-created items if not restoring userdata
                 if (!$restore_user) {
@@ -202,7 +202,7 @@ require_once(dirname(__FILE__).'/locallib.php');
                     $status = checklist_checks_restore ($newid,$i_info,$restore);
                     $status = $status && checklist_comments_restore($newid, $i_info, $restore);
                 }
-                
+
             } else {
                 $status = false;
                 break;

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 function xmldb_checklist_upgrade($oldversion=0) {
 
@@ -17,12 +17,12 @@ function xmldb_checklist_upgrade($oldversion=0) {
     if ($result && $oldversion < 2010022800) {
         // All checklists created before this point were 'student only' checklists
         // Update the default & previously created checklists to reflect this
-        
+
         $sql = 'UPDATE '.$CFG->prefix.'checklist ';
         $sql .= 'SET teacheredit=0 ';
         $sql .= 'WHERE teacheredit=2';
         $result = execute_sql($sql);
-        
+
         $table = new XMLDBTable('checklist');
         $field = new XMLDBField('teacheredit');
         $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '0', null);
@@ -97,7 +97,7 @@ function xmldb_checklist_upgrade($oldversion=0) {
 
         $result = $result && add_field($table, $field);
     }
-    
+
     if ($result && $oldversion < 2010102703) {
         $table = new XMLDBTable('checklist');
         $field = new XMLDBField('maxgrade');
@@ -106,7 +106,7 @@ function xmldb_checklist_upgrade($oldversion=0) {
 
         $result = $result && add_field($table, $field);
     }
-        
+
     if ($result && $oldversion < 2010112000) {
         $table = new XMLDBTable('checklist');
 
@@ -118,7 +118,7 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, null, null, null, null, '1', 'autopopulate');
         $result = $result && add_field($table, $field);
 
-        
+
         $table = new XMLDBTable('checklist_item');
 
         $field = new XMLDBField('moduleid');
@@ -160,7 +160,7 @@ function xmldb_checklist_upgrade($oldversion=0) {
         $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, null, '0', 'hidden');
         $result = $result && add_field($table, $field);
     }
-        
+
     return $result;
 
 }

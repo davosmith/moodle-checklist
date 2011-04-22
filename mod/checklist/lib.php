@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * Library of functions and constants for module checklist
@@ -15,7 +15,7 @@
  *     actions across all modules.
  */
 
-define("CHECKLIST_TEACHERMARK_NO", 2); 
+define("CHECKLIST_TEACHERMARK_NO", 2);
 define("CHECKLIST_TEACHERMARK_YES", 1);
 define("CHECKLIST_TEACHERMARK_UNDECIDED", 0);
 
@@ -181,7 +181,7 @@ function checklist_update_grades($checklist, $userid=0) {
         $date = ', MAX(c.teachertimestamp) AS dategraded';
         $where = 'c.teachermark = '.CHECKLIST_TEACHERMARK_YES;
     }
-    
+
     // Autopopulate is on and checklist has at least one item with a grouping
     if ($checkgroupings) {
         if ($userid) {
@@ -211,7 +211,7 @@ function checklist_update_grades($checklist, $userid=0) {
                 $itemlist .= $item->id.',';
                 $total++;
             }
-            
+
             if (!$total) { // No items - set score to 0
                 $ugrade = new stdClass;
                 $ugrade->userid = $userid;
@@ -220,7 +220,7 @@ function checklist_update_grades($checklist, $userid=0) {
 
             } else {
                 $itemlist = substr($itemlist, 0, -1);
-                
+
                 $sql = 'SELECT '.$userid.' AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
                 $sql .= " FROM {$CFG->prefix}checklist_check c ";
                 $sql .= " WHERE c.item IN ($itemlist)";
@@ -234,10 +234,10 @@ function checklist_update_grades($checklist, $userid=0) {
                     $ugrade->date = time();
                 }
             }
-            
+
             $grades[$userid] = $ugrade;
         }
-        
+
     } else {
         // No need to check groupings, so update all student grades at once
 
@@ -250,9 +250,9 @@ function checklist_update_grades($checklist, $userid=0) {
             }
             $users = implode(',',array_keys($users));
         }
-    
+
         $total = count($items);
-    
+
         $itemlist = implode(',',array_keys($items));
 
         $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
@@ -377,7 +377,7 @@ function checklist_user_complete($course, $user, $mod, $checklist) {
     $chk = new checklist_class($mod->id, $user->id, $checklist, $mod, $course);
 
     $chk->user_complete();
-    
+
     return true;
 }
 
@@ -468,9 +468,9 @@ function checklist_cron () {
     if (!$CFG->checklist_autoupdate_use_cron) {
         return true;
     }
-    
+
     $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
-    
+
     $logupdate = 0;
     $logs = get_logs("l.time >= $lastlogtime", 'l.time ASC', '', '', $totalcount);
     if ($logs) {
@@ -499,7 +499,7 @@ function checklist_cron () {
     if ($gradeupdate) {
         mtrace("Updated $gradeupdate checkmark(s) from grade changes");
     }
-    
+
     return true;
 }
 
@@ -520,7 +520,7 @@ function checklist_get_participants($checklistid) {
     $sql .= "WHERE i.checklist = '$checklistid' AND ((c.item = i.id AND c.userid = u.id) OR (i.userid = u.id))";
 
     $return = get_records_sql($sql);
-    
+
     return $return;
 }
 
@@ -602,7 +602,7 @@ function checklist_reset_userdata($data) {
             return $status;
         }
         $items = implode(',',array_keys($items));
-        
+
         delete_records_select('checklist_check', 'item IN ('.$items.')');
 
         $sql = 'checklist IN ('.$checklistkeys.') AND userid != 0';
@@ -610,7 +610,7 @@ function checklist_reset_userdata($data) {
 
         // Reset the grades
         foreach ($checklists as $checklist) {
-            checklist_grade_item_update($checklist, 'reset');            
+            checklist_grade_item_update($checklist, 'reset');
         }
     }
 
@@ -629,7 +629,7 @@ function checklist_refresh_events($courseid = 0) {
     if (!$checklists) {
         return true;
     }
-    
+
     foreach ($checklists as $checklist) {
         if ($checklist->duedatesoncalendar) {
             $cm = get_coursemodule_from_instance('checklist', $checklist->id, $checklist->course);

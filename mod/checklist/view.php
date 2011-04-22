@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * This page prints a particular instance of checklist

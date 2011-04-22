@@ -102,7 +102,7 @@ function checklist_set_check($itemid, $userid, $set) {
         $check->usertimestamp = time();
         $check->teachertimestamp = 0;
         $check->teachermark = 0; // CHECKLIST_TEACHERMARK_UNDECIDED - not loading from mod/checklist/lib.php to reduce overhead
-                    
+
         $check->id = insert_record('checklist_check', $check);
         return true;
     }
@@ -125,7 +125,7 @@ function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
     $cm = get_coursemodule_from_instance($modname, $instanceid, $courseid);
     $sql = "SELECT * FROM {$CFG->prefix}checklist_item i WHERE i.checklist IN {$checklistids} AND i.moduleid = {$cm->id} AND i.itemoptional < 2 AND i.complete_score > 0";
     $items = get_records_sql($sql);
-    // itemoptional - 0: required; 1: optional; 2: heading; 
+    // itemoptional - 0: required; 1: optional; 2: heading;
     // not loading defines from mod/checklist/locallib.php to reduce overhead
     if (!$items) {
         return 0;
@@ -144,7 +144,7 @@ function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
             }
         }
     }
-    
+
     if ($updatecount) {
         require_once($CFG->dirroot.'/mod/checklist/lib.php');
         foreach ($checklists as $checklist) {
