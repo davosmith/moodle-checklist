@@ -718,6 +718,7 @@ class checklist_class {
         }
 
         echo format_text($this->checklist->intro, $this->checklist->introformat);
+        echo '<br/>';
 
         $showteachermark = false;
         $showcheckbox = true;
