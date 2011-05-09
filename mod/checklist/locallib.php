@@ -1742,7 +1742,8 @@ class checklist_class {
 
         switch($action) {
         case 'updatechecks':
-            $this->updatechecks();
+            $newchecks = optional_param('items', array(), PARAM_INT);
+            $this->updatechecks($newchecks);
             break;
 
         case 'startadditem':
@@ -2344,9 +2345,43 @@ class checklist_class {
         $this->items[$itemid]->colour = $nextcolour;
     }
 
-    function updatechecks() {
-        $newchecks = optional_param('items', array(), PARAM_INT);
+    function ajaxupdatechecks($changechecks) {
+        // Convert array of itemid=>true/false, into array of all 'checked' itemids
 
+        $newchecks = array();
+        foreach ($this->items as $item) {
+            if (array_key_exists($item->id, $newchecks)) {
+                if ($newchecks[$item->id]) {
+                    // Include in array if new status is true
+                    $newchecks[] = $item->id;
+                }
+            } else {
+                // If no new status, include in array if checked
+                if ($item->checked) {
+                    $newchecks[] = $item->id;
+                }
+            }
+        }
+        if ($this->useritems) {
+            foreach ($this->useritems as $item) {
+                if (array_key_exists($item->id, $newchecks)) {
+                    if ($newchecks[$item->id]) {
+                        // Include in array if new status is true
+                        $newchecks[] = $item->id;
+                    }
+                } else {
+                    // If no new status, include in array if checked
+                    if ($item->checked) {
+                        $newchecks[] = $item->id;
+                    }
+                }
+            }
+        }
+
+        updatechecks($newchecks);
+    }
+
+    function updatechecks($newchecks) {
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing
             return;
