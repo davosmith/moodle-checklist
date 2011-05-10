@@ -639,20 +639,26 @@ class checklist_class {
             echo '<div style="display:block; float:left; width:150px;" class="checklist_progress_heading">';
             echo get_string('percentcomplete','checklist').':&nbsp;';
             echo '</div>';
+            echo '<span id="checklistprogressrequired">';
             echo '<div class="checklist_progress_outer">';
             echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').');" >&nbsp;</div>';
+            echo '<div class="checklist_progress_anim" style="width:'.$percentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress-fade', 'checklist').');" >&nbsp;</div>';
             echo '</div>';
             echo '<span class="checklist_progress_percent">&nbsp;'.sprintf('%0d',$percentcomplete).'% </span>';
+            echo '</span>';
             echo '<br style="clear:both"/>';
         }
 
         echo '<div style="display:block; float:left; width:150px;" class="checklist_progress_heading">';
         echo get_string('percentcompleteall','checklist').':&nbsp;';
         echo '</div>';
+        echo '<span id="checklistprogressall">';
         echo '<div class="checklist_progress_outer">';
         echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').');" >&nbsp;</div>';
+        echo '<div class="checklist_progress_anim" style="width:'.$allpercentcomplete.'%; background-image: url('.$OUTPUT->pix_url('progress-fade', 'checklist').');" >&nbsp;</div>';
         echo '</div>';
         echo '<span class="checklist_progress_percent">&nbsp;'.sprintf('%0d',$allpercentcomplete).'% </span>';
+        echo '</span>';
         echo '<br style="clear:both"/>';
     }
 
@@ -675,7 +681,7 @@ class checklist_class {
     }
 
     function view_items($viewother = false, $userreport = false) {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $PAGE;
 
         echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
 
@@ -749,6 +755,22 @@ class checklist_class {
                     }
                     echo '</form>';
                 }
+
+                if (!$viewother) {
+                    // Load the Javascript required to send changes back to the server (without clicking 'save')
+                    $jsmodule = array(
+                                      'name' => 'mod_checklist',
+                                      'fullpath' => new moodle_url('/mod/checklist/updatechecks.js')
+                                      );
+                    $PAGE->requires->yui2_lib('dom');
+                    $PAGE->requires->yui2_lib('event');
+                    $PAGE->requires->yui2_lib('connection');
+                    $PAGE->requires->yui2_lib('animation');
+                    $updatechecksurl = new moodle_url('/mod/checklist/updatechecks.php');
+                    $updateprogress = $showteachermark ? 0 : 1; // Progress bars should only be updated with 'student only' checklists
+                    $PAGE->requires->js_init_call('M.mod_checklist.init', array($updatechecksurl->out(), sesskey(), $this->cm->id, $updateprogress), true, $jsmodule);
+                }
+
                 echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
                 echo html_writer::input_hidden_params($thispage);
                 echo '<input type="hidden" name="action" value="updatechecks" />';
@@ -833,8 +855,10 @@ class checklist_class {
                     $spacerimg = $OUTPUT->pix_url('check_spacer','checklist');
                 } else if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $optional = ' class="itemoptional '.$itemcolour.'" ';
+                    $checkclass = ' itemoptional';
                 } else {
                     $optional = ' class="'.$itemcolour.'" ';
+                    $checkclass = '';
                 }
 
                 echo '<li>';
@@ -862,7 +886,7 @@ class checklist_class {
                     if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                         //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
-                        echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
+                        echo '<input class="checklistitem'.$checkclass.'" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
                     }
                 }
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
@@ -936,7 +960,7 @@ class checklist_class {
                                 echo '<li>';
                                 echo '<div style="float: left;">';
                                 if ($showcheckbox) {
-                                    echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
+                                    echo '<input class="checklistitem itemoptional" type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
                                 echo '<form style="display:inline" action="'.$thisitemurl->out_omit_querystring().'" method="post">';
                                 echo html_writer::input_hidden_params($thisitemurl);
@@ -958,7 +982,7 @@ class checklist_class {
                             } else {
                                 echo '<li>';
                                 if ($showcheckbox) {
-                                    echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
+                                    echo '<input class="checklistitem itemoptional" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
                                 }
                                 $splittext = explode("\n",s($useritem->displaytext),2);
                                 $splittext[] = '';
@@ -1023,7 +1047,7 @@ class checklist_class {
             echo '</ol>';
 
             if ($updateform) {
-                echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
+                echo '<input id="checklistsavechecks" type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 if ($viewother) {
                     echo '&nbsp;<input type="submit" name="savenext" value="'.get_string('saveandnext').'" />';
                     echo '&nbsp;<input type="submit" name="viewnext" value="'.get_string('next').'" />';
@@ -1695,7 +1719,8 @@ class checklist_class {
 
         switch($action) {
         case 'updatechecks':
-            $this->updatechecks();
+            $newchecks = optional_param('items', array(), PARAM_INT);
+            $this->updatechecks($newchecks);
             break;
 
         case 'startadditem':
@@ -2311,10 +2336,44 @@ class checklist_class {
         $this->items[$itemid]->colour = $nextcolour;
     }
 
-    function updatechecks() {
+    function ajaxupdatechecks($changechecks) {
+        // Convert array of itemid=>true/false, into array of all 'checked' itemids
+        $newchecks = array();
+        foreach ($this->items as $item) {
+            if (array_key_exists($item->id, $changechecks)) {
+                if ($changechecks[$item->id]) {
+                    // Include in array if new status is true
+                    $newchecks[] = $item->id;
+                }
+            } else {
+                // If no new status, include in array if checked
+                if ($item->checked) {
+                    $newchecks[] = $item->id;
+                }
+            }
+        }
+        if ($this->useritems) {
+            foreach ($this->useritems as $item) {
+                if (array_key_exists($item->id, $changechecks)) {
+                    if ($changechecks[$item->id]) {
+                        // Include in array if new status is true
+                        $newchecks[] = $item->id;
+                    }
+                } else {
+                    // If no new status, include in array if checked
+                    if ($item->checked) {
+                        $newchecks[] = $item->id;
+                    }
+                }
+            }
+        }
+
+        $this->updatechecks($newchecks);
+    }
+
+    function updatechecks($newchecks) {
         global $DB;
 
-        $newchecks = optional_param('items', array(), PARAM_INT);
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing
             return;
