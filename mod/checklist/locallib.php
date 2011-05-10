@@ -664,6 +664,7 @@ class checklist_class {
             echo '<span id="checklistprogressrequired">';
             echo '<div class="checklist_progress_outer">';
             echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+            echo '<div class="checklist_progress_anim" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress-fade.gif);" >&nbsp;</div>';
             echo '</div>';
             echo '<span class="checklist_progress_percent">&nbsp;'.sprintf('%0d',$percentcomplete).'% </span>';
             echo '</span>';
@@ -676,6 +677,7 @@ class checklist_class {
         echo '<span id="checklistprogressall">';
         echo '<div class="checklist_progress_outer">';
         echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
+        echo '<div class="checklist_progress_anim" style="width:'.$allpercentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress-fade.gif);" >&nbsp;</div>';
         echo '</div>';
         echo '<span class="checklist_progress_percent">&nbsp;'.sprintf('%0d',$allpercentcomplete).'% </span>';
         echo '</span>';
@@ -778,7 +780,7 @@ class checklist_class {
 
                 if (!$viewother) {
                     // Load the Javascript required to send changes back to the server (without clicking 'save')
-                    require_js(array('yui_yahoo', 'yui_dom', 'yui_event', 'yui_connection'));
+                    require_js(array('yui_yahoo', 'yui_dom', 'yui_event', 'yui_connection', 'yui_animation'));
                     require_js($CFG->wwwroot.'/mod/checklist/updatechecks.js');
                     $updatechecksurl = $CFG->wwwroot.'/mod/checklist/updatechecks.php';
                     echo '<script type="text/javascript">mod_checklist.set_server("'.$updatechecksurl.'","'.sesskey().'","'.$this->cm->id.'");</script>';

@@ -9,6 +9,8 @@ mod_checklist = {
     optionalcount: 0,
     requiredchecked: 0,
     optionalchecked: 0,
+    anim1: null,
+    anim2: null,
 
     set_server: function (url, sesskey, cmid) {
 	this.serverurl = url;
@@ -21,9 +23,7 @@ mod_checklist = {
 	var YD = YAHOO.util.Dom;
 
 	this.updatelist = new Array();
-
-	var checklist = YAHOO.util.Dom.get('checklistouter');
-	var items = checklist.getElementsByClassName('checklistitem');
+	var items = YD.getElementsByClassName('checklistitem');
 	for (var i=0; i<items.length; i++) {
 	    YE.addListener(items[i], 'click', function (e) {
 		mod_checklist.check_click(this, e);
@@ -40,6 +40,7 @@ mod_checklist = {
 		}
 	    }
 	}
+
 	YD.setStyle('checklistsavechecks', 'display', 'none');
 	window.onunload =  function(e) {
 	    mod_checklist.send_update_batch(true);
@@ -65,22 +66,59 @@ mod_checklist = {
 	this.update_server(el.value, el.checked);
     },
 
+    startanim: function(number, ya) {
+	if (number == 1) {
+	    if (this.anim1) {
+		this.anim1.stop();
+	    }
+	    this.anim1 = ya;
+	    this.anim1.animate();
+	} else if (number == 2) {
+	    if (this.anim2) {
+		this.anim2.stop();
+	    }
+	    this.anim2 = ya;
+	    this.anim2.animate();
+	}
+    },
+
     update_progress_bar: function() {
 	var YD = YAHOO.util.Dom;
+	var YA = YAHOO.util.Anim;
+	var YE = YAHOO.util.Easing.easeOut;
 	var prall = YD.get('checklistprogressall');
 	var prreq = YD.get('checklistprogressrequired');
 
 	var allpercent = (this.optionalchecked + this.requiredchecked) * 100.0 / (this.optionalcount + this.requiredcount);
-	var inner = prall.getElementsByClassName('checklist_progress_inner')[0];
-	YD.setStyle(inner, 'width', allpercent+'%');
-	var disppercent = prall.getElementsByClassName('checklist_progress_percent')[0];
+	var inner = YD.getElementsByClassName('checklist_progress_inner', 'div', prall)[0];
+	var inneranim = YD.getElementsByClassName('checklist_progress_anim', 'div', prall)[0];
+	var oldpercent = parseFloat(YD.getStyle(inner, 'width').replace("%",""));
+	if (allpercent > oldpercent) {
+	    YD.setStyle(inneranim, 'width', allpercent+'%');
+	    this.startanim(1, new YA(inner, { width: { from: oldpercent, to: allpercent, unit: '%' } }, 1, YE));
+	} else if (allpercent < oldpercent) {
+	    YD.setStyle(inner, 'width', allpercent+'%');
+	    var oldanimpercent = parseFloat(YD.getStyle(inneranim, 'width').replace("%",""));
+	    this.startanim(1, new YA(inneranim, { width: { from: oldanimpercent, to: allpercent, unit: '%' } }, 1, YE));
+	}
+	var disppercent = YD.getElementsByClassName('checklist_progress_percent', 'span', prall)[0];
 	disppercent.innerHTML = '&nbsp;'+allpercent.toFixed(0)+'% ';
 
 	if (prreq) {
 	    var reqpercent = this.requiredchecked * 100.0 / this.requiredcount;
-	    var inner = prreq.getElementsByClassName('checklist_progress_inner')[0];
-	    YD.setStyle(inner, 'width', reqpercent+'%');
-	    var disppercent = prreq.getElementsByClassName('checklist_progress_percent')[0];
+	    var inner = YD.getElementsByClassName('checklist_progress_inner', 'div', prreq)[0];
+	    var inneranim = YD.getElementsByClassName('checklist_progress_anim', 'div', prreq)[0];
+	    var oldpercent = parseFloat(YD.getStyle(inner, 'width').replace("%",""));
+	    if (reqpercent > oldpercent) {
+		YD.setStyle(inneranim, 'width', reqpercent+'%');
+		this.startanim(2, new YA(inner, { width: { from: oldpercent, to: reqpercent, unit: '%' } }, 1, YE));
+	    } else if (reqpercent < oldpercent) {
+		YD.setStyle(inner, 'width', reqpercent+'%');
+		var oldanimpercent = parseFloat(YD.getStyle(inneranim, 'width').replace("%",""));
+		this.startanim(2, new YA(inneranim, { width: { from: oldanimpercent, to: reqpercent, unit: '%' } }, 1, YE));
+	    }
+
+	    var disppercent = YD.getElementsByClassName('checklist_progress_percent', 'span', prreq)[0];
 	    disppercent.innerHTML = '&nbsp;'+reqpercent.toFixed(0)+'% ';
 	}
 
@@ -154,3 +192,4 @@ mod_checklist = {
 }
 
 YAHOO.util.Event.onDOMReady(function() { mod_checklist.init() });
+

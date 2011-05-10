@@ -154,6 +154,8 @@ ol.checklist .itemauto {
     background-color: transparent;
     height: 15px;
     float: left;
+    overflow: clip;
+    position: relative;
 }
 
 .checklist_progress_inner {
@@ -162,4 +164,17 @@ ol.checklist .itemauto {
     width: 100%;
     background-repeat: repeat-x;
     background-position: top;
+    float: left;
+}
+
+.checklist_progress_anim {
+    background-color: #98c193;
+    height: 15px;
+    width: 0;
+    background-repeat: repeat-x;
+    background-position: top;
+    position: absolute;
+    z-index: -1;
+    left: 0;
+    top: 0;
 }
