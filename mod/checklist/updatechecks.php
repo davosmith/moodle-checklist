@@ -72,9 +72,10 @@ if (!confirm_sesskey()) {
 }
 if (!$items || !is_array($items)) {
     echo 'Error: invalid (or missing) items list';
+    die();
 }
 
-if (!is_empty($items)) {
+if (!empty($items)) {
     $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
     $chk->ajaxupdatechecks($items);
 }

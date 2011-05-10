@@ -661,20 +661,24 @@ class checklist_class {
             echo '<div style="display:block; float:left; width:150px;" class="checklist_progress_heading">';
             echo get_string('percentcomplete','checklist').':&nbsp;';
             echo '</div>';
+            echo '<span id="checklistprogressrequired">';
             echo '<div class="checklist_progress_outer">';
             echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
             echo '</div>';
             echo '<span class="checklist_progress_percent">&nbsp;'.sprintf('%0d',$percentcomplete).'% </span>';
+            echo '</span>';
             echo '<br style="clear:both"/>';
         }
 
         echo '<div style="display:block; float:left; width:150px;" class="checklist_progress_heading">';
         echo get_string('percentcompleteall','checklist').':&nbsp;';
         echo '</div>';
+        echo '<span id="checklistprogressall">';
         echo '<div class="checklist_progress_outer">';
         echo '<div class="checklist_progress_inner" style="width:'.$allpercentcomplete.'%; background-image: url('.$CFG->wwwroot.'/mod/checklist/images/progress.gif);" >&nbsp;</div>';
         echo '</div>';
         echo '<span class="checklist_progress_percent">&nbsp;'.sprintf('%0d',$allpercentcomplete).'% </span>';
+        echo '</span>';
         echo '<br style="clear:both"/>';
     }
 
@@ -771,6 +775,15 @@ class checklist_class {
                     }
                     echo '</form>';
                 }
+
+                if (!$viewother) {
+                    // Load the Javascript required to send changes back to the server (without clicking 'save')
+                    require_js(array('yui_yahoo', 'yui_dom', 'yui_event', 'yui_connection'));
+                    require_js($CFG->wwwroot.'/mod/checklist/updatechecks.js');
+                    $updatechecksurl = $CFG->wwwroot.'/mod/checklist/updatechecks.php';
+                    echo '<script type="text/javascript">mod_checklist.set_server("'.$updatechecksurl.'","'.sesskey().'","'.$this->cm->id.'");</script>';
+                }
+
                 echo '<form action="'.$thispage.'" method="post">';
                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                 echo '<input type="hidden" name="action" value="updatechecks" />';
@@ -860,8 +873,10 @@ class checklist_class {
                     $spacerimg = $CFG->wwwroot.'/mod/checklist/images/check_spacer.gif';
                 } elseif ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $optional = ' class="itemoptional '.$itemcolour.'" ';
+                    $checkclass = ' itemoptional';
                 } else {
                     $optional = ' class="'.$itemcolour.'" ';
+                    $checkclass = '';
                 }
                 echo '<li>';
                 if ($showteachermark) {
@@ -888,7 +903,7 @@ class checklist_class {
                     if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                         //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
-                        echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
+                        echo '<input class="checklistitem'.$checkclass.'" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
                     }
                 }
                 echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
@@ -953,7 +968,7 @@ class checklist_class {
                                 echo '<li>';
                                 echo '<div style="float: left;">';
                                 if ($showcheckbox) {
-                                    echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
+                                    echo '<input class="checklistitem itemoptional" type="checkbox" name="items[]" id='.$itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
                                 echo '<form style="display:inline" action="'.$thispage.'" method="post">';
                                 echo '<input type="hidden" name="action" value="updateitem" />';
@@ -978,7 +993,7 @@ class checklist_class {
                             } else {
                                 echo '<li>';
                                 if ($showcheckbox) {
-                                    echo '<input type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
+                                    echo '<input class="checklistitem itemoptional" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
                                 }
                                 $splittext = explode("\n",s($useritem->displaytext),2);
                                 $splittext[] = '';
@@ -1041,7 +1056,7 @@ class checklist_class {
             echo '</ol>';
 
             if ($updateform) {
-                echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
+                echo '<input id="checklistsavechecks" type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
                 if ($viewother) {
                     echo '<input type="submit" name="savenext" value="'.get_string('saveandnext').'" />';
@@ -2350,8 +2365,8 @@ class checklist_class {
 
         $newchecks = array();
         foreach ($this->items as $item) {
-            if (array_key_exists($item->id, $newchecks)) {
-                if ($newchecks[$item->id]) {
+            if (array_key_exists($item->id, $changechecks)) {
+                if ($changechecks[$item->id]) {
                     // Include in array if new status is true
                     $newchecks[] = $item->id;
                 }
@@ -2364,8 +2379,8 @@ class checklist_class {
         }
         if ($this->useritems) {
             foreach ($this->useritems as $item) {
-                if (array_key_exists($item->id, $newchecks)) {
-                    if ($newchecks[$item->id]) {
+                if (array_key_exists($item->id, $changechecks)) {
+                    if ($changechecks[$item->id]) {
                         // Include in array if new status is true
                         $newchecks[] = $item->id;
                     }
@@ -2378,7 +2393,7 @@ class checklist_class {
             }
         }
 
-        updatechecks($newchecks);
+        $this->updatechecks($newchecks);
     }
 
     function updatechecks($newchecks) {
