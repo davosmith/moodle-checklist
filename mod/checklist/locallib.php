@@ -783,7 +783,8 @@ class checklist_class {
                     require_js(array('yui_yahoo', 'yui_dom', 'yui_event', 'yui_connection', 'yui_animation'));
                     require_js($CFG->wwwroot.'/mod/checklist/updatechecks.js');
                     $updatechecksurl = $CFG->wwwroot.'/mod/checklist/updatechecks.php';
-                    echo '<script type="text/javascript">mod_checklist.set_server("'.$updatechecksurl.'","'.sesskey().'","'.$this->cm->id.'");</script>';
+                    $updateprogress = $showteachermark ? 0 : 1; // Only update progress bars for 'student only' checklists
+                    echo '<script type="text/javascript">mod_checklist.set_server("'.$updatechecksurl.'","'.sesskey().'","'.$this->cm->id.'", '.$updateprogress.');</script>';
                 }
 
                 echo '<form action="'.$thispage.'" method="post">';

@@ -3,6 +3,7 @@ mod_checklist = {
     serverurl: null,
     sesskey: null,
     cmid: null,
+    updateprogress: 1,
     updatelist: null,
     updatetimeout: null,
     requiredcount: 0,
@@ -12,10 +13,11 @@ mod_checklist = {
     anim1: null,
     anim2: null,
 
-    set_server: function (url, sesskey, cmid) {
+    set_server: function (url, sesskey, cmid, updateprogress) {
 	this.serverurl = url;
 	this.sesskey = sesskey;
 	this.cmid = cmid;
+	this.updateprogress = updateprogress;
     },
 
     init: function() {
@@ -50,17 +52,19 @@ mod_checklist = {
     check_click: function(el, e) {
 	var YD = YAHOO.util.Dom;
 
-	// Update progress bar
-	var change = -1;
-	if (el.checked) {
-	    change = 1;
+	if (this.updateprogress) {
+	    // Update progress bar
+	    var change = -1;
+	    if (el.checked) {
+		change = 1;
+	    }
+	    if (YD.hasClass(el, 'itemoptional')) {
+		this.optionalchecked += change;
+	    } else {
+		this.requiredchecked += change;
+	    }
+	    this.update_progress_bar();
 	}
-	if (YD.hasClass(el, 'itemoptional')) {
-	    this.optionalchecked += change;
-	} else {
-	    this.requiredchecked += change;
-	}
-	this.update_progress_bar();
 
 	// Save check to list for updating
 	this.update_server(el.value, el.checked);
