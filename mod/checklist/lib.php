@@ -503,13 +503,31 @@ function checklist_cron () {
 
     $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
 
+    // Find all autoupdating checklists
+    $checklists = $DB->get_records_select('checklist', 'autopopulate > 0 AND autoupdate > 0');
+    if (!$checklists) {
+        // No checklists to update
+        return true;
+    }
+
+    // Match up these checklists with the courses they are in
+    $courses = array();
+    foreach ($checklists as $checklist) {
+        if (array_key_exists($checklist->course, $courses)) {
+            $courses[$checklist->course][$checklist->id] = $checklist;
+        } else {
+            $courses[$checklist->course] = array($checklist->id => $checklist);
+        }
+    }
+    $courseids = implode(',', array_keys($courses));
+
     // Process all logs since the last cron update
     $logupdate = 0;
     $totalcount = 0;
-    $logs = get_logs("l.time >= ?", array($lastlogtime), 'l.time ASC', '', '', $totalcount);
+    $logs = get_logs("l.time >= ? AND l.course IN ($courseids) AND cmid > 0", array($lastlogtime), 'l.time ASC', '', '', $totalcount);
     if ($logs) {
         foreach ($logs as $log) {
-            $logupdate += checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid, $log->url);
+            $logupdate += checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid, $log->url, $courses[$log->course]);
         }
     }
 
@@ -520,7 +538,12 @@ function checklist_cron () {
     // Process all the completion changes since the last cron update
     // Need the cmid, userid and newstate
     $completionupdate = 0;
-    $completions = $DB->get_records_select('course_modules_completion', 'timemodified > ?', array($lastlogtime));
+    list($msql, $mparam) = $DB->get_in_or_equal(array_keys($courses));
+    $sql = 'SELECT c.coursemoduleid, c.userid, c.completionstate FROM {course_modules_completion} c ';
+    $sql .= 'JOIN {course_modules} m ON c.coursemoduleid = m.id ';
+    $sql .= "WHERE c.timemodified > ? AND m.course $msql ";
+    $params = array_merge(array($lastlogtime), $mparam);
+    $completions = $DB->get_records_sql($sql, $params);
     foreach ($completions as $completion) {
         $completionupdate += checklist_completion_autoupdate($completion->coursemoduleid,
                                                              $completion->userid,

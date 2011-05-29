@@ -19,8 +19,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $CFG->checklist_autoupdate_use_cron = true;
 
-function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url) {
+function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url, $checklists=null) {
     global $CFG, $DB;
+
+    if ($userid == 0) {
+        return 0;
+    }
 
     if ($module == 'course') {
         return 0;
@@ -67,6 +71,7 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
         || (($module == 'quiz') && ($action == 'close attempt'))
         || (($module == 'forum') && (($action == 'add post')||($action == 'add discussion')))
         || (($module == 'resource') && ($action == 'view'))
+        || (($module == 'page') && ($action == 'view'))
         || (($module == 'hotpot') && ($action == 'submit'))
         || (($module == 'wiki') && ($action == 'edit'))
         || (($module == 'checklist') && ($action == 'complete'))
@@ -92,12 +97,15 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
             $cmid = $matches[1];
         }
 
-        $checklists = $DB->get_records_select('checklist',
-                                              'course = ? AND autoupdate > 0',
-                                              array($courseid));
-        if (empty($checklists)) {
-            return 0;
-            // No checklists in this course that are auto-updating
+        if (!$checklists) {
+            $checklists = $DB->get_records_select('checklist',
+                                                  'course = ? AND autoupdate > 0',
+                                                  array($courseid));
+
+            if (empty($checklists)) {
+                return 0;
+                // No checklists in this course that are auto-updating
+            }
         }
 
         if (isset($CFG->enablecompletion) && $CFG->enablecompletion) {
@@ -117,12 +125,14 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
         }
 
         // Find all checklist_item records which are related to these $checklists which have a moduleid matching $module
-        // and do not have a related checklist_check record that is filled in
+        // and any information about checks they might have
         list($csql, $cparams) = $DB->get_in_or_equal(array_keys($checklists));
-        $params = array_merge($cparams, array($cmid));
-        $items = $DB->get_records_select('checklist_item',
-                                         "checklist $csql AND moduleid = ? AND itemoptional < 2",
-                                         $params);
+        $params = array_merge(array($userid, $cmid), $cparams);
+
+        $sql = "SELECT i.id itemid, c.id checkid, c.usertimestamp FROM {checklist_item} i ";
+        $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
+        $sql .= "WHERE i.moduleid = ? AND i.checklist $csql AND i.itemoptional < 2";
+        $items = $DB->get_records_sql($sql, $params);
         // itemoptional - 0: required; 1: optional; 2: heading;
         // not loading defines from mod/checklist/locallib.php to reduce overhead
         if (empty($items)) {
@@ -131,17 +141,18 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url)
 
         $updatecount = 0;
         foreach ($items as $item) {
-            $check = $DB->get_record('checklist_check', array('item'=>$item->id, 'userid'=>$userid) );
-            if ($check) {
-                if ($check->usertimestamp) {
+            if ($item->checkid) {
+                if ($item->usertimestamp) {
                     continue;
                 }
+                $check = new stdClass;
+                $check->id = $item->checkid;
                 $check->usertimestamp = time();
                 $DB->update_record('checklist_check', $check);
                 $updatecount++;
             } else {
                 $check = new stdClass;
-                $check->item = $item->id;
+                $check->item = $item->itemid;
                 $check->userid = $userid;
                 $check->usertimestamp = time();
                 $check->teachertimestamp = 0;
@@ -170,9 +181,11 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     if ($userid == 0) {
         $userid = $USER->id;
     }
-
-    $items = $DB->get_records_sql('SELECT i.* FROM {checklist_item} i JOIN {checklist} c ON i.checklist = c.id
-              WHERE c.autoupdate > 0 AND i.moduleid = ? AND i.itemoptional < 2', array($cmid));
+    $sql = "SELECT i.id itemid, c.id checkid, c.usertimestamp, i.checklist FROM {checklist_item} i ";
+    $sql .= "JOIN {checklist} cl ON i.checklist = cl.id ";
+    $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
+    $sql .= "WHERE cl.autoupdate > 0 AND i.moduleid = ? AND i.itemoptional < 2 ";
+    $items = $DB->get_records_sql($sql, array($userid, $cmid));
     // itemoptional - 0: required; 1: optional; 2: heading;
     // not loading defines from mod/checklist/locallib.php to reduce overhead
     if (empty($items)) {
@@ -182,20 +195,23 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     $updatecount = 0;
     $updatechecklists = array();
     foreach ($items as $item) {
-        $check = $DB->get_record('checklist_check', array('item'=>$item->id, 'userid'=>$userid));
-        if ($check) {
+        if ($item->checkid) {
             if ($newstate) {
-                if ($check->usertimestamp) {
+                if ($item->usertimestamp) {
                     continue;
                 }
+                $check = new stdClass;
+                $check->id = $item->checkid;
                 $check->usertimestamp = time();
                 $DB->update_record('checklist_check', $check);
                 $updatechecklists[] = $item->checklist;
                 $updatecount++;
             } else {
-                if (!$check->usertimestamp) {
+                if (!$item->usertimestamp) {
                     continue;
                 }
+                $check = new stdClass;
+                $check->id = $item->checkid;
                 $check->usertimestamp = 0;
                 $DB->update_record('checklist_check', $check);
                 $updatechecklists[] = $item->checklist;
@@ -206,7 +222,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
                 continue;
             }
             $check = new stdClass;
-            $check->item = $item->id;
+            $check->item = $item->itemid;
             $check->userid = $userid;
             $check->usertimestamp = time();
             $check->teachertimestamp = 0;
