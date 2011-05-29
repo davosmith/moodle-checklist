@@ -271,21 +271,24 @@ function checklist_update_grades($checklist, $userid=0) {
             // Log completion of checklist
             if ($grade->rawgrade == $scale) {
                 if ($checklist->emailoncomplete) {
-                    // FIXME - check to see if there is a 'complete' log entry in the last 1 hour, if so, don't send another email
+                    $timelimit = time() - 1 * 60 * 60; // Do not send another email if this checklist was already 'completed' in the last hour
+                    $filter = "l.time > $timelimit AND l.cmid = $cm->id AND l.userid = $grade->userid";
+                    $logs = get_logs($filter, '', 1, 1, $logcount);
+                    if ($logcount == 0) {
+                        if (!isset($context)) {
+                            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+                        }
+                        if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.', '', '', '', '', '', false)) {
+                            foreach ($recipients as $recipient) {
+                                $details = new stdClass;
+                                $details->user = fullname($grade);
+                                $details->checklist = s($checklist->name);
 
-                    if (!isset($context)) {
-                        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-                    }
-                    if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.', '', '', '', '', '', false)) {
-                        foreach ($recipients as $recipient) {
-                            $details = new stdClass;
-                            $details->user = fullname($grade);
-                            $details->checklist = s($checklist->name);
-
-                            $subj = get_string('emailoncompletesubject', 'checklist', $details);
-                            $content = get_string('emailoncompletebody', 'checklist', $details);
-                            $content .= $CFG->wwwroot.'/mod/checklist/view.php?id='.$cm->id;
-                            email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
+                                $subj = get_string('emailoncompletesubject', 'checklist', $details);
+                                $content = get_string('emailoncompletebody', 'checklist', $details);
+                                $content .= $CFG->wwwroot.'/mod/checklist/view.php?id='.$cm->id;
+                                email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
+                            }
                         }
                     }
                 }
