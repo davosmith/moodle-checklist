@@ -471,11 +471,30 @@ function checklist_cron () {
 
     $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
 
+    // Find all autoupdating checklists
+    $checklists = get_records_select('checklist', 'autopopulate > 0 AND autoupdate > 0');
+    if (!$checklists) {
+        // No checklists to update
+        return true;
+    }
+
+    // Match up these checklists to the courses they are in
+    $courses = array();
+    foreach ($checklists as $checklist) {
+        if (array_key_exists($checklist->course, $courses)) {
+            $courses[$checklist->course][$checklist->id] = $checklist;
+        } else {
+            $courses[$checklist->course] = array($checklist->id => $checklist);
+        }
+    }
+    $courseids = implode(',', array_keys($courses));
+
+    // Find all the log updates for these courses
     $logupdate = 0;
-    $logs = get_logs("l.time >= $lastlogtime", 'l.time ASC', '', '', $totalcount);
+    $logs = get_logs("l.time >= $lastlogtime AND l.course IN ($courseids) AND cmid > 0", 'l.time ASC', '', '', $totalcount);
     if ($logs) {
         foreach ($logs as $log) {
-            $logupdate += checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid);
+            $logupdate += checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid, $courses[$log->course]);
         }
     }
 
@@ -486,13 +505,14 @@ function checklist_cron () {
     $sql = 'SELECT g.id, i.itemmodule, i.courseid, i.iteminstance, g.rawgrade, g.userid ';
     $sql .= "FROM {$CFG->prefix}grade_items i, {$CFG->prefix}grade_grades g ";
     $sql .= "WHERE g.itemid = i.id AND g.timemodified >= $lastlogtime ";
-    $sql .= 'AND i.itemmodule IN ("quiz","assignment","forum")';
+    $sql .= 'AND i.itemmodule IN ("quiz","assignment","forum") ';
+    $sql .= "AND i.courseid IN ($courseids) ";
 
     $gradeupdate = 0;
     $grades = get_records_sql($sql);
     if ($grades) {
         foreach ($grades as $grade) {
-            $gradeupdate += checklist_autoupdate_score($grade->itemmodule, $grade->courseid, $grade->iteminstance, $grade);
+            $gradeupdate += checklist_autoupdate_score($grade->itemmodule, $grade->courseid, $grade->iteminstance, $grade, $courses[$grade->courseid]);
         }
     }
 

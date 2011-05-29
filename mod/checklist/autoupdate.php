@@ -2,8 +2,10 @@
 
 $CFG->checklist_autoupdate_use_cron = true;
 
-function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
+function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $checklists=null) {
     global $CFG;
+
+    if ($cmid == 0 || $userid == 0) { return 0; }
 
     if ($module == 'course') { return 0; }
     if ($module == 'user') { return 0;  }
@@ -41,15 +43,20 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
         || (($module == 'feedback') && ($action == 'submit'))
         ) {
 
-        $checklists = get_records_sql("SELECT * FROM {$CFG->prefix}checklist WHERE course = $courseid AND autoupdate > 0");
         if (!$checklists) {
-            return 0;
+            $checklists = get_records_sql("SELECT * FROM {$CFG->prefix}checklist WHERE course = $courseid AND autoupdate > 0");
+            if (!$checklists) {
+                return 0;
+            }
         }
 
         // Find all checklist_item records which are related to these $checklists which have a moduleid matching $module
-        // and do not have a related checklist_check record that is filled in
+        // and any information about checks that they might have
         $checklistids = '('.implode(',', array_keys($checklists)).')';
-        $items = get_records_sql("SELECT * FROM {$CFG->prefix}checklist_item i WHERE i.checklist IN {$checklistids} AND i.moduleid = $cm AND i.itemoptional < 2 AND i.complete_score = 0");
+        $sql = "SELECT i.id itemid, c.id as checkid, c.usertimestamp FROM {$CFG->prefix}checklist_item i ";
+        $sql .= "LEFT JOIN {$CFG->prefix}checklist_check c ON (c.item = i.id AND c.userid = $userid) ";
+        $sql .= "WHERE i.checklist IN {$checklistids} AND i.moduleid = $cmid AND i.itemoptional < 2 AND i.complete_score = 0 ";
+        $items = get_records_sql($sql);
         // itemoptional - 0: required; 1: optional; 2: heading;
         // not loading defines from mod/checklist/locallib.php to reduce overhead
         if (!$items) {
@@ -58,7 +65,7 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
 
         $updatecount = 0;
         foreach ($items as $item) {
-            if (checklist_set_check($item->id, $userid, true)) {
+            if (checklist_set_check($item, $userid, true)) {
                 $updatecount++;
             }
         }
@@ -74,20 +81,23 @@ function checklist_autoupdate($courseid, $module, $action, $cm, $userid) {
     return 0;
 }
 
-function checklist_set_check($itemid, $userid, $set) {
-    $check = get_record_select('checklist_check', 'item = '.$itemid.' AND userid = '.$userid);
-    if ($check) {
+function checklist_set_check($item, $userid, $set) {
+    if ($item->checkid) {
         if ($set) {
-            if ($check->usertimestamp) {
+            if ($item->usertimestamp) {
                 return false;
             }
+            $check = new stdClass;
+            $check->id = $item->checkid;
             $check->usertimestamp = time();
             update_record('checklist_check', $check);
             return true;
         } else {
-            if (!$check->usertimestamp) {
+            if (!$item->usertimestamp) {
                 return false;
             }
+            $check = new stdClass;
+            $check->id = $item->checkid;
             $check->usertimestamp = 0;
             update_record('checklist_check',$check);
             return true;
@@ -97,7 +107,7 @@ function checklist_set_check($itemid, $userid, $set) {
             return false;
         }
         $check = new stdClass;
-        $check->item = $itemid;
+        $check->item = $item->itemid;
         $check->userid = $userid;
         $check->usertimestamp = time();
         $check->teachertimestamp = 0;
@@ -108,38 +118,46 @@ function checklist_set_check($itemid, $userid, $set) {
     }
 }
 
-function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
+function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades, $checklists=null) {
     global $CFG;
 
     if (!$grades) {
         return 0;
     }
 
-    $checklists = get_records_sql("SELECT * FROM {$CFG->prefix}checklist WHERE course = $courseid AND autoupdate > 0 AND autopopulate > 0");
     if (!$checklists) {
-        return 0;
+        $checklists = get_records_sql("SELECT * FROM {$CFG->prefix}checklist WHERE course = $courseid AND autoupdate > 0 AND autopopulate > 0");
+        if (!$checklists) {
+            return 0;
+        }
     }
 
     $checklistids = '('.implode(',', array_keys($checklists)).')';
-
-    $cm = get_coursemodule_from_instance($modname, $instanceid, $courseid);
-    $sql = "SELECT * FROM {$CFG->prefix}checklist_item i WHERE i.checklist IN {$checklistids} AND i.moduleid = {$cm->id} AND i.itemoptional < 2 AND i.complete_score > 0";
-    $items = get_records_sql($sql);
-    // itemoptional - 0: required; 1: optional; 2: heading;
-    // not loading defines from mod/checklist/locallib.php to reduce overhead
-    if (!$items) {
-        return 0;
-    }
 
     if (!is_array($grades)) {
         $grades = array($grades);
     }
 
-    $updatecount = 0;
     foreach ($grades as $grade) {
+        // We rarely deal with an array of grades in here, so I'll accept the performance hit of repeating this query
+
+        $sql = "SELECT i.id as itemid, c.id as checkid, c.usertimestamp, i.complete_score FROM {$CFG->prefix}checklist_item i ";
+        $sql .= "LEFT JOIN {$CFG->prefix}checklist_check c ON (c.item = i.id AND c.userid = {$grade->userid} ), ";
+        // Find matching checklist_check (NULL if none)
+        $sql .= "{$CFG->prefix}course_modules cm, {$CFG->prefix}modules md "; // For cmid lookup
+        $sql .= "WHERE i.checklist IN {$checklistids} AND i.moduleid = cm.id AND i.itemoptional < 2 AND i.complete_score > 0 ";
+        $sql .= "AND md.name = '$modname' AND md.id = cm.module AND cm.instance = $instanceid "; // Look up cmid from instanceid
+        $items = get_records_sql($sql);
+        // itemoptional - 0: required; 1: optional; 2: heading;
+        // not loading defines from mod/checklist/locallib.php to reduce overhead
+        if (!$items) {
+            return 0;
+        }
+
+        $updatecount = 0;
         foreach ($items as $item) {
             $complete = $grade->rawgrade >= $item->complete_score;
-            if (checklist_set_check($item->id, $grade->userid, $complete)) {
+            if (checklist_set_check($item, $grade->userid, $complete)) {
                 $updatecount++;
             }
         }
@@ -156,5 +174,3 @@ function checklist_autoupdate_score($modname, $courseid, $instanceid, $grades) {
 
     return $updatecount;
 }
-
-?>
