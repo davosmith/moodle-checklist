@@ -222,6 +222,7 @@ function checklist_update_grades($checklist, $userid=0) {
                 $itemlist = substr($itemlist, 0, -1);
 
                 $sql = 'SELECT '.$userid.' AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
+                $sql .= " u.firstname, u.lastname ";
                 $sql .= " FROM {$CFG->prefix}checklist_check c ";
                 $sql .= " WHERE c.item IN ($itemlist)";
                 $sql .= ' AND c.userid = '.$userid;
@@ -269,6 +270,25 @@ function checklist_update_grades($checklist, $userid=0) {
         foreach ($grades as $grade) {
             // Log completion of checklist
             if ($grade->rawgrade == $scale) {
+                if ($checklist->emailoncomplete) {
+                    // FIXME - check to see if there is a 'complete' log entry in the last 1 hour, if so, don't send another email
+
+                    if (!isset($context)) {
+                        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+                    }
+                    if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.', '', '', '', '', '', false)) {
+                        foreach ($recipients as $recipient) {
+                            $details = new stdClass;
+                            $details->user = fullname($grade);
+                            $details->checklist = s($checklist->name);
+
+                            $subj = get_string('emailoncompletesubject', 'checklist', $details);
+                            $content = get_string('emailoncompletebody', 'checklist', $details);
+                            $content .= $CFG->wwwroot.'/mod/checklist/view.php?id='.$cm->id;
+                            email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
+                        }
+                    }
+                }
                 add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", addslashes($checklist->name), $cm->id, $grade->userid);
             }
         }

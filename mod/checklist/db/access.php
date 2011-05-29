@@ -60,7 +60,16 @@ $mod_checklist_capabilities = array(
               'editingteacher' => CAP_ALLOW,
               'admin' => CAP_ALLOW
           )
-      )
+      ),
 
+      // Will receive emails when checklists complete (if checklist is set to do so)
+      'mod/checklist:emailoncomplete' => array(
+           'riskbitmask' => RISK_PERSONAL,
+           'captype' => 'read',
+           'contextlevel' => CONTEXT_MODULE,
+           'legacy' => array(
+              'editingteacher' => CAP_ALLOW,
+              'teacher' => CAP_ALLOW
+           )
+      )
 );
-?>
