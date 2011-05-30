@@ -185,19 +185,18 @@ function checklist_update_grades($checklist, $userid=0) {
     // Autopopulate is on and checklist has at least one item with a grouping
     if ($checkgroupings) {
         if ($userid) {
-            $users = array($userid);
+            $users = get_records('user', 'id', $userid, null, 'id, firstname, lastname');
         } else {
             $context = get_context_instance(CONTEXT_MODULE, $cm->id);
             if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
                 return;
             }
-            $users = array_keys($users);
         }
 
         $grades = array();
 
         // With groupings, need to update each user individually (as each has different groupings)
-        foreach ($users as $userid) {
+        foreach ($users as $userid => $user) {
             $groupings = checklist_class::get_user_groupings($userid, $course->id);
 
             $total = 0;
@@ -222,7 +221,6 @@ function checklist_update_grades($checklist, $userid=0) {
                 $itemlist = substr($itemlist, 0, -1);
 
                 $sql = 'SELECT '.$userid.' AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
-                $sql .= " u.firstname, u.lastname ";
                 $sql .= " FROM {$CFG->prefix}checklist_check c ";
                 $sql .= " WHERE c.item IN ($itemlist)";
                 $sql .= ' AND c.userid = '.$userid;
@@ -235,6 +233,10 @@ function checklist_update_grades($checklist, $userid=0) {
                     $ugrade->date = time();
                 }
             }
+
+            // Needed when sending emails
+            $ugrade->firstname = $user->firstname;
+            $ugrade->lastname = $user->lastname;
 
             $grades[$userid] = $ugrade;
         }
@@ -257,6 +259,7 @@ function checklist_update_grades($checklist, $userid=0) {
         $itemlist = implode(',',array_keys($items));
 
         $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * '.$scale.' / '.$total.') AS rawgrade'.$date;
+        $sql .= ', u.firstname, u.lastname ';
         $sql .= " FROM {$CFG->prefix}user u LEFT JOIN {$CFG->prefix}checklist_check c ON u.id = c.userid";
         $sql .= " WHERE c.item IN ($itemlist)";
         $sql .= ' AND u.id IN ('.$users.')';
@@ -278,7 +281,7 @@ function checklist_update_grades($checklist, $userid=0) {
                         if (!isset($context)) {
                             $context = get_context_instance(CONTEXT_MODULE, $cm->id);
                         }
-                        if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.', '', '', '', '', '', false)) {
+                        if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
                             foreach ($recipients as $recipient) {
                                 $details = new stdClass;
                                 $details->user = fullname($grade);
@@ -287,6 +290,8 @@ function checklist_update_grades($checklist, $userid=0) {
                                 $subj = get_string('emailoncompletesubject', 'checklist', $details);
                                 $content = get_string('emailoncompletebody', 'checklist', $details);
                                 $content .= $CFG->wwwroot.'/mod/checklist/view.php?id='.$cm->id;
+
+                                // $grade contains firstname & lastname, so can count as 'sender'
                                 email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
                             }
                         }

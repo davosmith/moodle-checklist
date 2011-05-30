@@ -84,7 +84,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setAdvanced('maxgrade');
 
         $mform->addElement('selectyesno', 'emailoncomplete', get_string('emailoncomplete', 'checklist'));
-        $mform->setDefault('maxgrade', 0);
+        $mform->setDefault('emailoncomplete', 0);
         $mform->setHelpButton('emailoncomplete', array('emailoncomplete', get_string('emailoncomplete','checklist'), 'checklist'));
 
         $autopopulateoptions = array (CHECKLIST_AUTOPOPULATE_NO => get_string('no'),

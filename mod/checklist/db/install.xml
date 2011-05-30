@@ -21,7 +21,8 @@
 	<FIELD NAME="teachercomments" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="Are teachers allowed to add comments to a user's checklist items?" PREVIOUS="duedatesoncalendar" NEXT="maxgrade"/>
 	<FIELD NAME="maxgrade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="100.0" SEQUENCE="false" ENUM="false" PREVIOUS="teachercomments" NEXT="autopopulate"/>
 	<FIELD NAME="autopopulate" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Automatically fill in the checklist, based on the modules in the current course" PREVIOUS="maxgrade" NEXT="autoupdate"/>
-	<FIELD NAME="autoupdate" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="Automatically update items that are linked to course modules (tick them off when items are complete)" PREVIOUS="autopopulate"/>
+	<FIELD NAME="autoupdate" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="Automatically update items that are linked to course modules (tick them off when items are complete)" PREVIOUS="autopopulate" NEXT="emailoncomplete"/>
+	<FIELD NAME="emailoncomplete" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="Email teachers when checklist is complete" PREVIOUS="autoupdate"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
