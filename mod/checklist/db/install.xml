@@ -22,7 +22,8 @@
 	<FIELD NAME="maxgrade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="100" SEQUENCE="false" PREVIOUS="teachercomments" NEXT="autopopulate"/>
 	<FIELD NAME="autopopulate" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically fill in the checklist, based on the modules in the current course" PREVIOUS="maxgrade" NEXT="autoupdate"/>
 	<FIELD NAME="autoupdate" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" COMMENT="Automatically update items that are linked to course modules (tick them off when items are complete)" PREVIOUS="autopopulate" NEXT="completionpercent"/>
-	<FIELD NAME="completionpercent" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Percentage of items that need to be checked off before the checklist is regarded as complete" PREVIOUS="autoupdate"/>
+	<FIELD NAME="completionpercent" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Percentage of items that need to be checked off before the checklist is regarded as complete" PREVIOUS="autoupdate" NEXT="emailoncomplete"/>
+	<FIELD NAME="emailoncomplete" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not to email teachers when a checklist is completed" PREVIOUS="completionpercent"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

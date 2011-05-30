@@ -204,19 +204,18 @@ function checklist_update_grades($checklist, $userid=0) {
 
     if ($checkgroupings) {
         if ($userid) {
-            $users = array($userid);
+            $users = $DB->get_records('user', array('id'=>$userid), null, 'id, firstname, lastname');
         } else {
             $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname', '', '', '', '', '', false)) {
                 return;
             }
-            $users = array_keys($users);
         }
 
         $grades = array();
 
         // With groupings, need to update each user individually (as each has different groupings)
-        foreach ($users as $userid) {
+        foreach ($users as $userid => $user) {
             $groupings = checklist_class::get_user_groupings($userid, $course->id);
 
             $total = 0;
@@ -254,6 +253,9 @@ function checklist_update_grades($checklist, $userid=0) {
                 }
             }
 
+            $ugrade->firstname = $user->firstname;
+            $ugrade->lastname = $user->lastname;
+
             $grades[$userid] = $ugrade;
         }
 
@@ -276,6 +278,7 @@ function checklist_update_grades($checklist, $userid=0) {
         list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
 
         $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
+        $sql .= ' , u.firstname, u.lastname ';
         $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
         $sql .= " WHERE u.id $usql";
         $sql .= " AND c.item $isql";
@@ -290,6 +293,28 @@ function checklist_update_grades($checklist, $userid=0) {
     foreach ($grades as $grade) {
         // Log completion of checklist
         if ($grade->rawgrade == $checklist->maxgrade) {
+            if ($checklist->emailoncomplete) {
+                $timelimit = time() - 1 * 60 * 60; // Do not send another email if this checklist was already 'completed' in the last hour
+                $filter = "l.time > ? AND l.cmid = ? AND l.userid = ?";
+                $logs = get_logs($filter, array($timelimit, $cm->id, $grade->userid), '', 1, 1, $logcount);
+                if ($logcount == 0) {
+                    if (!isset($context)) {
+                        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+                    }
+                    if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
+                        foreach ($recipients as $recipient) {
+                            $details = new stdClass;
+                            $details->user = fullname($grade);
+                            $details->checklist = s($checklist->name);
+
+                            $subj = get_string('emailoncompletesubject', 'checklist', $details);
+                            $content = get_string('emailoncompletebody', 'checklist', $details);
+                            $content .= $CFG->wwwroot.'/mod/checklist/view.php?id='.$cm->id;
+                            email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
+                        }
+                    }
+                }
+            }
             add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", $checklist->name, $cm->id, $grade->userid);
         }
         $ci = new completion_info($course);

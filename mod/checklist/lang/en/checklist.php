@@ -50,6 +50,7 @@ $string['checklist'] = 'checklist';
 $string['pluginadministration'] = 'Checklist administration';
 
 $string['checklist:edit'] = 'Create and edit checklists';
+$string['checklist:emailoncomplete'] = 'Receive completion emails';
 $string['checklist:preview'] = 'Preview a checklist';
 $string['checklist:updateother'] = 'Update students\' checklist marks';
 $string['checklist:updateown'] = 'Update your checklist marks';
@@ -80,6 +81,13 @@ $string['edit'] = 'Edit checklist';
 $string['editdatesstart'] = 'Edit dates';
 $string['editdatesstop'] = 'Stop editing dates';
 $string['edititem'] = 'Edit this item';
+
+$string['emailoncomplete'] = 'Email teachers when checklist is complete';
+$string['emailoncomplete_help'] = 'When a checklist is complete, a notification email is sent to all the teachers on the course.<br />
+An administrator can control who receives this email using the capability \'mod:checklist/emailoncomplete\' - by default all teachers and non-editing teachers have this capability.';
+$string['emailoncompletesubject'] = 'User {$a->user} has completed checklist \'{$a->checklist}\'';
+$string['emailoncompletebody'] = 'User {$a->user} has completed checklist \'{$a->checklist}\'
+View the checklist here:';
 
 $string['forceupdate'] = 'Update checks for all automatic items';
 
