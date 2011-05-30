@@ -588,7 +588,7 @@ class checklist_class {
         $requireditems = 0;
         $completeitems = 0;
         $allcompleteitems = 0;
-        $checkgroupings = $this->checklist->autopopulate && $this->groupings;
+        $checkgroupings = $this->checklist->autopopulate && ($this->groupings !== false);
         foreach ($this->items as $item) {
             if (($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)||($item->hidden)) {
                 continue;
@@ -734,7 +734,7 @@ class checklist_class {
             $showcheckbox = ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
         }
         $overrideauto = ($this->checklist->autoupdate != CHECKLIST_AUTOUPDATE_YES);
-        $checkgroupings = $this->checklist->autopopulate && $this->groupings;
+        $checkgroupings = $this->checklist->autopopulate && ($this->groupings !== false);
 
         if (!$this->items) {
             print_string('noitems','checklist');
