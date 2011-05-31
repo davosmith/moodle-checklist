@@ -156,6 +156,10 @@ function checklist_update_grades($checklist, $userid=0) {
     }
 
     $items = get_records_select('checklist_item',"checklist = $checklist->id AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO.' AND hidden = '.CHECKLIST_HIDDEN_NO, ''. 'id');
+    if (!$items) {
+        return; // I should probably do something really clever here (in case there where already grades,
+        // but this is a silly use of the checklist, so I'm just going to ignore it
+    }
     if (!$course = get_record('course', 'id', $checklist->course)) {
         return;
     }
