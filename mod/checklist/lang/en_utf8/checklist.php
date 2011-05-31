@@ -60,6 +60,8 @@ $string['emailoncompletesubject'] = 'User $a->user has completed checklist \'$a-
 $string['emailoncompletebody'] = 'User $a->user has completed checklist \'$a->checklist\'
 View the checklist here:';
 
+$string['export'] = 'Export items';
+
 $string['forceupdate'] = 'Update checks for all automatic items';
 
 $string['gradetocomplete'] = 'Grade to complete:';
@@ -67,6 +69,8 @@ $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['headingitem'] = 'This item is a heading - it will not have a checkbox beside it';
 
+$string['import'] = 'Import items';
+$string['importfile'] = 'Choose file to import';
 $string['importfromsection'] = 'Current section';
 $string['importfromcourse'] = 'Whole course';
 $string['indentitem'] = 'Indent item';

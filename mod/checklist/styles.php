@@ -178,3 +178,8 @@ ol.checklist .itemauto {
     left: 0;
     top: 0;
 }
+
+.checklistimportexport {
+    text-align: right;
+    width: 90%;
+}
