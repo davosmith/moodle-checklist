@@ -481,6 +481,8 @@ class checklist_class {
             $this->update_items_from_course();
         }
 
+        $this->view_import_export();
+
         $this->view_edit_items();
 
         $this->view_footer();
@@ -1120,6 +1122,18 @@ class checklist_class {
         echo "if (disable) { \nday.setAttribute('disabled','disabled');\nmonth.setAttribute('disabled', 'disabled');\nyear.setAttribute('disabled', 'disabled');\n } ";
         echo "else {\nday.removeAttribute('disabled');\nmonth.removeAttribute('disabled');\nyear.removeAttribute('disabled');\n }";
         echo "} toggledate{$id}(); </script>\n";
+    }
+
+    function view_import_export() {
+        $importurl = new moodle_url('/mod/checklist/import.php', array('id' => $this->cm->id));
+        $exporturl = new moodle_url('/mod/checklist/export.php', array('id' => $this->cm->id));
+
+        $importstr = get_string('import', 'checklist');
+        $exportstr = get_string('export', 'checklist');
+
+        echo "<div class='checklistimportexport'>";
+        echo "<a href='$importurl'>$importstr</a>&nbsp;&nbsp;&nbsp;<a href='$exporturl'>$exportstr</a>";
+        echo "</div>";
     }
 
     function view_edit_items() {
