@@ -282,7 +282,7 @@ function checklist_update_grades($checklist, $userid=0) {
         $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
         $sql .= " WHERE u.id $usql";
         $sql .= " AND c.item $isql";
-        $sql .= ' GROUP BY u.id';
+        $sql .= ' GROUP BY u.id, u.firstname, u.lastname';
 
         $params = array_merge($uparams, $iparams);
         $params = array_merge(array($checklist->maxgrade, $total), $params);
