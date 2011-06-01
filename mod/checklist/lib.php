@@ -267,7 +267,7 @@ function checklist_update_grades($checklist, $userid=0) {
         $sql .= " FROM {$CFG->prefix}user u LEFT JOIN {$CFG->prefix}checklist_check c ON u.id = c.userid";
         $sql .= " WHERE c.item IN ($itemlist)";
         $sql .= ' AND u.id IN ('.$users.')';
-        $sql .= ' GROUP BY u.id';
+        $sql .= ' GROUP BY u.id, u.firstname, u.lastname';
 
         $grades = get_records_sql($sql);
 
