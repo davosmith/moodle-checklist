@@ -632,10 +632,10 @@ class checklist_class {
             return;
         }
 
-        $percentcomplete = ($completeitems * 100) / $requireditems;
         $allpercentcomplete = ($allcompleteitems * 100) / $totalitems;
 
-        if ($totalitems > $requireditems) {
+        if ($requireditems > 0 && $totalitems > $requireditems) {
+            $percentcomplete = ($completeitems * 100) / $requireditems;
             echo '<div style="display:block; float:left; width:150px;" class="checklist_progress_heading">';
             echo get_string('percentcomplete','checklist').':&nbsp;';
             echo '</div>';
