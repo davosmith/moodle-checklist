@@ -1316,8 +1316,8 @@ class checklist_class {
                     }
 
                     if ($autoitem) {
-                        echo '&nbsp;&nbsp;<a href="'.$baseurl.'deleteitem">';
                         if ($item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
+                            echo '&nbsp;&nbsp;<a href="'.$baseurl.'deleteitem">';
                             if ($item->hidden != CHECKLIST_HIDDEN_MANUAL) {
                                 $title = '"'.get_string('hide').'"';
                                 echo '<img src="'.$CFG->pixpath.'/t/hide.gif" alt='.$title.' title='.$title.' /></a>';
