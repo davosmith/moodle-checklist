@@ -110,6 +110,11 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->disabledIf('autoupdate', 'autopopulate', 'eq', 0);
         $mform->addHelpButton('autoupdate', 'autoupdate', 'checklist');
 
+        $mform->addElement('selectyesno', 'lockteachermarks', get_string('lockteachermarks', 'checklist'));
+        $mform->setDefault('lockteachermarks', 0);
+        $mform->setAdvanced('lockteachermarks');
+        $mform->addHelpButton('lockteachermarks', 'lockteachermarks', 'checklist');
+
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules
         $this->standard_coursemodule_elements();

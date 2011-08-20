@@ -52,6 +52,7 @@ $string['pluginadministration'] = 'Checklist administration';
 $string['checklist:edit'] = 'Create and edit checklists';
 $string['checklist:emailoncomplete'] = 'Receive completion emails';
 $string['checklist:preview'] = 'Preview a checklist';
+$string['checklist:updatelocked'] = 'Update locked checklist marks';
 $string['checklist:updateother'] = 'Update students\' checklist marks';
 $string['checklist:updateown'] = 'Update your checklist marks';
 $string['checklist:viewreports'] = 'View students\' progress';
@@ -107,6 +108,10 @@ $string['itemcomplete'] = 'Completed';
 $string['items'] = 'Checklist items';
 
 $string['linktomodule'] = 'Link to this module';
+
+$string['lockteachermarks'] = 'Lock teacher marks';
+$string['lockteachermarks_help'] = 'When this setting is enabled, once a teacher has saved a \'Yes\' mark, they will be unable to change it. Users with the capability \'mod/checklist:updatelocked\' will still be able to change the mark.';
+$string['lockteachermarkswarning'] = 'Note: Once you have saved these marks, you will be unable to change any \'Yes\' marks';
 
 $string['modulename'] = 'Checklist';
 $string['modulenameplural'] = 'Checklists';
