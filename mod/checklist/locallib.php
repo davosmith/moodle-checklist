@@ -127,7 +127,7 @@ class checklist_class {
         // Load the currently checked-off items
         if ($this->userid) { // && ($this->canupdateown() || $this->canviewreports() )) {
 
-            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark, c.teachertimestamp FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
             $sql .= 'ON (i.id = c.item AND c.userid = '.$this->userid.') WHERE i.checklist = '.$this->checklist->id;
 
             $checks = get_records_sql($sql);
@@ -139,8 +139,11 @@ class checklist_class {
                     if (isset($this->items[$id])) {
                         $this->items[$id]->checked = $check->usertimestamp > 0;
                         $this->items[$id]->teachermark = $check->teachermark;
+                        $this->items[$id]->usertimestamp = $check->usertimestamp;
+                        $this->items[$id]->teachertimestamp = $check->teachertimestamp;
                     } elseif ($this->useritems && isset($this->useritems[$id])) {
                         $this->useritems[$id]->checked = $check->usertimestamp > 0;
+                        $this->useritems[$id]->usertimestamp = $check->usertimestamp;
                         // User items never have a teacher mark to go with them
                     }
                 }
@@ -715,6 +718,7 @@ class checklist_class {
         $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
 
         $teachermarklocked = false;
+        $showcompletiondates = false;
         if ($viewother) {
             $showbars = optional_param('showbars',false,PARAM_BOOL);
             if ($comments) {
@@ -746,9 +750,20 @@ class checklist_class {
                 echo ' <input type="submit" name="viewall" value="'.get_string('addcomments','checklist').'" />';
                 echo '</form>';
             }
+
+            echo '<form style="display: inline;" action="'.$thispage.'" method="get">';
+            echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
+            echo $showbars ? '<input type="hidden" name="showbars" value="on" />' : '';
+            echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
+            echo '<input type="hidden" name="studentid" value="'.$this->userid.'" />';
+            echo '<input type="hidden" name="action" value="toggledates" />';
+            echo ' <input type="submit" name="toggledates" value="'.get_string('toggledates','checklist').'" />';
+            echo '</form>';
+
             echo '</h2>';
 
             $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
+            $showcompletiondates = $this->showcompletiondates();
         }
 
         echo format_text($this->checklist->intro, $this->checklist->introformat);
@@ -941,6 +956,17 @@ class checklist_class {
                         echo '<span class="itemdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
                     } else {
                         echo '<span class="itemoverdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
+                    }
+                }
+
+                if ($showcompletiondates) {
+                    if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
+                        if ($showteachermark && $item->teachermark != CHECKLIST_TEACHERMARK_UNDECIDED && $item->teachertimestamp) {
+                            echo '<span class="itemteacherdate">'.userdate($item->teachertimestamp, get_string('strftimedatetimeshort')).'</span>';
+                        }
+                        if ($showcheckbox && $item->checked && $item->usertimestamp) {
+                            echo '<span class="itemuserdate">'.userdate($item->usertimestamp, get_string('strftimedatetimeshort')).'</span>';
+                        }
                     }
                 }
 
@@ -1941,6 +1967,8 @@ class checklist_class {
     }
 
     function process_report_actions() {
+        global $SESSION;
+
         $this->showoptional = true;
         $this->sortby = optional_param('sortby', 'firstasc', PARAM_TEXT);
 
@@ -1957,6 +1985,8 @@ class checklist_class {
             if (!$viewnext) {
                 $this->updateteachermarks();
             }
+        } else if ($action == 'toggledates') {
+            $this->toggleshowcompletiondates();
         }
 
         if ($viewnext || $savenext) {
@@ -2536,11 +2566,13 @@ class checklist_class {
                     }
                     if ($newval != $item->teachermark) {
                         $updategrades = true;
-                        $item->teachermark = $newval;
 
                         $newcheck = new stdClass;
                         $newcheck->teachertimestamp = time();
                         $newcheck->teachermark = $newval;
+
+                        $item->teachermark = $newcheck->teachermark;
+                        $item->teachertimestamp = $newcheck->teachertimestamp;
 
                         $oldcheck = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
                         if ($oldcheck) {
@@ -2863,6 +2895,25 @@ class checklist_class {
             }
         }
         $this->userid = false;
+    }
+
+    function showcompletiondates() {
+        global $SESSION;
+
+        if (!isset($SESSION->checklist_showcompletiondates)) {
+            return false;
+        }
+        return $SESSION->checklist_showcompletiondates;
+    }
+
+    function toggleshowcompletiondates() {
+        global $SESSION;
+
+        if (!isset($SESSION->checklist_showcompletiondates)) {
+            $SESSION->checklist_showcompletiondates = false;
+        } else {
+            $SESSION->checklist_showcompletiondates = !$SESSION->checklist_showcompletiondates;
+        }
     }
 
     /* static function - avoiding 'static' keyword for PHP 4 compatibility */

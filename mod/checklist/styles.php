@@ -79,6 +79,18 @@ ol.checklist .itemauto {
     background-color: #d6e6e7;
 }
 
+ol.checklist li .itemuserdate {
+    position: absolute;
+    width: 10em;
+    left: 75%;
+}
+
+ol.checklist li .itemteacherdate {
+    position: absolute;
+    width: 10em;
+    left: 60%;
+}
+
 .itemdue {
     font-style: italic;
     color: #90d090;
