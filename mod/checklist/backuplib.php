@@ -72,6 +72,8 @@
         fwrite ($bf,full_tag("MAXGRADE",4,false,$checklist->maxgrade));
         fwrite ($bf,full_tag("AUTOPOPULATE",4,false,$checklist->autopopulate));
         fwrite ($bf,full_tag("AUTOUPDATE",4,false,$checklist->autoupdate));
+        fwrite ($bf,full_tag("EMAILONCOMPLETE",4,false,$checklist->emailoncomplete));
+        fwrite ($bf,full_tag("LOCKTEACHERMARKS",4,false,$checklist->lockteachermarks));
 
         $status = backup_checklist_items($bf,$preferences,$checklist->id);
 

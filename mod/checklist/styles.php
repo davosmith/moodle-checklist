@@ -183,3 +183,8 @@ ol.checklist .itemauto {
     text-align: right;
     width: 90%;
 }
+
+.checklistwarning {
+    margin-top: 1em;
+    color: #800000;
+}

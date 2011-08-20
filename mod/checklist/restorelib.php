@@ -74,6 +74,8 @@ require_once(dirname(__FILE__).'/locallib.php');
             $checklist->maxgrade = backup_todb_chk_optional_field($info['MOD'], 'MAXGRADE', 100);
             $checklist->autopopulate = backup_todb_chk_optional_field($info['MOD'], 'AUTOPOPULATE', 0);
             $checklist->autoupdate = backup_todb_chk_optional_field($info['MOD'], 'AUTOUPDATE', 1);
+            $checklist->emailoncomplete = backup_todb_chk_optional_field($info['MOD'], 'EMAILONCOMPLETE', 0);
+            $checklist->lockteachermarks = backup_todb_chk_optional_field($info['MOD'], 'LOCKTEACHERMARKS', 0);
 
             $newid = insert_record('checklist', $checklist);
 

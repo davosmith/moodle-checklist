@@ -71,5 +71,15 @@ $mod_checklist_capabilities = array(
               'editingteacher' => CAP_ALLOW,
               'teacher' => CAP_ALLOW
            )
+      ),
+
+      // Can update teacher checklist marks even if locked
+      'mod/checklist:updatelocked' => array(
+           'captype' => 'write',
+           'contextlevel' => CONTEXT_MODULE,
+           'legacy' => array(
+              'editingteacher' => CAP_ALLOW,
+              'admin' => CAP_ALLOW
+           )
       )
 );

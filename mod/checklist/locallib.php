@@ -713,6 +713,8 @@ class checklist_class {
         $comments = $this->checklist->teachercomments;
         $editcomments = false;
         $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
+
+        $teachermarklocked = false;
         if ($viewother) {
             $showbars = optional_param('showbars',false,PARAM_BOOL);
             if ($comments) {
@@ -745,6 +747,8 @@ class checklist_class {
                 echo '</form>';
             }
             echo '</h2>';
+
+            $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
         }
 
         echo format_text($this->checklist->intro, $this->checklist->introformat);
@@ -756,6 +760,7 @@ class checklist_class {
             $this->view_progressbar();
             $showteachermark = ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
             $showcheckbox = ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) || ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH);
+            $teachermarklocked = $teachermarklocked && $showteachermark; // Make sure this is OFF, if not showing teacher marks
         }
         $overrideauto = ($this->checklist->autoupdate != CHECKLIST_AUTOUPDATE_YES);
         $checkgroupings = $this->checklist->autopopulate && $this->groupings;
@@ -827,6 +832,10 @@ class checklist_class {
                 }
             }
 
+            if ($teachermarklocked) {
+                echo '<p style="checklistwarning">'.get_string('lockteachermarkswarning', 'checklist').'</p>';
+            }
+
             echo '<ol class="checklist" id="checklistouter">';
             $currindent = 0;
             foreach ($this->items as $item) {
@@ -889,11 +898,13 @@ class checklist_class {
                         //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
                         if ($viewother) {
+                            $disabled = ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'disabled="disabled" ' : '';
+
                             $selu = ($item->teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
                             $sely = ($item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
                             $seln = ($item->teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
 
-                            echo '<select name="items[]" >';
+                            echo '<select name="items[]" '.$disabled.'>';
                             echo '<option value="'.$item->id.':'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
                             echo '<option value="'.$item->id.':'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
                             echo '<option value="'.$item->id.':'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
@@ -2512,11 +2523,17 @@ class checklist_class {
             $info = addslashes($this->checklist->name).' ('.fullname($student, true).')';
             add_to_log($this->course->id, 'checklist', 'update checks', "report.php?id={$this->cm->id}&studentid={$this->userid}", $info, $this->cm->id);
 
+            $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
+
             foreach ($newchecks as $newcheck) {
                 list($itemid, $newval) = explode(':',$newcheck, 2);
 
                 if (isset($this->items[$itemid])) {
                     $item =& $this->items[$itemid];
+
+                    if ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                        continue; // Does not have permission to update marks that are already 'Yes'
+                    }
                     if ($newval != $item->teachermark) {
                         $updategrades = true;
                         $item->teachermark = $newval;

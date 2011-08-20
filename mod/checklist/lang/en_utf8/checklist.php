@@ -28,6 +28,7 @@ $string['checklist'] = 'checklist';
 $string['checklist:edit'] = 'Create and edit checklists';
 $string['checklist:emailoncomplete'] = 'Receive completion emails';
 $string['checklist:preview'] = 'Preview a checklist';
+$string['checklist:updatelocked'] = 'Update locked checklist marks';
 $string['checklist:updateother'] = 'Update students\' checklist marks';
 $string['checklist:updateown'] = 'Update your checklist marks';
 $string['checklist:viewreports'] = 'View students\' progress';
@@ -76,6 +77,9 @@ $string['importfromcourse'] = 'Whole course';
 $string['indentitem'] = 'Indent item';
 $string['itemcomplete'] = 'Completed';
 $string['items'] = 'Checklist items';
+
+$string['lockteachermarks'] = 'Lock teacher marks';
+$string['lockteachermarkswarning'] = 'Note: Once you have saved these marks, you will be unable to change any \'Yes\' marks';
 
 $string['linktomodule'] = 'Link to this module';
 
