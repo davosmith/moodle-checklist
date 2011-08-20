@@ -34,7 +34,7 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         $checklist = new backup_nested_element('checklist', array('id'), array(
             'name', 'intro', 'introformat', 'timecreated', 'timemodified', 'useritemsallowed',
             'teacheredit', 'theme', 'duedatesoncalendar', 'teachercomments', 'maxgrade',
-            'autopopulate', 'autoupdate', 'lockteachermarks'));
+            'autopopulate', 'autoupdate', 'completionpercent', 'emailoncomplete', 'lockteachermarks'));
 
         $items = new backup_nested_element('items');
 
