@@ -38,6 +38,10 @@ If a Moodle 2.0 completion tracking is switched on for a particular activity, th
 For details of exactly what causes an activity to be marked as \'complete\', ask your site administrator to look in the file \'mod/checklist/autoupdate.php\'<br />
 Note: it can take up to 60 seconds for a student\'s activity to be reflected in their checklist';
 
+$string['autoupdatewarning_both'] = 'There are items on this list that will be automatically updated (as students complete the related activity). However, as this is a \'student and teacher\' checklist the progress bars will not update until a teacher agrees the marks given.';
+$string['autoupdatewarning_student'] = 'There are items on this list that will be automatically updated (as students complete the related activity).';
+$string['autoupdatewarning_teacher'] = 'Automatic updating has been switched on for this checklist, but these marks will not be displayed as only \'teacher\' marks are shown.';
+
 $string['canceledititem'] = 'Cancel';
 
 $string['calendardescription'] = 'This event was added by the checklist: {$a}';

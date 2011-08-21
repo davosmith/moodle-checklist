@@ -1186,6 +1186,16 @@ class checklist_class {
             $thispage->param('editdates', 'on');
         }
 
+        if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
+            if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+                echo '<p>'.get_string('autoupdatewarning_student', 'checklist').'</p>';
+            } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
+                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+            } else {
+                echo '<p>'.get_string('autoupdatewarning_both', 'checklist').'</p>';
+            }
+        }
+
         echo '<ol class="checklist">';
         if ($this->items) {
             $lastitem = count($this->items);
@@ -1450,6 +1460,14 @@ class checklist_class {
         if (!$this->showoptional) { $thisurl->param('action','hideoptional'); }
         if ($showbars) { $thisurl->param('showbars','on'); }
         if ($editchecks) { $thisurl->param('editchecks','on'); }
+
+        if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
+            if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
+                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+            } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH) {
+                echo '<p>'.get_string('autoupdatewarning_both', 'checklist').'</p>';
+            }
+        }
 
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
