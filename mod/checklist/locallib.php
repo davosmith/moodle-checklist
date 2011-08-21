@@ -2701,6 +2701,7 @@ class checklist_class {
             list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
             $params = array_merge(array($userid), $iparams);
             $currentchecks = $DB->get_records_select('checklist_check', "userid = ? AND item $isql", $params, '', 'item, id, teachermark');
+            $updategrades = false;
             foreach ($items as $itemid => $val) {
                 if (!array_key_exists($itemid, $currentchecks)) {
                     if ($val == CHECKLIST_TEACHERMARK_UNDECIDED) {
@@ -2716,6 +2717,7 @@ class checklist_class {
                     $newcheck->usertimestamp = 0;
 
                     $DB->insert_record('checklist_check', $newcheck);
+                    $updategrades = true;
 
                 } else if ($currentchecks[$itemid]->teachermark != $val) {
                     if ($teachermarklocked && $currentchecks[$itemid]->teachermark == CHECKLIST_TEACHERMARK_YES) {
@@ -2728,7 +2730,11 @@ class checklist_class {
                     $updcheck->teachertimestamp = time();
 
                     $DB->update_record('checklist_check', $updcheck);
+                    $updategrades = true;
                 }
+            }
+            if ($updategrades) {
+                checklist_update_grades($this->checklist, $userid);
             }
         }
     }
