@@ -1444,10 +1444,12 @@ class checklist_class {
         global $DB, $OUTPUT;
 
         $showbars = optional_param('showbars', false, PARAM_BOOL);
+        $editchecks = $this->caneditother() && optional_param('editchecks', false, PARAM_BOOL);
 
         $thisurl = new moodle_url('/mod/checklist/report.php', array('id'=>$this->cm->id, 'sortby'=>$this->sortby, 'sesskey'=>sesskey()) );
         if (!$this->showoptional) { $thisurl->param('action','hideoptional'); }
         if ($showbars) { $thisurl->param('showbars','on'); }
+        if ($editchecks) { $thisurl->param('editchecks','on'); }
 
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
@@ -1466,12 +1468,26 @@ class checklist_class {
         echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
         echo html_writer::input_hidden_params($thisurl, array('showbars'));
         if ($showbars) {
+            $editchecks = false;
             echo '<input type="submit" name="submit" value="'.get_string('showfulldetails','checklist').'" />';
         } else {
             echo '<input type="hidden" name="showbars" value="on" />';
             echo '<input type="submit" name="submit" value="'.get_string('showprogressbars','checklist').'" />';
         }
         echo '</form>';
+
+        if ($editchecks) {
+            echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="post" />';
+            echo html_writer::input_hidden_params($thisurl);
+            echo '<input type="hidden" name="action" value="updateallchecks"/>';
+            echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
+        } else if (!$showbars && $this->caneditother() && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
+            echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+            echo html_writer::input_hidden_params($thisurl);
+            echo '<input type="hidden" name="editchecks" value="on" />';
+            echo '<input type="submit" name="submit" value="'.get_string('editchecks','checklist').'" />';
+            echo '</form>';
+        }
 
         echo '<br style="clear:both"/>';
 
@@ -1623,12 +1639,12 @@ class checklist_class {
                         }
 
                         if ($check->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                            $row[] = array(false, false, true);
+                            $row[] = array(false, false, true, 0, 0);
                         } else {
                             if ($check->usertimestamp > 0) {
-                                $row[] = array($check->teachermark,true,false);
+                                $row[] = array($check->teachermark,true,false, $auser->id, $check->id);
                             } else {
-                                $row[] = array($check->teachermark,false,false);
+                                $row[] = array($check->teachermark,false,false, $auser->id, $check->id);
                             }
                         }
                     }
@@ -1638,12 +1654,17 @@ class checklist_class {
             }
 
             echo '<div style="overflow:auto">';
-            $this->print_report_table($table);
+            $this->print_report_table($table, $editchecks);
             echo '</div>';
+
+            if ($editchecks) {
+                echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
+                echo '</form>';
+            }
         }
     }
 
-    function print_report_table($table) {
+    function print_report_table($table, $editchecks) {
         global $OUTPUT;
 
         $output = '';
@@ -1653,6 +1674,7 @@ class checklist_class {
 
         $showteachermark = !($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT);
         $showstudentmark = !($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER);
+        $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
 
         // Sort out the heading row
         $countcols = count($table->head);
@@ -1702,7 +1724,7 @@ class checklist_class {
                     $size = $table->size[$key];
                     $img = '&nbsp;';
                     $cellclass = 'level'.$table->level[$key];
-                    list($teachermark, $studentmark, $heading) = $item;
+                    list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
                     if ($heading) {
                         $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$key.' reportheading">&nbsp;</td>';
                     } else {
@@ -1715,6 +1737,20 @@ class checklist_class {
                                 $img = $teacherimg[$teachermark];
                             } else {
                                 $img = $teacherimg[CHECKLIST_TEACHERMARK_UNDECIDED];
+                            }
+
+                            if ($editchecks) {
+                                $disabled = ($teachermarklocked && $teachermark == CHECKLIST_TEACHERMARK_YES) ? 'disabled="disabled" ' : '';
+
+                                $selu = ($teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
+                                $sely = ($teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
+                                $seln = ($teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
+
+                                $img = '<select name="items['.$checkid.':'.$userid.']" '.$disabled.'>';
+                                $img .= '<option value="'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
+                                $img .= '<option value="'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
+                                $img .= '<option value="'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
+                                $img .= '</select>';
                             }
                         }
                         if ($showstudentmark) {
@@ -1930,6 +1966,9 @@ class checklist_class {
             if (!$viewnext) {
                 $this->updateteachermarks();
             }
+        } else if ($action == 'updateallchecks' && $this->caneditother()) {
+            $this->updateallteachermarks();
+
         } else if ($action == 'toggledates') {
             $this->toggleshowcompletiondates();
         }
@@ -2594,7 +2633,86 @@ class checklist_class {
                 }
             }
         }
+    }
 
+    function updateallteachermarks() {
+        global $DB;
+
+        if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+            // Student only lists do not have teacher marks to update
+            return;
+        }
+
+        $checkdata = optional_param('items', array(), PARAM_INT);
+        if (!is_array($checkdata)) {
+            // Something has gone wrong, so update nothing
+            return;
+        }
+
+        $userchecks = array();
+        foreach ($checkdata as $item => $val) {
+            if ($val != CHECKLIST_TEACHERMARK_NO && $val != CHECKLIST_TEACHERMARK_YES && $val != CHECKLIST_TEACHERMARK_UNDECIDED) {
+                continue; // Invalid value
+            }
+
+            $details = explode(':', $item);
+            if (count($details) != 2) {
+                continue; // Malformed key
+            }
+            $itemid = intval($details[0]);
+            $userid = intval($details[1]);
+            if (!$itemid || !$userid) {
+                continue;
+            }
+            if (!array_key_exists($itemid, $this->items)) {
+                continue; // Item is not part of this checklist
+            }
+            if (!array_key_exists($userid, $userchecks)) {
+                $userchecks[$userid] = array();
+            }
+            $userchecks[$userid][$itemid] = $val;
+        }
+
+        if (empty($userchecks)) {
+            return;
+        }
+
+        $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
+
+        foreach ($userchecks as $userid => $items) {
+            list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
+            $params = array_merge(array($userid), $iparams);
+            $currentchecks = $DB->get_records_select('checklist_check', "userid = ? AND item $isql", $params, '', 'item, id, teachermark');
+            foreach ($items as $itemid => $val) {
+                if (!array_key_exists($itemid, $currentchecks)) {
+                    if ($val == CHECKLIST_TEACHERMARK_UNDECIDED) {
+                        continue; // Do not create an entry for blank marks
+                    }
+
+                    // No entry for this item - need to create it
+                    $newcheck = new stdClass;
+                    $newcheck->item = $itemid;
+                    $newcheck->userid = $userid;
+                    $newcheck->teachermark = $val;
+                    $newcheck->teachertimestamp = time();
+                    $newcheck->usertimestamp = 0;
+
+                    $DB->insert_record('checklist_check', $newcheck);
+
+                } else if ($currentchecks[$itemid]->teachermark != $val) {
+                    if ($teachermarklocked && $currentchecks[$itemid]->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                        continue;
+                    }
+
+                    $updcheck = new stdClass;
+                    $updcheck->id = $currentchecks[$itemid]->id;
+                    $updcheck->teachermark = $val;
+                    $updcheck->teachertimestamp = time();
+
+                    $DB->update_record('checklist_check', $updcheck);
+                }
+            }
+        }
     }
 
     function update_all_autoupdate_checks() {
