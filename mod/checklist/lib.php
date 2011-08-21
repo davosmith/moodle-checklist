@@ -192,7 +192,7 @@ function checklist_update_grades($checklist, $userid=0) {
             $users = get_records('user', 'id', $userid, null, 'id, firstname, lastname');
         } else {
             $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname', '', '', '', '', '', false)) {
                 return;
             }
         }

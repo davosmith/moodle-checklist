@@ -1203,6 +1203,16 @@ class checklist_class {
             print_string('completiongradehelp','checklist');
         }
 
+        if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
+            if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+                echo '<p>'.get_string('autoupdatewarning_student', 'checklist').'</p>';
+            } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
+                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+            } else {
+                echo '<p>'.get_string('autoupdatewarning_both', 'checklist').'</p>';
+            }
+        }
+
         echo '<ol class="checklist">';
         if ($this->items) {
             $lastitem = count($this->items);
@@ -1493,6 +1503,14 @@ class checklist_class {
 
         $showbars = optional_param('showbars', false, PARAM_BOOL);
         $editchecks = $this->caneditother() && optional_param('editchecks', false, PARAM_BOOL);
+
+        if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
+            if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
+                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+            } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH) {
+                echo '<p>'.get_string('autoupdatewarning_both', 'checklist').'</p>';
+            }
+        }
 
         $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
         $thisurl .= $this->showoptional ? '' : '&amp;action=hideoptional';
