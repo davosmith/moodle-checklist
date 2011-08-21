@@ -80,15 +80,19 @@ ol.checklist .itemauto {
 }
 
 ol.checklist li .itemuserdate {
+    background-color: #b0ffb0;
     position: absolute;
     width: 10em;
     left: 75%;
+    zindex: 100;
 }
 
 ol.checklist li .itemteacherdate {
+    background-color: #b0ffb0;
     position: absolute;
     width: 10em;
     left: 60%;
+    zindex: 100;
 }
 
 .itemdue {
