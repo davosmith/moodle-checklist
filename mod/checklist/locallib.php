@@ -2740,6 +2740,7 @@ class checklist_class {
 
         foreach ($userchecks as $userid => $items) {
             $currentchecks = get_records_select('checklist_check', "userid = $userid AND item in (".implode(',', array_keys($items)).")", '', 'item, id, teachermark');
+            $updategrades = false;
             foreach ($items as $itemid => $val) {
                 if (!$currentchecks || !array_key_exists($itemid, $currentchecks)) {
                     if ($val == CHECKLIST_TEACHERMARK_UNDECIDED) {
@@ -2755,6 +2756,7 @@ class checklist_class {
                     $newcheck->usertimestamp = 0;
 
                     insert_record('checklist_check', $newcheck);
+                    $updategrades = true;
 
                 } else if ($currentchecks[$itemid]->teachermark != $val) {
                     if ($teachermarklocked && $currentchecks[$itemid]->teachermark == CHECKLIST_TEACHERMARK_YES) {
@@ -2767,7 +2769,11 @@ class checklist_class {
                     $updcheck->teachertimestamp = time();
 
                     update_record('checklist_check', $updcheck);
+                    $updategrades = true;
                 }
+            }
+            if ($updategrades) {
+                checklist_update_grades($this->checklist, $userid);
             }
         }
     }
