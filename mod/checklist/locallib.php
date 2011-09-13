@@ -1504,6 +1504,9 @@ class checklist_class {
         $showbars = optional_param('showbars', false, PARAM_BOOL);
         $editchecks = $this->caneditother() && optional_param('editchecks', false, PARAM_BOOL);
 
+        $page = optional_param('page', 0, PARAM_INT);
+        $perpage = optional_param('perpage', 30, PARAM_INT);
+
         if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
             if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
                 echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
@@ -1549,6 +1552,35 @@ class checklist_class {
         }
         echo '</form>';
 
+        switch ($this->sortby) {
+        case 'firstdesc':
+            $orderby = 'u.firstname DESC';
+            break;
+
+        case 'lastasc':
+            $orderby = 'u.lastname';
+            break;
+
+        case 'lastdesc':
+            $orderby = 'u.lastname DESC';
+            break;
+
+        default:
+            $orderby = 'u.firstname';
+            break;
+        }
+
+        $ausers = false;
+        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '', $activegroup, '', false)) {
+            $users = array_keys($users);
+
+            print_paging_bar(count($users), $page, $perpage, $thisurl.'&amp;');
+            $users = array_slice($users, $page*$perpage, $perpage);
+
+            $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') ORDER BY '.$orderby);
+        }
+
+
         if ($editchecks) {
             echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$CFG->wwwroot.'/mod/checklist/report.php" method="post" />';
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
@@ -1568,30 +1600,6 @@ class checklist_class {
         }
 
         echo '<br style="clear:both"/>';
-
-        switch ($this->sortby) {
-        case 'firstdesc':
-            $orderby = 'ORDER BY u.firstname DESC';
-            break;
-
-        case 'lastasc':
-            $orderby = 'ORDER BY u.lastname';
-            break;
-
-        case 'lastdesc':
-            $orderby = 'ORDER BY u.lastname DESC';
-            break;
-
-        default:
-            $orderby = 'ORDER BY u.firstname';
-            break;
-        }
-
-        $ausers = false;
-        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
-            $users = array_keys($users);
-            $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
-        }
 
         if ($showbars) {
             if ($ausers) {
