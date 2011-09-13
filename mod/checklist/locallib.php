@@ -1456,6 +1456,9 @@ class checklist_class {
         $showbars = optional_param('showbars', false, PARAM_BOOL);
         $editchecks = $this->caneditother() && optional_param('editchecks', false, PARAM_BOOL);
 
+        $page = optional_param('page', 0, PARAM_INT);
+        $perpage = optional_param('perpage', 30, PARAM_INT);
+
         $thisurl = new moodle_url('/mod/checklist/report.php', array('id'=>$this->cm->id, 'sortby'=>$this->sortby, 'sesskey'=>sesskey()) );
         if (!$this->showoptional) { $thisurl->param('action','hideoptional'); }
         if ($showbars) { $thisurl->param('showbars','on'); }
@@ -1511,26 +1514,33 @@ class checklist_class {
 
         switch ($this->sortby) {
         case 'firstdesc':
-            $orderby = ' ORDER BY u.firstname DESC';
+            $orderby = 'u.firstname DESC';
             break;
 
         case 'lastasc':
-            $orderby = ' ORDER BY u.lastname';
+            $orderby = 'u.lastname';
             break;
 
         case 'lastdesc':
-            $orderby = ' ORDER BY u.lastname DESC';
+            $orderby = 'u.lastname DESC';
             break;
 
         default:
-            $orderby = ' ORDER BY u.firstname';
+            $orderby = 'u.firstname';
             break;
         }
 
         $ausers = false;
-        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
-            list($usql, $uparams) = $DB->get_in_or_equal(array_keys($users));
-            $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id '.$usql.$orderby, $uparams);
+        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '', $activegroup, '', false)) {
+            $users = array_keys($users);
+            if (count($users) < $page*$perpage) {
+                $page = 0;
+            }
+            echo $OUTPUT->paging_bar(count($users), $page, $perpage, new moodle_url($thisurl, array('perpage'=>$perpage)));
+            $users = array_slice($users, $page*$perpage, $perpage);
+
+            list($usql, $uparams) = $DB->get_in_or_equal($users);
+            $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id '.$usql.' ORDER BY '.$orderby, $uparams);
         }
 
         if ($showbars) {
