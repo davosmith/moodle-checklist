@@ -1574,7 +1574,7 @@ class checklist_class {
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '', $activegroup, '', false)) {
             $users = array_keys($users);
 
-            print_paging_bar(count($users), $page, $perpage, $thisurl.'&amp;');
+            print_paging_bar(count($users), $page, $perpage, $thisurl.'&amp;perpage='.$perpage.'&amp;');
             $users = array_slice($users, $page*$perpage, $perpage);
 
             $ausers = get_records_sql('SELECT u.id, u.firstname, u.lastname FROM '.$CFG->prefix.'user u WHERE u.id IN ('.implode(',',$users).') ORDER BY '.$orderby);
