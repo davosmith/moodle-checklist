@@ -94,16 +94,14 @@ if (get_record('user_info_field', 'shortname', 'district')) {
 
 // Get list of groups
 $groupsmenu = array();
+$groupsmenu[0] = get_string('allparticipants'); // Always available - only exports groups user has access to
 if ($course->groupmode == VISIBLEGROUPS or has_capability('moodle/site:accessallgroups', $context)) {
     $allowedgroups = groups_get_all_groups($course->id);
-    $groupsmenu[0] = get_string('allparticipants');
 } else {
     $allowedgroups = groups_get_all_groups($course->id, $USER->id);
 }
 
-if (!$allowedgroups) {
-    $groupsmenu[0] = get_string('allparticipants');
-} else {
+if ($allowedgroups) {
     foreach ($allowedgroups as $group) {
         $groupsmenu[$group->id] = format_string($group->name);
     }

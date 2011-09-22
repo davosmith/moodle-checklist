@@ -35,9 +35,18 @@ if (!$viewall) {
     }
 }
 
-if ($group && !has_capability('moodle/site:accessallgroups', $context)) {
-    if (!groups_is_member($group)) {
-        print_error('wronggroup', 'gradeexport_checklist');
+if ($group) {
+    if ($course->groupmode != VISIBLEGROUPS && !has_capability('moodle/site:accessallgroups', $context)) {
+        if (!groups_is_member($group)) {
+            print_error('wronggroup', 'gradeexport_checklist');
+        }
+    }
+} else {
+    if ($course->groupmode != VISIBLEGROUPS && !has_capability('moodle/site:accessallgroups', $context)) {
+        $group = groups_get_all_groups($course->id, $USER->id);
+        if ($group) {
+            $group = array_keys($group);
+        }
     }
 }
 
