@@ -10,6 +10,7 @@ require_once($CFG->dirroot.'/lib/excellib.class.php');
 $courseid = required_param('id', PARAM_INT);                   // course id
 $district = optional_param('choosedistrict', false, PARAM_TEXT);
 $checklistid = required_param('choosechecklist', PARAM_INT);
+$group = optional_param('group', 0, PARAM_INT);
 
 if (!$course = get_record('course', 'id', $courseid)) {
     print_error('nocourseid');
@@ -34,14 +35,19 @@ if (!$viewall) {
     }
 }
 
+if ($group && !has_capability('moodle/site:accessallgroups', $context)) {
+    if (!groups_is_member($group)) {
+        print_error('wronggroup', 'gradeexport_checklist');
+    }
+}
+
 if (!$checklist = get_record('checklist','id', $checklistid)) {
     print_error('checklistnotfound','gradeexport_checklist');
 }
 
 $strchecklistreport = get_string('checklistreport','gradeexport_checklist');
 
-$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.*', '', '', '', '', false);
-
+$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.*', 'u.firstname', '', '', $group, false);
 
 if ($district && $district != 'ALL' && $users) {
     $users = implode(',',array_keys($users));

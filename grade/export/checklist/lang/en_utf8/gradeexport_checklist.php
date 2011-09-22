@@ -21,5 +21,6 @@ $string['nodistrict'] = 'Error: current user has no district';
 $string['nousers'] = 'No users to export';
 
 $string['wrongdistrict'] = 'You do not have permission to view reports from that district';
+$string['wronggroup'] = 'You do not have permission to view reports for that group';
 
 ?>
