@@ -83,6 +83,21 @@ if ($DB->get_record('user_info_field', array('shortname' => 'district'))) {
     $districts = false;
 }
 
+// Get list of groups
+$groupsmenu = array();
+$groupsmenu[0] = get_string('allparticipants'); // Always available - only exports groups user has access to
+if ($course->groupmode == VISIBLEGROUPS or has_capability('moodle/site:accessallgroups', $context)) {
+    $allowedgroups = groups_get_all_groups($course->id);
+} else {
+    $allowedgroups = groups_get_all_groups($course->id, $USER->id);
+}
+
+if ($allowedgroups) {
+    foreach ($allowedgroups as $group) {
+        $groupsmenu[$group->id] = format_string($group->name);
+    }
+}
+
 echo "<br /><div style='width: 800px; margin: 0px auto;'><form action='{$CFG->wwwroot}/grade/export/checklist/export.php' method='post'>";
 
 echo '<label for="choosechecklist">'.get_string('choosechecklist','gradeexport_checklist').': <select id="choosechecklist" name="choosechecklist">';
@@ -103,6 +118,19 @@ if ($districts) {
     }
     foreach ($districts as $district) {
         echo "<option $selected value='{$district}'>{$district}</option>";
+        $selected = '';
+    }
+    echo '</select>&nbsp;';
+}
+
+if (count($groupsmenu) == 1) {
+    $groupname = reset($groupsmenu);
+    echo '<input type="hidden" name="group" value="'.key($groupname).'" />';
+} else {
+    echo '<label for="group">'.get_string('group').': <select id="group" name="group">';
+    $selected = ' selected="selected" ';
+    foreach ($groupsmenu as $groupid=>$groupname) {
+        echo "<option $selected value='{$groupid}'>$groupname</option>";
         $selected = '';
     }
     echo '</select>&nbsp;';
