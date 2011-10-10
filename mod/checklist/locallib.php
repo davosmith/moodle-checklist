@@ -2752,6 +2752,10 @@ class checklist_class {
     function update_all_autoupdate_checks() {
         global $DB;
 
+        if (!$this->checklist->autoupdate) {
+            return;
+        }
+
         $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
         if (!$users) {
             return;

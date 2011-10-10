@@ -92,6 +92,9 @@ function checklist_update_instance($checklist) {
     $newcompletion = $checklist->completionpercent;
     $oldcompletion = $DB->get_field('checklist', 'completionpercent', array('id'=>$checklist->id));
 
+    $newautoupdate = $checklist->autoupdate;
+    $oldautoupdate = $DB->get_field('checklist', 'autoupdate', array('id'=>$checklist->id));
+
     $DB->update_record('checklist', $checklist);
 
     // Add or remove all calendar events, as needed
@@ -111,6 +114,9 @@ function checklist_update_instance($checklist) {
         foreach ($users as $user) {
             $ci->update_state($cm, COMPLETION_UNKNOWN, $user->id);
         }
+    }
+    if ($newautoupdate && !$oldautoupdate) {
+        $chk->update_all_autoupdate_checks();
     }
 
     return true;

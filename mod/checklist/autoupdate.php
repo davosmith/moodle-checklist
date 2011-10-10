@@ -192,6 +192,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
         return 0;
     }
 
+    $newstate = ($newstate == COMPLETION_COMPLETE || $newstate == COMPLETION_COMPLETE_PASS); // Not complete if failed
     $updatecount = 0;
     $updatechecklists = array();
     foreach ($items as $item) {
