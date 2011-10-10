@@ -10,6 +10,8 @@ Items can be indented and marked as optional or turned into headings; a range of
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
 
 ==Installation==
+(Note, due to the way the new plugins database works, if you are downloading this from the Moodle.org website, you will need to download the 'checklist block' and 'checklist grade export' plugins separately)
+
 1. Unzip the contents of file you downloaded to a temporary folder.
 2. Upload the files to the your moodle server, placing the 'mod/checklist' files in the '[moodlefolder]/mod/checklist', (optionally) the 'blocks/checklist' files in the '[moodlefolder]/blocks/checklist' folder and (optionally) the 'grade/export/checklist' files in the '[moodlefolder]/grade/export/checklist' folder.
 3. Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
