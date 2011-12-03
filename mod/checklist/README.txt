@@ -66,7 +66,12 @@ Moodle plugins database entry: http://moodle.org/mod/data/view.php?d=13&rid=3582
 Report a bug, or suggest an improvement: http://tracker.moodle.org/browse/CONTRIB/component/10608
 
 ==Contact details==
-Any questions, suggested improvements (or offers to pay for specific customisations) to:
-Davo Smith - davo@davodev.co.uk
-http://www.davodev.co.uk
+Any questions or suggested improvements:
+Davo Smith - moodle@davosmith.co.uk
+
+If you are looking for any custom Moodle development (including changes to this plugin),
+please contact Moodle Partner - Synergy Learning:
+http://www.synergy-learning.com
+info@synergy-learning.com
+
 
