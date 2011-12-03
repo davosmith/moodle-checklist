@@ -68,6 +68,9 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
             $data->hidden = 1;
         }
 
+        // Apply offset to the deadline
+        $data->duetime = $this->apply_date_offset($data->duetime);
+
         if (($data->moduleid > 0) && ($data->itemoptional < 2)) { // Do not match up headings with modules
             $data->moduleid = $this->get_mappingid('course_modules', $data->moduleid);
             // If this does not work, I'm not sure how to handle this case
