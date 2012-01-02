@@ -1,6 +1,6 @@
 <?php
 
-$string['modulename'] = 'Checklist export';
+$string['modulename'] = 'Checklist';
 
 $string['alldistrict'] = 'All';
 
@@ -21,6 +21,6 @@ $string['nodistrict'] = 'Error: current user has no district';
 $string['nopermission'] = 'You do not have permission to do this export';
 $string['nousers'] = 'No users to export';
 
-$string['pluginname'] = 'Checklist export';
+$string['pluginname'] = 'Checklist';
 
 $string['wrongdistrict'] = 'You do not have permission to view reports from that district';
