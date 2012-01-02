@@ -16,7 +16,7 @@ Students are presented with a simple chart showing how far they have progressed 
 2. Upload the files to the your moodle server, placing the 'mod/checklist' files in the '[moodlefolder]/mod/checklist', (optionally) the 'blocks/checklist' files in the '[moodlefolder]/blocks/checklist' folder and (optionally) the 'grade/export/checklist' files in the '[moodlefolder]/grade/export/checklist' folder.
 3. Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
-IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds, between a student completing an activity and their checklist being updated.
+IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds (or more - depending on how often your site runs 'cron' updates), between a student completing an activity and their checklist being updated.
 
 If you are not happy with this delay, then make the changes found in the file core_modifications.txt
 
