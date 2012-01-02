@@ -47,8 +47,6 @@ class checklist_class {
     var $items;
     var $useritems;
     var $useredit;
-    var $showoptional;
-    var $sortby;
     var $additemafter;
     var $editdates;
     var $groupings;
@@ -697,15 +695,10 @@ class checklist_class {
         $teachermarklocked = false;
         $showcompletiondates = false;
         if ($viewother) {
-            $showbars = optional_param('showbars',false,PARAM_BOOL);
-            $sortby = optional_param('sortby','firstasc',PARAM_TEXT);
             if ($comments) {
                 $editcomments = optional_param('editcomments', false, PARAM_BOOL);
             }
-            $thispage = new moodle_url('/mod/checklist/report.php', array('id' => $this->cm->id, 'studentid' => $this->userid, 'sortby' => $sortby) );
-            if ($showbars) {
-                $thispage->param('showbars','on');
-            }
+            $thispage = new moodle_url('/mod/checklist/report.php', array('id' => $this->cm->id, 'studentid' => $this->userid) );
 
             if (!$student = $DB->get_record('user', array('id' => $this->userid) )) {
                 error('No such user!');
@@ -736,7 +729,9 @@ class checklist_class {
             echo '</form>';
 
             $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
-            $showcompletiondates = $this->showcompletiondates();
+
+            $reportsettings = $this->get_report_settings();
+            $showcompletiondates = $reportsettings->showcompletiondates;
         }
 
         echo format_text($this->checklist->intro, $this->checklist->introformat);
@@ -1453,15 +1448,14 @@ class checklist_class {
     function view_report() {
         global $DB, $OUTPUT;
 
-        $showbars = optional_param('showbars', false, PARAM_BOOL);
+        $reportsettings = $this->get_report_settings();
+
         $editchecks = $this->caneditother() && optional_param('editchecks', false, PARAM_BOOL);
 
         $page = optional_param('page', 0, PARAM_INT);
         $perpage = optional_param('perpage', 30, PARAM_INT);
 
-        $thisurl = new moodle_url('/mod/checklist/report.php', array('id'=>$this->cm->id, 'sortby'=>$this->sortby, 'sesskey'=>sesskey()) );
-        if (!$this->showoptional) { $thisurl->param('action','hideoptional'); }
-        if ($showbars) { $thisurl->param('showbars','on'); }
+        $thisurl = new moodle_url('/mod/checklist/report.php', array('id'=>$this->cm->id, 'sesskey'=>sesskey()) );
         if ($editchecks) { $thisurl->param('editchecks','on'); }
 
         if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
@@ -1477,7 +1471,7 @@ class checklist_class {
 
         echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
         echo html_writer::input_hidden_params($thisurl, array('action'));
-        if ($this->showoptional) {
+        if ($reportsettings->showoptional) {
             echo '<input type="hidden" name="action" value="hideoptional" />';
             echo '<input type="submit" name="submit" value="'.get_string('optionalhide','checklist').'" />';
         } else {
@@ -1487,12 +1481,13 @@ class checklist_class {
         echo '</form>';
 
         echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
-        echo html_writer::input_hidden_params($thisurl, array('showbars'));
-        if ($showbars) {
+        echo html_writer::input_hidden_params($thisurl);
+        if ($reportsettings->showprogressbars) {
             $editchecks = false;
+            echo '<input type="hidden" name="action" value="hideprogressbars" />';
             echo '<input type="submit" name="submit" value="'.get_string('showfulldetails','checklist').'" />';
         } else {
-            echo '<input type="hidden" name="showbars" value="on" />';
+            echo '<input type="hidden" name="action" value="showprogressbars" />';
             echo '<input type="submit" name="submit" value="'.get_string('showprogressbars','checklist').'" />';
         }
         echo '</form>';
@@ -1502,7 +1497,7 @@ class checklist_class {
             echo html_writer::input_hidden_params($thisurl);
             echo '<input type="hidden" name="action" value="updateallchecks"/>';
             echo '<input type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
-        } else if (!$showbars && $this->caneditother() && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
+        } else if (!$reportsettings->showprogressbars && $this->caneditother() && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
             echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
             echo html_writer::input_hidden_params($thisurl);
             echo '<input type="hidden" name="editchecks" value="on" />';
@@ -1512,7 +1507,7 @@ class checklist_class {
 
         echo '<br style="clear:both"/>';
 
-        switch ($this->sortby) {
+        switch ($reportsettings->sortby) {
         case 'firstdesc':
             $orderby = 'u.firstname DESC';
             break;
@@ -1543,10 +1538,10 @@ class checklist_class {
             $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id '.$usql.' ORDER BY '.$orderby, $uparams);
         }
 
-        if ($showbars) {
+        if ($reportsettings->showprogressbars) {
             if ($ausers) {
                 // Show just progress bars
-                if ($this->showoptional) {
+                if ($reportsettings->showoptional) {
                     $itemstocount = array();
                     foreach ($this->items as $item) {
                         if (!$item->hidden) {
@@ -1607,23 +1602,23 @@ class checklist_class {
 
         } else {
             // Show full table
-            $firstlink = 'sortby=firstasc';
-            $lastlink = 'sortby=lastasc';
+            $firstlink = 'firstasc';
+            $lastlink = 'lastasc';
             $firstarrow = '';
             $lastarrow = '';
-            if ($this->sortby == 'firstasc') {
-                $firstlink = 'sortby=firstdesc';
+            if ($reportsettings->sortby == 'firstasc') {
+                $firstlink = 'firstdesc';
                 $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
-            } else if ($this->sortby == 'lastasc') {
-                $lastlink = 'sortby=lastdesc';
+            } else if ($reportsettings->sortby == 'lastasc') {
+                $lastlink = 'lastdesc';
                 $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
-            } else if ($this->sortby == 'firstdesc') {
+            } else if ($reportsettings->sortby == 'firstdesc') {
                 $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
-            } else if ($this->sortby == 'lastdesc') {
+            } else if ($reportsettings->sortby == 'lastdesc') {
                 $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
             }
-            $firstlink = preg_replace('/sortby=.*/', $firstlink, $thisurl);
-            $lastlink = preg_replace('/sortby=.*/', $lastlink, $thisurl);
+            $firstlink = new moodle_url($thisurl, array('sortby' => $firstlink));
+            $lastlink = new moodle_url($thisurl, array('sortby' => $lastlink));
             $nameheading = get_string('fullname');
             $nameheading = ' <a href="'.$firstlink.'" >'.get_string('firstname').'</a> '.$firstarrow;
             $nameheading .= ' / <a href="'.$lastlink.'" >'.get_string('lastname').'</a> '.$lastarrow;
@@ -1641,7 +1636,7 @@ class checklist_class {
                 $table->head[] = s($item->displaytext);
                 $table->level[] = ($item->indent < 3) ? $item->indent : 2;
                 $table->size[] = '80px';
-                $table->skip[] = (!$this->showoptional) && ($item->itemoptional == CHECKLIST_OPTIONAL_YES);
+                $table->skip[] = (!$reportsettings->showoptional) && ($item->itemoptional == CHECKLIST_OPTIONAL_YES);
             }
 
             $table->data = array();
@@ -1973,9 +1968,47 @@ class checklist_class {
         }
     }
 
+    function get_report_settings() {
+        global $SESSION;
+
+        if (!isset($SESSION->checklist_report)) {
+            $settings = new stdClass;
+            $settings->showcompletiondates = false;
+            $settings->showoptional = true;
+            $settings->showprogressbars = false;
+            $settings->sortby = 'firstasc';
+            $SESSION->checklist_report = $settings;
+        }
+        return clone $SESSION->checklist_report; // We want changes to settings to be explicit
+    }
+
+    function set_report_settings($settings) {
+        global $SESSION, $CFG;
+
+        $currsettings = $this->get_report_settings();
+        foreach ($currsettings as $key => $currval) {
+            if (isset($settings->$key)) {
+                $currsettings->$key = $settings->$key; // Only set values if they already exist
+            }
+        }
+        if ($CFG->debug == DEBUG_DEVELOPER) { // Show dev error if attempting to set non-existent setting
+            foreach ($settings as $key => $val) {
+                if (!isset($currsettings->$key)) {
+                    debugging("Attempting to set invalid setting '$key'", DEBUG_DEVELOPER);
+                }
+            }
+        }
+
+        $SESSION->checklist_report = $currsettings;
+    }
+
     function process_report_actions() {
-        $this->showoptional = true;
-        $this->sortby = optional_param('sortby', 'firstasc', PARAM_TEXT);
+        $settings = $this->get_report_settings();
+
+        if ($sortby = optional_param('sortby', false, PARAM_TEXT)) {
+            $settings->sortby = $sortby;
+            $this->set_report_settings($settings);
+        }
 
         $savenext = optional_param('savenext', false, PARAM_TEXT);
         $viewnext = optional_param('viewnext', false, PARAM_TEXT);
@@ -1988,18 +2021,35 @@ class checklist_class {
             error('Invalid sesskey');
         }
 
-        if ($action == 'hideoptional') {
-            $this->showoptional = false;
-        } else if ($action == 'updatechecks' && $this->caneditother()) {
-            if (!$viewnext) {
+        switch ($action) {
+        case 'showprogressbars':
+            $settings->showprogressbars = true;
+            break;
+        case 'hideprogressbars':
+            $settings->showprogressbars = false;
+            break;
+        case 'showoptional':
+            $settings->showoptional = true;
+            break;
+        case 'hideoptional':
+            $settings->showoptional = false;
+            break;
+        case 'updatechecks':
+            if ($this->caneditother() && !$viewnext) {
                 $this->updateteachermarks();
             }
-        } else if ($action == 'updateallchecks' && $this->caneditother()) {
-            $this->updateallteachermarks();
-
-        } else if ($action == 'toggledates') {
-            $this->toggleshowcompletiondates();
+            break;
+        case 'updateallchecks':
+            if ($this->caneditother()) {
+                $this->updateallteachermarks();
+            }
+            break;
+        case 'toggledates':
+            $settings->showcompletiondates = !$settings->showcompletiondates;
+            break;
         }
+
+        $this->set_report_settings($settings);
 
         if ($viewnext || $savenext) {
             $this->getnextuserid();
@@ -2921,7 +2971,8 @@ class checklist_class {
         global $DB;
 
         $activegroup = groups_get_activity_group($this->cm, true);
-        switch ($this->sortby) {
+        $settings = $this->get_report_settings();
+        switch ($settings->sortby) {
         case 'firstdesc':
             $orderby = 'ORDER BY u.firstname DESC';
             break;
@@ -2956,25 +3007,6 @@ class checklist_class {
             }
         }
         $this->userid = false;
-    }
-
-    function showcompletiondates() {
-        global $SESSION;
-
-        if (!isset($SESSION->checklist_showcompletiondates)) {
-            return false;
-        }
-        return $SESSION->checklist_showcompletiondates;
-    }
-
-    function toggleshowcompletiondates() {
-        global $SESSION;
-
-        if (!isset($SESSION->checklist_showcompletiondates)) {
-            $SESSION->checklist_showcompletiondates = false;
-        } else {
-            $SESSION->checklist_showcompletiondates = !$SESSION->checklist_showcompletiondates;
-        }
     }
 
     static function print_user_progressbar($checklistid, $userid, $width='300px', $showpercent=true, $return=false) {
