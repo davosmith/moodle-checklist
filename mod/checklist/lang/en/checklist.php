@@ -59,6 +59,7 @@ $string['checklist:preview'] = 'Preview a checklist';
 $string['checklist:updatelocked'] = 'Update locked checklist marks';
 $string['checklist:updateother'] = 'Update students\' checklist marks';
 $string['checklist:updateown'] = 'Update your checklist marks';
+$string['checklist:viewmenteereports'] = 'View mentee progress (only)';
 $string['checklist:viewreports'] = 'View students\' progress';
 
 $string['checklistautoupdate'] = 'Allow checklists to automatically update';

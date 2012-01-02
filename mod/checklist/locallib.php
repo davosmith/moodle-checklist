@@ -416,12 +416,46 @@ class checklist_class {
         return has_capability('mod/checklist:edit', $this->context);
     }
 
-    function canviewreports() {
-        return has_capability('mod/checklist:viewreports', $this->context);
-    }
-
     function caneditother() {
         return has_capability('mod/checklist:updateother', $this->context);
+    }
+
+    function canviewreports() {
+        return has_capability('mod/checklist:viewreports', $this->context) || has_capability('mod/checklist:viewmenteereports', $this->context);
+    }
+
+    function only_view_mentee_reports() {
+        return has_capability('mod/checklist:viewmenteereports', $this->context) && !has_capability('mod/checklist:viewreports', $this->context);
+    }
+
+    // Test if the current user is a mentor of the passed in user id
+    static function is_mentor($userid) {
+        global $USER, $DB;
+
+        $sql = 'SELECT c.instanceid
+                  FROM {role_assignments} ra
+                  JOIN {context} c ON ra.contextid = c.id
+                 WHERE c.contextlevel = '.CONTEXT_USER.'
+                   AND ra.userid = ?
+                   AND c.instanceid = ?';
+        return $DB->record_exists_sql($sql, array($USER->id, $userid));
+    }
+
+    // Takes a list of userids and returns only those that the current user
+    // is a mentor for (ones where the current user is assigned a role in their
+    // user context)
+    static function filter_mentee_users($userids) {
+        global $DB, $USER;
+
+        list($usql, $uparams) = $DB->get_in_or_equal($userids);
+        $sql = 'SELECT c.instanceid
+                  FROM {role_assignments} ra
+                  JOIN {context} c ON ra.contextid = c.id
+                 WHERE c.contextlevel = '.CONTEXT_USER.'
+                   AND ra.userid = ?
+                   AND c.instanceid '.$usql;
+        $params = array_merge(array($USER->id), $uparams);
+        return $DB->get_fieldset_sql($sql, $params);
     }
 
     function view() {
@@ -431,20 +465,27 @@ class checklist_class {
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)) );
         }
 
-        $this->view_header();
-
-        echo $OUTPUT->heading(format_string($this->checklist->name));
-
         if ($this->canupdateown()) {
             $currenttab = 'view';
         } else if ($this->canpreview()) {
             $currenttab = 'preview';
         } else {
-            echo $OUTPUT->confirm('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n<p>" .
-                get_string('liketologin') . "</p>\n", get_login_url(), get_referer(false));
-            echo $OUTPUT->footer();
-            die;
+            if ($this->canviewreports()) { // No editing, but can view reports
+                redirect(new moodle_url('/mod/checklist/report.php', array('id' => $this->cm->id)));
+            } else {
+                $this->view_header();
+
+                echo $OUTPUT->heading(format_string($this->checklist->name));
+                echo $OUTPUT->confirm('<p>' . get_string('guestsno', 'checklist') . "</p>\n\n<p>" .
+                                      get_string('liketologin') . "</p>\n", get_login_url(), get_referer(false));
+                echo $OUTPUT->footer();
+                die;
+            }
         }
+
+        $this->view_header();
+
+        echo $OUTPUT->heading(format_string($this->checklist->name));
 
         $this->view_tabs($currenttab);
 
@@ -500,7 +541,13 @@ class checklist_class {
             redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)) );
         }
 
-        if (!$this->caneditother()) {
+        if ($this->userid && $this->only_view_mentee_reports()) {
+            // Check this user is a mentee of the logged in user
+            if (!$this->is_mentor($this->userid)) {
+                $this->userid = false;
+            }
+
+        } else if (!$this->caneditother()) {
             $this->userid = false;
         }
 
@@ -553,7 +600,7 @@ class checklist_class {
             $row[] = new tabobject('edit', new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)), get_string('edit', 'checklist'));
         }
 
-        if ($currenttab == 'view' && count($row) == 1) {
+        if (count($row) == 1) {
             // No tabs for students
         } else {
             $tabs[] = $row;
@@ -1528,6 +1575,12 @@ class checklist_class {
         $ausers = false;
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '', $activegroup, '', false)) {
             $users = array_keys($users);
+            if ($this->only_view_mentee_reports()) {
+                // Filter to only show reports for users who this user mentors (ie they have been assigned to them in a context)
+                $users = $this->filter_mentee_users($users);
+            }
+        }
+        if ($users && !empty($users)) {
             if (count($users) < $page*$perpage) {
                 $page = 0;
             }
@@ -1601,6 +1654,7 @@ class checklist_class {
             }
 
         } else {
+
             // Show full table
             $firstlink = 'firstasc';
             $lastlink = 'lastasc';
@@ -2992,8 +3046,14 @@ class checklist_class {
 
         $ausers = false;
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', $activegroup, '', false)) {
-            list($usql, $uparams) = $DB->get_in_or_equal(array_keys($users));
-            $ausers = $DB->get_records_sql('SELECT u.id FROM {user} u WHERE u.id '.$usql.$orderby, $uparams);
+            $users = array_keys($users);
+            if ($this->only_view_mentee_reports()) {
+                $users = $this->filter_mentee_users($users);
+            }
+            if (!empty($users)) {
+                list($usql, $uparams) = $DB->get_in_or_equal($users);
+                $ausers = $DB->get_records_sql('SELECT u.id FROM {user} u WHERE u.id '.$usql.$orderby, $uparams);
+            }
         }
 
         $stoponnext = false;

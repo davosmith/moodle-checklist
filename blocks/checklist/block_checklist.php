@@ -60,7 +60,10 @@ class block_checklist extends block_list {
         }
         $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 
-        if (has_capability('mod/checklist:viewreports', $context)) {
+        $viewallreports = has_capability('mod/checklist:viewreports', $context);
+        $viewmenteereports = has_capability('mod/checklist:viewmenteereports', $context);
+
+        if ($viewallreports || $viewmenteereports) {
             $orderby = 'ORDER BY firstname ASC';
             $ausers = false;
             $showgroup = false;
@@ -82,7 +85,12 @@ class block_checklist extends block_list {
 
             if ($users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', $showgroup, '', false)) {
                 $users = array_keys($users);
-                $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
+                if (!$viewallreports) { // can only see reports for their mentees
+                    $users = checklist_class::filter_mentee_users($users);
+                }
+                if (!empty($users)) {
+                    $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id IN ('.implode(',',$users).') '.$orderby);
+                }
             }
 
             if ($ausers) {

@@ -66,6 +66,13 @@ $capabilities = array(
           )
       ),
 
+      // Ability to view reports related to their 'mentees' only
+      'mod/checklist:viewmenteereports' => array(
+          'riskbitmask' => RISK_PERSONAL,
+          'captype' => 'read',
+          'contextlevel' => CONTEXT_MODULE,
+          'legacy' => array()  // Not assigned by default
+      ),
 
       // Ability to create and manage checklists
       'mod/checklist:edit' => array(
