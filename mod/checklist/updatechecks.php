@@ -30,7 +30,11 @@ global $DB;
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
-$items = optional_param('items', false, PARAM_INT);
+if ($CFG->version < 2011120100) {
+    $items = optional_param('items', false, PARAM_INT);
+} else {
+    $items = optional_param_array('items', false, PARAM_INT);
+}
 
 $url = new moodle_url('/mod/checklist/view.php');
 if ($id) {

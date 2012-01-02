@@ -1823,7 +1823,7 @@ class checklist_class {
                                 $sely = ($teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
                                 $seln = ($teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
 
-                                $img = '<select name="items['.$checkid.':'.$userid.']" '.$disabled.'>';
+                                $img = '<select name="items['.$checkid.'_'.$userid.']" '.$disabled.'>';
                                 $img .= '<option value="'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
                                 $img .= '<option value="'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
                                 $img .= '<option value="'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
@@ -1863,6 +1863,8 @@ class checklist_class {
     }
 
     function process_view_actions() {
+        global $CFG;
+
         $this->useredit = optional_param('useredit', false, PARAM_BOOL);
 
         $action = optional_param('action', false, PARAM_TEXT);
@@ -1878,7 +1880,11 @@ class checklist_class {
 
         switch($action) {
         case 'updatechecks':
-            $newchecks = optional_param('items', array(), PARAM_INT);
+            if ($CFG->version < 2011120100) {
+                $newchecks = optional_param('items', array(), PARAM_INT);
+            } else {
+                $newchecks = optional_param_array('items', array(), PARAM_INT);
+            }
             $this->updatechecks($newchecks);
             break;
 
@@ -2672,9 +2678,13 @@ class checklist_class {
     }
 
     function updateteachermarks() {
-        global $USER, $DB;
+        global $USER, $DB, $CFG;
 
-        $newchecks = optional_param('items', array(), PARAM_TEXT);
+        if ($CFG->version < 2011120100) {
+            $newchecks = optional_param('items', array(), PARAM_TEXT);
+        } else {
+            $newchecks = optional_param_array('items', array(), PARAM_TEXT);
+        }
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing
             return;
@@ -2724,7 +2734,11 @@ class checklist_class {
             }
         }
 
-        $newcomments = optional_param('teachercomment', false, PARAM_TEXT);
+        if ($CFG->version < 2011120100) {
+            $newcomments = optional_param('teachercomment', false, PARAM_TEXT);
+        } else {
+            $newcomments = optional_param_array('teachercomment', false, PARAM_TEXT);
+        }
         if (!$this->checklist->teachercomments || !$newcomments || !is_array($newcomments)) {
             return;
         }
@@ -2768,14 +2782,19 @@ class checklist_class {
     }
 
     function updateallteachermarks() {
-        global $DB;
+        global $DB, $CFG;
 
         if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
             // Student only lists do not have teacher marks to update
             return;
         }
 
-        $checkdata = optional_param('items', array(), PARAM_INT);
+
+        if ($CFG->version < 2011120100) {
+            $checkdata = optional_param('items', array(), PARAM_INT);
+        } else {
+            $checkdata = optional_param_array('items', array(), PARAM_INT);
+        }
         if (!is_array($checkdata)) {
             // Something has gone wrong, so update nothing
             return;
@@ -2787,7 +2806,7 @@ class checklist_class {
                 continue; // Invalid value
             }
 
-            $details = explode(':', $item);
+            $details = explode('_', $item);
             if (count($details) != 2) {
                 continue; // Malformed key
             }
