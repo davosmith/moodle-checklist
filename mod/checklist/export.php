@@ -20,7 +20,11 @@ $url = new moodle_url('/mod/checklist/export.php', array('id' => $cm->id));
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+} else {
+    $context = context_module::instance($cm->id);
+}
 if (!has_capability('mod/checklist:edit', $context)) {
     error('You do not have permission to export items from this checklist');
 }

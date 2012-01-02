@@ -81,7 +81,7 @@ function checklist_add_instance($checklist) {
  * @return boolean Success/Fail
  */
 function checklist_update_instance($checklist) {
-    global $DB;
+    global $DB, $CFG;
 
     $checklist->timemodified = time();
     $checklist->id = $checklist->instance;
@@ -109,7 +109,11 @@ function checklist_update_instance($checklist) {
     } else if ($newcompletion != $oldcompletion) {
         // This will already be updated if checklist_update_grades() is called
         $ci = new completion_info($course);
-        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        if ($CFG->version < 2011120100) {
+            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        } else {
+            $context = context_module::instance($cm->id);
+        }
         $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
         foreach ($users as $user) {
             $ci->update_state($cm, COMPLETION_UNKNOWN, $user->id);
@@ -212,7 +216,11 @@ function checklist_update_grades($checklist, $userid=0) {
         if ($userid) {
             $users = $DB->get_records('user', array('id'=>$userid), null, 'id, firstname, lastname');
         } else {
-            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            if ($CFG->version < 2011120100) {
+                $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            } else {
+                $context = context_module::instance($cm->id);
+            }
             if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname', '', '', '', '', '', false)) {
                 return;
             }
@@ -271,7 +279,11 @@ function checklist_update_grades($checklist, $userid=0) {
         if ($userid) {
             $users = $userid;
         } else {
-            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            if ($CFG->version < 2011120100) {
+                $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+            } else {
+                $context = context_module::instance($cm->id);
+            }
             if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
                 return;
             }
@@ -305,7 +317,11 @@ function checklist_update_grades($checklist, $userid=0) {
                 $logs = get_logs($filter, array($timelimit, $cm->id, $grade->userid), '', 1, 1, $logcount);
                 if ($logcount == 0) {
                     if (!isset($context)) {
-                        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+                        if ($CFG->version < 2011120100) {
+                            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+                        } else {
+                            $context = context_module::instance($cm->id);
+                        }
                     }
                     if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
                         foreach ($recipients as $recipient) {
@@ -471,7 +487,11 @@ function checklist_print_overview($courses, &$htmlarray) {
     foreach ($checklists as $key => $checklist) {
         $show_all = true;
         if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-            $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
+            if ($CFG->version < 2011120100) {
+                $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
+            } else {
+                $context = context_module::instance($checklist->coursemodule);
+            }
             $show_all = !has_capability('mod/checklist:updateown', $context);
         }
 

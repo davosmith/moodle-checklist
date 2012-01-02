@@ -80,7 +80,11 @@ if ($course->format == 'weeks') {
     $table->align = array ('left', 'left');
 }
 
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_COURSE, $course->id);
+} else {
+    $context = context_course::instance($course->id);
+}
 $canupdateown = has_capability('mod/checklist:updateown', $context);
 if ($canupdateown) {
     $table->head[] = $strprogress;

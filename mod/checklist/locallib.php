@@ -67,7 +67,11 @@ class checklist_class {
             error('Course Module ID was incorrect');
         }
 
-        $this->context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+        if ($CFG->version < 2011120100) {
+            $this->context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+        } else {
+            $this->context = context_module::instance($this->cm->id);
+        }
 
         if ($course) {
             $this->course = $course;

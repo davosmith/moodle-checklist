@@ -36,7 +36,11 @@ if (!$course = $DB->get_record('course', array('id' => $courseid))) {
 }
 
 require_login($course->id);
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_COURSE, $course->id);
+} else {
+    $context = context_course::instance($course->id);
+}
 $PAGE->set_context($context);
 
 require_capability('gradeexport/checklist:view', $context);
@@ -125,7 +129,7 @@ if ($districts) {
 
 if (count($groupsmenu) == 1) {
     $groupname = reset($groupsmenu);
-    echo '<input type="hidden" name="group" value="'.key($groupname).'" />';
+    echo '<input type="hidden" name="group" value="'.key($groupsmenu).'" />';
 } else {
     echo '<label for="group">'.get_string('group').': <select id="group" name="group">';
     $selected = ' selected="selected" ';

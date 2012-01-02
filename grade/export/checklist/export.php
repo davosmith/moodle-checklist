@@ -17,7 +17,11 @@ if (!$course = $DB->get_record('course', array('id' => $courseid))) {
 }
 
 require_login($course->id);
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_COURSE, $course->id);
+} else {
+    $context = context_course::instance($course->id);
+}
 
 require_capability('gradeexport/checklist:view', $context);
 $viewall = has_capability('gradeexport/checklist:viewall', $context);

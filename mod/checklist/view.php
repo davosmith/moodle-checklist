@@ -65,7 +65,11 @@ if ($id) {
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+} else {
+    $context = context_module::instance($cm->id);
+}
 $userid = 0;
 if (has_capability('mod/checklist:updateown', $context)) {
     $userid = $USER->id;

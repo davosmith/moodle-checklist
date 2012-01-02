@@ -58,7 +58,11 @@ class block_checklist extends block_list {
             $this->content->items = array('Error - course module not found');
             return $this->content;
         }
-        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        if ($CFG->version < 2011120100) {
+            $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        } else {
+            $context = context_module::instance($cm->id);
+        }
 
         $viewallreports = has_capability('mod/checklist:viewreports', $context);
         $viewmenteereports = has_capability('mod/checklist:viewmenteereports', $context);
