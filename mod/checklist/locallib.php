@@ -709,7 +709,7 @@ class checklist_class {
     }
 
     function view_items($viewother = false, $userreport = false) {
-        global $CFG;
+        global $CFG, $USER;
 
         print_box_start('generalbox boxwidthwide boxaligncenter');
 
@@ -911,7 +911,12 @@ class checklist_class {
                         //echo '<img src="'.$spacerimg.'" alt="" title="" />';
                     } else {
                         if ($viewother) {
-                            $disabled = ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'disabled="disabled" ' : '';
+                            if (($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) ||
+                                ($USER->id == $this->userid)) {
+                                $disabled =  'disabled="disabled" ';
+                            } else {
+                                $disabled = '';
+                            }
 
                             $selu = ($item->teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
                             $sely = ($item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
@@ -1746,7 +1751,7 @@ class checklist_class {
     }
 
     function print_report_table($table, $editchecks) {
-        global $CFG;
+        global $CFG, $USER;
 
         $output = '';
 
@@ -1821,7 +1826,12 @@ class checklist_class {
                             }
 
                             if ($editchecks) {
-                                $disabled = ($teachermarklocked && $teachermark == CHECKLIST_TEACHERMARK_YES) ? 'disabled="disabled" ' : '';
+                                if ($teachermarklocked && $teachermark == CHECKLIST_TEACHERMARK_YES ||
+                                    $userid == $USER->id) {
+                                    $disabled = 'disabled="disabled" ';
+                                } else {
+                                    $disabled = '';
+                                }
 
                                 $selu = ($teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
                                 $sely = ($teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
@@ -2615,47 +2625,49 @@ class checklist_class {
 
         $updategrades = false;
         if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
-            if (!$student = get_record('user', 'id', $this->userid)) {
-                error('No such user!');
-            }
-            $info = addslashes($this->checklist->name).' ('.fullname($student, true).')';
-            add_to_log($this->course->id, 'checklist', 'update checks', "report.php?id={$this->cm->id}&studentid={$this->userid}", $info, $this->cm->id);
+            if ($this->userid != $USER->id) {
+                if (!$student = get_record('user', 'id', $this->userid)) {
+                    error('No such user!');
+                }
+                $info = addslashes($this->checklist->name).' ('.fullname($student, true).')';
+                add_to_log($this->course->id, 'checklist', 'update checks', "report.php?id={$this->cm->id}&studentid={$this->userid}", $info, $this->cm->id);
 
-            $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
+                $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
 
-            foreach ($newchecks as $newcheck) {
-                list($itemid, $newval) = explode(':',$newcheck, 2);
+                foreach ($newchecks as $newcheck) {
+                    list($itemid, $newval) = explode(':',$newcheck, 2);
 
-                if (isset($this->items[$itemid])) {
-                    $item =& $this->items[$itemid];
+                    if (isset($this->items[$itemid])) {
+                        $item =& $this->items[$itemid];
 
-                    if ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) {
-                        continue; // Does not have permission to update marks that are already 'Yes'
-                    }
-                    if ($newval != $item->teachermark) {
-                        $updategrades = true;
+                        if ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                            continue; // Does not have permission to update marks that are already 'Yes'
+                        }
+                        if ($newval != $item->teachermark) {
+                            $updategrades = true;
 
-                        $newcheck = new stdClass;
-                        $newcheck->teachertimestamp = time();
-                        $newcheck->teachermark = $newval;
+                            $newcheck = new stdClass;
+                            $newcheck->teachertimestamp = time();
+                            $newcheck->teachermark = $newval;
 
-                        $item->teachermark = $newcheck->teachermark;
-                        $item->teachertimestamp = $newcheck->teachertimestamp;
+                            $item->teachermark = $newcheck->teachermark;
+                            $item->teachertimestamp = $newcheck->teachertimestamp;
 
-                        $oldcheck = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
-                        if ($oldcheck) {
-                            $newcheck->id = $oldcheck->id;
-                            update_record('checklist_check', $newcheck);
-                        } else {
-                            $newcheck->item = $itemid;
-                            $newcheck->userid = $this->userid;
-                            $newcheck->id = insert_record('checklist_check', $newcheck);
+                            $oldcheck = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
+                            if ($oldcheck) {
+                                $newcheck->id = $oldcheck->id;
+                                update_record('checklist_check', $newcheck);
+                            } else {
+                                $newcheck->item = $itemid;
+                                $newcheck->userid = $this->userid;
+                                $newcheck->id = insert_record('checklist_check', $newcheck);
+                            }
                         }
                     }
                 }
-            }
-            if ($updategrades) {
-                checklist_update_grades($this->checklist, $this->userid);
+                if ($updategrades) {
+                    checklist_update_grades($this->checklist, $this->userid);
+                }
             }
         }
 
@@ -2705,6 +2717,8 @@ class checklist_class {
     }
 
     function updateallteachermarks() {
+        global $USER;
+
         if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
             // Student only lists do not have teacher marks to update
             return;
@@ -2730,6 +2744,9 @@ class checklist_class {
             $userid = intval($details[1]);
             if (!$itemid || !$userid) {
                 continue;
+            }
+            if ($userid == $USER->id) {
+                continue; // Not allowed to update own teachermarks
             }
             if (!array_key_exists($itemid, $this->items)) {
                 continue; // Item is not part of this checklist
