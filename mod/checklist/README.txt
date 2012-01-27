@@ -9,6 +9,11 @@ Note: This is the Moodle 2.0+ version.
 Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
 
+==Changes==
+
+* 2012-01-02 - Minor tweaks to improve Moodle 2.2+ compatibility (optional_param_array / context_module::instance )
+* 2012-01-02 - CONTRIB-2979: remembers report settings (sort order, etc.) until you log out; CONTRIB-3308 - 'viewmenteereport' capability, allowing users to view reports of users they are mentors for
+
 ==Installation==
 (Note, due to the way the new plugins database works, if you are downloading this from the Moodle.org website, you will need to download the 'checklist block' and 'checklist grade export' plugins separately)
 
@@ -21,7 +26,6 @@ IMPORTANT: The 'Check-off modules when complete' option now works via cron, by d
 If you are not happy with this delay, then make the changes found in the file core_modifications.txt
 
 Note: if you are upgrading from a previous version, please delete the file 'mod/checklist/settings.php' from the server, as it is no longer needed.
-
 
 ==Adding a checklist block==
 1. Click 'Turn editing on', in a course view.
