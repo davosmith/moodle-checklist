@@ -23,10 +23,10 @@
 //                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
-$plugin->version  = 2012010200;
+$plugin->version  = 2012012700;
 $plugin->cron     = 0;
 $plugin->requires = 2010112400; // Moodle 2.0+
-$plugin->release  = '2.x (Build: 2012010200)';
+$plugin->release  = '2.x (Build: 2012012700)';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = array('mod_checklist' => 2010041800); // Must have checklist activity module installed
 

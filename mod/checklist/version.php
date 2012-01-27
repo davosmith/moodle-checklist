@@ -23,8 +23,8 @@
  * @package mod/checklist
  */
 
-$module->version  = 2012010200;  // The current module version (Date: YYYYMMDDXX)
+$module->version  = 2012012700;  // The current module version (Date: YYYYMMDDXX)
 $module->cron     = 60;          // Period for cron to check this module (secs)
 $module->maturity = MATURITY_STABLE;
-$module->release  = '2.x (Build: 2012010200)';
+$module->release  = '2.x (Build: 2012012700)';
 $module->requires = 2010112400;
