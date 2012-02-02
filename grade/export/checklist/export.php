@@ -13,6 +13,10 @@ $checklistid = required_param('choosechecklist', PARAM_INT);
 $group = optional_param('group', 0, PARAM_INT);
 $exportoptional = optional_param('exportoptional', false, PARAM_BOOL);
 
+$percentcol = optional_param('percentcol', false, PARAM_BOOL);
+$percentrow = optional_param('percentrow', false, PARAM_BOOL);
+$percentheadings = optional_param('percentheadings', false, PARAM_BOOL);
+
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('nocourseid');
 }
@@ -59,6 +63,9 @@ if (!$checklist = $DB->get_record('checklist', array('id' => $checklistid))) {
     print_error('checklistnotfound','gradeexport_checklist');
 }
 
+$studentmarking = $checklist->teacheredit != CHECKLIST_MARKING_TEACHER;
+$teachermarking = $checklist->teacheredit != CHECKLIST_MARKING_STUDENT;
+
 $strchecklistreport = get_string('checklistreport','gradeexport_checklist');
 
 $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.*', 'u.firstname', '', '', $group, false);
@@ -75,6 +82,9 @@ if (!$users) {
 }
 
 require_once(dirname(__FILE__).'/columns.php');
+if (!$percentcol) {
+    unset($checklist_report_user_columns['_percent']);
+}
 
 // Useful for debugging
 /*class FakeMoodleExcelWorkbook {
@@ -91,7 +101,7 @@ require_once(dirname(__FILE__).'/columns.php');
 function safe_write_string($myxls, $row, $col, $user, $extra, $element) {
     if (isset($user[$element])) {
         $myxls->write_string($row, $col, $user[$element]);
-    } elseif (isset($extra[$element])) {
+    } else if (isset($extra[$element])) {
         $myxls->write_string($row, $col, $extra[$element]->data);
     }
 }
@@ -109,23 +119,79 @@ $myxls =& $workbook->add_worksheet($wsname);
 
 /// Print names of all the fields
 $col = 0;
+$row = 0;
 foreach ($checklist_report_user_columns as $field => $headerstr) {
-    $myxls->write_string(0,$col++,$headerstr);
+    $myxls->write_string($row, $col++, $headerstr);
 }
 
-$maxitemoptional = $exportoptional ? 2 : 1; // '< 2' = optional + required items; '< 1' = required only
+if ($percentheadings) {
+    if ($exportoptional) {
+        $itemoptional = ''; // All items
+    } else {
+        $itemoptional = ' AND itemoptional <> '.CHECKLIST_OPTIONAL_YES.' '; // All except optional items
+    }
+} else {
+    if ($exportoptional) {
+        $itemoptional = ' AND itemoptional < '.CHECKLIST_OPTIONAL_HEADING; // All except headings
+    } else {
+        $itemoptional = ' AND itemoptional = '.CHECKLIST_OPTIONAL_NO; // Only required items
+    }
+}
 
-$headings = $DB->get_records_select('checklist_item',
-                                    "checklist = ? AND userid = 0 AND itemoptional < ? AND hidden = 0",
-                                    array($checklist->id, $maxitemoptional), 'position');
-if ($headings) {
-    foreach($headings as $heading) {
-        $myxls->write_string(0, $col++, strip_tags($heading->displaytext));
+$items = $DB->get_records_select('checklist_item',
+                                    "checklist = ? AND userid = 0 $itemoptional AND hidden = 0",
+                                    array($checklist->id), 'position');
+if ($items) {
+    $parentitem = 0;
+    foreach($items as $item) {
+        if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+            $parentitem = $item->id;
+            $items[$item->id]->subitems = array();
+        } else if ($parentitem && $item->itemoptional == CHECKLIST_OPTIONAL_NO) {
+            $items[$parentitem]->subitems[] = $item->id;
+        }
+        $myxls->write_string($row, $col++, strip_tags($item->displaytext));
+    }
+
+    $countitems = array();
+    if ($percentrow && !empty($users)) {
+        list($isql, $iparam) = $DB->get_in_or_equal(array_keys($items));
+        list($usql, $uparam) = $DB->get_in_or_equal(array_keys($users));
+        $sql = "SELECT item, COUNT(*) AS countitems
+                  FROM {checklist_check}
+                 WHERE item $isql
+                   AND userid $usql";
+        if (!$teachermarking) {
+            $sql .= ' AND usertimestamp > 0 ';
+        } else {
+            $sql .= ' AND teachermark = '.CHECKLIST_TEACHERMARK_YES.' ';
+        }
+        $sql .= ' GROUP BY item';
+        $countitems = $DB->get_records_sql($sql, array_merge($iparam, $uparam));
+    }
+
+    if (!empty($countitems)) {
+        $row++;
+        for ($col=0; $col<count($checklist_report_user_columns); $col++) {
+            $myxls->write_string($row, $col, '');
+        }
+        $countusers = count($users);
+        foreach ($items as $item) {
+            if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+                $percent = '';
+            } else if (empty($countitems[$item->id]->countitems)) {
+                $percent = '0%';
+            } else {
+                $percent = round(100 * $countitems[$item->id]->countitems / $countusers, 0).'%';
+            }
+            $myxls->write_string($row, $col++, $percent);
+        }
     }
 }
 
 // Go through each of the users
-$row = 1;
+$row++;
+$itemoptional = str_replace('itemoptional', 'i.itemoptional', $itemoptional);
 foreach ($users as $user) {
     $sql = "SELECT uf.shortname, ud.data ";
     $sql .= "FROM {user_info_data} ud JOIN {user_info_field} uf ON uf.id = ud.fieldid ";
@@ -144,12 +210,20 @@ foreach ($users as $user) {
     }
     $col = 0;
 
+    $sql = "SELECT i.id, i.itemoptional, c.usertimestamp, c.teachermark ";
+    $sql .= "FROM {checklist_item} i LEFT JOIN ";
+    $sql .= "(SELECT ch.item, ch.usertimestamp, ch.teachermark FROM {checklist_check} ch WHERE ch.userid = ?) c ";
+    $sql .= "ON c.item = i.id ";
+    $sql .= "WHERE i.checklist = ? AND userid = 0 $itemoptional AND i.hidden = 0 ";
+    $sql .= 'ORDER BY i.position';
+    $checks = $DB->get_records_sql($sql, array($user->id, $checklist->id));
+
     $userarray = (array)$user;
     foreach ($checklist_report_user_columns as $field => $header) {
         if ($field == '_groups') {
             $myxls->write_string($row, $col++, $groups_str);
 
-        } elseif ($field == '_enroldate') {
+        } else if ($field == '_enroldate') {
             $sql = 'SELECT ue.id, ue.timestart FROM {user_enrolments} ue, {enrol} e ';
             $sql .= 'WHERE e.id = ue.enrolid AND e.courseid = ? AND ue.userid = ? AND e.enrol <> "guest" ';
             $sql .= 'ORDER BY ue.timestart ASC ';
@@ -161,7 +235,7 @@ foreach ($users as $user) {
             }
             $myxls->write_string($row, $col++, $datestr);
 
-        } elseif ($field == '_startdate') {
+        } else if ($field == '_startdate') {
             $firstview = $DB->get_records_select('log', 'userid = ? AND course = ? AND module = "course" AND action = "view"', array($user->id, $course->id), 'time ASC', 'id, time', 0, 1);
             $datestr = '';
             if (!empty($firstview)) {
@@ -170,33 +244,66 @@ foreach ($users as $user) {
             }
             $myxls->write_string($row, $col++, $datestr);
 
+        } else if ($field == '_percent') {
+            $checked = 0;
+            $total = 0;
+            foreach ($checks as $check) {
+                if ($check->itemoptional != CHECKLIST_OPTIONAL_NO) {
+                    continue; // Only count 'required' items
+                }
+                $total++;
+                if (!$teachermarking) {
+                    if ($check->usertimestamp > 0) {
+                        $checked++;
+                    }
+                } else { // Teacher / both => use teacher mark for percentage
+                    if ($check->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                        $checked++;
+                    }
+                }
+            }
+            if ($checked == 0) {
+                $percent = '';
+            } else {
+                $percent = round(100 * $checked / $total, 0).'%';
+            }
+            $myxls->write_string($row, $col++, $percent);
+
         } else {
             safe_write_string($myxls, $row, $col++, $userarray, $extra, $field);
         }
     }
 
-    $sql = "SELECT i.position, c.usertimestamp, c.teachermark ";
-    $sql .= "FROM {checklist_item} i LEFT JOIN ";
-    $sql .= "(SELECT ch.item, ch.usertimestamp, ch.teachermark FROM {checklist_check} ch WHERE ch.userid = ?) c ";
-    $sql .= "ON c.item = i.id ";
-    $sql .= "WHERE i.checklist = ? AND userid = 0 AND i.itemoptional < ? AND i.hidden = 0 ";
-    $sql .= 'ORDER BY i.position';
-    $checks = $DB->get_records_sql($sql, array($user->id, $checklist->id, $maxitemoptional));
-
-    $studentmark = $checklist->teacheredit != CHECKLIST_MARKING_TEACHER;
-    $teachermark = $checklist->teacheredit != CHECKLIST_MARKING_STUDENT;
-
     foreach ($checks as $check) {
         $out = '';
-        if ($teachermark) {
-            if ($check->teachermark == CHECKLIST_TEACHERMARK_NO) {
-                $out .= 'N';
-            } else if ($check->teachermark == CHECKLIST_TEACHERMARK_YES) {
-                $out .= 'Y';
+        if ($check->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+            $checked = 0;
+            $item = $items[$check->id];
+            foreach ($item->subitems as $subitem) {
+                if (!$teachermarking) {
+                    if ($checks[$subitem]->usertimestamp > 0) {
+                        $checked++;
+                    }
+                } else {
+                    if ($checks[$subitem]->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                        $checked++;
+                    }
+                }
             }
-        }
-        if ($studentmark && $check->usertimestamp > 0) {
-            $out .= '1';
+            if ($count = count($item->subitems)) {
+                $out .= round(100 * $checked / $count, 0).'%';
+            }
+        } else {
+            if ($teachermarking) {
+                if ($check->teachermark == CHECKLIST_TEACHERMARK_NO) {
+                    $out .= 'N';
+                } else if ($check->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                    $out .= 'Y';
+                }
+            }
+            if ($studentmarking && $check->usertimestamp > 0) {
+                $out .= '1';
+            }
         }
         $myxls->write_string($row, $col, $out);
         $col++;
