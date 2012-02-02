@@ -11,6 +11,7 @@ $courseid = required_param('id', PARAM_INT);                   // course id
 $district = optional_param('choosedistrict', false, PARAM_TEXT);
 $checklistid = required_param('choosechecklist', PARAM_INT);
 $group = optional_param('group', 0, PARAM_INT);
+$exportoptional = optional_param('exportoptional', false, PARAM_BOOL);
 
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('nocourseid');
@@ -112,9 +113,11 @@ foreach ($checklist_report_user_columns as $field => $headerstr) {
     $myxls->write_string(0,$col++,$headerstr);
 }
 
+$maxitemoptional = $exportoptional ? 2 : 1; // '< 2' = optional + required items; '< 1' = required only
+
 $headings = $DB->get_records_select('checklist_item',
-                                    "checklist = ? AND userid = 0 AND itemoptional < 2 AND hidden = 0",
-                                    array($checklist->id), 'position'); // 2 - optional / not optional (but not heading)
+                                    "checklist = ? AND userid = 0 AND itemoptional < ? AND hidden = 0",
+                                    array($checklist->id, $maxitemoptional), 'position');
 if ($headings) {
     foreach($headings as $heading) {
         $myxls->write_string(0, $col++, strip_tags($heading->displaytext));
@@ -176,9 +179,9 @@ foreach ($users as $user) {
     $sql .= "FROM {checklist_item} i LEFT JOIN ";
     $sql .= "(SELECT ch.item, ch.usertimestamp, ch.teachermark FROM {checklist_check} ch WHERE ch.userid = ?) c ";
     $sql .= "ON c.item = i.id ";
-    $sql .= "WHERE i.checklist = ? AND userid = 0 AND i.itemoptional < 2 AND i.hidden = 0 ";
+    $sql .= "WHERE i.checklist = ? AND userid = 0 AND i.itemoptional < ? AND i.hidden = 0 ";
     $sql .= 'ORDER BY i.position';
-    $checks = $DB->get_records_sql($sql, array($user->id, $checklist->id));
+    $checks = $DB->get_records_sql($sql, array($user->id, $checklist->id, $maxitemoptional));
 
     $studentmark = $checklist->teacheredit != CHECKLIST_MARKING_TEACHER;
     $teachermark = $checklist->teacheredit != CHECKLIST_MARKING_STUDENT;

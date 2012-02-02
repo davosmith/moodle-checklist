@@ -140,6 +140,11 @@ if (count($groupsmenu) == 1) {
     echo '</select>&nbsp;';
 }
 
+echo '<label for="exportoptional">'.get_string('exportoptional', 'gradeexport_checklist').': <select id="exportoptional" name="exportoptional">';
+echo '<option selected="selected" value="1">'.get_string('yes').'</option>';
+echo '<option value="0">'.get_string('no').'</option>';
+echo '</select>&nbsp;';
+
 echo '<input type="hidden" name="id" value="'.$course->id.'" />';
 
 echo '<input type="submit" name="export" value="'.get_string('export','gradeexport_checklist').'" />';

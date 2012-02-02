@@ -15,6 +15,7 @@ $string['checklistnotfound'] = 'Checklist not found';
 $string['checklistreport'] = 'report';
 
 $string['export'] = 'Export Excel file';
+$string['exportoptional'] = 'Include optional items';
 
 $string['nochecklists'] = 'No suitable checklists found';
 $string['nodistrict'] = 'Error: current user has no district';
