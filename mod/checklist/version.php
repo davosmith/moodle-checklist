@@ -28,3 +28,4 @@ $module->cron     = 60;          // Period for cron to check this module (secs)
 $module->maturity = MATURITY_STABLE;
 $module->release  = '2.x (Build: 2012012700)';
 $module->requires = 2010112400;
+$module->component = 'mod_checklist';
