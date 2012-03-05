@@ -2888,7 +2888,6 @@ class checklist_class {
             return;
         }
         $userids = implode(',',array_keys($users));
-        $updategrades = false;
 
         // Get a list of all the checklist items with a module linked to them (ignoring headings)
         $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid, cm.completion AS completion
@@ -2914,7 +2913,6 @@ class checklist_class {
                             }
                             $check->usertimestamp = time();
                             $DB->update_record('checklist_check', $check);
-                            $updategrades = true;
                         } else {
                             $check = new stdClass;
                             $check->item = $item->itemid;
@@ -2924,7 +2922,6 @@ class checklist_class {
                             $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
 
                             $check->id = $DB->insert_record('checklist_check', $check);
-                            $updategrades = true;
                         }
                     }
                 }
@@ -3022,7 +3019,6 @@ class checklist_class {
                     }
                     $check->usertimestamp = time();
                     $DB->update_record('checklist_check', $check);
-                    $updategrades = true;
                 } else {
                     $check = new stdClass;
                     $check->item = $item->itemid;
@@ -3032,13 +3028,11 @@ class checklist_class {
                     $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
 
                     $check->id = $DB->insert_record('checklist_check', $check);
-                    $updategrades = true;
                 }
             }
 
-            if ($updategrades) {
-                checklist_update_grades($this->checklist);
-            }
+            // Always update the grades
+            checklist_update_grades($this->checklist);
         }
     }
 
