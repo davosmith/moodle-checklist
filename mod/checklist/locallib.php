@@ -2846,7 +2846,6 @@ class checklist_class {
             return;
         }
         $users = implode(',',array_keys($users));
-        $updategrades = false;
 
         // Get a list of all the checklist items with a module linked to them (and no score needed to complete them)
         $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid
@@ -2946,7 +2945,6 @@ class checklist_class {
                         }
                         $check->usertimestamp = time();
                         update_record('checklist_check', $check);
-                        $updategrades = true;
                     } else {
                         $check = new stdClass;
                         $check->item = $item->itemid;
@@ -2956,7 +2954,6 @@ class checklist_class {
                         $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
 
                         $check->id = insert_record('checklist_check', $check);
-                        $updategrades = true;
                     }
                 }
             }
@@ -2988,14 +2985,12 @@ class checklist_class {
                                 }
                                 $check->usertimestamp = time();
                                 update_record('checklist_check', $check);
-                                $updategrades = true;
                             } else {
                                 if ($check->usertimestamp == 0) {
                                     continue;
                                 }
                                 $check->usertimestamp = 0;
                                 update_record('checklist_check', $check);
-                                $updategrades = true;
                             }
                         } else {
                             if (!$complete) {
@@ -3009,16 +3004,13 @@ class checklist_class {
                             $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
 
                             $check->id = insert_record('checklist_check', $check);
-                            $updategrades = true;
                         }
                     }
                 }
             }
         }
 
-        if ($updategrades) {
-            checklist_update_grades($this->checklist);
-        }
+        checklist_update_grades($this->checklist);
     }
 
     // Update the userid to point to the next user to view
