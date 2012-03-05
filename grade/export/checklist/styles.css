@@ -1,0 +1,10 @@
+.checklist_export_options {
+    width: 800px;
+    margin: 0 auto;
+}
+
+.checklist_export_options label {
+    width: 200px;
+    text-align: right;
+    display: inline-block;
+}
