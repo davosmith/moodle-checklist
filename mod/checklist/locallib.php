@@ -311,6 +311,7 @@ class checklist_class {
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
                     $this->items[$itemid]->grouping = ($groupmembersonly && $mods->cms[$cmid]->groupmembersonly) ? $mods->cms[$cmid]->groupingid : 0;
+                    $item = $this->items[$itemid];
                 }
                 $item->modulelink = new moodle_url('/mod/'.$mods->cms[$cmid]->modname.'/view.php', array('id' => $cmid));
                 $nextpos++;
