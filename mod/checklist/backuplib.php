@@ -167,6 +167,8 @@
 		        if ($status) $status = fwrite($bf, full_tag("USERTIMESTAMP",9,false,$check->usertimestamp));
                 if ($status) $status = fwrite($bf, full_tag("TEACHERMARK",9,false,$check->teachermark));
                 if ($status) $status = fwrite($bf, full_tag("TEACHERTIMESTAMP",9,false,$check->teachertimestamp));
+				//TDMU:
+				if ($status) $status = fwrite($bf, full_tag("TEACHERID",9,false,$check->teacherid));
 		        if ($status) $status = fwrite($bf, end_tag("CHECK", 8, true));
 		    }
 

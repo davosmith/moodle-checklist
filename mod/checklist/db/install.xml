@@ -68,7 +68,8 @@
         <FIELD NAME="usertimestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="userid" NEXT="teachermark"/>
 
         <FIELD NAME="teachermark" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="usertimestamp" NEXT="teachertimestamp"/>
-        <FIELD NAME="teachertimestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="teachermark"/>
+        <FIELD NAME="teachertimestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="teachermark"  NEXT="teacherid"/>
+		<FIELD NAME="teacherid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" COMMENT="TDMU:The userid of the teacher who has done check!" PREVIOUS="teachertimestamp"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

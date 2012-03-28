@@ -245,6 +245,8 @@ require_once(dirname(__FILE__).'/locallib.php');
             $check->teachermark = backup_todb($c_info['#']['TEACHERMARK']['0']['#']);
             $check->teachertimestamp = backup_todb($c_info['#']['TEACHERTIMESTAMP']['0']['#']);
             $check->teachertimestamp += $restore->course_startdateoffset;
+			//TDMU:
+			$check->teacherid = backup_todb($c_info['#']['TEACHERID']['0']['#']);
 
             $check->userid = backup_getid($restore->backup_unique_code,'user',$check->userid);
             if (!$check->userid) {

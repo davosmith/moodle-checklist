@@ -42,11 +42,14 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+		//TDMU: default name for the cheklist
+		$mform->setDefault('name', get_string('checklistdefaultname', 'checklist'));
 
     /// Adding the required "intro" field to hold the description of the instance
         $mform->addElement('htmleditor', 'intro', get_string('checklistintro', 'checklist'));
         $mform->setType('intro', PARAM_RAW);
-        $mform->addRule('intro', get_string('required'), 'required', null, 'client');
+		//TDMU: intro is not required!
+    //    $mform->addRule('intro', get_string('required'), 'required', null, 'client');
         $mform->setHelpButton('intro', array('writing', 'richtext'), false, 'editorhelpbutton');
 
     /// Adding "introformat" field
@@ -64,6 +67,8 @@ class mod_checklist_mod_form extends moodleform_mod {
         $teditoptions[CHECKLIST_MARKING_TEACHER] = get_string('teacheroverwritecheck', 'checklist');
         $teditoptions[CHECKLIST_MARKING_BOTH] = get_string('teacheralongsidecheck', 'checklist');
         $mform->addElement('select', 'teacheredit', get_string('teacheredit', 'checklist'), $teditoptions);
+		//TDMU: by default only teacher can mark checklist item
+		$mform->setDefault('teacheredit', 1);
 
         $mform->addElement('select', 'duedatesoncalendar', get_string('duedatesoncalendar', 'checklist'), $ynoptions);
         $mform->setDefault('duedatesoncalendar', 0);
@@ -103,7 +108,9 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setHelpButton('autoupdate', array('autoupdate', get_string('autoupdate','checklist'), 'checklist'));
 
         $mform->addElement('selectyesno', 'lockteachermarks', get_string('lockteachermarks', 'checklist'));
-        $mform->setDefault('lockteachermarks', 0);
+		//TDMU: lock teacher mark enabled by default
+        //$mform->setDefault('lockteachermarks', 1);
+		$mform->setDefault('lockteachermarks', 0);
         $mform->setAdvanced('lockteachermarks');
         $mform->setHelpButton('lockteachermarks', array('lockteachermarks', get_string('lockteachermarks', 'checklist'), 'checklist'));
 

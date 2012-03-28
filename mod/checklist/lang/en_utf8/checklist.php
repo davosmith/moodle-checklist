@@ -29,6 +29,9 @@ $string['checkeditemsdeleted'] = 'Checked items deleted';
 
 $string['checklist'] = 'checklist';
 
+//TDMU: cheklist default name
+$string['checklistdefaultname'] = 'Practice Skills matricule list';
+
 $string['checklist:edit'] = 'Create and edit checklists';
 $string['checklist:emailoncomplete'] = 'Receive completion emails';
 $string['checklist:preview'] = 'Preview a checklist';
@@ -131,7 +134,10 @@ $string['teachernoteditcheck'] = 'Student only';
 $string['teacheroverwritecheck'] = 'Teacher only';
 $string['teacheralongsidecheck'] = 'Student and teacher';
 
-$string['toggledates'] = 'Toggle dates';
+//TDMU: title for teacher name field
+$string['teacherwhocheckthis'] = 'Checked by';
+
+$string['toggledates'] = 'Toggle checkmark authors/dates';
 
 $string['theme'] = 'Checklist display theme';
 

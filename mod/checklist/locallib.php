@@ -10,7 +10,9 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
-define("CHECKLIST_TEXT_INPUT_WIDTH", 45);
+//define("CHECKLIST_TEXT_INPUT_WIDTH", 45);
+//TDMU:incrise field size
+define("CHECKLIST_TEXT_INPUT_WIDTH", 100);
 define("CHECKLIST_OPTIONAL_NO", 0);
 define("CHECKLIST_OPTIONAL_YES", 1);
 define("CHECKLIST_OPTIONAL_HEADING", 2);
@@ -126,8 +128,10 @@ class checklist_class {
 
         // Load the currently checked-off items
         if ($this->userid) { // && ($this->canupdateown() || $this->canviewreports() )) {
-
-            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark, c.teachertimestamp FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+			//TDMU:origin
+			// $sql = 'SELECT i.id, c.usertimestamp, c.teachermark, c.teachertimestamp FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+			//TDMU: new select
+            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark, c.teachertimestamp, c.teacherid FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
             $sql .= 'ON (i.id = c.item AND c.userid = '.$this->userid.') WHERE i.checklist = '.$this->checklist->id;
 
             $checks = get_records_sql($sql);
@@ -141,6 +145,9 @@ class checklist_class {
                         $this->items[$id]->teachermark = $check->teachermark;
                         $this->items[$id]->usertimestamp = $check->usertimestamp;
                         $this->items[$id]->teachertimestamp = $check->teachertimestamp;
+						//TDMU: get teacher id
+						$this->items[$id]->teacherid = $check->teacherid;
+						//TDMU: below code is original
                     } elseif ($this->useritems && isset($this->useritems[$id])) {
                         $this->useritems[$id]->checked = $check->usertimestamp > 0;
                         $this->useritems[$id]->usertimestamp = $check->usertimestamp;
@@ -718,7 +725,12 @@ class checklist_class {
         $thispage = $CFG->wwwroot.'/mod/checklist/view.php?id='.$this->cm->id;
 
         $teachermarklocked = false;
-        $showcompletiondates = false;
+        //$showcompletiondates = false;
+		//TDMU: ENABLE lock teacher mark by default
+		//$teachermarklocked = TRUE;
+		//TDMU: ENABLE show completion dates by default
+		$showcompletiondates = TRUE;
+		
         if ($viewother) {
             $showbars = optional_param('showbars',false,PARAM_BOOL);
             if ($comments) {
@@ -761,7 +773,8 @@ class checklist_class {
             echo '</form>';
 
             $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
-            $showcompletiondates = $this->showcompletiondates();
+       //TDMU
+	        $showcompletiondates = $this->showcompletiondates();
         }
 
         echo format_text($this->checklist->intro, $this->checklist->introformat);
@@ -940,7 +953,10 @@ class checklist_class {
                         echo '<input class="checklistitem'.$checkclass.'" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
                     }
                 }
-                echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
+				//TDMU - backspace aded
+                echo '<label for='.$itemname.$optional.'>&nbsp;'.s($item->displaytext).'</label>';
+				
+				
 
                 if (isset($item->modulelink)) {
                     $imgurl = $CFG->wwwroot.'/mod/checklist/images/follow_link.png';
@@ -965,10 +981,21 @@ class checklist_class {
                 if ($showcompletiondates) {
                     if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
                         if ($showteachermark && $item->teachermark != CHECKLIST_TEACHERMARK_UNDECIDED && $item->teachertimestamp) {
+						//TDMU:show who check (uncheck) this item
+						//$checkeruser = get_record('user', 'id', $item->teacherid)
+						$chekerusertitle = get_string('teacherwhocheckthis','checklist');
+						$checkeruser = array();
+						$checkeruser = get_records_select('user', "id = {$item->teacherid}");
+						echo '<span class="itemcheckedbyteacher">&nbsp;'.$chekerusertitle.'&nbsp;';
+						echo '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$item->teacherid.'&amp;course='.$this->course->id.'">'.fullname($checkeruser[$item->teacherid]).'</a>';						
+//echo '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$comment->commentby.'&amp;course='.$this->course->id.'">'.fullname($commentusers[$comment->commentby]).'</a> ';							
+						echo '&nbsp;</span>';
+						//TDMU:following code is original
+						
                             echo '<span class="itemteacherdate">'.userdate($item->teachertimestamp, get_string('strftimedatetimeshort')).'</span>';
                         }
                         if ($showcheckbox && $item->checked && $item->usertimestamp) {
-                            echo '<span class="itemuserdate">'.userdate($item->usertimestamp, get_string('strftimedatetimeshort')).'</span>';
+						echo '<span class="itemuserdate">'.userdate($item->usertimestamp, get_string('strftimedatetimeshort')).'</span>';
                         }
                     }
                 }
@@ -1020,7 +1047,9 @@ class checklist_class {
                                 echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                                 echo '<input type="hidden" name="itemid" value="'.$useritem->id.'" />';
                                 echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                                echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).'" id="updateitembox" />';
+                             //   echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).'" id="updateitembox" />';
+							 //TDMU: replace text field with textarea
+							 echo '<textarea id="updateitembox" name="displaytext"  rows="2" cols="50">'.s($text).'</textarea>';
                                 echo '<input type="submit" name="updateitem" value="'.get_string('updateitem','checklist').'" />';
                                 echo '<br />';
                                 echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
@@ -1079,7 +1108,8 @@ class checklist_class {
                     if ($showcheckbox) {
                         echo '<input type="checkbox" disabled="disabled" />';
                     }
-                    echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+                    echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value=""  id="additembox" />';
+					//echo '<textarea id="additembox" name="displaytext"  rows="2" cols="50">'new1'</textarea>';
                     echo '<input type="submit" name="additem" value="'.get_string('additem','checklist').'" />';
                     echo '<br />';
                     echo '<textarea name="displaytextnote" rows="3" cols="25"></textarea>';
@@ -1305,7 +1335,9 @@ class checklist_class {
                     echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
                     echo '<input type="hidden" name="itemid" value="'.$item->id.'" />';
                     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-                    echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
+                 //   echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($item->displaytext).'" id="updateitembox" />';
+				 //TDMU: replace text field with textarea
+				  echo '<textarea id="updateitembox" name="displaytext"  rows="2" cols="50">'.s($item->displaytext).'</textarea>';
                     if ($this->editdates) {
                         echo '<input type="hidden" name="editdates" value="on" />';
                         $this->print_edit_date($item->duetime);
@@ -1424,6 +1456,7 @@ class checklist_class {
                         echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
                         echo '<input type="checkbox" disabled="disabled" />';
                         echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+						//echo '<textarea id="additembox" name="displaytext"  rows="2" cols="50">'new2'</textarea>';
                         if ($this->editdates) {
                             echo '<input type="hidden" name="editdates" value="on" />';
                             $this->print_edit_date();
@@ -1461,7 +1494,8 @@ class checklist_class {
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
             echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-            echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+            echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value=""  id="additembox" />';
+			//echo '<textarea id="additembox" name="displaytext"  rows="2" cols="50">'new3'</textarea>';
             if ($this->editdates) {
                 echo '<input type="hidden" name="editdates" value="on" />';
                 $this->print_edit_date();
@@ -1523,6 +1557,7 @@ class checklist_class {
         $thisurl = $CFG->wwwroot.'/mod/checklist/report.php?id='.$this->cm->id;
         $thisurl .= $this->showoptional ? '' : '&amp;action=hideoptional';
         $thisurl .= $showbars ? '&amp;showbars=on' : '';
+		$thisurl .= $editchecks ? '&amp;editchecks=on' : '';//TDMU-original bug! - editor was closed when next page visited-this code fix it!
         $thisurl .= '&amp;sortby='.$this->sortby;
 
         groups_print_activity_menu($this->cm, $thisurl);
@@ -1591,7 +1626,9 @@ class checklist_class {
             echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
             echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
             echo $this->showoptional ? '' : '<input type="hidden" name="action" value="hideoptional" />';
-            echo '<input type="hidden" name="editchecks" value="on" />';
+            //echo '<input type="hidden" name="editchecks" value="on" />';
+			//TDMU:after save - return to view mode!
+			echo '<input type="hidden" name="editchecks" value="off" />';
             echo '<input type="hidden" name="action" value="updateallchecks" />';
             echo '<input type="submit" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
         } else if (!$showbars && $this->caneditother() && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
@@ -1716,8 +1753,10 @@ class checklist_class {
                     $userlink = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$auser->id.'&amp;course='.$this->course->id.'">'.fullname($auser).'</a>';
 
                     $row[] = $userlink.$vslink;
-
-                    $sql = 'SELECT i.id, i.itemoptional, i.hidden, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+					//TDMU:origin
+                    //$sql = 'SELECT i.id, i.itemoptional, i.hidden, c.usertimestamp, c.teachermark FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';
+					//TDMU:select with teacher ID and teacher date
+					$sql = 'SELECT i.id, i.itemoptional, i.hidden, c.usertimestamp, c.teachermark, c.teacherid, c.teachertimestamp FROM '.$CFG->prefix.'checklist_item i LEFT JOIN '.$CFG->prefix.'checklist_check c ';					
                     $sql .= 'ON (i.id = c.item AND c.userid = '.$auser->id.') WHERE i.checklist = '.$this->checklist->id.' AND i.userid=0 ORDER BY i.position';
                     $checks = get_records_sql($sql);
 
@@ -1727,12 +1766,12 @@ class checklist_class {
                         }
 
                         if ($check->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                            $row[] = array(false, false, true, 0, 0);
+                            $row[] = array(false, false, true, 0, 0, 0);//TDMU: added last paramether
                         } else {
                             if ($check->usertimestamp > 0) {
-                                $row[] = array($check->teachermark,true, false, $auser->id, $check->id);
+                                $row[] = array($check->teachermark,true, false, $auser->id, $check->id, 0); //TDMU: added last paramether
                             } else {
-                                $row[] = array($check->teachermark,false, false, $auser->id, $check->id);
+                                $row[] = array($check->teachermark,false, false, $auser->id, $check->id, $check->teachertimestamp); //TDMU: added last paramether
                             }
                         }
                     }
@@ -1810,7 +1849,8 @@ class checklist_class {
                     $size = $table->size[$key];
                     $img = '&nbsp;';
                     $cellclass = 'cell c'.$key.' level'.$table->level[$key];
-                    list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
+                    //list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
+					list($teachermark, $studentmark, $heading, $userid, $checkid, $teachertimestamp) = $item;//TDMU
                     if ($heading) {
                         $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$key.' reportheading">&nbsp;</td>';
                     } else {
@@ -1818,9 +1858,11 @@ class checklist_class {
                             if ($teachermark == CHECKLIST_TEACHERMARK_YES) {
                                 $cellclass .= '-checked';
                                 $img = $teacherimg[$teachermark];
+								$img .= '<div class="itemteacherdate">'.userdate($teachertimestamp, get_string('strftimedatetimeshort')).'</div>';//TDMU
                             } elseif ($teachermark == CHECKLIST_TEACHERMARK_NO) {
                                 $cellclass .= '-unchecked';
                                 $img = $teacherimg[$teachermark];
+								$img .= '<div class="itemteacherdate">'.userdate($teachertimestamp, get_string('strftimedatetimeshort')).'</div>';//TDMU
                             } else {
                                 $img = $teacherimg[CHECKLIST_TEACHERMARK_UNDECIDED];
                             }
@@ -1856,7 +1898,7 @@ class checklist_class {
                         if ($key == $lastkey) {
                             $cellclass .= ' lastcol';
                         }
-
+//output students marks in table row are there:
                         $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">'.$img.'</td>';
                     }
                 }
@@ -2649,9 +2691,13 @@ class checklist_class {
                             $newcheck = new stdClass;
                             $newcheck->teachertimestamp = time();
                             $newcheck->teachermark = $newval;
+							//TDMU:teacher
+							$newcheck->teacherid = $USER->id;
 
                             $item->teachermark = $newcheck->teachermark;
                             $item->teachertimestamp = $newcheck->teachertimestamp;
+							//TDMU:teacher
+					$item->teacherid = $newcheck->teacherid;
 
                             $oldcheck = get_record_select('checklist_check', 'item = '.$item->id.' AND userid = '.$this->userid);
                             if ($oldcheck) {
@@ -2778,7 +2824,11 @@ class checklist_class {
                     $newcheck->userid = $userid;
                     $newcheck->teachermark = $val;
                     $newcheck->teachertimestamp = time();
+					//TDMU:teacher
+					$newcheck->teacherid = $USER->id;
+										
                     $newcheck->usertimestamp = 0;
+
 
                     insert_record('checklist_check', $newcheck);
                     $updategrades = true;
@@ -2792,6 +2842,8 @@ class checklist_class {
                     $updcheck->id = $currentchecks[$itemid]->id;
                     $updcheck->teachermark = $val;
                     $updcheck->teachertimestamp = time();
+					//TDMU:teacher
+					$updcheck->teacherid = $USER->id;					
 
                     update_record('checklist_check', $updcheck);
                     $updategrades = true;
@@ -2801,6 +2853,8 @@ class checklist_class {
                 checklist_update_grades($this->checklist, $userid);
             }
         }
+		//TDMU-there need disable editing!???may be...
+		
     }
 
     function update_complete_scores() {
@@ -3059,7 +3113,9 @@ class checklist_class {
         global $SESSION;
 
         if (!isset($SESSION->checklist_showcompletiondates)) {
-            return false;
+         //  return false;
+		 //TDMU: completion dates must be shown by default
+            $SESSION->checklist_showcompletiondates = TRUE;
         }
         return $SESSION->checklist_showcompletiondates;
     }
@@ -3068,7 +3124,9 @@ class checklist_class {
         global $SESSION;
 
         if (!isset($SESSION->checklist_showcompletiondates)) {
-            $SESSION->checklist_showcompletiondates = false;
+			//$SESSION->checklist_showcompletiondates = false;
+			//TDMU: completion dates must be shown by default
+            $SESSION->checklist_showcompletiondates = TRUE;
         } else {
             $SESSION->checklist_showcompletiondates = !$SESSION->checklist_showcompletiondates;
         }
