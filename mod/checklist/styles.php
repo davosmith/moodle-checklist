@@ -125,6 +125,10 @@ ol.checklist li .itemcheckedbyteacher {
     font-style: italic;
 }
 
+.checklistreport .footer {
+    font-color: #ff0000;
+}
+
 .checklistreport .reportheading {
     background-color: #000000;
 }

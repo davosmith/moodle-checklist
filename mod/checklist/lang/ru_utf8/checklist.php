@@ -48,6 +48,18 @@ $string['checklistintro'] = 'Вступение';
 $string['checklistsettings'] = 'Настройки';
 
 $string['checks'] = 'Контрольные отметки';
+
+//TDMU-begin classbook export strings
+$string['classbookexportlnk'] = 'Експортировать журнал';
+$string['classbookoredrnum'] = 'N/пр.';
+$string['classbookcheckcoltitle'] = 'Дата/подпись преп.';
+$string['classbooklevelmasttitle'] = 'Уровень освоения';
+$string['classbookprakskilltitle'] = 'Названия практического навыка';
+$string['classbookpassed'] = 'Зачёт';
+$string['classbookfailed'] = 'Незачёт';
+$string['classbookdoned'] = 'Выполнено';
+//TDMU-end classbook export strings
+
 $string['comments'] = 'Коментарии';
 $string['completiongradehelp'] = 'Заключительная оценка не является процентом';
 $string['configallowmodulelinks'] = 'Разрешить связывать пункты контрольного спиcка с другими модулями (замедляет редактирование контрольного списка)';
@@ -107,6 +119,8 @@ $string['percentcomplete'] = 'Обязательные пункты';
 $string['percentcompleteall'] = 'Все пункты';
 $string['preview'] = 'Предварительный просмотр';
 $string['progress'] = 'Достижения';
+//TDMU - title for column select control
+$string['putchecksforvisible'] = 'Всем показанным студентам:';
 
 $string['report'] = 'Просмотреть достижения';
 $string['reporttablesummary'] = 'Таблица показывает пункты контрольного списка, выполненные каждым студентом';
