@@ -71,6 +71,19 @@ class restore_checklist_activity_task extends restore_activity_task {
         $rules[] = new restore_decode_rule('CHECKLISTEDITBYID', '/mod/checklist/edit.php?id=$1', 'course_module');
         $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/edit.php?checklist=$1', 'checklist');
 
+// MODIF JF 2012/03/18
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYID', '/mod/checklist/edit_description.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/edit_description.php?checklist=$1', 'checklist');
+
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYID', '/mod/checklist/edit_document.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/edit_document.php?checklist=$1', 'checklist');
+
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYID', '/mod/checklist/delete_description.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/delete_description.php?checklist=$1', 'checklist');
+
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYID', '/mod/checklist/delete_document.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/delete_document.php?checklist=$1', 'checklist');
+
         return $rules;
     }
 }
