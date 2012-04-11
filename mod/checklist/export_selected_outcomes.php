@@ -74,23 +74,19 @@ $quit = optional_param('quit', '', PARAM_ALPHANUM);
 
 $url = new moodle_url('/mod/checklist/export_selected_outcomes.php');
 if ($id) {
-    $cm = get_coursemodule_from_id('checklist', $id)){
+    if (!$cm = get_coursemodule_from_id('checklist', $id)){
         print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
     }
-    $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
     $url->param('id', $id);
-    $urlredirect = new moodle_url('/mod/checklist/select_export.php?id='.$id);
-    $urlredirect_suite = new moodle_url('/mod/checklist/edit.php?id='.$id);
 } else if ($checklistid) {
     $checklist = $DB->get_record('checklist', array('id' => $checklistid), '*', MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $checklist->course), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
+    if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
         print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
     }
     $url->param('checklist', $checklistid);
-    $urlredirect = new moodle_url('/mod/checklist/select_export.php?checklistid='.$checklistid);
-    $urlredirect_suite = new moodle_url('/mod/checklist/edit.php?checklistid='.$checklistid);
 } else {
     print_error('error_specif_id', 'checklist'); // 'You must specify a course_module ID or an instance ID'
 }

@@ -14,7 +14,7 @@ $id = required_param('id', PARAM_INT); // course module id
 if (! $cm = get_coursemodule_from_id('checklist', $id)) {
     print_error(get_string('error_cmid', 'checklist')); // 'Course Module ID was incorrect'
 }
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $url = new moodle_url('/mod/checklist/import.php', array('id' => $cm->id));

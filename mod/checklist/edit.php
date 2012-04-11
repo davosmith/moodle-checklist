@@ -26,16 +26,16 @@ $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instanc
 
 $url = new moodle_url('/mod/checklist/view.php');
 if ($id) {
-    $cm = get_coursemodule_from_id('checklist', $id)){
+    if (!$cm = get_coursemodule_from_id('checklist', $id)){
         print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
     }
-    $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
     $url->param('id', $id);
 } else if ($checklistid) {
     $checklist = $DB->get_record('checklist', array('id' => $checklistid), '*', MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $checklist->course), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
+    if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
         print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
     }
     $url->param('checklist', $checklistid);

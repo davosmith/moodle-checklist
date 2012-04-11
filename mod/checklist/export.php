@@ -4,10 +4,10 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
 $id = required_param('id', PARAM_INT); // course module id
 
-$cm = get_coursemodule_from_id('checklist', $id)){
+if (!$cm = get_coursemodule_from_id('checklist', $id)){
     print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
 }
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $url = new moodle_url('/mod/checklist/export.php', array('id' => $cm->id));

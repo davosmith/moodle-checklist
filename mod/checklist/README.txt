@@ -12,7 +12,7 @@ for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional
 items and can add their own, private, items to the list.
 
-==Changes==
+== Changes ==
 * 2012-04-11 - New functionnalities (documents, outcomes) by Jean Fruitet <jean.fruitet@univ-nantes.fr>
 * 2012-01-27 - French translation from Luiggi Sansonetti
 * 2012-01-02 - Minor tweaks to improve Moodle 2.2+ compatibility (optional_param_array / context_module::instance )
