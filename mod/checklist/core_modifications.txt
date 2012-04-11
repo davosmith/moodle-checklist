@@ -1,7 +1,11 @@
+CheckList - Moodle module
+
+
 The changes shown in this file are only needed if you are worried about a short (60 second) delay between students completing an activity and it being checked-off on the checklist.
 
 ** If you are happy with this delay, then ignore all of these suggested changes below **
-If this is not acceptable, then you should make the following changes to the Moodle core code (for extra help with this, scroll down to the bottom of this file to see, roughly what the modified files should look like):
+If this is not acceptable, then you should make the following changes to the Moodle core code (for extra help
+with this, scroll down to the bottom of this file to see, roughly what the modified files should look like):
 Open the file - moodle/lib/datalib.php
 
 Find the function 'add_to_log', then add these lines to the end of it:
@@ -26,9 +30,13 @@ $CFG->checklist_autoupdate_use_cron = true;
 should be changed to:
 $CFG->checklist_autoupdate_use_cron = false;
 
-To help with modifying the core code to get the 'Check-off modules when complete' feature working, I have included below what the functions will look like after the modification has taken place. Look for the comment '/**** These are the extra lines of code to add for the checklist plugin *****/' to see where the changes have been made.
+To help with modifying the core code to get the 'Check-off modules when complete' feature working,
+I have included below what the functions will look like after the modification has taken place.
+Look for the comment '/**** These are the extra lines of code to add for the checklist plugin *****/' to see
+where the changes have been made.
 
-NOTE: This code is taken form Moodle 2.0.1. Do NOT copy and paste the whole functions, as this may not be compatible with your current Moodle version. 
+NOTE: This code is taken form Moodle 2.0.1. Do NOT copy and paste the whole functions, as this may not
+be compatible with your current Moodle version. 
 Please only use this as a guide as to where to insert the extra lines of code.
 
 *** lib/datalib.php:
