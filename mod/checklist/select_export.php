@@ -19,9 +19,11 @@
  * This page prints a particular instance of checklist
  *
  * @author  David Smith <moodle@davosmith.co.uk>
+ * @author  Jean Fruitet <jean.fruitet@univ-nantes.fr>
  * @package mod/checklist
  */
 
+ 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
@@ -51,6 +53,7 @@ if ($id) {
 }
 
 $PAGE->set_url($url);
+$PAGE->requires->js('/mod/checklist/functions.js');
 require_login($course, true, $cm);
 
 if ($CFG->version < 2011120100) {
@@ -65,4 +68,4 @@ if (has_capability('mod/checklist:updateown', $context)) {
 
 $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
 
-$chk->view();
+$chk->view_select_export();
