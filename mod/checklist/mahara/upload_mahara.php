@@ -23,12 +23,12 @@
  */
 
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
+require_once(dirname(dirname(__FILE__)).'/lib.php');
+require_once(dirname(dirname(__FILE__)).'/locallib.php');
 
-require_once(dirname(__FILE__).'/file_api.php');   // Moodle 2 file API
-require_once(dirname(dirname(dirname(__FILE__))).'/repository/lib.php'); // Repository API
+require_once(dirname(__FILE__).'/mahara.php');   // mahara class
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/repository/lib.php'); // Repository API
 
 global $DB;
 
@@ -39,8 +39,11 @@ $userid  = optional_param('userid', 0, PARAM_INT);  // userID
 $descriptionid  = optional_param('descriptionid', 0, PARAM_INT);  // description ID
 $cancel     = optional_param('cancel', 0, PARAM_BOOL);
 
+// POUR MAHARA
+$hostid = optional_param('hostid', 0, PARAM_INT);  // le nouveau document recupérer sur Mahara
+$view = optional_param('view', 0, PARAM_INT);  // le nouveau document recupérer sur Mahara
 
-$url = new moodle_url('/mod/checklist/add_document.php');
+$url = new moodle_url('/mod/checklist/mahara/upload_mahara.php');
 if ($id) {
     if (!$cm = get_coursemodule_from_id('checklist', $id)){
         print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
@@ -107,7 +110,7 @@ if ($cancel) {
 }
 
 
-if ($chk = new checklist_class($cm->id, 0, $checklist, $cm, $course)) {
-    $chk->add_document($itemid, $userid, $descriptionid);
+if ($chk = new checklist_mahara_class($cm->id, 0, $checklist, $cm, $course)) {
+    $chk->add_mahara_document($itemid, $userid, $descriptionid, $hostid, $view);
 }
 

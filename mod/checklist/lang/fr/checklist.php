@@ -18,6 +18,38 @@
 // Modifié par JF - jean.fruitet@univ-nantes.fr 2012/03/18
 // MODIF JF 2012/03/18 //////////////////////////////////////////////////////////////
 
+// Mahara portfolio
+
+$string['clicktopreview'] = 'cliquez pour un aperçu pleine taille dans un fenêtre surgissante';
+$string['clicktoselect'] = 'cliquez pour sélectionner la vue';
+$string['nomaharahostsfound'] = 'Aucun hôte Mahara n\'a été trouvé.';
+$string['noviewscreated'] = 'Vous n\'avez créé aucune vue dans {$a}.';
+$string['noviewsfound'] = 'Aucune vue ne correspond dans {$a}';
+$string['previewmahara'] = 'Aperçu';
+$string['site'] = 'Site';
+$string['site_help'] = 'Ce paramètre vous permet de sélectionner depuis quel site Mahara vos étudiants pourront soumettre leurs pages. (Ce site Mahara doit être déjà configuré pour fonctionner en réseau MNET avec ce site Moodle.)';
+$string['selectedview'] = 'Page soumissionnée';
+$string['selectmaharaview'] = 'Sélectionnez dans cette liste l\'une des vues de votre portfolio <i>{$a->name}</i> ou <a href="{$a->jumpurl}">cliquez ici</a> pour créer directement une nouvelle vue sur <i>{$a->name}</i>.';
+$string['titlemahara'] = 'Titre';
+$string['typemahara'] = 'Portfolio Mahara';
+$string['views'] = 'Vues ';
+$string['viewsby'] = 'Vues proposées par {$a}';
+$string['viewmahara'] = 'Vue Mahara';
+$string['select'] = 'Sélectionner';
+
+$string['upload_portfolio'] = 'Télécharger un portfolio';
+
+$string['timecreated'] = 'Créé le ';
+$string['timemodified'] = 'Modifié le ';
+$string['id'] = 'ID# ';
+$string['checklist_check'] = 'Evaluation ';
+$string['teachermark'] = 'Appréciation ';
+$string['usertimestamp'] = 'Réclamé le ';
+$string['teachertimestamp'] = 'Evalué le ';
+$string['commentby'] = 'Commenté par ';
+$string['argumentation'] = 'Argumentation';
+
+// Config
 $string['outcomes_input'] = 'Activer les fichiers d\'objectifs';
 $string['config_outcomes_input'] = 'Permet d\'importer dans Checklist les objectifs validés dans les activités Moodle du cours';
 $string['checklist_description'] = 'Autoriser le dépôt de fichiers';
@@ -255,8 +287,8 @@ $string['teachercomments'] = 'Les enseignants peuvent ajouter des commentaires';
 $string['teacheredit'] = 'Mises à jour par';
 
 $string['teachermarkundecided'] = 'L\'enseignant n\'a pas encore coché cet item';
-$string['teachermarkyes'] = 'L\enseignant confirme que cet item est complet';
-$string['teachermarkno'] = 'L\enseignant ne confirme pas que cet item est complet';
+$string['teachermarkyes'] = 'L\'enseignant confirme que cet item est complet';
+$string['teachermarkno'] = 'L\'enseignant ne confirme pas que cet item est complet';
 
 $string['teachernoteditcheck'] = 'Seulement l\'étudiant';
 $string['teacheroverwritecheck'] = 'Seulement l\'enseignant';

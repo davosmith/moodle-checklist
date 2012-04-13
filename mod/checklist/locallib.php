@@ -508,6 +508,15 @@ class checklist_class {
         if ($this->canupdateown()) {
             $this->process_view_actions();
         }
+        // Mahara && Portofolio stuff
+        if (!empty($CFG->enableportfolios)){
+            require_once($CFG->libdir.'/portfoliolib.php');
+            $button = new portfolio_add_button();
+            $button->set_callback_options('checklist_portfolio_caller',
+                array('instanceid' => $this->checklist->id, 'userid' => $this->userid, 'export_format' => ''), '/mod/checklist/mahara/locallib_portfolio.php');
+            $button->set_formats(array(PORTFOLIO_FORMAT_PLAINHTML, PORTFOLIO_FORMAT_LEAP2A));
+            echo "<div align=\"center\">".$button->to_html(PORTFOLIO_ADD_ICON_LINK)."</div>\n";
+        }
 
         $this->view_items();
 
@@ -3671,6 +3680,7 @@ class checklist_class {
     }
 
 
+
     function edit_document($itemid, $userid, $document) {
         global $DB;
         global $CFG;
@@ -3784,7 +3794,8 @@ class checklist_class {
         // Display a description record and any document linked with it
         global $DB;
         global $OUTPUT;
-
+        global $CFG;
+        
         if ($itemid && $userid) {
             $description = $DB->get_record('checklist_description', array("itemid"=>$itemid, "userid"=>$userid));
             if (!empty($description)){
@@ -3810,6 +3821,16 @@ class checklist_class {
                     echo '&nbsp;<a href="'.$baseurl.'">';
                     $title = '"'.get_string('add_link','checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('link','checklist').'" alt='.$title.' title='.$title.' /></a>';
+
+                    if (!empty($CFG->enableportfolios)){
+                        // portfolio upload link
+                        $editurl = new moodle_url('/mod/checklist/mahara/upload_mahara.php', array('id' => $this->cm->id) );
+                        $baseurl = $editurl.'&amp;itemid='.$itemid.'&amp;userid='.$userid.'&amp;descriptionid='.$description->id.'&amp;sesskey='.sesskey();
+                        echo '&nbsp;<a href="'.$baseurl.'">';
+                        $title = '"'.get_string('upload_portfolio','checklist').'"';
+                        echo '<img src="'.$OUTPUT->pix_url('upload_portfolio','checklist').'" alt='.$title.' title='.$title.' /></a>';
+                    }
+
                 }
                 $documents = $DB->get_records('checklist_document', array("descriptionid" => $description->id));
                 if ($documents){
@@ -3863,7 +3884,7 @@ class checklist_class {
                 $etiquette_document='';
 			}
             echo '<li>'.get_string('doc_num','checklist',$document->id).' &nbsp; '.$document->description_document."\n";
-            echo $this->affiche_url($document->url_document, $etiquette_document, $cible_document);
+            echo checklist_affiche_url($document->url_document, $etiquette_document, $cible_document);
             echo ' [<i><span class="small">'.userdate($document->timestamp).'</span></i>] '."\n";
             if ($edition){
                 // icon edition
@@ -3883,17 +3904,20 @@ class checklist_class {
         }
     }
 
-    // ################################ URL  ###############################
 
-    /**
+} // End of class
+
+// ################################ URL  ###############################
+
+/**
      * display an url accorging to moodle file management API
      * @return string active link
 	 * @ input $url : an uri
 	 * @ input $etiquette : a label
 	 * @ input $cible : a targeted frame
-     */
+*/
 
-    function affiche_url($url, $etiquette="", $cible="") {
+function checklist_affiche_url($url, $etiquette="", $cible="") {
     // MOODLE2 API
 	global $CFG;
 	   // Moodle 1.9
@@ -3944,9 +3968,7 @@ class checklist_class {
             return "<a href=\"$efile\">$etiquette</a>";
         }
 
-    }
-
-} // End of class
+}
 
 function checklist_itemcompare($item1, $item2) {
     if ($item1->position < $item2->position) {
