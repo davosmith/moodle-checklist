@@ -47,6 +47,8 @@ function checklist_cron_outcomes($starttime=0){
 global $CFG;
 global $DB; 
 global $scales;
+global $OUTPUT; // for icons
+
     // all users that are subscribed to any post that needs sending
     $notations = array();
     $scales = array();
@@ -117,7 +119,10 @@ global $scales;
                             $checklist_object->checklist_comment->itemid=$notation->itemid;
                             $checklist_object->checklist_comment->userid=$notation->userid;
                             $checklist_object->checklist_comment->commentby=$notation->teacherid;
-                            $checklist_object->checklist_comment->text='[<a href="'.$m->link.'">'.get_string('modulename', $m->type).' N '.$m->ref_activite.'</a> '.$m->userdate.'] '.$m->name;
+                            // add follow_link icon
+                            $checklist_object->checklist_comment->text='[<a href="'.$m->link.'">'.get_string('modulename', $m->type).' N '.$m->ref_activite
+                            .' <img src="'.$OUTPUT->pix_url('follow_link','checklist').'" alt="'.get_string('linktomodule','checklist').'" />
+ </a> '.$m->userdate.'] '.$m->name;
 
 
                             $scale  = checklist_get_scale($notation->scaleid);
@@ -235,7 +240,8 @@ global $DB;
     $mid=$forum->id;
     $mname=$forum->name;
     $mdescription=$forum->intro;
-    $mlink = $CFG->wwwroot.'/mod/forum/view.php?f='.$forum->id;
+    $mlink = new moodle_url('/mod/'.$modulename.'/view.php', array('id' => $cm->id));
+    // $mlink = $CFG->wwwroot.'/mod/forum/view.php?f='.$forum->id;
   }
   elseif ($modulename=='assignment'){
     if (! $assignment = $DB->get_record("assignment", array("id" => "$cm->instance"))) {
@@ -245,7 +251,8 @@ global $DB;
     $mid=$assignment->id;
     $mname=$assignment->name;
     $mdescription=$assignment->intro;
-    $mlink = $CFG->wwwroot.'/mod/assignment/view.php?a='.$assignment->id;
+    // $mlink = $CFG->wwwroot.'/mod/assignment/view.php?a='.$assignment->id;
+    $mlink = new moodle_url('/mod/'.$modulename.'/view.php', array('id' => $cm->id));
   }
   elseif ($modulename=='chat'){
     if (! $chat = $DB->get_record("chat", array("id" => "$cm->instance"))) {
@@ -255,7 +262,8 @@ global $DB;
     $mid=$chat->id;
     $mname=$chat->name;
     $mdescription=$chat->intro;
-    $mlink = $CFG->wwwroot.'/mod/chat/view.php?id='.$cm->id;
+    // $mlink = $CFG->wwwroot.'/mod/chat/view.php?id='.$cm->id;
+    $mlink = new moodle_url('/mod/'.$modulename.'/view.php', array('id' => $cm->id));
   }
   elseif ($modulename=='choice'){
     if (! $choice = $DB->get_record("choice", array("id" => "$cm->instance"))) {
@@ -265,7 +273,8 @@ global $DB;
     $mid=$choice->id;
     $mname=$choice->name;
     $mdescription=$choice->intro;
-    $mlink = $CFG->wwwroot.'/mod/choice/view.php?id='.$cm->id;
+    // $mlink = $CFG->wwwroot.'/mod/choice/view.php?id='.$cm->id;
+    $mlink = new moodle_url('/mod/'.$modulename.'/view.php', array('id' => $cm->id));
   }
   elseif ($modulename=='data'){
     if (! $data = $DB->get_record("data", array("id" => "$cm->instance"))) {
@@ -275,7 +284,8 @@ global $DB;
     $mid=$data->id;
     $mname=$data->name;
     $mdescription=$data->intro;
-    $mlink = $CFG->wwwroot.'/mod/data/view.php?id='.$cm->id;
+    // $mlink = $CFG->wwwroot.'/mod/data/view.php?id='.$cm->id;
+    $mlink = new moodle_url('/mod/'.$modulename.'/view.php', array('id' => $cm->id));
 
 // http://tracker.moodle.org/browse/MDL-15566
 // Notice: Undefined property: stdClass::$cmidnumber in C:\xampp\htdocs\moodle_dev\mod\data\lib.php on line 831
@@ -288,7 +298,8 @@ global $DB;
     $mid=$glossary->id;
     $mname=$glossary->name;
     $mdescription=$glossary->intro;
-    $mlink = $CFG->wwwroot.'/mod/glossary/view.php?id='.$cm->id;
+    // $mlink = $CFG->wwwroot.'/mod/glossary/view.php?id='.$cm->id;
+    $mlink = new moodle_url('/mod/'.$modulename.'/view.php', array('id' => $cm->id));
   }
   else{
     // tentative pour un module generique
@@ -313,7 +324,8 @@ global $DB;
     else{
       $mdescription=get_string('description_inconnue','checklist');
     }
-    $mlink = $CFG->wwwroot.'/mod/'.$modulename.'/view.php?id='.$cm->id;
+    // $mlink = $CFG->wwwroot.'/mod/'.$modulename.'/view.php?id='.$cm->id;
+    $mlink = new moodle_url('/mod/'.$modulename.'/view.php', array('id' => $cm->id));
   }
 
   $m=new Object();
@@ -668,7 +680,7 @@ INSERT INTO mdl_grade_grades (id, itemid, userid, rawgrade, rawgrademax, rawgrad
  * @return int the id of the newly inserted record or updated
  **/
 function checklist_set_outcomes($checklist_object) {
-// creation / mise à jour item objectif
+// creation / update item object
 global $CFG;
 global $DB;
 
@@ -694,11 +706,11 @@ global $DB;
     if ($r_checklist) {
         if (CHECKL_DEBUG){
 		  // DEBUG
-		  mtrace("\nDEBUG :: checklist_activite_outcomes :: 700\n");
+		  mtrace("\nDEBUG :: checklist_activite_outcomes :: 697\n");
 		  print_r($r_checklist);
         }
 
-        // Verifier si l'item existe
+        // Verify item existence
         $params=array("checklist"=>$checklist_object->checklist->id,
             "id"=>$checklist_object->checklist_item->id);
 
@@ -765,7 +777,7 @@ global $DB;
                 }
             }
             else{
-                // Cette ligne doit être créée
+                // add a new line in table
                 $checklist_check->usertimestamp=0;
                 if ($checklist_check->teachertimestamp==0){
                     $checklist_check->teachertimestamp=time();
