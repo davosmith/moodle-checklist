@@ -18,6 +18,9 @@
 // MODIF JF 2012/03/18 //////////////////////////////////////////////////////////////
 
 // Mahara portfolio
+$string['mustprovideinstanceid'] = 'You must provide an instance id';
+$string['mustprovideexportformat'] = 'You must provide an export format';
+$string['mustprovideuser'] = 'You must provide an user id';
 $string['pluginname'] = 'Mahara portfolio';
 $string['clicktopreview'] = 'click to preview in full-size popup';
 $string['clicktoselect'] = 'click to select page';
@@ -36,7 +39,7 @@ $string['viewsby'] = 'Pages by {$a}';
 $string['viewmahara'] = 'Mahara view';
 $string['select'] = 'Select';
 
-$string['upload_portfolio'] = 'Upload portfolio';
+$string['upload_portfolio'] = 'Link to a page of my portfolio';
 $string['timecreated'] = 'Created the ';
 $string['timemodified'] = 'Modified the ';
 $string['id'] = 'ID# ';
@@ -105,23 +108,23 @@ $string['scale_items'] = 'Not relevent,Non validated,Validated';
 $string['scale_description'] = 'This scale is intended to estimate the acquisition of the skills by the way of Outcomes.';
 
 // Description
-$string['edit_description'] = 'Edit a description';
+$string['edit_description'] = 'Edit the description';
 $string['input_description'] = 'Draft your argument';
 $string['descriptionh'] = 'Argumentation Help';
 $string['descriptionh_help'] = 'Indicate in a brief way the motives which allow you to assert that this task is finished or the skill acquired.';
 $string['description'] = 'Type in your argumentation';
-$string['delete_description'] = 'Delete description';
+$string['delete_description'] = 'Delete the description';
 
 // Document
 $string['urlh'] = 'Selection of a Web link';
 $string['urlh_help'] = 'You may copy / paste a link <br />(beginning by "<i>http://</i>" or "<i>https://</i>")
 inthe field URL, or you may upload a file from your computer...';
 
-$string['add_link'] = 'Add a link';
+$string['add_link'] = 'Add a link or a document';
 $string['delete_link'] = 'Delete a link';
 $string['edit_link'] = 'Edit a link';
 $string['doc_num'] = 'Document N°{$a} ';
-$string['edit_document'] = 'Edit a document';
+$string['edit_document'] = 'Edit the document';
 $string['document_associe'] = 'Linked Document';
 $string['url'] = 'URL';
 $string['description_document'] = 'Document description ';

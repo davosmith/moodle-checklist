@@ -19,7 +19,9 @@
 // MODIF JF 2012/03/18 //////////////////////////////////////////////////////////////
 
 // Mahara portfolio
-
+$string['mustprovideinstanceid'] = 'Vous devez fournir un identifiant d\'instance';
+$string['mustprovideexportformat'] = 'Vous devez fournir un formaat d\'export';
+$string['mustprovideuser'] = 'Vous devez fournir un identifiant d\'utilisateur';
 $string['clicktopreview'] = 'cliquez pour un aperçu pleine taille dans un fenêtre surgissante';
 $string['clicktoselect'] = 'cliquez pour sélectionner la vue';
 $string['nomaharahostsfound'] = 'Aucun hôte Mahara n\'a été trouvé.';
@@ -37,7 +39,7 @@ $string['viewsby'] = 'Vues proposées par {$a}';
 $string['viewmahara'] = 'Vue Mahara';
 $string['select'] = 'Sélectionner';
 
-$string['upload_portfolio'] = 'Télécharger un portfolio';
+$string['upload_portfolio'] = 'Lier à une page de mon portfolio';
 
 $string['timecreated'] = 'Créé le ';
 $string['timemodified'] = 'Modifié le ';
@@ -107,23 +109,23 @@ $string['scale_items'] = 'Non pertinent,Non validé,Validé';
 $string['scale_description'] = 'Ce barème est destiné à évaluer l\'acquisition d\'objectifs de compétences.';
 
 // Description
-$string['edit_description'] = 'Editer une description';
+$string['edit_description'] = 'Editer la description';
 $string['input_description'] = 'Rédigez votre argumentaire';
 $string['descriptionh'] = 'Aide pour l\'argumentation';
 $string['descriptionh_help'] = 'Indiquez de façon succincte les motifs qui vous permettent
 d\'affirmer que cette tâche est achevée ou la compétence acquise.';
 $string['description'] = 'Rédigez votre argumentaire';
-$string['delete_description'] = 'Supprimer une description';
+$string['delete_description'] = 'Supprimer la description';
 
 // Document
 $string['urlh'] = 'Sélection d\'un lien Web';
 $string['urlh_help'] = 'Vous pouvez copier / coller un lien <br />(commençant par "http://"" ou par "https://"")
 directement dans le champ URL ou bien vous pouvez télécharger un fichier depuis votre poste de travail';
-$string['add_link'] = 'Ajouter un lien';
+$string['add_link'] = 'Ajouter un lien ou un document';
 $string['delete_link'] = 'Supprimer un lien';
 $string['edit_link'] = 'Editer un lien';
 $string['doc_num'] = 'Document N°{$a} ';
-$string['edit_document'] = 'Editer un document';
+$string['edit_document'] = 'Editer le document';
 $string['document_associe'] = 'Document associé';
 $string['url'] = 'URL';
 $string['description_document'] = 'Information sur le document';

@@ -402,7 +402,7 @@ class checklist_mahara_class extends checklist_class {
         $document->descriptionid=$descriptionid;
         $document->description_document=get_string('viewmahara','checklist');
         // $document->url_document="http://localhost/moodle2/auth/mnet/jump.php?hostid=".$hostid."&wantsurl=".urlencode($data['url']);
-        $document->url_document="http://localhost/moodle2/auth/mnet/jump.php?hostid=".$hostid."&wantsurl=".urlencode($data['url']);
+        $document->url_document=$CFG->wwwroot ."/auth/mnet/jump.php?hostid=".$hostid."&wantsurl=".urlencode($data['url']);
 
         $document->title=clean_text($data['title']);
         $document->target=1;
@@ -416,42 +416,24 @@ class checklist_mahara_class extends checklist_class {
         //echo "<br>EXIT :: 410\n";
         //exit;
 
-        /*****************
-        // If mahara sent attached outcomes along with the view, and we have outcomes here with
-        // matching names and a matching scale, and we don't already have those outcomes, then
-        // import them.
-        require_once($CFG->libdir.'/gradelib.php');
-        // MODIF JF
-        $userid=$USER->id;
-        $grading_info = grade_get_grades($this->course->id, 'mod', 'checklist', $this->checklist->id, $userid);
 
-        if (!empty($grading_info->outcomes)) {
-            $scales = array();
-            $import = array();
-            foreach($grading_info->outcomes as $o) {
-                // If we already have a grade for this outcome, the checklist is just a
-                // resubmission, not a new import.  Ignore it.
-                if ($o->grades[$userid] && $o->grades[$userid]->grade) {
-                    continue;
-                }
-                if (isset($mahara_outcomes[$o->name])) {
-                    if (!isset($scales[$o->scaleid])) {
-                        $scales[$o->scaleid] = make_grades_menu(-$o->scaleid);
-                    }
-                    foreach ($mahara_outcomes[$o->name] as $mahara_scale_grade) {
-                        if ($scales[$o->scaleid] == $mahara_scale_grade['scale']) {
-                            // Found a match; import the grade
-                            $import[$o->itemnumber] = $mahara_scale_grade['grade'];
-                            break;
-                        }
-                    }
-                }
-            }
-            if (count($import) > 0) {
-                grade_update_outcomes('mod/checklist', $this->course->id, 'mod', 'checklist', $this->checklist->id, $USER->id, $import);
+        // Release Mahara page
+        // We don't lock the page ; that's not an assigment stuff
+        $mnet_sp = $this->get_mnet_sp();
+        $mnetrequest = new mnet_xmlrpc_client();
+        $mnetrequest->set_method('mod/mahara/rpclib.php/release_submitted_view');
+        $mnetrequest->add_param($data['id']);
+        $mnetrequest->add_param($viewid);
+        $mnetrequest->add_param($USER->username);
+        // Do something if this fails?  Or use cron to export the same data later?
+        if ($mnetrequest->send($mnet_sp) === false) {
+            $error = "RPC mod/mahara/rpclib.php/release_submitted_view:<br/>";
+            foreach ($mnetrequest->error as $errormessage) {
+                list($code, $errormessage) = array_map('trim',explode(':', $errormessage, 2));
+                $error .= "ERROR $code:<br/>$errormessage<br/>";
             }
         }
-        *******************/
+
         return $newdocid;
     }
 
@@ -486,50 +468,5 @@ class checklist_mahara_class extends checklist_class {
         return array($error, $viewdata);
     }
 
-    function process_outcomes($userid) {
-        global $CFG, $MNET, $USER;
-        parent::process_outcomes($userid);
-
-        // Export outcomes to the mahara site
-        $grading_info = grade_get_grades($this->course->id, 'mod', 'checklist', $this->checklist->id, $userid);
-
-        if (empty($grading_info->outcomes)) {
-            return;
-        }
-
-        if (!$submission = $this->get_submission($userid)) {
-            return;
-        }
-
-        $data = unserialize($submission->data2);
-
-        $viewoutcomes = array();
-
-        foreach($grading_info->outcomes as $o) {
-            $scale = make_grades_menu(-$o->scaleid);
-            if (!isset($scale[$o->grades[$userid]->grade])) {
-                continue;
-            }
-            // Save array keys; they get lost on the way
-            foreach ($scale as $k => $v) {
-                $scale[$k] = array('name' => $v, 'value' => $k);
-            }
-            $viewoutcomes[] = array(
-                'name' =>  $o->name,
-                'scale' => $scale,
-                'grade' => $o->grades[$userid]->grade,
-            );
-        }
-
-        require_once $CFG->dirroot . '/mnet/xmlrpc/client.php';
-        $mnet_sp = $this->get_mnet_sp();
-        $mnetrequest = new mnet_xmlrpc_client();
-        $mnetrequest->set_method('mod/mahara/rpclib.php/release_submitted_view');
-        $mnetrequest->add_param($data['id']);
-        $mnetrequest->add_param($viewoutcomes);
-        $mnetrequest->add_param($USER->username);
-        // Do something if this fails?  Or use cron to export the same data later?
-        $mnetrequest->send($mnet_sp);
-    }
 
 }

@@ -62,13 +62,12 @@ class checklist_class {
     var $description = array(array()); // for  each item, each user, id of description object;
     
     function checklist_class($cmid='staticonly', $userid=0, $checklist=null, $cm=null, $course=null) {
-        global $COURSE, $DB, $CFG;
+        global $COURSE, $DB, $CFG, $USER;
 
         if ($cmid == 'staticonly') {
             //use static functions only!
             return;
         }
-
         $this->userid = $userid;
 
         if ($cm) {
@@ -473,7 +472,7 @@ class checklist_class {
     }
 
     function view() {
-        global $CFG, $OUTPUT;
+        global $CFG, $OUTPUT, $USER;
 
         if ((!$this->items) && $this->canedit()) {
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)) );
@@ -509,7 +508,7 @@ class checklist_class {
             $this->process_view_actions();
         }
         // Mahara && Portofolio stuff
-        if (!empty($CFG->enableportfolios)){
+        if (!empty($CFG->enableportfolios) && !empty($this->userid)){
             require_once($CFG->libdir.'/portfoliolib.php');
             $button = new portfolio_add_button();
             $button->set_callback_options('checklist_portfolio_caller',
