@@ -4,19 +4,15 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
 $id = required_param('id', PARAM_INT); // course module id
 
-if (! $cm = get_coursemodule_from_id('checklist', $id)) {
-    error('Course Module ID was incorrect');
+if (!$cm = get_coursemodule_from_id('checklist', $id)){
+    print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
 }
-
-if (! $course = $DB->get_record('course', array('id' => $cm->course))) {
-    error('Course is misconfigured');
-}
-
-if (! $checklist = $DB->get_record('checklist', array('id' => $cm->instance))) {
-    error('Course module is incorrect');
-}
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+$checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $url = new moodle_url('/mod/checklist/export.php', array('id' => $cm->id));
+$url->param('id', $id);
+
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
@@ -26,12 +22,12 @@ if ($CFG->version < 2011120100) {
     $context = context_module::instance($cm->id);
 }
 if (!has_capability('mod/checklist:edit', $context)) {
-    error('You do not have permission to export items from this checklist');
+    print_error(get_string('error_export_items', 'checklist')); // You do not have permission to export items from this checklist'
 }
 
 $items = $DB->get_records_select('checklist_item', "checklist = ? AND userid = 0", array($checklist->id), 'position');
 if (!$items) {
-    error(get_string('noitems', 'checklist'));
+    print_error(get_string('noitems', 'checklist'));
 }
 
 if (strpos($CFG->wwwroot, 'https://') === 0) { //https sites - watch out for IE! KB812935 and KB316431

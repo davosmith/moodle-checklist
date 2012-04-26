@@ -16,12 +16,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page prints a list of all student's results
+ * This page prints a particular instance of checklist
  *
  * @author  David Smith <moodle@davosmith.co.uk>
+ * @author  Jean Fruitet <jean.fruitet@univ-nantes.fr>
  * @package mod/checklist
  */
 
+ 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
@@ -30,9 +32,8 @@ global $DB;
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
-$studentid = optional_param('studentid', false, PARAM_INT);
 
-$url = new moodle_url('/mod/checklist/report.php');
+$url = new moodle_url('/mod/checklist/view.php');
 if ($id) {
     if (!$cm = get_coursemodule_from_id('checklist', $id)){
         print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
@@ -51,10 +52,20 @@ if ($id) {
     print_error('error_specif_id', 'checklist'); // 'You must specify a course_module ID or an instance ID'
 }
 
-$url->param('studentid', $studentid);
 $PAGE->set_url($url);
+$PAGE->requires->js('/mod/checklist/functions.js');
 require_login($course, true, $cm);
 
-$chk = new checklist_class($cm->id, $studentid, $checklist, $cm, $course);
+if ($CFG->version < 2011120100) {
+    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+} else {
+    $context = context_module::instance($cm->id);
+}
+$userid = 0;
+if (has_capability('mod/checklist:updateown', $context)) {
+    $userid = $USER->id;
+}
 
-$chk->report();
+$chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
+
+$chk->view_select_export();
