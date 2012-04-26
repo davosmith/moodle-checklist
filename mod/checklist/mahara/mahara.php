@@ -416,7 +416,7 @@ class checklist_mahara_class extends checklist_class {
         //echo "<br>EXIT :: 410\n";
         //exit;
 
-
+		// MODIF 25/04/2012
         // Release Mahara page
         // We don't lock the page ; that's not an assigment stuff
         $mnet_sp = $this->get_mnet_sp();
