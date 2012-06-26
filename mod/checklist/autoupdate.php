@@ -26,6 +26,11 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
         return 0;
     }
 
+    
+    if ($module == 'referentiel') {
+        return 0;
+    }
+    
     if ($module == 'course') {
         return 0;
     }

@@ -30,6 +30,9 @@
  *     actions across all modules.
  */
 
+
+define ("USES_OUTCOMES", 1); // Outcomes imported as items
+
 define("CHECKLIST_TEACHERMARK_NO", 2);
 define("CHECKLIST_TEACHERMARK_YES", 1);
 define("CHECKLIST_TEACHERMARK_UNDECIDED", 0);
@@ -50,6 +53,93 @@ define("CHECKLIST_MAX_INDENT", 10);
 
 require_once(dirname(__FILE__).'/locallib.php');
 require_once($CFG->libdir.'/completionlib.php');
+
+// ############################ MOODLE 2.0 FILE API #########################
+/**
+ * @author JF 2012/03/18
+ * @author jean.fruitet@univ-nantes.fr
+ **/
+
+
+/**
+ * Serves activite documents and other files.
+ *
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
+ * @return bool false if file not found, does not return if found - just send the file
+ */
+function checklist_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
+// fonction appelée par le gestionnaire de fichier
+    global $CFG, $DB;
+
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return false;
+    }
+
+    require_login($course, false, $cm);
+
+    // verifier qu'un checklist est installé dans ce cours
+    if (! $checklist = $DB->get_record("checklist", array("id" => "$cm->instance"))) {
+        return false;
+    }
+
+    return checklist_send_file($course, $cm, $context, $filearea, $args);
+}
+
+/**
+ * Serves activite documents and other files.
+ *
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param array $args
+ * @return bool false if file not found, does not return if found - just send the file
+ */
+
+function checklist_send_file($course, $cm, $context, $filearea, $args) {
+// affiche le contenu d'un fichier
+        global $CFG, $DB, $USER;
+        require_once($CFG->libdir.'/filelib.php');
+
+        require_login($course, false, $cm);
+
+        // DEBUG
+        // echo "<br>DEBUG :: lib.php :: 110 :: <br>CONTEXT : $context->id :: FILEAREA : $filearea<br>ARGS:\n";
+        // print_r($args);
+        //
+        $docid = (int)array_shift($args);
+
+        // verifier les fileareas acceptables
+        $fileareas = array('checklist', 'document');
+        if (!in_array($filearea, $fileareas)) {
+            return false;
+        }
+
+        if ($filearea=='document'){
+            if (!$document = $DB->get_record('checklist_document', array('id'=>$docid))) {
+                return false;
+            }
+        }
+
+        $relativepath = implode('/', $args);
+        $fullpath = '/'.$context->id.'/mod_checklist/'.$filearea.'/'.$docid.'/'.$relativepath;
+
+        $fs = get_file_storage();
+
+        if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+            return false;
+        }
+
+        send_stored_file($file, 0, 0, true); // download MUST be forced - security!
+}
+// END FILE API
+// ###############################################################################################
+
 
 /**
  * Given an object containing all the necessary data,
@@ -547,12 +637,24 @@ function checklist_cron () {
         return true;
     }
 
+
+    $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
+
+    
+    // Process Outcomes as Items
+    $outcomesupdate = 0;
+    if (!empty($CFG->enableoutcomes) && USES_OUTCOMES){
+        require_once($CFG->dirroot.'/mod/checklist/cron_outcomes.php');
+        $outcomesupdate+=checklist_cron_outcomes($lastlogtime);
+    }
+    if ($outcomesupdate) {
+        mtrace(" Updated $outcomesupdate checkmark(s) from outcomes changes");
+    }
+
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
     if (!$CFG->checklist_autoupdate_use_cron) {
         return true;
     }
-
-    $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
 
     // Find all autoupdating checklists
     $checklists = $DB->get_records_select('checklist', 'autopopulate > 0 AND autoupdate > 0');
@@ -586,6 +688,7 @@ function checklist_cron () {
         mtrace(" Updated $logupdate checkmark(s) from log changes");
     }
 
+
     // Process all the completion changes since the last cron update
     // Need the cmid, userid and newstate
     $completionupdate = 0;
@@ -604,6 +707,7 @@ function checklist_cron () {
     if ($completionupdate) {
         mtrace(" Updated $completionupdate checkmark(s) from completion changes");
     }
+
 
     return true;
 }
@@ -782,3 +886,5 @@ function checklist_get_completion_state($course, $cm, $userid, $type) {
 
     return $result;
 }
+
+

@@ -51,6 +51,17 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $comment = new backup_nested_element('comment', array('id'), array(
             'userid', 'commentby', 'text'));
+            
+// MODIF JF 2012/03/18
+        $descriptions = new backup_nested_element('descriptions');
+
+        $description = new backup_nested_element('description', array('id'), array(
+            'userid', 'description', 'timestamp'));
+
+        $documents = new backup_nested_element('documents');
+
+        $document = new backup_nested_element('document', array('id'), array(
+            'descriptionid', 'description_document', 'url_document', 'target', 'title', 'timestamp'));
 
         // Build the tree
         $checklist->add_child($items);
@@ -62,6 +73,12 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         $item->add_child($comments);
         $comments->add_child($comment);
 
+// MODIF JF 2012/03/18
+        $item->add_child($descriptions);
+        $descriptions->add_child($description);
+        $description->add_child($documents);
+        $documents->add_child($document);
+
         // Define sources
         $checklist->set_source_table('checklist', array('id' => backup::VAR_ACTIVITYID));
 
@@ -69,6 +86,11 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
             $item->set_source_table('checklist_item', array('checklist' => backup::VAR_PARENTID));
             $check->set_source_table('checklist_check', array('item' => backup::VAR_PARENTID));
             $comment->set_source_table('checklist_comment', array('itemid' => backup::VAR_PARENTID));
+
+// MODIF JF 2012/03/18
+            $description->set_source_table('checklist_description', array('itemid' => backup::VAR_PARENTID));
+            $document->set_source_table('checklist_document', array('descriptionid' => backup::VAR_PARENTID));
+
         } else {
             $item->set_source_sql('SELECT * FROM {checklist_item} WHERE userid = 0 AND checklist = ?', array(backup::VAR_PARENTID));
         }
@@ -80,9 +102,15 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         $comment->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'commentby');
 
+// MODIF JF 2012/03/18
+        $description->annotate_ids('user', 'userid');
+        
         // Define file annotations
 
         $checklist->annotate_files('mod_checklist', 'intro', null); // This file area hasn't itemid
+
+// MODIF JF 2012/03/18
+        $checklist->annotate_files('mod_checklist', 'document', 'id'); // This file area has itemid
 
         // Return the root element (forum), wrapped into standard activity structure
         return $this->prepare_activity_structure($checklist);

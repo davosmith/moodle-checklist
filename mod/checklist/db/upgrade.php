@@ -256,6 +256,57 @@ function xmldb_checklist_upgrade($oldversion=0) {
         upgrade_mod_savepoint($result, 2011082001, 'checklist');
     }
 
+
+    if ($result && $oldversion < 2012041100) {
+
+        /// Define table checklist_description to be created
+        $table = new xmldb_table('checklist_description');
+
+        /// Adding fields to table checklist_description
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('description', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
+        $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+
+        /// Adding keys to table checklist_description
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        /// Adding indexes to table checklist_description
+        $table->add_index('checklist_item_user', XMLDB_INDEX_UNIQUE, array('itemid', 'userid'));
+
+        /// Conditionally launch create table for checklist_description
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        /// Define table checklist_document to be created
+        $table = new xmldb_table('checklist_document');
+
+        /// Adding fields to table checklist_document
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('descriptionid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('description_document', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
+        $table->add_field('url_document', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('target', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_field('title', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+
+        /// Adding keys to table checklist_document
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        /// Adding indexes to table checklist_document
+        $table->add_index('index_description', XMLDB_INDEX_NOTUNIQUE, array('descriptionid'));
+
+        /// Conditionally launch create table for checklist_document
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint($result, 2012041100, 'checklist');
+    
+    }
+    
     return $result;
 
 }
