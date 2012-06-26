@@ -52,7 +52,7 @@ echo implode($separator, $fields)."\n";
 foreach ($items as $item) {
     $output = array();
     foreach ($fields as $field => $title) {
-        $output[] = $item->$field;
+        $output[] = str_replace(',',' ',$item->$field);  // MODIF JF ',' is a separator
     }
     echo implode($separator, $output)."\n";
 }
