@@ -38,7 +38,7 @@ Si un suivi de fin de Moodle 2.0 est activ&eacute; pour une activit&eacute; part
 Pour plus de d&eacute;tails sur la cause exacte qu\'une activit&eacute; peut &ecirc;tre marqu&eacute; comme "achev&eacute;e", demandez &agrave; votre administrateur du site pour regarder dans le fichier "mod / liste / autoupdate.php" <br />
 Remarque: cel peut prendre jusqu\'&agrave; 60 secondes pour que l\'activit&eacute; d\'un &eacute;tudiant se mette &agrave; jour dans leur Liste des t&acirc;ches';
 
-$string['autoupdatewarning_both'] = 'Il ya des items sur cette liste qui seront automatiquement mis &agrave; jour (comme ceux que les &eacute;tudiants disent "complet"). Cependant, dans le cas d\'une Liste des t&acirc;ches commune "&eacute;tudiant et enseignant", les barres de progression ne seront pas mise &agrave; jour tant qu\'un enseignant accepte les notes attribu&eacute;es.';
+$string['autoupdatewarning_both'] = 'Il ya des items sur cette liste qui seront automatiquement mis &agrave; jour (comme ceux que les &eacute;tudiants disent "complet"). Cependant, dans le cas d\'une Liste des t&acirc;ches commune "&eacute;tudiant et enseignant", les barres de progression ne seront pas mises &agrave; jour tant qu\'un enseignant accepte les notes attribu&eacute;es.';
 $string['autoupdatewarning_student'] = 'Il ya des items sur cette liste qui seront automatiquement mis &agrave; jour (comme ceux que les &eacute;tudiants disent "complet").';
 $string['autoupdatewarning_teacher'] = 'La mise &agrave; jour automatique a &eacute;t&eacute; activ&eacute;e pour cette liste, mais ces remarques ne seront pas affich&eacute;e tant que l\'enseignant ne les montrent pas.';
 
@@ -76,7 +76,7 @@ $string['completionpercent'] = 'Pourcentage d\'items qui doivent &ecirc;tre coch
 
 $string['configchecklistautoupdate'] = 'Avant de permettre cela, vous devez faire quelques modifications au code Moodle, merci de voir le "mod / liste / README.txt" pour plus de d&eacute;tails';
 
-$string['confirmdeleteitem'] = 'Etes-vous sûr de vouloir effacer d&eacute;finitivement cet item de la Liste des t&acirc;ches?';
+$string['confirmdeleteitem'] = 'Etes-vous sï¿½r de vouloir effacer d&eacute;finitivement cet item de la Liste des t&acirc;ches?';
 
 $string['deleteitem'] = 'Effacer cet item';
 
@@ -85,12 +85,12 @@ $string['duedatesoncalendar'] = 'Ajouter les dates d\'&eacute;ch&eacute;ance au 
 $string['edit'] = 'Editer la Liste des t&acirc;ches';
 $string['editchecks'] = 'Editer les coches';
 $string['editdatesstart'] = 'Editer les dates';
-$string['editdatesstop'] = 'Arr&ecirc;t de l\&eacute;dition des dates';
+$string['editdatesstop'] = 'Arr&ecirc;t de l\'&eacute;dition des dates';
 $string['edititem'] = 'Editer cet item';
 
 $string['emailoncomplete'] = 'Envoyer un courriel &agrave; l\'enseignant quand la liste des t&acirc;ches est compl&egrave;te';
 $string['emailoncomplete_help'] = 'Quand une liste est compl&egrave;te, un courriel de notification est envoy&eacute; &agrave; tous les enseignants du cours. <br />
-Un administrateur peut contr&ocirc;ler qui reçoit ce courriel en utilisant la capacit&eacute; "mod: check-list / emailoncomplete" - par d&eacute;faut, tous les enseignants et non enseignants non &eacute;diteur ont cette capacit&eacute;.';
+Un administrateur peut contr&ocirc;ler qui reï¿½oit ce courriel en utilisant la capacit&eacute; "mod: check-list / emailoncomplete" - par d&eacute;faut, tous les enseignants et non enseignants non &eacute;diteur ont cette capacit&eacute;.';
 $string['emailoncompletesubject'] = 'L\utilisateur {$a->user} a compl&eacute;t&eacute; sa Liste de t&acirc;ches \'{$a->checklist}\'';
 $string['emailoncompletebody'] = 'L\utilisateur {$a->user} a compl&eacute;t&eacute; sa Liste de t&acirc;ches \'{$a->checklist}\'
 Voir la Liste des t&acirc;ches ici :';
@@ -139,7 +139,7 @@ $string['progress'] = 'Progression';
 $string['removeauto'] = 'Supprimer les items des &eacute;l&eacute;ments du cours';
 
 $string['report'] = 'Voir la progression';
-$string['reporttablesummary'] = 'Table showing the items on the checklist that each student has completed';
+$string['reporttablesummary'] = 'Tableau montrant les &eacute;l&eacute;ments de la liste que chaque &eacute;tudiant a termin&eacute;';
 
 $string['requireditem'] = 'Tableau montrant les &eacute;l&eacute;ments de la liste que chaque &eacute;tudiant a compl&eacute;t&eacute;';
 
@@ -147,7 +147,7 @@ $string['resetchecklistprogress'] = 'R&eacute;initialiser la progression et les 
 
 $string['savechecks'] = 'Sauvegarder';
 
-$string['showfulldetails'] = 'Afficher tous les d&eacute;tailsShow full details';
+$string['showfulldetails'] = 'Afficher tous les d&eacute;tails';
 $string['showprogressbars'] = 'Afficher les barres de progression';
 ///
 $string['teachercomments'] = 'Les enseignants peuvent ajouter des commentaires';
@@ -155,8 +155,8 @@ $string['teachercomments'] = 'Les enseignants peuvent ajouter des commentaires';
 $string['teacheredit'] = 'Mises &agrave; jour par';
 
 $string['teachermarkundecided'] = 'L\'enseignant n\'a pas encore coch&eacute; cet item';
-$string['teachermarkyes'] = 'L\enseignant confirme que cet item est complet';
-$string['teachermarkno'] = 'L\enseignant ne confirme pas que cet item est complet';
+$string['teachermarkyes'] = 'L\'enseignant confirme que cet item est complet';
+$string['teachermarkno'] = 'L\'enseignant ne confirme pas que cet item est complet';
 
 $string['teachernoteditcheck'] = 'Seulement l\'&eacute;tudiant';
 $string['teacheroverwritecheck'] = 'Seulement l\'enseignant';
