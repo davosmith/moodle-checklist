@@ -5,6 +5,7 @@ It will not work without the checklist module - which can be downloaded here: ht
 
 ==Changes==
 
+* 2012-07-07 - Tested against Moodle 2.3
 * 2012-02-02 - Added optional percentages for each student / heading / item - based on code from Gordon Bateson ( gordonbateson@gmail.com )
 * 2012-02-02 - Added choice of not exporting 'optional' items
 * 2012-01-27 - French translation from Luiggi Sansonetti
