@@ -175,8 +175,10 @@ ol.checklist li .itemteacherdate {
     background-color: transparent;
     height: 15px;
     float: left;
-    overflow: clip;
+    overflow: hidden;
     position: relative;
+    box-shadow: 2px 2px 3px #ccc;
+    border-radius: 5px;
 }
 
 .checklist_progress_inner {
@@ -185,6 +187,13 @@ ol.checklist li .itemteacherdate {
     width: 100%;
     background-repeat: repeat-x;
     background-position: top;
+    z-index: 10;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: 0 0 4px #229b15;
+    border-radius: 2px;
 }
 
 .checklist_progress_anim {
@@ -194,9 +203,12 @@ ol.checklist li .itemteacherdate {
     background-repeat: repeat-x;
     background-position: top;
     position: absolute;
-    z-index: -1;
     left: 0;
     top: 0;
+    z-index: 5;
+    display: block;
+    box-shadow: 0 0 4px #98c193;
+    border-radius: 2px;
 }
 
 .checklistimportexport {
@@ -207,4 +219,8 @@ ol.checklist li .itemteacherdate {
 .checklistwarning {
     margin-top: 1em;
     color: #800000;
+}
+
+.checklist_progress_percent {
+    padding-left: 0.5em;
 }
