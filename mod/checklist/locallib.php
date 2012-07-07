@@ -1237,9 +1237,9 @@ class checklist_class {
             if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
                 echo '<p>'.get_string('autoupdatewarning_student', 'checklist').'</p>';
             } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
-                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+                echo '<p class="checklistwarning">'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
             } else {
-                echo '<p>'.get_string('autoupdatewarning_both', 'checklist').'</p>';
+                echo '<p class="checklistwarning">'.get_string('autoupdatewarning_both', 'checklist').'</p>';
             }
         }
 
@@ -1512,9 +1512,9 @@ class checklist_class {
 
         if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
             if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
-                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+                echo '<p class="checklistwarning">'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
             } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH) {
-                echo '<p>'.get_string('autoupdatewarning_both', 'checklist').'</p>';
+                echo '<p class="checklistwarning">'.get_string('autoupdatewarning_both', 'checklist').'</p>';
             }
         }
 
@@ -1988,7 +1988,11 @@ class checklist_class {
             if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                 $duetime = false;
             } else {
+            if ($CFG->version < 2011120100) {
+                $duetime = optional_param('duetime', false, PARAM_INT);
+            } else {
                 $duetime = optional_param_array('duetime', false, PARAM_INT);
+            }
             }
             $this->updateitemtext($itemid, $displaytext, $duetime);
             break;
@@ -2175,6 +2179,8 @@ class checklist_class {
                     $this->update_item_positions(1, $position);
                 }
                 $this->items[$item->id] = $item;
+                $this->items[$item->id]->checked = false;
+                $this->items[$item->id]->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
                 uasort($this->items, 'checklist_itemcompare');
                 if ($this->checklist->duedatesoncalendar) {
                     $this->setevent($item->id, true);

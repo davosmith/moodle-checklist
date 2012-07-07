@@ -19,6 +19,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $CFG->checklist_autoupdate_use_cron = true;
 
+/* Remove the '//' at the start of the next line to output lots of
+ * helpful information during the cron update. Do NOT use this if you
+ * have made the core modifications outlined in core_modifications.txt
+ */
+//define("DEBUG_CHECKLIST_AUTOUPDATE", 1);
+
 function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url, $checklists=null) {
     global $CFG, $DB;
 
@@ -89,6 +95,10 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
         || (($module == 'feedback') && ($action == 'submit'))
         ) {
 
+        if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+            mtrace("Possible update needed - courseid: $courseid, module: $module, action: $action, cmid: $cmid, userid: $userid, url: $url");
+        }
+
         if ($cmid == 0) {
             $matches = array();
             if (!preg_match('/id=(\d+)/i', $url, $matches)) {
@@ -103,6 +113,9 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
                                                   array($courseid));
 
             if (empty($checklists)) {
+                if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+                    mtrace("No suitable checklists to update in course $courseid");
+                }
                 return 0;
                 // No checklists in this course that are auto-updating
             }
@@ -119,6 +132,9 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
                                                'completion',
                                                array('id'=>$cmid));
                 if ($cmcompletion) {
+                    if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+                        mtrace("This course module has completion enabled - allow that to control any checklist items");
+                    }
                     return 0;
                 }
             }
@@ -136,6 +152,9 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
         // itemoptional - 0: required; 1: optional; 2: heading;
         // not loading defines from mod/checklist/locallib.php to reduce overhead
         if (empty($items)) {
+            if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+                mtrace("No checklist items linked to this course module");
+            }
             return 0;
         }
 
@@ -163,6 +182,9 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
                 $updatecount++;
             }
         }
+        if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+            mtrace("$updatecount checklist items updated from this log entry");
+        }
         if ($updatecount) {
             require_once($CFG->dirroot.'/mod/checklist/lib.php');
             foreach ($checklists as $checklist) {
@@ -181,6 +203,11 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     if ($userid == 0) {
         $userid = $USER->id;
     }
+
+    if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+        mtrace("Completion status change for cmid: $cmid, userid: $userid, newstate: $newstate");
+    }
+
     $sql = "SELECT i.id itemid, c.id checkid, c.usertimestamp, i.checklist FROM {checklist_item} i ";
     $sql .= "JOIN {checklist} cl ON i.checklist = cl.id ";
     $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
@@ -189,6 +216,9 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     // itemoptional - 0: required; 1: optional; 2: heading;
     // not loading defines from mod/checklist/locallib.php to reduce overhead
     if (empty($items)) {
+        if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+            mtrace("No checklist items linked to this course module");
+        }
         return 0;
     }
 
@@ -243,6 +273,10 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
         foreach ($checklists as $checklist) {
             checklist_update_grades($checklist, $userid);
         }
+    }
+
+    if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+        mtrace("Updated $updatecount checklist items from this completion status change");
     }
 
     return $updatecount;

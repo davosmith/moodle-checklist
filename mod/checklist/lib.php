@@ -549,6 +549,7 @@ function checklist_cron () {
 
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
     if (!$CFG->checklist_autoupdate_use_cron) {
+        mtrace("Checklist cron updates disabled");
         return true;
     }
 
@@ -558,6 +559,7 @@ function checklist_cron () {
     $checklists = $DB->get_records_select('checklist', 'autopopulate > 0 AND autoupdate > 0');
     if (!$checklists) {
         // No checklists to update
+        mtrace("No automatic update checklists found");
         return true;
     }
 
@@ -572,11 +574,18 @@ function checklist_cron () {
     }
     $courseids = implode(',', array_keys($courses));
 
+    if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+        mtrace("Looking for updates in courses: $courseids");
+    }
+
     // Process all logs since the last cron update
     $logupdate = 0;
     $totalcount = 0;
     $logs = get_logs("l.time >= ? AND l.course IN ($courseids) AND cmid > 0", array($lastlogtime), 'l.time ASC', '', '', $totalcount);
     if ($logs) {
+        if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+            mtrace("Found ".count($logs)." log updates to check");
+        }
         foreach ($logs as $log) {
             $logupdate += checklist_autoupdate($log->course, $log->module, $log->action, $log->cmid, $log->userid, $log->url, $courses[$log->course]);
         }
@@ -584,6 +593,8 @@ function checklist_cron () {
 
     if ($logupdate) {
         mtrace(" Updated $logupdate checkmark(s) from log changes");
+    } else {
+        mtrace(" No checkmarks need updating from log changes");
     }
 
     // Process all the completion changes since the last cron update
@@ -595,6 +606,9 @@ function checklist_cron () {
     $sql .= "WHERE c.timemodified > ? AND m.course $msql ";
     $params = array_merge(array($lastlogtime), $mparam);
     $completions = $DB->get_records_sql($sql, $params);
+    if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+        mtrace("Found ".count($completions)." completion updates to check");
+    }
     foreach ($completions as $completion) {
         $completionupdate += checklist_completion_autoupdate($completion->coursemoduleid,
                                                              $completion->userid,
@@ -603,6 +617,8 @@ function checklist_cron () {
 
     if ($completionupdate) {
         mtrace(" Updated $completionupdate checkmark(s) from completion changes");
+    } else {
+        mtrace(" No checkmarks need updating from completion changes");
     }
 
     return true;

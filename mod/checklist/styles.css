@@ -216,9 +216,10 @@ ol.checklist li .itemteacherdate {
     width: 90%;
 }
 
-.checklistwarning {
+p.checklistwarning {
     margin-top: 1em;
     color: #800000;
+    font-weight: bold;
 }
 
 .checklist_progress_percent {
