@@ -1985,11 +1985,10 @@ class checklist_class {
             break;
         case 'updateitem':
             $displaytext = optional_param('displaytext', '', PARAM_TEXT);
-            $duetime = optional_param('duetime', false, PARAM_INT);
             if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                 $duetime = false;
             } else {
-                $duetime = optional_param('duetime', false, PARAM_INT);
+                $duetime = optional_param_array('duetime', false, PARAM_INT);
             }
             $this->updateitemtext($itemid, $displaytext, $duetime);
             break;

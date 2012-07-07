@@ -2,15 +2,17 @@ Checklist module
 ================
 
 ==Introduction==
-This is a Moodle plugin for Moodle 1.9 & 2.0+ that allows a teacher to create a checklist for their students to work through.
+This is a Moodle plugin for Moodle 1.9 & 2.x that allows a teacher to create a checklist for their students to work through.
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
-Note: This is the Moodle 2.0+ version.
+Note: This is the Moodle 2.x version.
 
 Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
 
 ==Changes==
 
+* 2012-07-07 - Fixed minor debug warnings
+* 2012-04-07 - mod/checklist:addinstance capability added (for M2.3); Russian / Ukranian translations from Andriy Semenets
 * 2012-03-05 - Bug fix: grades not updating when new items added to a course (with 'import course activities' on)
 * 2012-01-27 - French translation from Luiggi Sansonetti
 * 2012-01-02 - Minor tweaks to improve Moodle 2.2+ compatibility (optional_param_array / context_module::instance )

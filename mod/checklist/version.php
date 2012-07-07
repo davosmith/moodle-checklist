@@ -19,13 +19,13 @@
  * Code fragment to define the version of checklist
  * This fragment is called by moodle_needs_upgrading() and /admin/index.php
  *
- * @author  David Smith <moodle@davosmith.co.uk>
+ * @author  Davo Smith <moodle@davosmith.co.uk>
  * @package mod/checklist
  */
 
-$module->version  = 2012040700;  // The current module version (Date: YYYYMMDDXX)
+$module->version  = 2012070700;  // The current module version (Date: YYYYMMDDXX)
 $module->cron     = 60;          // Period for cron to check this module (secs)
 $module->maturity = MATURITY_STABLE;
-$module->release  = '2.x (Build: 2012040700)';
+$module->release  = '2.x (Build: 2012070700)';
 $module->requires = 2010112400;
 $module->component = 'mod_checklist';
