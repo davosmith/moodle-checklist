@@ -184,3 +184,111 @@ $string['viewsingleupdate'] = 'Update progress for this user';
 
 $string['yesnooverride'] = 'Yes, cannot override';
 $string['yesoverride'] = 'Yes, can override';
+
+// CheckListPlus
+$string['a_completer'] = 'TO COMPLETE';
+$string['add_link'] = 'Add a link or a document';
+$string['addreferentielname'] = 'Skill repository code name';
+$string['argumentation'] = 'Argumentation';
+$string['checklist_check'] = 'Evaluation ';
+$string['checklist_description'] = 'Allows students to upload files as prove of practice';
+$string['clicktopreview'] = 'click to preview in full-size popup';
+$string['clicktoselect'] = 'click to select page';
+$string['commentby'] = 'Comment by ';
+$string['config_description'] = 'Permet aux utilisateurs de déposer des documents comme trace de pratique.';
+$string['config_outcomes_input'] = 'Allows teachers to import in Checklist the outcomes checked in course\'s activities';
+$string['confirmreferentielname'] = 'Confirm skills repository code name ';
+$string['delete_description'] = 'Delete the description';
+$string['delete_document'] = 'Delete a document';
+$string['delete_link'] = 'Delete a link';
+$string['description_document'] = 'Document description ';
+$string['description'] = 'Type in your argumentation';
+$string['descriptionh_help'] = 'Indicate in a brief way the motives which allow you to assert that this task is finished or the skill acquired.';
+$string['descriptionh'] = 'Argumentation Help';
+$string['doc_num'] = 'Document N°{$a} ';
+$string['document_associe'] = 'Linked Document';
+$string['documenth'] = 'Document Help';
+$string['documenth_help'] = 'Documents linked to a description are "prove of pratice oriented".
+
+You may link to each Item a description and one or many files ou URLs (Web links).
+* Document description : a short notice.
+
+* URL : Web link (or a file uploaded from your computer).
+
+* Title of the link
+
+* Targeted frame';
+$string['edit_description'] = 'Edit the description';
+$string['edit_document'] = 'Edit the document';
+$string['edit_link'] = 'Edit a link';
+$string['error_action'] = 'Error: Invalid action - "{a}"';
+$string['error_checklist_id'] = 'Checklist ID was incorrect';
+$string['error_cm'] = 'Course Module is incorrect';
+$string['error_cmid'] = 'Course Module ID was incorrect';
+$string['error_course'] = 'Course is misconfigured';
+$string['error_export_items'] = 'You do not have permission to export items from this checklist';
+$string['error_file_upload'] = 'Something went wrong with the file upload';
+$string['error_import_items'] = 'You do not have permission to import items to this checklist';
+$string['error_insert_db'] = 'Unable to insert DB record for item';
+$string['error_itemlist'] = 'Error: invalid (or missing) items list';
+$string['error_number_columns_outcomes'] = 'Row Outcome has incorrect number of columns in it:<br />{$a}';
+$string['error_number_columns'] = 'Row has incorrect number of columns in it:<br />{$a}';
+$string['error_select'] = 'Error: At least one Item has to be selected';
+$string['error_sesskey'] = 'Error: Invalid sesskey';
+$string['error_specif_id'] = 'You must specify a course_module ID or an instance ID';
+$string['error_update'] = 'Error: you do not have permission to update this checklist';
+$string['error_user'] = 'No such user!';
+$string['export_outcomes'] = 'Export items as outcomes';
+$string['id'] = 'ID# ';
+$string['import_outcomes'] = 'Import outcomes as items';
+$string['input_description'] = 'Draft your argument';
+$string['items_exporth_help'] = 'Selected items will be exported in the same Outcomes file.';
+$string['items_exporth'] = 'Exported Items';
+$string['mustprovideexportformat'] = 'You must provide an export format';
+$string['mustprovideinstanceid'] = 'You must provide an instance id';
+$string['mustprovideuser'] = 'You must provide an user id';
+$string['nomaharahostsfound'] = 'No mahara hosts found.';
+$string['noviewscreated'] = 'You have not created any pages in {$a}.';
+$string['noviewsfound'] = 'No matching pages found in {$a}.';
+$string['OK'] = 'OK';
+$string['old_comment'] = 'Previous comment:';
+$string['outcome_description'] = 'Outcome Description';
+$string['outcome_link'] = ' <a href="{$a->link}">{$a->name}</a> ';
+$string['outcome_name'] = 'Outcome name';
+$string['outcome_shortname'] = 'Outcome shortname';
+$string['outcomes_input'] = 'Activate Outcomes files';
+$string['outcomes'] = 'outcomes';   // DO NOT TRANSLATE. NE PAS TRADUIRE
+$string['pluginname'] = 'Mahara portfolio';
+$string['previewmahara'] = 'Preview';
+$string['quit'] = 'Quit';
+$string['referentiel_codeh_help'] = 'This code name identify the outcomes matching the same Skills repository. <br />If Items names are not keys check <i>"Use Item ID as key"</i>';
+$string['referentiel_codeh'] = 'Type in a skills repository code name (Optional)';
+$string['scale_description'] = 'This scale is intended to estimate the acquisition of the skills by the way of Outcomes.';
+$string['scale_items'] = 'Not relevent,Non validated,Validated';
+$string['scale_name'] = 'Skill Item';
+$string['select_all'] = 'Check all Items';
+$string['select_items_export'] = 'Selection items to exporte';
+$string['select_not_any'] = 'Uncheck all Items';
+$string['select'] = 'Select';
+$string['selectedview'] = 'Submitted Page';
+$string['selectexport'] = 'Export Outcomes';
+$string['selectmaharaview'] = 'Select one of your {$a->name} portfolio pages from this complete list, or <a href="{$a->jumpurl}">click here</a> to visit {$a->name} and create a page right now.';
+$string['site_help'] = 'This setting lets you select which Mahara site your students should submit their pages from. (The Mahara site must already be configured for mnet networking with this Moodle site.)';
+$string['site'] = 'Site';
+$string['target'] = 'Open that link in a new window';
+$string['teachermark'] = 'Appreciation ';
+$string['teachertimestamp'] = 'Evaluated the ';
+$string['timecreated'] = 'Created the ';
+$string['timemodified'] = 'Modified the ';
+$string['title'] = 'Document title';
+$string['titlemahara'] = 'Title';
+$string['typemahara'] = 'Mahara portfolio';
+$string['upload_portfolio'] = 'Link to a page of my portfolio';
+$string['url'] = 'URL';
+$string['urlh_help'] = 'You may copy / paste a link <br />(beginning by "<i>http://</i>" or "<i>https://</i>") inthe field URL, or you may upload a file from your computer...';
+$string['urlh'] = 'Selection of a Web link';
+$string['useitemid'] = 'Use Item ID as key ';
+$string['usertimestamp'] = 'Demanded the ';
+$string['viewmahara'] = 'Mahara view';
+$string['views'] = 'Pages';
+$string['viewsby'] = 'Pages by {$a}';

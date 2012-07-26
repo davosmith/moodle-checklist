@@ -12,16 +12,10 @@ define('STATE_NORMAL', 3);
 $id = required_param('id', PARAM_INT); // course module id
 
 if (! $cm = get_coursemodule_from_id('checklist', $id)) {
-    error('Course Module ID was incorrect');
+    print_error(get_string('error_cmid', 'checklist')); // 'Course Module ID was incorrect'
 }
-
-if (! $course = $DB->get_record('course', array('id' => $cm->course))) {
-    error('Course is misconfigured');
-}
-
-if (! $checklist = $DB->get_record('checklist', array('id' => $cm->instance))) {
-    error('Course module is incorrect');
-}
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+$checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $url = new moodle_url('/mod/checklist/import.php', array('id' => $cm->id));
 $PAGE->set_url($url);
@@ -33,7 +27,7 @@ if ($CFG->version < 2011120100) {
     $context = context_module::instance($cm->id);
 }
 if (!has_capability('mod/checklist:edit', $context)) {
-    error('You do not have permission to import items to this checklist');
+    print_error(get_string('error_import_items', 'checklist')); // 'You do not have permission to import items to this checklist');
 }
 
 $returl = new moodle_url('/mod/checklist/edit.php', array('id' => $cm->id));
@@ -55,6 +49,16 @@ class checklist_import_form extends moodleform {
 
 function cleanrow($separator, $row) {
     // Convert and $separator inside quotes into [!SEPARATOR!] (to skip it during the 'explode')
+/*
+ITEMS CSV FILE
+Separator ','
+Item text,Indent,Type (0 - normal; 1 - optional; 2 - heading),Due Time (timestamp),Colour (red; orange; green; purple; black)
+Savoir Installer une Webcam,0,0,0,black
+Savoir Choisir une WebCam,1,0,0,black
+Savoir Participer à une Webconférence,0,0,0,black
+Savoir Organiser et piloter une Webconférence,0,0,0,black
+*/
+
     $state = STATE_WAITSTART;
     $chars = str_split($row);
     $cleanrow = '';
@@ -102,7 +106,7 @@ if ($data = $form->get_data()) {
     $filename = $form->save_temp_file('importfile');
 
     if (!file_exists($filename)) {
-        $errormsg = "Something went wrong with the file upload";
+        $errormsg = get_string('error_file_upload', 'checklist');// "Something went wrong with the file upload";
     } else {
         if (is_readable($filename)) {
             $filearray = file($filename);
@@ -129,7 +133,7 @@ if ($data = $form->get_data()) {
                 $item = explode($separator, $row);
 
                 if (count($item) != count($fields)) {
-                    $errormsg = "Row has incorrect number of columns in it:<br />$row";
+                    $errormsg = get_string('error_number_columns', 'checklist', $row);// "Row has incorrect number of columns in it:<br />$row";
                     $ok = false;
                     break;
                 }
@@ -192,7 +196,7 @@ if ($data = $form->get_data()) {
                 if ($newitem->displaytext) { // Don't insert items without any text in them
                     if (!$DB->insert_record('checklist_item', $newitem)) {
                         $ok = false;
-                        $errormsg = 'Unable to insert DB record for item';
+                        $errormsg = get_string('error_insert_db', 'checklist'); // 'Unable to insert DB record for item';
                         break;
                     }
                 }
@@ -203,7 +207,7 @@ if ($data = $form->get_data()) {
             }
 
         } else {
-            $errormsg = "Something went wrong with the file upload";
+            $errormsg = get_string('error_file_upload', 'checklist'); // "Something went wrong with the file upload";
         }
     }
 }

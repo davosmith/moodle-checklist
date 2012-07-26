@@ -1204,6 +1204,7 @@ class checklist_class {
     }
 
     function view_import_export() {
+	global $CFG;
         $importurl = new moodle_url('/mod/checklist/import.php', array('id' => $this->cm->id));
         $exporturl = new moodle_url('/mod/checklist/export.php', array('id' => $this->cm->id));
 
@@ -1211,7 +1212,16 @@ class checklist_class {
         $exportstr = get_string('export', 'checklist');
 
         echo "<div class='checklistimportexport'>";
-        echo "<a href='$importurl'>$importstr</a>&nbsp;&nbsp;&nbsp;<a href='$exporturl'>$exportstr</a>";
+        if (!empty($CFG->checklist_outcomes_input)){
+            $importoutcomesurl = new moodle_url('/mod/checklist/import_outcomes.php', array('id' => $this->cm->id));
+            $importoutcomesstr = get_string('import_outcomes', 'checklist');
+            $exportoutcomesurl = new moodle_url('/mod/checklist/select_export.php', array('id' => $this->cm->id));
+            $exportoutcomesstr = get_string('export_outcomes', 'checklist');
+            echo "<a href='$importurl'>$importstr</a>&nbsp;&nbsp;<a href='$importoutcomesurl'>$importoutcomesstr</a>&nbsp;&nbsp;<a href='$exporturl'>$exportstr</a>&nbsp;&nbsp;<a href='$exportoutcomesurl'>$exportoutcomesstr</a>";
+        }
+        else{
+			echo "<a href='$importurl'>$importstr</a>&nbsp;&nbsp;&nbsp;<a href='$exporturl'>$exportstr</a>";
+		}
         echo "</div>";
     }
 
@@ -3162,6 +3172,280 @@ class checklist_class {
         }
         return array();
     }
+
+
+/**
+ * Extract skill repository and competency codes from a displaytext field
+ * outcome_name;outcome_shortname;outcome_description;scale_name;scale_items;scale_description
+ * "C2i2e-2011 A.1-1 :: Identifier les personnes ressources Tic et leurs rôles respectifs (...)";A.1-1;"Identifier les personnes ressources Tic et leurs rôles respectifs au niveau local, régional et national.";"Item référentiel";"Non pertinent,Non validé,Validé";"Ce barème est destiné à évaluer l'acquisition des compétences du module référentiel."
+ *  |          |        | description
+ *  |          |     ^  separator 2 '::'
+ *            ^ separator 1 ' '
+ *  |          | competence_code
+ *  | referentiel_code
+ * @imput displaytext string
+ * @output object
+ **/
+    function get_referentiel_code($displaytext){
+    // extract skill repository code and competency code from an outcome_name field
+        $item_outcome = new stdClass;
+        if (!empty($displaytext)){
+            if (preg_match('/(.*)::(.*)/i', trim($displaytext), $matches)){
+                if ($matches[1]){
+                    if ($keywords = preg_split("/[\s]+/",$matches[1],-1,PREG_SPLIT_NO_EMPTY)){
+                        if ($keywords[0] && $keywords[1]){
+                            $item_outcome->code_referentiel=trim($keywords[0]);
+                            $item_outcome->code_competence=trim($keywords[1]);
+                        }
+                        else{
+                            return NULL;
+                        }
+                    }
+                }
+            }
+        }
+        return $item_outcome;
+    }
+
+/**
+ * Selection des items pour exporter les outcomes
+ *
+ **/
+    function view_select_export() {
+        global $CFG, $OUTPUT;
+
+        if (!$this->canedit()) {
+            redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)) );
+        }
+
+        if ((!$this->items) && $this->canedit()) {
+            redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)) );
+        }
+
+        // $currenttab = 'selectexport';
+        $currenttab = 'edit';
+
+        $this->view_header();
+
+        echo $OUTPUT->heading(format_string($this->checklist->name));
+
+        $this->view_tabs($currenttab);
+
+        add_to_log($this->course->id, 'checklist', 'view', "selectexport.php?id={$this->cm->id}", $this->checklist->name, $this->cm->id);
+
+        $this->select_items();
+
+        $this->view_footer();
+    }
+
+    function select_items($viewother = false) {
+        global $DB, $OUTPUT, $PAGE;
+
+        echo '<div align="center"><h3>'.get_string('export_outcomes', 'checklist').'</h3></div>'."\n";
+
+        echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
+
+        $thispage = new moodle_url('/mod/checklist/export_selected_outcomes.php', array('id' => $this->cm->id) );
+
+        echo format_text($this->checklist->intro, $this->checklist->introformat);
+        echo '<br/>';
+
+        $showcheckbox=true;
+        $checkclass = '';
+        $optional = CHECKLIST_OPTIONAL_NO;
+
+        if (!$this->items) {
+            print_string('noitems','checklist');
+        } else {
+            // looks for referentiel_code
+            $referentiel_code='';
+            $useitemid=true;
+            foreach ($this->items as $item) {
+                $outcome=$this->get_referentiel_code($item->displaytext);
+                if (!empty($outcome) && !empty($outcome->code_referentiel)){
+                    $referentiel_code=$outcome->code_referentiel;
+                    if (!empty($outcome->code_competence)){
+                        $useitemid=false;
+                    }
+                    break;
+                }
+            }
+
+            $focusitem = false;
+            if ($referentiel_code){
+                echo get_string('confirmreferentielname','checklist').' &nbsp; &nbsp; '."\n";
+            }
+            else{
+                echo get_string('addreferentielname','checklist').' &nbsp; &nbsp; '."\n";
+            }
+            echo $OUTPUT->help_icon('referentiel_codeh','checklist')."\n";
+
+            echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
+            echo html_writer::input_hidden_params($thispage);
+            echo '<input type="text" name="referentielcode" size="30" maxsize="255" value="'.$referentiel_code.'" />';
+            echo '<br /><i>'.get_string('useitemid','checklist').'</i>&nbsp; &nbsp; ';
+            if ($useitemid){
+                echo '<input type="radio" name="useitemid" id="useitemid" value="1" checked="checked" />'.get_string('yes')."\n";
+                echo '<input type="radio" name="useitemid" id="useitemid" value="0" />'.get_string('no')."\n";
+            }
+            else{
+                echo '<input type="radio" name="useitemid" id="useitemid" value="1" />'.get_string('yes')."\n";
+                echo '<input type="radio" name="useitemid" id="useitemid" value="0" checked="checked" />'.get_string('no')."\n";
+            }
+            echo '<br /> '."\n";
+            
+            echo '<input type="hidden" name="action" value="selectchecks" />';
+            echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+            echo '<br />'.get_string('select_items_export','checklist');
+            echo $OUTPUT->help_icon('items_exporth','checklist')."\n";
+            
+            // selection des checkbox
+            echo '<br />'."\n";
+            echo '<input type="button" name="select_tout_item" id="select_tout_item" value="'.get_string('select_all', 'checklist').'"  onClick="return checkAllCheckBox()" />'."\n";
+            echo '&nbsp; &nbsp; &nbsp; <input type="button" name="select_aucun_items" id="select_aucun_item" value="'.get_string('select_not_any', 'checklist').'"  onClick="return uncheckAllCheckBox()" />'."\n";
+            echo '<br />'."\n";
+
+            
+            echo '<ol class="checklist" id="checklistouter">';
+            $currindent = 0;
+            
+
+            foreach ($this->items as $item) {
+
+                if ($item->hidden) {
+                    continue;
+                }
+
+                while ($item->indent > $currindent) {
+                    $currindent++;
+                    echo '<ol class="checklist">';
+                }
+                while ($item->indent < $currindent) {
+                    $currindent--;
+                    echo '</ol>';
+                }
+                $itemname = '"item'.$item->id.'"';
+                $checked = ($item->checked) ? ' checked="checked" ' : '';
+
+                switch ($item->colour) {
+                case 'red':
+                    $itemcolour = 'itemred';
+                    break;
+                case 'orange':
+                    $itemcolour = 'itemorange';
+                    break;
+                case 'green':
+                    $itemcolour = 'itemgreen';
+                    break;
+                case 'purple':
+                    $itemcolour = 'itempurple';
+                    break;
+                default:
+                    $itemcolour = 'itemblack';
+                }
+
+                echo '<li>';
+                if ($showcheckbox) {
+                    if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
+                        //echo '<img src="'.$spacerimg.'" alt="" title="" />';
+                    } else {
+                        echo '<input class="checklistitem'.$checkclass.'" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
+                    }
+                }
+                echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
+                if (isset($item->modulelink)) {
+                    echo '&nbsp;<a href="'.$item->modulelink.'"><img src="'.$OUTPUT->pix_url('follow_link','checklist').'" alt="'.get_string('linktomodule','checklist').'" /></a>';
+                }
+
+                echo '</li>';
+                
+                // Output any user-added items
+                if ($this->useritems) {
+                    $useritem = current($this->useritems);
+
+                    if ($useritem && ($useritem->position == $item->position)) {
+
+                        echo '<ol class="checklist">';
+                        while ($useritem && ($useritem->position == $item->position)) {
+                            $itemname = '"item'.$useritem->id.'"';
+                            echo '<li>';
+                            if ($showcheckbox) {
+                                echo '<input class="checklistitem itemoptional" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$useritem->id.'" />';
+                            }
+                            $splittext = explode("\n",s($useritem->displaytext),2);
+                            $splittext[] = '';
+                            $text = $splittext[0];
+                            $note = str_replace("\n",'<br />',$splittext[1]);
+                            echo '<label class="useritem" for='.$itemname.'>'.$text.'</label>';
+                            if ($note != '') {
+                                echo '<div class="note">'.$note.'</div>';
+                            }
+
+                            echo '</li>';
+
+                            $useritem = next($this->useritems);
+                        }
+                        echo '</ol>';
+                    }
+                }
+
+            }
+            echo '</ol>';
+
+            echo '<input id="checklistsavechecks" type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
+            echo '&nbsp; &nbsp; <input id="quit" type="submit" name="quit" value="'.get_string('quit','checklist').'" />';
+
+            if ($viewother) {
+                    echo '&nbsp;<input type="submit" name="savenext" value="'.get_string('saveandnext').'" />';
+                    echo '&nbsp;<input type="submit" name="viewnext" value="'.get_string('next').'" />';
+            }
+            echo '</form>';
+
+
+            if ($focusitem) {
+                echo '<script type="text/javascript">document.getElementById("'.$focusitem.'").focus();</script>';
+            }
+        }
+
+        echo $OUTPUT->box_end();
+    }
+
+
+
+     /**
+      *     @input an array of items ids
+      * @output ?
+      *
+      **/
+
+    function exportchecks($newchecks) {
+        $t_selected_items=array();
+
+        if (is_array($newchecks) && !empty($newchecks)) {
+
+            if ($this->items) {
+                foreach ($this->items as $item) {
+                    $newval = in_array($item->id, $newchecks);
+                    if ($newval) {
+                        // stocker
+                        $t_selected_items[]=$item;
+                    }
+                }
+            }
+            if ($this->useritems) {
+                foreach ($this->useritems as $item) {
+                    $newval = in_array($item->id, $newchecks);
+
+                    if ($newval) {
+                        // stocker
+                        $t_selected_items[]=$item;
+                    }
+                }
+            }
+        }
+        return $t_selected_items;
+    }
+
 }
 
 function checklist_itemcompare($item1, $item2) {

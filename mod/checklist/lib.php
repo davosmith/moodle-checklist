@@ -555,6 +555,16 @@ function checklist_cron () {
 
     $lastlogtime = $lastcron - 5; // Subtract 5 seconds just in case a log slipped through during the last cron update
 
+    // Process Outcomes as Items
+    $outcomesupdate = 0;
+    if (!empty($CFG->enableoutcomes)){
+        require_once($CFG->dirroot.'/mod/checklist/cron_outcomes.php');
+        $outcomesupdate+=checklist_cron_outcomes($lastlogtime);
+    }
+    if ($outcomesupdate) {
+        mtrace(" Updated $outcomesupdate checkmark(s) from outcomes changes");
+    }
+
     // Find all autoupdating checklists
     $checklists = $DB->get_records_select('checklist', 'autopopulate > 0 AND autoupdate > 0');
     if (!$checklists) {

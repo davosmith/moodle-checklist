@@ -94,5 +94,40 @@
 	<INDEX NAME="checklist_item_user" UNIQUE="true" FIELDS="itemid, userid" COMMENT="Will usually want to find the comment by both itemid and userid"/>
       </INDEXES>
   </TABLE>
+
+    <TABLE NAME="checklist_description" COMMENT="A description, added by a student, to argue about user's practice" PREVIOUS="checklist_comment"  NEXT="checklist_document">
+        <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="itemid"/>
+        <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="The id of the item this comment is attached to" PREVIOUS="id" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="The id of the user on whose checklist this comment has been added" PREVIOUS="itemid" NEXT="description"/>
+        <FIELD NAME="description" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The text of the description, as added by the user" PREVIOUS="userid" NEXT="timestamp"/>
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="description" />
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+        	<INDEX NAME="checklist_item_user" UNIQUE="true" FIELDS="itemid, userid" COMMENT="Will usually want to find the description by both itemid and userid"/>
+        </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="checklist_document" COMMENT="Document linked to a description" PREVIOUS="checklist_description" >
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="id of the table" NEXT="descriptionid"/>
+        <FIELD NAME="descriptionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="id" NEXT="description_document"/>
+        <FIELD NAME="description_document" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" COMMENT="The description, metadata about the document" PREVIOUS="descriptionid" NEXT="url_document"/>
+        <FIELD NAME="url_document" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The URL of the document" PREVIOUS="description_document" NEXT="target"/>
+        <FIELD NAME="target" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="The target of de URL" PREVIOUS="url_document" NEXT="title" />
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The title of de URL" PREVIOUS="target" NEXT="timestamp" />
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="title" />
+	  </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for document"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="indexdescription" UNIQUE="false" FIELDS="descriptionid"/>
+      </INDEXES>
+    </TABLE>
+  
   </TABLES>
 </XMLDB>
