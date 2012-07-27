@@ -79,7 +79,7 @@
 
       </INDEXES>
     </TABLE>
-    <TABLE NAME="checklist_comment" COMMENT="A comment, added by a teacher, to an item on a user's checklist" PREVIOUS="checklist_check">
+    <TABLE NAME="checklist_comment" COMMENT="A comment, added by a teacher, to an item on a user's checklist" PREVIOUS="checklist_check"  NEXT="checklist_description" >
       <FIELDS>
 	<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="itemid"/>
 	<FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="The id of the item this comment is attached to" PREVIOUS="id" NEXT="userid"/>
@@ -95,7 +95,7 @@
       </INDEXES>
   </TABLE>
 
-    <TABLE NAME="checklist_description" COMMENT="A description, added by a student, to argue about user's practice" PREVIOUS="checklist_comment"  NEXT="checklist_document">
+    <TABLE NAME="checklist_description" COMMENT="A description, added by a student, to argue about user's practice" PREVIOUS="checklist_comment"  NEXT="checklist_document" >
         <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="itemid"/>
         <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="The id of the item this comment is attached to" PREVIOUS="id" NEXT="userid"/>
