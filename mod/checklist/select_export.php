@@ -16,12 +16,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Used by AJAX calls to update the checklist marks
+ * This page prints a particular instance of checklist
  *
  * @author  David Smith <moodle@davosmith.co.uk>
+ * @author  Jean Fruitet <jean.fruitet@univ-nantes.fr>
  * @package mod/checklist
  */
 
+ 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
@@ -30,11 +32,6 @@ global $DB;
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
-if ($CFG->version < 2011120100) {
-    $items = optional_param('items', false, PARAM_INT);
-} else {
-    $items = optional_param_array('items', false, PARAM_INT);
-}
 
 $url = new moodle_url('/mod/checklist/view.php');
 if ($id) {
@@ -56,6 +53,7 @@ if ($id) {
 }
 
 $PAGE->set_url($url);
+$PAGE->requires->js('/mod/checklist/functions.js');
 require_login($course, true, $cm);
 
 if ($CFG->version < 2011120100) {
@@ -63,22 +61,11 @@ if ($CFG->version < 2011120100) {
 } else {
     $context = context_module::instance($cm->id);
 }
-$userid = $USER->id;
-if (!has_capability('mod/checklist:updateown', $context)) {
-    echo 'Error: you do not have permission to update this checklist';
-    die();
-}
-if (!confirm_sesskey()) {
-    echo 'Error: invalid sesskey';
-    die();
-}
-if (!$items || !is_array($items)) {
-    echo 'Error: invalid (or missing) items list';
-    die();
-}
-if (!empty($items)) {
-    $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
-    $chk->ajaxupdatechecks($items);
+$userid = 0;
+if (has_capability('mod/checklist:updateown', $context)) {
+    $userid = $USER->id;
 }
 
-echo get_string('OK', 'checklist');      // 'OK'
+$chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
+
+$chk->view_select_export();

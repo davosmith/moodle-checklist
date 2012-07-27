@@ -31,7 +31,9 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
     if ($userid == 0) {
         return 0;
     }
-
+    if ($module == 'referentiel') { // Skills repository module
+        return 0;
+    }
     if ($module == 'course') {
         return 0;
     }

@@ -51,6 +51,92 @@ define("CHECKLIST_MAX_INDENT", 10);
 require_once(dirname(__FILE__).'/locallib.php');
 require_once($CFG->libdir.'/completionlib.php');
 
+// ############################ MOODLE 2.0 FILE API #########################
+/**
+ * @author JF 2012/03/18
+ * @author jean.fruitet@univ-nantes.fr
+ **/
+
+
+/**
+ * Serves activite documents and other files.
+ *
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
+ * @return bool false if file not found, does not return if found - just send the file
+ */
+function checklist_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
+// fonction appelée par le gestionnaire de fichier
+    global $CFG, $DB;
+
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return false;
+    }
+
+    require_login($course, false, $cm);
+
+    // verifier qu'un checklist est installé dans ce cours
+    if (! $checklist = $DB->get_record("checklist", array("id" => "$cm->instance"))) {
+        return false;
+    }
+
+    return checklist_send_file($course, $cm, $context, $filearea, $args);
+}
+
+/**
+ * Serves activite documents and other files.
+ *
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param array $args
+ * @return bool false if file not found, does not return if found - just send the file
+ */
+
+function checklist_send_file($course, $cm, $context, $filearea, $args) {
+// affiche le contenu d'un fichier
+        global $CFG, $DB, $USER;
+        require_once($CFG->libdir.'/filelib.php');
+
+        require_login($course, false, $cm);
+
+        // DEBUG
+        // echo "<br>DEBUG :: lib.php :: 110 :: <br>CONTEXT : $context->id :: FILEAREA : $filearea<br>ARGS:\n";
+        // print_r($args);
+        //
+        $docid = (int)array_shift($args);
+
+        // verifier les fileareas acceptables
+        $fileareas = array('checklist', 'document');
+        if (!in_array($filearea, $fileareas)) {
+            return false;
+        }
+
+        if ($filearea=='document'){
+            if (!$document = $DB->get_record('checklist_document', array('id'=>$docid))) {
+                return false;
+            }
+        }
+
+        $relativepath = implode('/', $args);
+        $fullpath = '/'.$context->id.'/mod_checklist/'.$filearea.'/'.$docid.'/'.$relativepath;
+
+        $fs = get_file_storage();
+
+        if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+            return false;
+        }
+
+        send_stored_file($file, 0, 0, true); // download MUST be forced - security!
+}
+// END FILE API
+// ###############################################################################################
+
 /**
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -557,6 +643,8 @@ function checklist_cron () {
 
     // Process Outcomes as Items
     $outcomesupdate = 0;
+	// mtrace(" OUTOMES: ".$CFG->enableoutcomes);
+
     if (!empty($CFG->enableoutcomes)){
         require_once($CFG->dirroot.'/mod/checklist/cron_outcomes.php');
         $outcomesupdate+=checklist_cron_outcomes($lastlogtime);
@@ -738,6 +826,16 @@ function checklist_reset_userdata($data) {
         $DB->delete_records_list('checklist_check', 'item', $items);
         $DB->delete_records_list('checklist_comment', 'itemid', $items);
 
+        // Descriptions
+        list($descsql, $descparams) = $DB->get_in_or_equal(array_keys($items));
+        $descriptions = $DB->get_records_select('checklist_description', 'itemid '.$descsql, $descparams);
+        if ($descriptions) {
+            // Documents
+            $DB->delete_records_list('checklist_document', 'descriptionid', $descriptions);
+            // Descriptions
+            $DB->delete_records_list('checklist_description', 'id', $descriptions);
+        }
+        
         list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
         $sql = "checklist $isql AND userid != 0";
         $DB->delete_records_select('checklist_item', $sql, $iparams);

@@ -19,6 +19,11 @@
  * Stores all the functions for manipulating a checklist
  *
  * @author   David Smith <moodle@davosmith.co.uk>
+ *
+ * New function view_select_export
+ * New function select_items, *_description, *_document
+ * Functions modified : view_tabs, view, deleteitem
+ * @author  Jean Fruitet <jean.fruitet@univ-nantes.fr>
  * @package  mod/checklist
  */
 
@@ -51,6 +56,8 @@ class checklist_class {
     var $editdates;
     var $groupings;
 
+    var $description = array(array()); // for  each item, each user, id of description object;
+    
     function checklist_class($cmid='staticonly', $userid=0, $checklist=null, $cm=null, $course=null) {
         global $COURSE, $DB, $CFG;
 
@@ -64,7 +71,7 @@ class checklist_class {
         if ($cm) {
             $this->cm = $cm;
         } else if (! $this->cm = get_coursemodule_from_id('checklist', $cmid)) {
-            error('Course Module ID was incorrect');
+            print_error(get_string('error_cmid', 'checklist')); // 'Course Module ID was incorrect'
         }
 
         if ($CFG->version < 2011120100) {
@@ -464,7 +471,7 @@ class checklist_class {
     }
 
     function view() {
-        global $CFG, $OUTPUT;
+        global $CFG, $OUTPUT, $USER;
 
         if ((!$this->items) && $this->canedit()) {
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)) );
@@ -498,6 +505,15 @@ class checklist_class {
 
         if ($this->canupdateown()) {
             $this->process_view_actions();
+        }
+        // Mahara && Portofolio stuff
+        if (!empty($CFG->enableportfolios) && !empty($this->userid)){
+            require_once($CFG->libdir.'/portfoliolib.php');
+            $button = new portfolio_add_button();
+            $button->set_callback_options('checklist_portfolio_caller',
+                array('instanceid' => $this->checklist->id, 'userid' => $this->userid, 'export_format' => ''), '/mod/checklist/mahara/locallib_portfolio.php');
+            $button->set_formats(array(PORTFOLIO_FORMAT_PLAINHTML, PORTFOLIO_FORMAT_LEAP2A));
+            echo "<div align=\"center\">".$button->to_html(PORTFOLIO_ADD_ICON_LINK)."</div>\n";
         }
 
         $this->view_items();
@@ -737,7 +753,7 @@ class checklist_class {
 
     function view_items($viewother = false, $userreport = false) {
         global $DB, $OUTPUT, $PAGE;
-
+        global $CFG, $USER;
         echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
 
         $comments = $this->checklist->teachercomments;
@@ -1007,13 +1023,19 @@ class checklist_class {
                             }
                             echo '<input type="text" name="teachercomment['.$item->id.']" value="'.s($comment->text).'" '.$outid.'/>';
                         } else {
-                            echo s($comment->text);
+                            echo $comment->text; // echo s($comment->text);	
                         }
                         echo '&nbsp;</span>';
                     }
                 }
                 if (!$foundcomment && $editcomments) {
                     echo '&nbsp;<input type="text" name="teachercomment['.$item->id.']" />';
+                }
+
+                // Display descriptions
+                $editdescription=$CFG->checklist_description_display;
+                if ($editdescription) {
+                    $this->display_description_documents($item->id, $this->userid, ($USER->id==$this->userid));
                 }
 
                 echo '</li>';
@@ -1935,7 +1957,7 @@ class checklist_class {
             break;
 
         default:
-            error('Invalid action - "'.s($action).'"');
+            print_error(get_string('error_action', 'checklist', s($action))); // 'Invalid action - "{a}"'
         }
 
         if ($action != 'updatechecks') {
@@ -2038,7 +2060,7 @@ class checklist_class {
             $this->nextcolour($itemid);
             break;
         default:
-            error('Invalid action - "'.s($action).'"');
+            print_error(get_string('error_action', 'checklist', s($action))); // 'Invalid action - "{a}"'
         }
 
         if ($additemafter) {
@@ -2096,7 +2118,7 @@ class checklist_class {
         }
 
         if (!confirm_sesskey()) {
-            error('Invalid sesskey');
+            print_error('error_sesskey', 'checklist'); // 'Invalid sesskey';
         }
 
         switch ($action) {
@@ -2360,7 +2382,7 @@ class checklist_class {
         }
     }
 
-    function deleteitem($itemid, $forcedelete=false) {
+	function deleteitem($itemid, $forcedelete=false) {
         global $DB;
 
         if (isset($this->items[$itemid])) {
@@ -2382,6 +2404,19 @@ class checklist_class {
         $DB->delete_records('checklist_item', array('id' => $itemid) );
         $DB->delete_records('checklist_check', array('item' => $itemid) );
 
+        // Descriptions
+        $descriptions = $DB->get_records('checklist_description', array('itemid' => $itemid));
+        if ($descriptions) {
+            foreach($descriptions as $description){
+                if (!empty($description)){
+                    // Documents
+                    $DB->delete_records('checklist_document', array('descriptionid' => $description->id));
+                    // Descriptions
+                    $DB->delete_records('checklist_description', array('id' => $description->id));
+                }
+            }
+        }
+        
         $this->update_item_positions();
     }
 
@@ -2937,7 +2972,7 @@ class checklist_class {
                             $check->teachertimestamp = 0;
                             $check->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
 
-                            $check->id = $DB->insert_record('checklist_check', $check);
+                            $check->id = $DB->insert_record('checklist_check', $check);							
                         }
                     }
                 }
@@ -3208,7 +3243,7 @@ class checklist_class {
     }
 
 /**
- * Selection des items pour exporter les outcomes
+ * Items selection for exporting outcomes
  *
  **/
     function view_select_export() {
@@ -3446,7 +3481,499 @@ class checklist_class {
         return $t_selected_items;
     }
 
+/**
+ * New features : description and documents linked to items
+ * @author  Jean Fruitet <jean.fruitet@univ-nantes.fr>
+ * @package  mod/checklist
+ */
+	
+	
+    function get_item_description($itemid, $userid){
+        //
+        global $DB;
+        return ($DB->select_record_sql("SELECT * FROM {checklist_description} WHERE itemid=? AND userid=?", array($itemid, $userid)));
+    }
+
+
+    function edit_description($itemid, $userid) {
+        global $DB;
+        global $CFG;
+        global $OUTPUT;
+        global $PAGE;
+
+        $description = NULL;
+        $document = NULL;
+
+        $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+
+        $thispage = new moodle_url('/mod/checklist/edit_description.php', array('id' => $this->cm->id) );
+        $returl = new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id));
+
+        $currenttab = 'view';
+
+        add_to_log($this->course->id, 'checklist', 'view', "edit_description.php?id={$this->cm->id}", $this->checklist->name, $this->cm->id);
+
+        if ($itemid && $userid) {
+            $description = $DB->get_record('checklist_description', array("itemid"=>$itemid, "userid"=>$userid));
+            if (!empty($description)){
+                $documents = $DB->get_records('checklist_document', array("descriptionid" => $description->id));
+            }
+
+            $mform = new mod_checklist_description_form(null,
+                array('checklist'=>$this->checklist->id,
+                    'contextid'=>$context->id,
+                    'itemid'=>$itemid,
+                    'userid'=>$userid,
+                    'description'=>$description,
+                    'msg' => get_string('input_description', 'checklist')));
+
+            if ($mform->is_cancelled()) {
+                redirect($returnurl);
+            } else if ($mform->get_data()) {
+                checklist_set_description($mform, $this->checklist->id);
+                die();
+            }
+
+            $this->view_header();
+
+            echo '<div align="center"><h3>'.get_string('edit_description', 'checklist').'</h3></div>'."\n";
+            echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
+            echo format_text($this->checklist->intro, $this->checklist->introformat);
+            echo '<br/>';
+
+            $mform->display();
+
+            echo $OUTPUT->box_end();
+            $this->view_footer();
+        }
+    }
+
+
+    function edit_upload_document($itemid, $userid, $descriptionid, $documentid=0) {
+        global $DB;
+        global $CFG;
+        global $OUTPUT;
+        global $PAGE;
+
+        $document=NULL;
+        
+        $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+        
+        $thispage = new moodle_url('/mod/checklist/edit_document.php', array('id' => $this->cm->id) );
+        $returl = new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id));
+
+        $currenttab = 'view';
+
+        add_to_log($this->course->id, 'checklist', 'view', "edit_document.php?id={$this->cm->id}", $this->checklist->name, $this->cm->id);
+
+        if (empty($descriptionid) && $itemid && $userid) {
+            $description = $DB->get_record('checklist_description', array("itemid"=>$itemid, "userid"=>$userid));
+            if ($description){
+                $descriptionid=$description;
+            }
+        }
+        
+        if ($descriptionid){
+            // Is there any document attached to that description
+            if ($documentid) {
+                $document = $DB->get_record('checklist_document', array("descriptionid" => $description->id, "id" => $documentid));
+            }
+            else{
+                // $documents = $DB->get_records('checklist_document', array("descriptionid" => $description->id));
+                $params=array("descriptionid" => $descriptionid);
+                $sql="SELECT * FROM {checklist_document} WHERE descriptionid=:descriptionid ORDER BY id DESC ";
+                $documents = $DB->get_records_sql($sql, $params);
+                if ($documents){
+                    foreach($documents as $document){
+                        break; // renvoyer le plus récent
+                    }
+                }
+            }
+
+            $options = array('subdirs'=>0, 'maxbytes'=>get_max_upload_file_size($CFG->maxbytes, $this->course->maxbytes), 'maxfiles'=>1, 'accepted_types'=>'*', 'return_types'=>FILE_INTERNAL);
+
+            $mform = new mod_checklist_add_document_upload_form(null,
+                array('checklist'=>$this->checklist->id,
+                    'contextid'=>$context->id,
+                    'itemid'=>$itemid,
+                    'userid'=>$userid,
+                    'descriptionid'=>$descriptionid,
+                    'document'=>$document,
+                    'filearea'=>'document',
+                    'msg' => get_string('document_associe', 'checklist'),
+                    'options'=>$options));
+
+            if ($mform->is_cancelled()) {
+                redirect($returnurl);
+            } else if ($mform->get_data()) {
+                checklist_add_upload_document($mform, $this->checklist->id);
+                die();
+                //    redirect(new moodle_url('/mod/checklist/view.php', array('id'=>$cm->id)));
+            }
+
+            $this->view_header();
+            echo '<div align="center"><h3>'.get_string('edit_document', 'checklist').'</h3></div>'."\n";
+            echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
+            echo format_text($this->checklist->intro, $this->checklist->introformat);
+            echo '<br/>';
+
+            $mform->display();
+            
+            echo $OUTPUT->box_end();
+            $this->view_footer();
+        }
+    }
+
+
+    function add_document($itemid, $userid, $descriptionid) {
+        global $DB;
+        global $CFG;
+        global $OUTPUT;
+        global $PAGE;
+
+        $document=NULL;
+
+        $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+
+        $thispage = new moodle_url('/mod/checklist/add_document.php', array('id' => $this->cm->id) );
+        $returl = new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id));
+
+        $currenttab = 'view';
+
+        add_to_log($this->course->id, 'checklist', 'view', "add_document.php?id={$this->cm->id}", $this->checklist->name, $this->cm->id);
+
+        if (empty($descriptionid) && $itemid && $userid) {
+            $description = $DB->get_record('checklist_description', array("itemid"=>$itemid, "userid"=>$userid));
+            if ($description){
+                $descriptionid=$description;
+            }
+        }
+
+        if ($descriptionid){
+            $options = array('subdirs'=>0, 'maxbytes'=>get_max_upload_file_size($CFG->maxbytes, $this->course->maxbytes), 'maxfiles'=>1, 'accepted_types'=>'*', 'return_types'=>FILE_INTERNAL);
+
+            $mform = new mod_checklist_add_document_upload_form(null,
+                array('checklist'=>$this->checklist->id,
+                    'contextid'=>$context->id,
+                    'itemid'=>$itemid,
+                    'userid'=>$userid,
+                    'descriptionid'=>$descriptionid,
+                    'document'=>NULL,
+                    'filearea'=>'document',
+                    'msg' => get_string('document_associe', 'checklist'),
+                    'options'=>$options));
+
+            if ($mform->is_cancelled()) {
+                redirect($returnurl);
+            } else if ($mform->get_data()) {
+                checklist_add_upload_document($mform, $this->checklist->id);
+                die();
+                //    redirect(new moodle_url('/mod/checklist/view.php', array('id'=>$cm->id)));
+            }
+
+            $this->view_header();
+            echo '<div align="center"><h3>'.get_string('edit_document', 'checklist').'</h3></div>'."\n";
+            echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
+            echo format_text($this->checklist->intro, $this->checklist->introformat);
+            echo '<br/>';
+
+            $mform->display();
+
+            echo $OUTPUT->box_end();
+            $this->view_footer();
+        }
+    }
+
+
+
+    function edit_document($itemid, $userid, $document) {
+        global $DB;
+        global $CFG;
+        global $OUTPUT;
+        global $PAGE;
+
+        $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+
+        $thispage = new moodle_url('/mod/checklist/edit_document.php', array('id' => $this->cm->id) );
+        $returl = new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id));
+
+        $currenttab = 'view';
+
+        add_to_log($this->course->id, 'checklist', 'view', "add_document.php?id={$this->cm->id}", $this->checklist->name, $this->cm->id);
+
+        if ($document){
+            $options = array('subdirs'=>0, 'maxbytes'=>get_max_upload_file_size($CFG->maxbytes, $this->course->maxbytes), 'maxfiles'=>1, 'accepted_types'=>'*', 'return_types'=>FILE_INTERNAL);
+
+            $mform = new mod_checklist_update_document_upload_form(null,
+                array('checklist'=>$this->checklist->id,
+                    'contextid'=>$context->id,
+                    'itemid'=>$itemid,
+                    'userid'=>$userid,
+                    'descriptionid'=>$document->descriptionid,
+                    'document'=>$document,
+                    'filearea'=>'document',
+                    'msg' => get_string('document_associe', 'checklist'),
+                    'options'=>$options));
+
+
+
+            if ($mform->is_cancelled()) {
+                redirect($returnurl);
+            } else if ($mform->get_data()) {
+                checklist_update_upload_document($mform, $this->checklist->id);
+                die();
+                //    redirect(new moodle_url('/mod/checklist/view.php', array('id'=>$cm->id)));
+            }
+
+            $this->view_header();
+            echo '<div align="center"><h3>'.get_string('edit_document', 'checklist').'</h3></div>'."\n";
+            echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
+            echo format_text($this->checklist->intro, $this->checklist->introformat);
+            echo '<br/>';
+            $mform->display();
+            echo $OUTPUT->box_end();
+            $this->view_footer();
+        }
+    }
+
+
+
+    function delete_document($documentid) {
+        // $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+
+        // $thispage = new moodle_url('/mod/checklist/delete_document.php', array('id' => $this->cm->id) );
+        $returnurl = new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id));
+        add_to_log($this->course->id, 'checklist', 'view', "delete_document.php?id={$this->cm->id}&amp;documentid=$documentid", $this->checklist->name, $this->cm->id);
+
+        if ($documentid){
+            $this->delete_document_record($documentid);
+        }
+        redirect($returnurl);
+    }
+    
+    
+    function delete_document_record($documentid) {
+        global $DB;
+        if ($documentid){
+            // get from table
+            if ($document=$DB->get_record('checklist_document', array("id" => $documentid))){
+                // delete file
+                // print_r($document);
+                if ($document->url_document){
+                    checklist_delete_a_file($document->url_document);
+                }
+                // delete row entry
+                $DB->delete_records('checklist_document', array("id" => $documentid));
+            }
+        }
+    }
+
+    function delete_description($descriptionid) {
+        $returnurl = new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id));
+        add_to_log($this->course->id, 'checklist', 'view', "delete_description.php?id={$this->cm->id}&amp;descriptionid=$descriptionid", $this->checklist->name, $this->cm->id);
+
+        if ($descriptionid){
+            $this->delete_description_record($descriptionid);
+        }
+        redirect($returnurl);
+    }
+
+    function delete_description_record($descriptionid) {
+        global $DB;
+        if ($descriptionid){
+            // get from table
+            if ($description=$DB->get_record('checklist_description', array("id" => $descriptionid))){
+                // get all documents
+                if ($documents = $DB->get_records('checklist_document', array("descriptionid" => $description->id))){
+                    foreach($documents as $document){
+                        $this->delete_document_record($document->id);
+                    }
+                }
+                // delete table checklist_description record
+                $DB->delete_records('checklist_description', array("id" => $description->id));
+            }
+        }
+    }
+
+    function display_description_documents($itemid, $userid, $edition=false){
+        // Display a description record and any document linked with it
+        global $DB;
+        global $OUTPUT;
+        global $CFG;
+        
+        if ($itemid && $userid) {
+            $description = $DB->get_record('checklist_description', array("itemid"=>$itemid, "userid"=>$userid));
+            if (!empty($description)){
+                echo '<br /><span class="usercomment"> &nbsp; ';
+                $this->display_description($description);
+                echo ' &nbsp; </span>';
+                if ($edition){
+                    // icon edition
+                    $editurl = new moodle_url('/mod/checklist/edit_description.php', array('id' => $this->cm->id) );
+                    $baseurl = $editurl.'&amp;itemid='.$itemid.'&amp;userid='.$userid.'&amp;sesskey='.sesskey();
+                    echo '&nbsp;<a href="'.$baseurl.'">';
+                    $title = '"'.get_string('edit_description','checklist').'"';
+                    echo '<img src="'.$OUTPUT->pix_url('/i/edit').'" alt='.$title.' title='.$title.' /></a>';
+                    // icon delete
+                    $editurl = new moodle_url('/mod/checklist/delete_description.php', array('id' => $this->cm->id) );
+                    $baseurl = $editurl.'&amp;descriptionid='.$description->id.'&amp;sesskey='.sesskey();
+                    echo '&nbsp;<a href="'.$baseurl.'">';
+                    $title = '"'.get_string('delete_description','checklist').'"';
+                    echo '<img src="'.$OUTPUT->pix_url('/t/delete').'" alt='.$title.' title='.$title.' /></a>';
+                    // icon edition link
+                    $editurl = new moodle_url('/mod/checklist/add_document.php', array('id' => $this->cm->id) );
+                    $baseurl = $editurl.'&amp;itemid='.$itemid.'&amp;userid='.$userid.'&amp;descriptionid='.$description->id.'&amp;sesskey='.sesskey();
+                    echo '&nbsp;<a href="'.$baseurl.'">';
+                    $title = '"'.get_string('add_link','checklist').'"';
+                    echo '<img src="'.$OUTPUT->pix_url('link','checklist').'" alt='.$title.' title='.$title.' /></a>';
+
+                    if (!empty($CFG->enableportfolios)){
+                        // portfolio upload link
+                        $editurl = new moodle_url('/mod/checklist/mahara/upload_mahara.php', array('id' => $this->cm->id) );
+                        $baseurl = $editurl.'&amp;itemid='.$itemid.'&amp;userid='.$userid.'&amp;descriptionid='.$description->id.'&amp;sesskey='.sesskey();
+                        echo '&nbsp;<a href="'.$baseurl.'">';
+                        $title = '"'.get_string('upload_portfolio','checklist').'"';
+                        echo '<img src="'.$OUTPUT->pix_url('upload_portfolio','checklist').'" alt='.$title.' title='.$title.' /></a>';
+                    }
+
+                }
+                $documents = $DB->get_records('checklist_document', array("descriptionid" => $description->id));
+                if ($documents){
+                    echo '<ol class="checklist">'."\n";
+                    foreach($documents as $document){
+                        if ($document){
+                            // Display link
+                            $this->display_document($itemid, $userid, $document, $edition);
+                        }
+                    }
+                    echo '</ol>'."\n";
+                }
+
+            }
+            else{
+                if ($edition){
+                    // icon edition
+                    $editurl = new moodle_url('/mod/checklist/edit_description.php', array('id' => $this->cm->id) );
+                    $baseurl = $editurl.'&amp;itemid='.$itemid.'&amp;userid='.$userid.'&amp;sesskey='.sesskey();
+                    echo '&nbsp;<a href="'.$baseurl.'">';
+                    $title = '"'.get_string('edit_description','checklist').'"';
+                    echo '<img src="'.$OUTPUT->pix_url('edit','checklist').'" alt='.$title.' title='.$title.' /></a>';
+                }
+            }
+        }
+    }
+
+    function display_description($description){
+        // Display a description record
+        if (!empty($description)){
+            echo stripslashes($description->description);
+            echo ' [<i><span class="small">'.userdate($description->timestamp).'</span></i>] '."\n";
+        }
+    }
+
+    function display_document($itemid, $userid, $document, $edition=false){
+        // Display a document record
+        global $CFG;
+        global $OUTPUT;
+        if (!empty($document)){
+			if ($document->target==1){
+				$cible_document='_blank'; // fenêtre cible
+			}
+			else{
+                $cible_document='';
+			}
+			if ($document->title){
+                $etiquette_document=$document->title; // fenêtre cible
+            }
+			else{
+                $etiquette_document='';
+			}
+            echo '<li>'.get_string('doc_num','checklist',$document->id).' &nbsp; '.$document->description_document."\n";
+            echo checklist_affiche_url($document->url_document, $etiquette_document, $cible_document);
+            echo ' [<i><span class="small">'.userdate($document->timestamp).'</span></i>] '."\n";
+            if ($edition){
+                // icon edition
+                $editurl = new moodle_url('/mod/checklist/edit_document.php', array('id' => $this->cm->id) );
+                $baseurl = $editurl.'&amp;itemid='.$itemid.'&amp;userid='.$userid.'&amp;documentid='.$document->id.'&amp;sesskey='.sesskey();
+                echo '&nbsp;<a href="'.$baseurl.'">';
+                $title = '"'.get_string('edit_link','checklist').'"';
+                echo '<img src="'.$OUTPUT->pix_url('/i/edit').'" alt='.$title.' title='.$title.' /></a>';
+                // icon delete
+                $editurl = new moodle_url('/mod/checklist/delete_document.php', array('id' => $this->cm->id) );
+                $baseurl = $editurl.'&amp;documentid='.$document->id.'&amp;sesskey='.sesskey();
+                echo '&nbsp;<a href="'.$baseurl.'">';
+                $title = '"'.get_string('delete_link','checklist').'"';
+                echo '<img src="'.$OUTPUT->pix_url('/t/delete').'" alt='.$title.' title='.$title.' /></a>';
+            }
+            echo '</li>'."\n";
+        }
+    }
+
+
+} // End of class
+
+// ################################ URL  ###############################
+
+/**
+     * display an url accorging to moodle file management API
+     * @return string active link
+	 * @ input $url : an uri
+	 * @ input $etiquette : a label
+	 * @ input $cible : a targeted frame
+*/
+function checklist_affiche_url($url, $etiquette="", $cible="") {
+    // MOODLE2 API
+	global $CFG;
+	   // Moodle 1.9
+		/*
+		$importfile = "{$CFG->dataroot}/{$url}";
+		if (file_exists($importfile)) {
+	        if ($CFG->slasharguments) {
+    	    	$efile = "{$CFG->wwwroot}/file.php/$url";
+        	}
+		    else {
+				$efile = "{$CFG->wwwroot}/file.php?file=/$url";
+        	}
+		}
+		else{
+			$efile = "$url";
+		}
+		*/
+		// Moodle 2.0
+		if (!ereg("http",$url)){ // fichier telecharge
+            // l'URL a été correctement formée lors de la création du fichier
+            $efile =  $CFG->wwwroot.'/pluginfile.php'.$url;
+        }
+        else{
+            $efile = $url;
+        }
+
+		if ($etiquette==""){
+			$l=strlen($url);
+			$posr=strrpos($url,'/');
+			if ($posr===false){ // no separator
+				$etiquette=$url;
+			}
+			else if ($posr==$l-1){ // ending separator
+				$etiquette=get_string("etiquette_inconnue", "checklist");
+			}
+			else if ($posr==0){ // heading and ending separator !
+				$etiquette=get_string("etiquette_inconnue", "checklist");
+			}
+			else {
+				$etiquette=substr($url,$posr+1);
+			}
+		}
+
+        if ($cible){
+            return "<a href=\"$efile\" target=\"".$cible."\">$etiquette</a>";
+        }
+        else{
+            return "<a href=\"$efile\">$etiquette</a>";
+        }
+
 }
+
 
 function checklist_itemcompare($item1, $item2) {
     if ($item1->position < $item2->position) {
