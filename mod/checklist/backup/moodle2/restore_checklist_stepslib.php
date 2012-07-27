@@ -27,6 +27,8 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         if ($userinfo) {
             $paths[] = new restore_path_element('checklist_check', '/activity/checklist/items/item/checks/check');
             $paths[] = new restore_path_element('checklist_comment', '/activity/checklist/items/item/comments/comment');
+            $paths[] = new restore_path_element('checklist_description', '/activity/checklist/items/item/descriptions/description');
+            $paths[] = new restore_path_element('checklist_document', '/activity/checklist/items/item/descriptions/description/documents/document');
         }
 
         // Return the paths wrapped into standard activity structure
@@ -117,6 +119,40 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
 
         $newid = $DB->insert_record('checklist_comment', $data);
         $this->set_mapping('checklist_comment', $oldid, $newid);
+    }
+
+
+    protected function process_checklist_description($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->itemid = $this->get_new_parentid('checklist_item');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        if ($data->timestamp > 0) {
+            $data->timestamp = $this->apply_date_offset($data->timestamp);
+        }
+
+        $newid = $DB->insert_record('checklist_description', $data);
+        $this->set_mapping('checklist_description', $oldid, $newid);
+    }
+
+
+    protected function process_checklist_document($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->descriptionid = $this->get_new_parentid('checklist_description');
+
+        if ($data->timestamp > 0) {
+            $data->timestamp = $this->apply_date_offset($data->timestamp);
+        }
+
+        $newid = $DB->insert_record('checklist_document', $data);
+        $this->set_mapping('checklist_document', $oldid, $newid);
     }
 
     protected function after_execute() {

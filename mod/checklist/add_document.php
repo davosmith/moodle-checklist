@@ -16,27 +16,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Used by AJAX calls to update the checklist marks
- *
+ * Add a new document to a description
  * @author  David Smith <moodle@davosmith.co.uk>
+ * @author  Jean Fruitet <jean.fruitet@univ-nantes.fr>
  * @package mod/checklist
  */
+
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
+require_once(dirname(__FILE__).'/file_api.php');   // Moodle 2 file API
+require_once(dirname(dirname(dirname(__FILE__))).'/repository/lib.php'); // Repository API
+
 global $DB;
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
-if ($CFG->version < 2011120100) {
-    $items = optional_param('items', false, PARAM_INT);
-} else {
-    $items = optional_param_array('items', false, PARAM_INT);
-}
+$itemid  = optional_param('itemid', 0, PARAM_INT);  // Item ID
+$userid  = optional_param('userid', 0, PARAM_INT);  // userID
+$descriptionid  = optional_param('descriptionid', 0, PARAM_INT);  // description ID
+$cancel     = optional_param('cancel', 0, PARAM_BOOL);
 
-$url = new moodle_url('/mod/checklist/view.php');
+
+$url = new moodle_url('/mod/checklist/add_document.php');
 if ($id) {
     if (!$cm = get_coursemodule_from_id('checklist', $id)){
         print_error('error_cmid', 'checklist'); // 'Course Module ID was incorrect'
@@ -55,30 +59,55 @@ if ($id) {
     print_error('error_specif_id', 'checklist'); // 'You must specify a course_module ID or an instance ID'
 }
 
+
+// Description ?
+if (!$descriptionid && $itemid && $userid) {
+    $description = $DB->get_record('checklist_description', array("itemid"=>$itemid, "userid"=>$userid));
+    if (!empty($description)){
+        $descriptionid=$description->id;
+    }
+}
+
 $PAGE->set_url($url);
+$returnurl=new moodle_url('/mod/checklist/view.php?checklist='.$checklist->id);
+
 require_login($course, true, $cm);
 
-if ($CFG->version < 2011120100) {
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-} else {
-    $context = context_module::instance($cm->id);
-}
-$userid = $USER->id;
-if (!has_capability('mod/checklist:updateown', $context)) {
-    echo 'Error: you do not have permission to update this checklist';
-    die();
-}
-if (!confirm_sesskey()) {
-    echo 'Error: invalid sesskey';
-    die();
-}
-if (!$items || !is_array($items)) {
-    echo 'Error: invalid (or missing) items list';
-    die();
-}
-if (!empty($items)) {
-    $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
-    $chk->ajaxupdatechecks($items);
+$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+
+if (empty($userid)){
+    if (has_capability('mod/checklist:updateown', $context)) {
+        $userid = $USER->id;
+    }
 }
 
-echo get_string('OK', 'checklist');      // 'OK'
+
+/// If it's hidden then it's don't show anything.  :)
+/// Some capability checks.
+if (empty($cm->visible)
+    && (
+        !has_capability('moodle/course:viewhiddenactivities', $context)
+            &&
+        !has_capability('mod/checklist:updateown', $context)
+        )
+
+    ) {
+    print_error('activityiscurrentlyhidden','error',$returnurl);
+}
+
+
+if ($cancel) {
+    if (!empty($SESSION->returnpage)) {
+            $return = $SESSION->returnpage;
+            unset($SESSION->returnpage);
+            redirect($return);
+    } else {
+            redirect($returnurl);
+    }
+}
+
+
+if ($chk = new checklist_class($cm->id, 0, $checklist, $cm, $course)) {
+    $chk->add_document($itemid, $userid, $descriptionid);
+}
+

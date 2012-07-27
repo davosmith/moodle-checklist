@@ -182,3 +182,113 @@ $string['viewsingleupdate'] = 'Mettre &agrave; jour la progression de cet utilis
 
 $string['yesnooverride'] = 'Oui ne peut pas remplacer';
 $string['yesoverride'] = 'Oui, peut remplacer';
+
+// CheckListPlus
+$string['a_completer'] = 'A COMPLETER';
+$string['add_link'] = 'Ajouter un lien ou un document';
+$string['addreferentielname'] = 'Saisir un code de référentiel ';
+$string['argumentation'] = 'Argumentation';
+$string['checklist_check'] = 'Evaluation ';
+$string['checklist_description'] = 'Autoriser le dépôt de fichiers';
+$string['clicktopreview'] = 'cliquez pour un aperçu pleine taille dans un fenêtre surgissante';
+$string['clicktoselect'] = 'cliquez pour sélectionner la vue';
+$string['commentby'] = 'Commenté par ';
+$string['config_description'] = 'Permet aux utilisateurs de déposer des documents comme trace de pratique.';
+$string['config_outcomes_input'] = 'Permet d\'importer dans Checklist les objectifs validés dans les activités Moodle du cours';
+$string['confirmreferentielname'] = 'Confirmer le code de référentiel ';
+$string['delete_description'] = 'Supprimer la description';
+$string['delete_document'] = 'Supprimer un document';
+$string['delete_link'] = 'Supprimer un lien';
+$string['description_document'] = 'Information sur le document';
+$string['description'] = 'Rédigez votre argumentaire';
+$string['descriptionh_help'] = 'Indiquez de façon succincte les motifs qui vous permettent d\'affirmer que cette tâche est achevée ou la compétence acquise.';
+$string['descriptionh'] = 'Aide pour l\'argumentation';
+$string['doc_num'] = 'Document N°{$a} ';
+$string['document_associe'] = 'Document associé';
+$string['documenth'] = 'Aide pour les documents associés';
+$string['documenth_help'] = 'Les documents attachés à une description sont destinés à fournir
+des traces observables de votre pratique.
+
+A chaque Item vous pouvez associer une description et un ou plusieurs documents, soit en recopiant son adresse Web (URL),
+soit en déposant un fichier dans l\'espace Moodle du cours.
+
+* Description du document : Une courte notice d\'information.
+
+* URL : Adresse Web du document (ou fichier déposé par vos soins dans l\'espace Moodle).
+
+* Titre ou étiquette
+
+* Fenêtre cible où s\'ouvrira le document';
+$string['edit_description'] = 'Editer la description';
+$string['edit_document'] = 'Editer le document';
+$string['edit_link'] = 'Editer un lien';
+$string['error_action'] = 'Erreur : Action invalide - "{a}"';
+$string['error_checklist_id'] = 'Checklist ID incorrect';
+$string['error_cm'] = 'Course Module incorrect';
+$string['error_cmid'] = 'Course Module ID incorrect';
+$string['error_course'] = 'Course ID incorrect';
+$string['error_export_items'] = 'Vous n\'êtes pas autorisé à exporter des items dans cette CheckList';
+$string['error_file_upload'] = 'Erreur au chargement du fichierd';
+$string['error_import_items'] = 'Vous n\'êtes pas autorisé à importer des items dans cette CheckList';
+$string['error_insert_db'] = 'Insertion d\'un item impossible dans la base de données';
+$string['error_itemlist'] = 'Erreur : liste d\'items invalide ou absente';
+$string['error_number_columns_outcomes'] = 'Cette ligne d\'Objectifs a un nombre incorrect de colonnes :<br />{$a}';
+$string['error_number_columns'] = 'Nombre de colonnes incorrect pour cette ligne : <br />{$a}';
+$string['error_select'] = 'Erreur: Veuillez sélectionner au moins un Item';
+$string['error_sesskey'] = 'Erreur : Clé de session invalide';
+$string['error_specif_id'] = 'Vous devez spécifier un course_module ID ou un instance ID';
+$string['error_update'] = 'Erreur: Vous n\'êtes pas autorisé à mettre à jour cette CheckList';
+$string['error_user'] = 'Compte utilisateur inexistant !';
+$string['export_outcomes'] = 'Exporter des objectifs';
+$string['id'] = 'ID# ';
+$string['import_outcomes'] = 'Importer des objectifs';
+$string['input_description'] = 'Rédigez votre argumentaire';
+$string['items_exporth_help'] = 'Les items sélectionnés seront exportés dans le même fichier d\'Objectifs.';
+$string['items_exporth'] = 'Item exportés';
+$string['mustprovideexportformat'] = 'Vous devez fournir un formaat d\'export';
+$string['mustprovideinstanceid'] = 'Vous devez fournir un identifiant d\'instance';
+$string['mustprovideuser'] = 'Vous devez fournir un identifiant d\'utilisateur';
+$string['nomaharahostsfound'] = 'Aucun hôte Mahara n\'a été trouvé.';
+$string['noviewscreated'] = 'Vous n\'avez créé aucune vue dans {$a}.';
+$string['noviewsfound'] = 'Aucune vue ne correspond dans {$a}';
+$string['OK'] = 'OK';
+$string['old_comment'] = 'Commentaire antérieur:';
+$string['outcome_description'] = 'Description';
+$string['outcome_link'] = ' <a href="{$a->link}">{$a->name}</a> ';
+$string['outcome_name'] = 'Nom d\'objectif';
+$string['outcome_shortname'] = 'Code de compétence';
+$string['outcomes_input'] = 'Activer les fichiers d\'objectifs';
+$string['outcomes'] = 'outcomes'; // NE PAS TRADUIRE
+$string['previewmahara'] = 'Aperçu';
+$string['quit'] = 'Quitter';
+$string['referentiel_codeh_help'] = 'Le code de référentiel (une chaîne de caractères non accentués sans virgule ni sans espace) permet d\'identifier les compétences (outcomes) participant du même référentiel de compétences. <br />Quand les intitulés d\'Items ne sont pas discriminants cocher <i>"Utiliser l\'ID de l\'Item comme clé"</i>';
+$string['referentiel_codeh'] = 'Aide pour la saisie d\'un code de référentiel';
+$string['scale_description'] = 'Ce barème est destiné à évaluer l\'acquisition d\'objectifs de compétences.';
+$string['scale_items'] = 'Non pertinent,Non validé,Validé';
+$string['scale_name'] = 'Item référentiel';
+$string['select_all'] = 'Tout cocher';
+$string['select_items_export'] = 'Sélectionnez des items à exporter';
+$string['select_not_any'] = 'Tous décocher';
+$string['select'] = 'Sélectionner';
+$string['selectedview'] = 'Page soumissionnée';
+$string['selectexport'] = 'Exporter Objectifs';
+$string['selectmaharaview'] = 'Sélectionnez dans cette liste l\'une des vues de votre portfolio <i>{$a->name}</i> ou <a href="{$a->jumpurl}">cliquez ici</a> pour créer directement une nouvelle vue sur <i>{$a->name}</i>.';
+$string['site_help'] = 'Ce paramètre vous permet de sélectionner depuis quel site Mahara vos étudiants pourront soumettre leurs pages. (Ce site Mahara doit être déjà configuré pour fonctionner en réseau MNET avec ce site Moodle.)';
+$string['site'] = 'Site';
+$string['target'] = 'Ouvrir ce lien dans une nouvelle fenêtre';
+$string['teachermark'] = 'Appréciation ';
+$string['teachertimestamp'] = 'Evalué le ';
+$string['timecreated'] = 'Créé le ';
+$string['timemodified'] = 'Modifié le ';
+$string['title'] = 'Titre du document';
+$string['titlemahara'] = 'Titre';
+$string['typemahara'] = 'Portfolio Mahara';
+$string['upload_portfolio'] = 'Lier à une page de mon portfolio';
+$string['url'] = 'URL';
+$string['urlh_help'] = 'Vous pouvez copier / coller un lien <br />(commençant par "http://"" ou par "https://"") directement dans le champ URL ou bien vous pouvez télécharger un fichier depuis votre poste de travail';
+$string['urlh'] = 'Sélection d\'un lien Web';
+$string['useitemid'] = 'Utiliser l\'ID de l\'Item comme clé ';
+$string['usertimestamp'] = 'Réclamé le ';
+$string['viewmahara'] = 'Vue Mahara';
+$string['views'] = 'Vues ';
+$string['viewsby'] = 'Vues proposées par {$a}';

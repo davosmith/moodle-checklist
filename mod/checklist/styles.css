@@ -225,3 +225,15 @@ p.checklistwarning {
 .checklist_progress_percent {
     padding-left: 0.5em;
 }
+
+/* MODIF JF 2012/03/18 */
+.usercomment {
+    color: black;
+    background-color: #c0ffc0;
+    border: solid black 1px;
+    margin: 0 0 0 20px;
+}
+
+span.small {
+	font-size : 80%;
+}
