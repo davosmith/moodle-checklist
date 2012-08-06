@@ -11,6 +11,9 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2012-08-06 - Minor fix to reduce chance of hitting max_input_vars limits when updated all student's checkmarks
+* 2012-07-07 - Improved progress bar styling; Improved debugging of automatic updates (see below); Fixed minor debug warnings
+* 2012-04-07 - mod/checklist:addinstance capability added (for M2.3); Russian / Ukranian translations from Andriy Semenets
 * 2012-03-05 - Bug fix: grades not updating when new items added to a course (with 'import course activities' on)
 * 2012-01-27 - French translation from Luiggi Sansonetti
 * 2012-01-02 - Minor tweaks to improve Moodle 2.2+ compatibility (optional_param_array / context_module::instance )

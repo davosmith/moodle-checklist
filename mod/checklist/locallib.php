@@ -1732,6 +1732,10 @@ class checklist_class {
                     }
 
                     $table->data[] = $row;
+
+                    if ($editchecks) {
+                        echo '<input type="hidden" name="userids[]" value="'.$auser->id.'" />';
+                    }
                 }
             }
 
@@ -1828,7 +1832,7 @@ class checklist_class {
                                 $sely = ($teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
                                 $seln = ($teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
 
-                                $img = '<select name="items['.$checkid.'_'.$userid.']" '.$disabled.'>';
+                                $img = '<select name="items_'.$userid.'['.$checkid.']" '.$disabled.'>';
                                 $img .= '<option value="'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
                                 $img .= '<option value="'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
                                 $img .= '<option value="'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
@@ -2801,37 +2805,40 @@ class checklist_class {
 
 
         if ($CFG->version < 2011120100) {
-            $checkdata = optional_param('items', array(), PARAM_INT);
+            $userids = optional_param('userids', array(), PARAM_INT);
         } else {
-            $checkdata = optional_param_array('items', array(), PARAM_INT);
+            $userids = optional_param_array('userids', array(), PARAM_INT);
         }
-        if (!is_array($checkdata)) {
+        if (!is_array($userids)) {
             // Something has gone wrong, so update nothing
             return;
         }
 
         $userchecks = array();
-        foreach ($checkdata as $item => $val) {
-            if ($val != CHECKLIST_TEACHERMARK_NO && $val != CHECKLIST_TEACHERMARK_YES && $val != CHECKLIST_TEACHERMARK_UNDECIDED) {
-                continue; // Invalid value
+        foreach ($userids as $userid) {
+            if ($CFG->version < 2011120100) {
+                $checkdata = optional_param('items_'.$userid, array(), PARAM_INT);
+            } else {
+                $checkdata = optional_param_array('items_'.$userid, array(), PARAM_INT);
             }
-
-            $details = explode('_', $item);
-            if (count($details) != 2) {
-                continue; // Malformed key
-            }
-            $itemid = intval($details[0]);
-            $userid = intval($details[1]);
-            if (!$itemid || !$userid) {
+            if (!is_array($checkdata)) {
                 continue;
             }
-            if (!array_key_exists($itemid, $this->items)) {
-                continue; // Item is not part of this checklist
+            foreach ($checkdata as $itemid => $val) {
+                if ($val != CHECKLIST_TEACHERMARK_NO && $val != CHECKLIST_TEACHERMARK_YES && $val != CHECKLIST_TEACHERMARK_UNDECIDED) {
+                    continue; // Invalid value
+                }
+                if (!$itemid) {
+                    continue;
+                }
+                if (!array_key_exists($itemid, $this->items)) {
+                    continue; // Item is not part of this checklist
+                }
+                if (!array_key_exists($userid, $userchecks)) {
+                    $userchecks[$userid] = array();
+                }
+                $userchecks[$userid][$itemid] = $val;
             }
-            if (!array_key_exists($userid, $userchecks)) {
-                $userchecks[$userid] = array();
-            }
-            $userchecks[$userid][$itemid] = $val;
         }
 
         if (empty($userchecks)) {
