@@ -70,22 +70,10 @@ class block_checklist extends block_list {
         if ($viewallreports || $viewmenteereports) {
             $orderby = 'ORDER BY firstname ASC';
             $ausers = false;
-            $showgroup = false;
-            if (!empty($this->config->groupid)) {
-                $showgroup = $this->config->groupid;
-            }
-            $separate = $COURSE->groupmode == SEPARATEGROUPS;
-            if ($separate && !has_capability('moodle/site:accessallgroups', $context)) {
-                // Teacher can only see own groups
-                $groups = groups_get_all_groups($COURSE->id, $USER->id, 0, 'g.id, g.name');
-                if (!$groups) {
-                    $groups = array();
-                }
-                if (!$showgroup || !array_key_exists($showgroup, $groups)) {
-                    // Showgroup not set OR teacher not member of showgroup
-                    $showgroup = array_keys($groups); // Show all students for group(s) teacher is member of
-                }
-            }
+
+            // Add the groups selector to the footer.
+            $this->content->footer = $this->get_groups_menu($cm);
+            $showgroup = $this->get_selected_group($cm);
 
             if ($users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', $showgroup, '', false)) {
                 $users = array_keys($users);
@@ -136,5 +124,69 @@ class block_checklist extends block_list {
         require_once($CFG->dirroot.'/mod/checklist/locallib.php');
         return true;
     }
-}
 
+    function get_groups_menu($cm) {
+        global $COURSE, $OUTPUT;
+
+        if (!$groupmode = groups_get_activity_groupmode($cm)) {
+            return '';
+        }
+
+        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        $aag = has_capability('moodle/site:accessallgroups', $context);
+
+        if ($groupmode == VISIBLEGROUPS or $aag) {
+            $seeall = true;
+            $allowedgroups = groups_get_all_groups($cm->course, 0, $cm->groupingid); // any group in grouping
+        } else {
+            $seeall = false;
+            $allowedgroups = groups_get_all_groups($cm->course, $USER->id, $cm->groupingid); // only assigned groups
+        }
+
+        $selected = $this->get_selected_group($cm, $allowedgroups, $seeall);
+
+        $groupsmenu = array();
+        if (empty($allowedgroups) || $seeall) {
+            $groupsmenu[0] = get_string('allparticipants');
+        }
+        if ($allowedgroups) {
+            foreach ($allowedgroups as $group) {
+                $groupsmenu[$group->id] = format_string($group->name);
+            }
+        }
+
+        $baseurl = new moodle_url('/course/view.php', array('id' => $COURSE->id));
+        if (count($groupsmenu) <= 1) {
+            return '';
+        }
+
+        $select = new single_select($baseurl, 'group', $groupsmenu, $selected, null, 'selectgroup');
+        $out = $OUTPUT->render($select);
+        return html_writer::tag('div', $out, array('class' => 'groupselector'));
+    }
+
+    function get_selected_group($cm, $allowedgroups = null, $seeall = false) {
+        global $SESSION;
+
+        if (!is_null($allowedgroups)) {
+            if (!isset($SESSION->checklistgroup)) {
+                $SESSION->checklistgroup = array();
+            }
+            $change = optional_param('group', -1, PARAM_INT);
+            if ($change != -1) {
+                $SESSION->checklistgroup[$cm->id] = $change;
+            } else if (!isset($SESSION->checklistgroup[$cm->id])) {
+                if (isset($this->config->groupid)) {
+                    $SESSION->checklistgroup[$cm->id] = $this->config->groupid;
+                }
+            }
+            $groupok = (($SESSION->checklistgroup[$cm->id] == 0) && $seeall);
+            $groupok = $groupok || array_key_exists($SESSION->checklistgroup[$cm->id], $allowedgroups);
+            if (!$groupok) {
+                $SESSION->checklistgroup[$cm->id] = reset($allowedgroups);
+            }
+        }
+
+        return $SESSION->checklistgroup[$cm->id];
+    }
+}

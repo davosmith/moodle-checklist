@@ -4,6 +4,7 @@ It will not work without the checklist module - which can be downloaded here: ht
 
 ==Changes==
 
+* 2012-08-06 - Now able to change groups via a menu inside the block (the settings page now defines the default group to display)
 * 2012-07-07 - Tested against Moodle 2.3
 * 2012-01-27 - French translation from Luiggi Sansonetti
 * 2012-01-02 - Minor tweaks to improve Moodle 2.2+ compatibility (optional_param_array / context_module::instance )
