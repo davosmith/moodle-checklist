@@ -1938,6 +1938,7 @@ class checklist_class {
     }
 
     function process_edit_actions() {
+        global $CFG;
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
         $removeauto = optional_param('removeauto', false, PARAM_TEXT);
