@@ -187,6 +187,9 @@ function checklist_update_grades($checklist, $userid=0) {
                                     'itemoptional' => CHECKLIST_OPTIONAL_NO,
                                     'hidden' => CHECKLIST_HIDDEN_NO ),
                               '', 'id, grouping');
+    if (!$items) {
+        return;
+    }
     if (!$course = $DB->get_record('course', array('id' => $checklist->course) )) {
         return;
     }
