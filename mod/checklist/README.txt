@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2012-08-25 - Minor fix to grade update function
 * 2012-08-06 - Minor fix to reduce chance of hitting max_input_vars limits when updated all student's checkmarks
 * 2012-07-07 - Improved progress bar styling; Improved debugging of automatic updates (see below); Fixed minor debug warnings
 * 2012-04-07 - mod/checklist:addinstance capability added (for M2.3); Russian / Ukranian translations from Andriy Semenets
