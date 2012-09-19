@@ -2,15 +2,17 @@ Checklist module
 ================
 
 ==Introduction==
-This is a Moodle plugin for Moodle 1.9 & 2.0+ that allows a teacher to create a checklist for their students to work through.
+This is a Moodle plugin for Moodle 1.9 & 2.x that allows a teacher to create a checklist for their students to work through.
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
-Note: This is the Moodle 2.0+ version.
+Note: This is the Moodle 2.x version.
 
 Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
 
 ==Changes==
 
+* 2012-09-19 - Split the 3 plugins (mod / block / grade report) into separate repos for better maintenance
+* 2012-08-25 - Minor fix to grade update function
 * 2012-08-06 - Minor fix to reduce chance of hitting max_input_vars limits when updated all student's checkmarks
 * 2012-07-07 - Improved progress bar styling; Improved debugging of automatic updates (see below); Fixed minor debug warnings
 * 2012-04-07 - mod/checklist:addinstance capability added (for M2.3); Russian / Ukranian translations from Andriy Semenets
@@ -20,24 +22,35 @@ Students are presented with a simple chart showing how far they have progressed 
 * 2012-01-02 - CONTRIB-2979: remembers report settings (sort order, etc.) until you log out; CONTRIB-3308 - 'viewmenteereport' capability, allowing users to view reports of users they are mentors for
 
 ==Installation==
-(Note, due to the way the new plugins database works, if you are downloading this from the Moodle.org website, you will need to download the 'checklist block' and 'checklist grade export' plugins separately)
+The checklist block and grade report are separate, optional plugins that can be downloaded from:
+http://moodle.org/plugins/view.php?plugin=block_checklist
+http://moodle.org/plugins/view.php?plugin=gradeexport_checklist
 
 1. Unzip the contents of file you downloaded to a temporary folder.
 2. Upload the files to the your moodle server, placing the 'mod/checklist' files in the '[moodlefolder]/mod/checklist', (optionally) the 'blocks/checklist' files in the '[moodlefolder]/blocks/checklist' folder and (optionally) the 'grade/export/checklist' files in the '[moodlefolder]/grade/export/checklist' folder.
 3. Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
 IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds (or more - depending on how often your site runs 'cron' updates), between a student completing an activity and their checklist being updated.
-
 If you are not happy with this delay, then make the changes found in the file core_modifications.txt
 
 Note: if you are upgrading from a previous version, please delete the file 'mod/checklist/settings.php' from the server, as it is no longer needed.
 
+==Problems with automatic update?==
+
+Whilst automatic updates are working fine in all situations I have tested, there have been some reports of these not updating check-marks correctly on some sites.
+If this is the case on your site, there are a couple of things to try, before contacting me:
+1. Make sure the checklist is set to 'Student only' - it is the student mark that is automatically updated, if this is not displayed, you won't see any changes.
+2. Make sure cron updates are running on your Moodle server.
+3. Edit [moodledir]/mod/checklist/autoupdate.php and remove the '//' from the start of the line 'define("DEBUG_CHECKLIST_AUTOUPDATE", 1)'. Run a manual cron update ( http://[siteurl]/admin/cron.php ) and check the detailed feedback for the checklist module.
+
 ==Adding a checklist block==
+(Optional plugin)
 1. Click 'Turn editing on', in a course view.
 2. Under 'blocks', choose 'Checklist'
 3. Click on the 'Edit' icon in the new block to set which  checklist to display and (optionally) which group of users to display.
 
 ==Exporting checklist progress (Excel)==
+(Optional plugin)
 1. In a course, click 'Grades'
 2. From the dropdown menu, choose 'Export => Checklist Export'
 3. Choose the checklist you want to export and click 'Export Excel'
@@ -71,11 +84,11 @@ If you allow a checklist to be updated by teachers (either exclusively, or in ad
 5. Click 'View all Progress' to go back to the view with all the students shown.
 
 ==Further information==
-Moodle plugins database entry: http://moodle.org/mod/data/view.php?d=13&rid=3582
+Moodle plugins database entry: http://moodle.org/plugins/view.php?plugin=mod_checklist
 Report a bug, or suggest an improvement: http://tracker.moodle.org/browse/CONTRIB/component/10608
 
 ==Contact details==
-Any questions, suggested improvements (or offers to pay for specific customisations) to:
-Davo Smith - davo@davodev.co.uk
-http://www.davodev.co.uk
+Any questions, suggested improvements to:
+Davo Smith - moodle@davosmith.co.uk
+Any enquiries about custom development to Synergy Learning: http://www.synergy-learning.com
 
