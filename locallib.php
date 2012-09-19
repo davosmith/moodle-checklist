@@ -464,7 +464,7 @@ class checklist_class {
     }
 
     function view() {
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
 
         if ((!$this->items) && $this->canedit()) {
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)) );
@@ -486,6 +486,7 @@ class checklist_class {
                 echo $OUTPUT->footer();
                 die;
             }
+            $currenttab = '';
         }
 
         $this->view_header();
@@ -738,7 +739,9 @@ class checklist_class {
     function view_items($viewother = false, $userreport = false) {
         global $DB, $OUTPUT, $PAGE;
 
-        echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter');
+        echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter checklistbox');
+
+        echo html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner'));
 
         $comments = $this->checklist->teachercomments;
         $editcomments = false;

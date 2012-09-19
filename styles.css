@@ -229,3 +229,19 @@ p.checklistwarning {
 .jsenabled #checklistsavechecks {
     display: none;
 }
+
+#checklistspinner {
+    display: none;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 16px;
+    height: 16px;
+    background-image: url([[pix:i/loading_small]]);
+}
+
+.checklistbox {
+    position: relative;
+    top: 0;
+    left: 0;
+}

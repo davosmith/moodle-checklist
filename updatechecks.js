@@ -13,8 +13,10 @@ M.mod_checklist = {
     optionalchecked: 0,
     anim1: null,
     anim2: null,
+    Y: null,
 
     init: function(Y, url, sesskey, cmid, updateprogress) {
+        this.Y = Y;
         this.serverurl = url;
         this.sesskey = sesskey;
         this.cmid = cmid;
@@ -42,7 +44,6 @@ M.mod_checklist = {
             }
         }
 
-        //YD.setStyle('checklistsavechecks', 'display', 'none');
         window.onunload =  function(e) {
             M.mod_checklist.send_update_batch(true);
         };
@@ -145,7 +146,8 @@ M.mod_checklist = {
         }
         this.updatetimeout = setTimeout(function() {
             M.mod_checklist.send_update_batch(false);
-        }, 1000);
+        }, 500);
+        this.show_spinner();
     },
 
     send_update_batch: function(unload) {
@@ -172,14 +174,17 @@ M.mod_checklist = {
         this.updatelist = [];
 
         // Send message to server
+        var self = this;
         if (!unload) {
             var callback= {
                 success: function(o) {
+                    self.hide_spinner();
                     if (o.responseText != 'OK') {
                         alert(o.responseText);
                     }
                 },
                 failure: function(o) {
+                    self.hide_spinner();
                     alert(o.statusText);
                 },
                 timeout: 5000
@@ -192,7 +197,14 @@ M.mod_checklist = {
             var beacon = new Image();
             beacon.src = this.serverurl + '?' + params;
         }
+    },
+
+    show_spinner: function() {
+        this.Y.one('#checklistspinner').setStyle('display', 'block');
+    },
+
+    hide_spinner: function() {
+        this.Y.one('#checklistspinner').setStyle('display', 'none');
     }
 }
 //});
-
