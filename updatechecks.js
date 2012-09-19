@@ -23,7 +23,7 @@
 	    var YE = YAHOO.util.Event;
 	    var YD = YAHOO.util.Dom;
 
-	    this.updatelist = new Array();
+	    this.updatelist = [];
 	    var items = YD.getElementsByClassName('checklistitem');
 	    for (var i=0; i<items.length; i++) {
 		YE.addListener(items[i], 'click', function (e) {
@@ -42,7 +42,7 @@
 		}
 	    }
 
-	    YD.setStyle('checklistsavechecks', 'display', 'none');
+	    //YD.setStyle('checklistsavechecks', 'display', 'none');
 	    window.onunload =  function(e) {
 		M.mod_checklist.send_update_batch(true);
 	    };
