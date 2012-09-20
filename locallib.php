@@ -789,7 +789,8 @@ class checklist_class {
             $showcompletiondates = $reportsettings->showcompletiondates;
         }
 
-        echo format_text($this->checklist->intro, $this->checklist->introformat);
+        $intro = file_rewrite_pluginfile_urls($this->checklist->intro, 'pluginfile.php', $this->context->id, 'mod_checklist', 'intro', null);
+        echo format_text($intro, $this->checklist->introformat);
         echo '<br/>';
 
         $showteachermark = false;
