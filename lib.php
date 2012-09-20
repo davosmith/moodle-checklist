@@ -477,8 +477,16 @@ function checklist_print_recent_activity($course, $isteacher, $timestart) {
 function checklist_print_overview($courses, &$htmlarray) {
     global $USER, $CFG, $DB;
 
+    $config = get_config('checklist');
+    if (isset($config->showmymoodle) && !$config->showmymoodle) {
+        return; // Disabled via global config.
+    }
+    if (!isset($config->showcompletemymoodle)) {
+        $config->showcompletemymoodle = 1;
+    }
+
     if (empty($courses) || !is_array($courses) || count($courses) == 0) {
-        return array();
+        return;
     }
 
     if (!$checklists = get_all_instances_in_courses('checklist', $courses)) {
@@ -487,7 +495,7 @@ function checklist_print_overview($courses, &$htmlarray) {
 
     $strchecklist = get_string('modulename', 'checklist');
 
-    foreach ($checklists as $key => $checklist) {
+    foreach ($checklists as $checklist) {
         $show_all = true;
         if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
             if ($CFG->version < 2011120100) {
@@ -496,6 +504,13 @@ function checklist_print_overview($courses, &$htmlarray) {
                 $context = context_module::instance($checklist->coursemodule);
             }
             $show_all = !has_capability('mod/checklist:updateown', $context);
+        }
+
+        $progressbar = checklist_class::print_user_progressbar($checklist->id, $USER->id,
+                                                               '270px', true, true,
+                                                               !$config->showcompletemymoodle);
+        if (empty($progressbar)) {
+            continue;
         }
 
         // Do not worry about hidden items / groupings as automatic items cannot have dates
@@ -514,7 +529,7 @@ function checklist_print_overview($courses, &$htmlarray) {
         $str = '<div class="checklist overview"><div class="name">'.$strchecklist.': '.
             '<a title="'.$strchecklist.'" href="'.$CFG->wwwroot.'/mod/checklist/view.php?id='.$checklist->coursemodule.'">'.
             $checklist->name.'</a></div>';
-        $str .= '<div class="info">'.checklist_class::print_user_progressbar($checklist->id, $USER->id, '300px', true, true).'</div>';
+        $str .= '<div class="info">'.$progressbar.'</div>';
         foreach ($date_items as $item) {
             $str .= '<div class="info">'.$item->displaytext.': ';
             if ($item->duetime > time()) {

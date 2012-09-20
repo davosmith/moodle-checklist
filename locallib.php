@@ -3104,21 +3104,24 @@ class checklist_class {
         $this->userid = false;
     }
 
-    static function print_user_progressbar($checklistid, $userid, $width='300px', $showpercent=true, $return=false) {
+    static function print_user_progressbar($checklistid, $userid, $width='300px', $showpercent=true, $return=false, $hidecomplete=false) {
         global $OUTPUT;
 
         list($ticked, $total) = checklist_class::get_user_progress($checklistid, $userid);
         if (!$total) {
-            return;
+            return '';
+        }
+        if ($hidecomplete && ($ticked == $total)) {
+            return '';
         }
         $percent = $ticked * 100 / $total;
 
         // TODO - fix this now that styles.css is included
-        $output = '<div class="checklist_progress_outer" style="border-width: 1px; border-style: solid; border-color: black; width: '.$width.'; background-colour: transparent; height: 15px; float: left;" >';
-        $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').'); background-color: #229b15; height: 100%; background-repeat: repeat-x; background-position: top;" >&nbsp;</div>';
+        $output = '<div class="checklist_progress_outer" style="width: '.$width.';" >';
+        $output .= '<div class="checklist_progress_inner" style="width:'.$percent.'%; background-image: url('.$OUTPUT->pix_url('progress','checklist').');" >&nbsp;</div>';
         $output .= '</div>';
         if ($showpercent) {
-            $output .= '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%', $percent).'</div>';
+            $output .= '<span class="checklist_progress_percent">&nbsp;'.sprintf('%0d%%', $percent).'</span>';
         }
         $output .= '<br style="clear:both;" />';
         if ($return) {

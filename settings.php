@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,18 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Code fragment to define the version of checklist
- * This fragment is called by moodle_needs_upgrading() and /admin/index.php
+ * Global settings for the checklist
  *
- * @author  Davo Smith <moodle@davosmith.co.uk>
- * @package mod/checklist
+ * @author  2012, Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$module->version  = 2012092001;  // The current module version (Date: YYYYMMDDXX)
-$module->cron     = 60;          // Period for cron to check this module (secs)
-$module->maturity = MATURITY_STABLE;
-$module->release  = '2.x (Build: 2012092001)';
-$module->requires = 2010112400;
-$module->component = 'mod_checklist';
+if ($ADMIN->fulltree) {
+    $settings->add(new admin_setting_configcheckbox('checklist/showmymoodle',
+                                                    get_string('showmymoodle', 'mod_checklist'),
+                                                    get_string('configshowmymoodle', 'mod_checklist'), 1));
+    $settings->add(new admin_setting_configcheckbox('checklist/showcompletemymoodle',
+                                                    get_string('showcompletemymoodle', 'mod_checklist'),
+                                                    get_string('configshowcompletemymoodle', 'mod_checklist'), 1));
+}
