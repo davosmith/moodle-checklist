@@ -100,6 +100,14 @@ ol.checklist li .itemteacherdate {
     zindex: 100;
 }
 
+ol.checklist li .itemteachername {
+    background-color: #b0ffb0;
+    position: absolute;
+    width: 10em;
+    left: 45%;
+    zindex: 100;
+}
+
 .checklist-itemdue {
     font-style: italic;
     color: #90d090;

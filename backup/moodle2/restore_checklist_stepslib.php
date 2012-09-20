@@ -98,6 +98,9 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
             $data->teachertimestamp = $this->apply_date_offset($data->teachertimestamp);
         }
         $data->userid = $this->get_mappingid('user', $data->userid);
+        if ($data->teacherid) {
+            $data->teacherid = $this->get_mappingid('user', $data->teacherid);
+        }
 
         $newid = $DB->insert_record('checklist_check', $data);
         $this->set_mapping('checklist_check', $oldid, $newid);

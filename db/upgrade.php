@@ -256,6 +256,22 @@ function xmldb_checklist_upgrade($oldversion=0) {
         upgrade_mod_savepoint($result, 2011082001, 'checklist');
     }
 
+    if ($oldversion < 2012092002) {
+
+        // Define field teacherid to be added to checklist_check
+        $table = new xmldb_table('checklist_check');
+        $field = new xmldb_field('teacherid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'teachertimestamp');
+
+        // Conditionally launch add field teacherid
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // checklist savepoint reached
+        upgrade_mod_savepoint(true, 2012092002, 'checklist');
+    }
+
+
     return $result;
 
 }

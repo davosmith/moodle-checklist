@@ -130,7 +130,7 @@ class checklist_class {
 
         // Load the currently checked-off items
         if ($this->userid) { // && ($this->canupdateown() || $this->canviewreports() )) {
-            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark, c.teachertimestamp FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
+            $sql = 'SELECT i.id, c.usertimestamp, c.teachermark, c.teachertimestamp, c.teacherid FROM {checklist_item} i LEFT JOIN {checklist_check} c ';
             $sql .= 'ON (i.id = c.item AND c.userid = ?) WHERE i.checklist = ? ';
 
             $checks = $DB->get_records_sql($sql, array($this->userid, $this->checklist->id));
@@ -143,6 +143,7 @@ class checklist_class {
                     $this->items[$id]->teachermark = $check->teachermark;
                     $this->items[$id]->usertimestamp = $check->usertimestamp;
                     $this->items[$id]->teachertimestamp = $check->teachertimestamp;
+                    $this->items[$id]->teacherid = $check->teacherid;
                 } else if ($this->useritems && isset($this->useritems[$id])) {
                     $this->useritems[$id]->checked = $check->usertimestamp > 0;
                     $this->useritems[$id]->usertimestamp = $check->usertimestamp;
@@ -787,6 +788,27 @@ class checklist_class {
 
             $reportsettings = $this->get_report_settings();
             $showcompletiondates = $reportsettings->showcompletiondates;
+
+            $strteacherdate = get_string('teacherdate', 'mod_checklist');
+            $struserdate = get_string('userdate', 'mod_checklist');
+            $strteachername = get_string('teacherid', 'mod_checklist');
+
+            if ($showcompletiondates) {
+                $teacherids = array();
+                foreach ($this->items as $item) {
+                    if ($item->teacherid) {
+                        $teacherids[$item->teacherid] = $item->teacherid;
+                    }
+                }
+                $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, firstname, lastname');
+                foreach ($this->items as $item) {
+                    if (isset($teachers[$item->teacherid])) {
+                        $item->teachername = fullname($teachers[$item->teacherid]);
+                    } else {
+                        $item->teachername = false;
+                    }
+                }
+            }
         }
 
         $intro = file_rewrite_pluginfile_urls($this->checklist->intro, 'pluginfile.php', $this->context->id, 'mod_checklist', 'intro', null);
@@ -985,10 +1007,13 @@ class checklist_class {
                 if ($showcompletiondates) {
                     if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
                         if ($showteachermark && $item->teachermark != CHECKLIST_TEACHERMARK_UNDECIDED && $item->teachertimestamp) {
-                            echo '<span class="itemteacherdate">'.userdate($item->teachertimestamp, get_string('strftimedatetimeshort')).'</span>';
+                            if ($item->teachername) {
+                                echo '<span class="itemteachername" title="'.$strteachername.'">'.$item->teachername.'</span>';
+                            }
+                            echo '<span class="itemteacherdate" title="'.$strteacherdate.'">'.userdate($item->teachertimestamp, get_string('strftimedatetimeshort')).'</span>';
                         }
                         if ($showcheckbox && $item->checked && $item->usertimestamp) {
-                            echo '<span class="itemuserdate">'.userdate($item->usertimestamp, get_string('strftimedatetimeshort')).'</span>';
+                            echo '<span class="itemuserdate" title="'.$struserdate.'">'.userdate($item->usertimestamp, get_string('strftimedatetimeshort')).'</span>';
                         }
                     }
                 }
@@ -1134,6 +1159,7 @@ class checklist_class {
             if ($updateform) {
                 echo '<input id="checklistsavechecks" type="submit" name="submit" value="'.get_string('savechecks','checklist').'" />';
                 if ($viewother) {
+                    echo '&nbsp;<input type="submit" name="save" value="'.get_string('savechecks', 'mod_checklist').'" />';
                     echo '&nbsp;<input type="submit" name="savenext" value="'.get_string('saveandnext').'" />';
                     echo '&nbsp;<input type="submit" name="viewnext" value="'.get_string('next').'" />';
                 }
@@ -2732,9 +2758,11 @@ class checklist_class {
                         $newcheck = new stdClass;
                         $newcheck->teachertimestamp = time();
                         $newcheck->teachermark = $newval;
+                        $newcheck->teacherid = $USER->id;
 
                         $item->teachermark = $newcheck->teachermark;
                         $item->teachertimestamp = $newcheck->teachertimestamp;
+                        $item->teacherid = $newcheck->teacherid;
 
                         $oldcheck = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid) );
                         if ($oldcheck) {
@@ -2801,7 +2829,7 @@ class checklist_class {
     }
 
     function updateallteachermarks() {
-        global $DB, $CFG;
+        global $DB, $CFG, $USER;
 
         if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
             // Student only lists do not have teacher marks to update
@@ -2883,6 +2911,7 @@ class checklist_class {
                     $updcheck->id = $currentchecks[$itemid]->id;
                     $updcheck->teachermark = $val;
                     $updcheck->teachertimestamp = time();
+                    $updcheck->teacherid = $USER->id;
 
                     $DB->update_record('checklist_check', $updcheck);
                     $updategrades = true;

@@ -157,8 +157,10 @@ $string['showmymoodle'] = 'Show Checklists on \'My Moodle\' page';
 $string['showprogressbars'] = 'Show progress bars';
 
 $string['teachercomments'] = 'Teachers can add comments';
+$string['teacherdate'] = 'Date a teacher last updated this item';
 
 $string['teacheredit'] = 'Updates by';
+$string['teacherid'] = 'The teacher who last updated this mark';
 
 $string['teachermarkundecided'] = 'Teacher has not yet marked this';
 $string['teachermarkyes'] = 'Teacher states that you have completed this';
@@ -168,13 +170,14 @@ $string['teachernoteditcheck'] = 'Student only';
 $string['teacheroverwritecheck'] = 'Teacher only';
 $string['teacheralongsidecheck'] = 'Student and teacher';
 
-$string['toggledates'] = 'Toggle dates';
+$string['toggledates'] = 'Toggle names & dates';
 
 $string['theme'] = 'Checklist display theme';
 
 $string['updatecompletescore'] = 'Save completion grades';
 $string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';
+$string['userdate'] = 'Date the user last updated this item';
 $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 

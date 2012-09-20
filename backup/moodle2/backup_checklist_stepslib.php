@@ -45,7 +45,7 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         $checks = new backup_nested_element('checks');
 
         $check = new backup_nested_element('check', array('id'), array(
-            'userid', 'usertimestamp', 'teachermark', 'teachertimestamp'));
+            'userid', 'usertimestamp', 'teachermark', 'teachertimestamp', 'teacherid'));
 
         $comments = new backup_nested_element('comments');
 
@@ -77,6 +77,7 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         $item->annotate_ids('user', 'userid');
         $item->annotate_ids('course_modules', 'moduleid');
         $check->annotate_ids('user', 'userid');
+        $check->annotate_ids('user', 'teacherid');
         $comment->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'commentby');
 
