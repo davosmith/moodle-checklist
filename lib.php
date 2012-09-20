@@ -698,7 +698,6 @@ function checklist_uninstall() {
 }
 
 function checklist_reset_course_form_definition(&$mform) {
-    //UT
     $mform->addElement('header', 'checklistheader', get_string('modulenameplural', 'checklist'));
     $mform->addElement('checkbox', 'reset_checklist_progress', get_string('resetchecklistprogress', 'checklist'));
 }
@@ -708,7 +707,7 @@ function checklist_reset_course_form_defaults($course) {
 }
 
 function checklist_reset_userdata($data) {
-    global $CFG, $DB;
+    global $DB;
 
     $status = array();
     $component = get_string('modulenameplural', 'checklist');
@@ -716,7 +715,6 @@ function checklist_reset_userdata($data) {
     $status[] = array('component'=>$component, 'item'=>$typestr, 'error'=>false);
 
     if (!empty($data->reset_checklist_progress)) {
-        //UT
         $checklists = $DB->get_records('checklist', array('course' => $data->courseid));
         if (!$checklists) {
             return $status;
@@ -728,12 +726,12 @@ function checklist_reset_userdata($data) {
             return $status;
         }
 
-        $DB->delete_records_list('checklist_check', 'item', $items);
-        $DB->delete_records_list('checklist_comment', 'itemid', $items);
+        $itemids = array_keys($items);
+        $DB->delete_records_list('checklist_check', 'item', $itemids);
+        $DB->delete_records_list('checklist_comment', 'itemid', $itemids);
 
-        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
-        $sql = "checklist $isql AND userid != 0";
-        $DB->delete_records_select('checklist_item', $sql, $iparams);
+        $sql = "checklist $csql AND userid <> 0";
+        $DB->delete_records_select('checklist_item', $sql, $cparams);
 
         // Reset the grades
         foreach ($checklists as $checklist) {
