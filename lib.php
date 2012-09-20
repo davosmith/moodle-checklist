@@ -604,7 +604,7 @@ function checklist_cron () {
     // Need the cmid, userid and newstate
     $completionupdate = 0;
     list($msql, $mparam) = $DB->get_in_or_equal(array_keys($courses));
-    $sql = 'SELECT c.coursemoduleid, c.userid, c.completionstate FROM {course_modules_completion} c ';
+    $sql = 'SELECT c.id, c.coursemoduleid, c.userid, c.completionstate FROM {course_modules_completion} c ';
     $sql .= 'JOIN {course_modules} m ON c.coursemoduleid = m.id ';
     $sql .= "WHERE c.timemodified > ? AND m.course $msql ";
     $params = array_merge(array($lastlogtime), $mparam);
