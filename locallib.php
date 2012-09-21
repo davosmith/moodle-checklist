@@ -1708,7 +1708,6 @@ class checklist_class {
             }
             $firstlink = new moodle_url($thisurl, array('sortby' => $firstlink));
             $lastlink = new moodle_url($thisurl, array('sortby' => $lastlink));
-            $nameheading = get_string('fullname');
             $nameheading = ' <a href="'.$firstlink.'" >'.get_string('firstname').'</a> '.$firstarrow;
             $nameheading .= ' / <a href="'.$lastlink.'" >'.get_string('lastname').'</a> '.$lastarrow;
 
@@ -1793,7 +1792,6 @@ class checklist_class {
         $teachermarklocked = $this->checklist->lockteachermarks && !has_capability('mod/checklist:updatelocked', $this->context);
 
         // Sort out the heading row
-        $countcols = count($table->head);
         $output .= '<tr>';
         $keys = array_keys($table->head);
         $lastkey = end($keys);
@@ -2898,6 +2896,7 @@ class checklist_class {
                     $newcheck->teachermark = $val;
                     $newcheck->teachertimestamp = time();
                     $newcheck->usertimestamp = 0;
+                    $newcheck->teacherid = $USER->id;
 
                     $DB->insert_record('checklist_check', $newcheck);
                     $updategrades = true;
