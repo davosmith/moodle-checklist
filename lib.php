@@ -316,8 +316,8 @@ function checklist_update_grades($checklist, $userid=0) {
         if ($grade->rawgrade == $checklist->maxgrade) {
             if ($checklist->emailoncomplete) {
                 $timelimit = time() - 1 * 60 * 60; // Do not send another email if this checklist was already 'completed' in the last hour
-                $filter = "l.time > ? AND l.cmid = ? AND l.userid = ?";
-                $logs = get_logs($filter, array($timelimit, $cm->id, $grade->userid), '', 1, 1, $logcount);
+                $filter = "l.time > ? AND l.cmid = ? AND l.userid = ? AND l.action = 'complete'";
+                get_logs($filter, array($timelimit, $cm->id, $grade->userid), '', 1, 1, $logcount);
                 if ($logcount == 0) {
                     if (!isset($context)) {
                         if ($CFG->version < 2011120100) {
