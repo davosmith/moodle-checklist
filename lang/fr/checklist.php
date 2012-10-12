@@ -77,8 +77,8 @@ $string['completionpercentgroup'] = 'A cocher obligatoirement';
 $string['completionpercent'] = 'Pourcentage d\'items qui doivent &ecirc;tre coch&eacute;s :';
 
 $string['configchecklistautoupdate'] = 'Avant de permettre cela, vous devez faire quelques modifications au code Moodle, merci de voir le "mod / liste / README.txt" pour plus de d&eacute;tails';
-$string['configshowcompletemymoodle'] = 'Si ce n\'est pas coch&eacute;e, les listes compl&egrave;tes ne seront pas affich&eacute;es dans \'Ma page\'';
-$string['configshowmymoodle'] = 'Si ce n\'est pas coch&eacute;e, l\'activit&eacute; Liste des t&acirc;ches (avec des barres de progression) ne seront plus affich&eacute;es dans \'Ma page\'';
+$string['configshowcompletemymoodle'] = 'Si ce n\'est pas coch&eacute;, les listes compl&egrave;tes ne seront pas affich&eacute;es dans \'Ma page\'';
+$string['configshowmymoodle'] = 'Si ce n\'est pas coch&eacute;, les activit&eacutes; \'Liste des t&acirc;ches\' (avec des barres de progression) ne seront plus affich&eacute;es dans \'Ma page\'';
 
 $string['confirmdeleteitem'] = 'Etes-vous s&ucirc;r de vouloir effacer d&eacute;finitivement cet item de la Liste des t&acirc;ches?';
 
