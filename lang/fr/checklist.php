@@ -37,6 +37,7 @@ $string['autoupdate_help'] = 'Cela va automatiquement cocher les &eacute;l&eacut
 Si un suivi de fin de Moodle 2.0 est activ&eacute; pour une activit&eacute; particuli&egrave;re, il sera utilis&eacute; pour les cocher l\'&eacute;l&eacute;ment dans la liste <br />
 Pour plus de d&eacute;tails sur la cause exacte qu\'une activit&eacute; peut &ecirc;tre marqu&eacute; comme "achev&eacute;e", demandez &agrave; votre administrateur du site pour regarder dans le fichier "mod / liste / autoupdate.php" <br />
 Remarque: cel&agrave; peut prendre jusqu\'&agrave; 60 secondes pour que l\'activit&eacute; d\'un &eacute;tudiant se mette &agrave; jour dans leur Liste des t&acirc;ches';
+$string['autoupdatenote'] = 'Si le choix \'&eacute;tudiant\' pour la mise &agrave; jour automatique est coch&eacute;, les mises &agrave; jours ne seront pas affich&eacute;es dans les listes de t&acirc;ches pour \'Enseignant seul\'';
 
 $string['autoupdatewarning_both'] = 'Il y a des items sur cette liste qui seront automatiquement mis &agrave; jour (comme ceux que les &eacute;tudiants disent "complet"). Cependant, dans le cas d\'une Liste des t&acirc;ches commune "&eacute;tudiant et enseignant", les barres de progression ne seront pas mises &agrave; jour tant qu\'un enseignant accepte les notes attribu&eacute;es.';
 $string['autoupdatewarning_student'] = 'Il y a des items sur cette liste qui seront automatiquement mis &agrave; jour (comme ceux que les &eacute;tudiants disent "complet").';
@@ -59,6 +60,7 @@ $string['checklist:preview'] = 'Pr&eacute;visualisation d\'une Liste des t&acirc
 $string['checklist:updatelocked'] = 'Mise &agrave; jour des marques verrouill&eacute;e';
 $string['checklist:updateother'] = 'Mise &agrave; jour des marques des Liste des t&acirc;ches des &eacute;tudiants';
 $string['checklist:updateown'] = 'Mise &agrave; jour de vos marques des Liste des t&acirc;ches';
+$string['checklist:viewmenteereports'] = 'Voir la progression du stagiaire (seul)';
 $string['checklist:viewreports'] = 'Voir la progression des &eacute;tudiants';
 
 $string['checklistautoupdate'] = 'Autoriser les Liste des t&acirc;ches &agrave; se mettre &agrave; jour automatiquement';
@@ -75,6 +77,8 @@ $string['completionpercentgroup'] = 'A cocher obligatoirement';
 $string['completionpercent'] = 'Pourcentage d\'items qui doivent &ecirc;tre coch&eacute;s :';
 
 $string['configchecklistautoupdate'] = 'Avant de permettre cela, vous devez faire quelques modifications au code Moodle, merci de voir le "mod / liste / README.txt" pour plus de d&eacute;tails';
+$string['configshowcompletemymoodle'] = 'Si ce n\'est pas coch&eacute;, les listes compl&egrave;tes ne seront pas affich&eacute;es dans \'Ma page\'';
+$string['configshowmymoodle'] = 'Si ce n\'est pas coch&eacute;, les activit&eacutes; \'Liste des t&acirc;ches\' (avec des barres de progression) ne seront plus affich&eacute;es dans \'Ma page\'';
 
 $string['confirmdeleteitem'] = 'Etes-vous s&ucirc;r de vouloir effacer d&eacute;finitivement cet item de la Liste des t&acirc;ches?';
 
@@ -116,7 +120,7 @@ $string['linktomodule'] = 'Lien de la ressource ou de l\'activit&eacute;';
 
 $string['lockteachermarks'] = 'Verrouillage des coches de l\'enseignant';
 $string['lockteachermarks_help'] = 'Lorsque ce param&egrave;tre est activ&eacute;, une fois qu\'un enseignant a sauv&eacute; une coche "Oui", il ne sera plus possible de changer la valeur. Les utilisateurs ayant la capacit&eacute; "mod / check-list: updatelocked" sera toujours en mesure de changer la coche.';
-$string['lockteachermarkswarning'] = 'Remarque: Une fois que vous avez enregistr&eacute; ces coches, il vous sera impossible de changer toutes les coches "Oui"';
+$string['lockteachermarkswarning'] = 'Remarque : une fois que vous avez enregistr&eacute; ces coches, il vous sera impossible de changer toutes les coches "Oui"';
 
 $string['modulename'] = 'Liste des t&acirc;ches';
 $string['modulenameplural'] = 'Listes des t&acirc;ches';
@@ -147,12 +151,16 @@ $string['resetchecklistprogress'] = 'R&eacute;initialiser la progression et les 
 
 $string['savechecks'] = 'Sauvegarder';
 
+$string['showcompletemymoodle'] = 'Afficher les listes des t&acirc;ches enti&egrave;rement dans \'Ma page\'';
 $string['showfulldetails'] = 'Afficher tous les d&eacute;tails';
+$string['showmymoodle'] = 'Afficher les listes de t&acirc;ches dans \'Ma page\'';
 $string['showprogressbars'] = 'Afficher les barres de progression';
-///
+
 $string['teachercomments'] = 'Les enseignants peuvent ajouter des commentaires';
+$string['teacherdate'] = 'Date de derni&egrave;re mise &agrave; jour de l\'item par l\'enseignant';
 
 $string['teacheredit'] = 'Mises &agrave; jour par';
++$string['teacherid'] = 'Enseignant qui a mis &agrave; jour le dernier la coche';
 
 $string['teachermarkundecided'] = 'L\'enseignant n\'a pas encore coch&eacute; cet item';
 $string['teachermarkyes'] = 'L\'enseignant confirme que cet item est complet';
@@ -169,6 +177,7 @@ $string['theme'] = 'Th&egrave;me graphique pour afficher la Liste des t&acirc;ch
 $string['updatecompletescore'] = 'Sauvegarder les notes d\'ach&egrave;vement';
 $string['unindentitem'] = 'Item non indent&eacute;';
 $string['updateitem'] = 'Mise &agrave; jour';
+$string['userdate'] = 'Date de derni&egrave;re mise &agrave; jour de l\'item par l\'utilisateur';
 $string['useritemsallowed'] = 'L\'utilisateur peut ajouter ses propres items';
 $string['useritemsdeleted'] = 'Items de l\'utilisateur supprim&eacute;s';
 
