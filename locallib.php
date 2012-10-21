@@ -738,7 +738,7 @@ class checklist_class {
     }
 
     function view_items($viewother = false, $userreport = false) {
-        global $DB, $OUTPUT, $PAGE;
+        global $DB, $OUTPUT, $PAGE, $CFG;
 
         echo $OUTPUT->box_start('generalbox boxwidthwide boxaligncenter checklistbox');
 
@@ -812,7 +812,8 @@ class checklist_class {
         }
 
         $intro = file_rewrite_pluginfile_urls($this->checklist->intro, 'pluginfile.php', $this->context->id, 'mod_checklist', 'intro', null);
-        echo format_text($intro, $this->checklist->introformat);
+        $opts = array('trusted' => $CFG->enabletrusttext);
+        echo format_text($intro, $this->checklist->introformat, $opts);
         echo '<br/>';
 
         $showteachermark = false;
