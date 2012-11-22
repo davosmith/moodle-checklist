@@ -1650,12 +1650,15 @@ class checklist_class {
                     }
                 }
                 $totalitems = count($itemstocount);
-                list($isql, $iparams) = $DB->get_in_or_equal($itemstocount, SQL_PARAMS_NAMED);
 
-                if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-                    $sql = 'usertimestamp > 0 AND item '.$isql.' AND userid = :user ';
-                } else {
-                    $sql = 'teachermark = '.CHECKLIST_TEACHERMARK_YES.' AND item '.$isql.' AND userid = :user ';
+                $sql = '';
+                if ($totalitems) {
+                    list($isql, $iparams) = $DB->get_in_or_equal($itemstocount, SQL_PARAMS_NAMED);
+                    if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
+                        $sql = 'usertimestamp > 0 AND item '.$isql.' AND userid = :user ';
+                    } else {
+                        $sql = 'teachermark = '.CHECKLIST_TEACHERMARK_YES.' AND item '.$isql.' AND userid = :user ';
+                    }
                 }
                 echo '<div>';
                 foreach ($ausers as $auser) {
