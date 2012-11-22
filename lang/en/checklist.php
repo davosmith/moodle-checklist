@@ -54,6 +54,7 @@ $string['checkeditemsdeleted'] = 'Checked items deleted';
 $string['checklist'] = 'checklist';
 $string['pluginadministration'] = 'Checklist administration';
 
+$string['checklist:addinstance'] = 'Add a new checklist';
 $string['checklist:edit'] = 'Create and edit checklists';
 $string['checklist:emailoncomplete'] = 'Receive completion emails';
 $string['checklist:preview'] = 'Preview a checklist';
