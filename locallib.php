@@ -849,14 +849,21 @@ class checklist_class {
 
                 if (!$viewother) {
                     // Load the Javascript required to send changes back to the server (without clicking 'save')
-                    $jsmodule = array(
-                                      'name' => 'mod_checklist',
-                                      'fullpath' => new moodle_url('/mod/checklist/updatechecks.js')
-                                      );
-                    $PAGE->requires->yui2_lib('dom');
-                    $PAGE->requires->yui2_lib('event');
-                    $PAGE->requires->yui2_lib('connection');
-                    $PAGE->requires->yui2_lib('animation');
+                    if ($CFG->version < 2012120300) { // < Moodle 2.4
+                        $jsmodule = array(
+                            'name' => 'mod_checklist',
+                            'fullpath' => new moodle_url('/mod/checklist/updatechecks.js')
+                        );
+                        $PAGE->requires->yui2_lib('dom');
+                        $PAGE->requires->yui2_lib('event');
+                        $PAGE->requires->yui2_lib('connection');
+                        $PAGE->requires->yui2_lib('animation');
+                    } else {
+                        $jsmodule = array(
+                            'name' => 'mod_checklist',
+                            'fullpath' => new moodle_url('/mod/checklist/updatechecks24.js')
+                        );
+                    }
                     $updatechecksurl = new moodle_url('/mod/checklist/updatechecks.php');
                     $updateprogress = $showteachermark ? 0 : 1; // Progress bars should only be updated with 'student only' checklists
                     $PAGE->requires->js_init_call('M.mod_checklist.init', array($updatechecksurl->out(), sesskey(), $this->cm->id, $updateprogress), true, $jsmodule);
