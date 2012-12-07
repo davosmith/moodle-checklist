@@ -89,7 +89,7 @@ ol.checklist li .itemuserdate {
     position: absolute;
     width: 10em;
     left: 75%;
-    zindex: 100;
+    z-index: 100;
 }
 
 ol.checklist li .itemteacherdate {
@@ -97,7 +97,7 @@ ol.checklist li .itemteacherdate {
     position: absolute;
     width: 10em;
     left: 60%;
-    zindex: 100;
+    z-index: 100;
 }
 
 ol.checklist li .itemteachername {
@@ -105,7 +105,7 @@ ol.checklist li .itemteachername {
     position: absolute;
     width: 10em;
     left: 45%;
-    zindex: 100;
+    z-index: 100;
 }
 
 .checklist-itemdue {
