@@ -30,6 +30,11 @@
  *     actions across all modules.
  */
 
+define("CHECKLIST_EMAIL_NO", 0);
+define("CHECKLIST_EMAIL_STUDENT", 1);
+define("CHECKLIST_EMAIL_TEACHER", 2);
+define("CHECKLIST_EMAIL_BOTH", 3);
+
 define("CHECKLIST_TEACHERMARK_NO", 2);
 define("CHECKLIST_TEACHERMARK_YES", 1);
 define("CHECKLIST_TEACHERMARK_UNDECIDED", 0);
@@ -326,17 +331,32 @@ function checklist_update_grades($checklist, $userid=0) {
                             $context = context_module::instance($cm->id);
                         }
                     }
-                    if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
-                        foreach ($recipients as $recipient) {
-                            $details = new stdClass;
-                            $details->user = fullname($grade);
-                            $details->checklist = s($checklist->name);
+                    
+                    $details = new stdClass();
+                    if ($checklist->emailoncomplete > CHECKLIST_EMAIL_STUDENT ){//email will be sended to the all teachers who have capability
+                        if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
+                            foreach ($recipients as $recipient) {                                
+                                $details->user = fullname($grade);
+                                $details->checklist = s($checklist->name);
+                                $details->coursename = $course->fullname;
 
-                            $subj = get_string('emailoncompletesubject', 'checklist', $details);
-                            $content = get_string('emailoncompletebody', 'checklist', $details);
-                            $content .= $CFG->wwwroot.'/mod/checklist/view.php?id='.$cm->id;
-                            email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
+                                $subj = get_string('emailoncompletesubject', 'checklist', $details);
+                                $content = get_string('emailoncompletebody', 'checklist', $details);
+                                $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
+                                email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
+                            }
                         }
+                    }
+                    if ($checklist->emailoncomplete == CHECKLIST_EMAIL_STUDENT||$checklist->emailoncomplete == CHECKLIST_EMAIL_BOTH ) {//email will be sended to the student who complete this checklist
+                        $recipient_stud = $DB->get_record('user', array('id' => $grade->userid) );
+                        $details->user = fullname($grade);
+                        $details->checklist = s($checklist->name);
+                        $details->coursename = $course->fullname;
+
+                        $subj = get_string('emailoncompletesubjectown', 'checklist', $details);
+                        $content = get_string('emailoncompletebodyown', 'checklist', $details);
+                        $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
+                        email_to_user($recipient_stud, $grade, $subj, $content, '', '', '', false);                        
                     }
                 }
             }

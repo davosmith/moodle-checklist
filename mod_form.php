@@ -91,7 +91,12 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('maxgrade', 100);
         $mform->setAdvanced('maxgrade');
 
-        $mform->addElement('selectyesno', 'emailoncomplete', get_string('emailoncomplete', 'checklist'));
+        $emailrecipients = array();
+        $emailrecipients[CHECKLIST_EMAIL_NO] = get_string('no');
+        $emailrecipients[CHECKLIST_EMAIL_STUDENT] = get_string('teachernoteditcheck','checklist');
+        $emailrecipients[CHECKLIST_EMAIL_TEACHER] = get_string('teacheroverwritecheck', 'checklist');
+        $emailrecipients[CHECKLIST_EMAIL_BOTH] = get_string('teacheralongsidecheck', 'checklist');
+        $mform->addElement('select', 'emailoncomplete', get_string('emailoncomplete', 'checklist'), $emailrecipients);
         $mform->setDefault('emailoncomplete', 0);
         $mform->addHelpButton('emailoncomplete', 'emailoncomplete', 'checklist');
 
