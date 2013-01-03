@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2013-01-03 - Fixed the 'show course modules in checklist' feature in Moodle 2.4
 * 2012-12-07 - Moodle 2.4 compatibility fixes
 * 2012-10-09 - Fixed email sending when checklists are complete (thanks to Longfei Yu for the bug report + fix)
 * 2012-09-20 - CONTRIB-3921: broken images in intro text; CONTRIB-3904: error when resetting courses; CONTRIB-3916: checklists can be hidden from 'My Moodle' (either all checklists, or just completed checklists); issue with checklists updating from 'completion' fixed; CONTRIB-3897: teachers able to see who last updated the teacher mark

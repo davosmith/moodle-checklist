@@ -165,9 +165,10 @@ class checklist_class {
 
         $importsection = -1;
         if ($this->checklist->autopopulate == CHECKLIST_AUTOPOPULATE_SECTION) {
-            foreach ($mods->sections as $num => $section) {
+            foreach ($mods->get_sections() as $num => $section) {
                 if (in_array($this->cm->id, $section)) {
                     $importsection = $num;
+                    break;
                 }
             }
         }
@@ -179,8 +180,19 @@ class checklist_class {
 
         $groupmembersonly = isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly;
 
-        while ($section <=  $this->course->numsections) {
-            if (!array_key_exists($section, $mods->sections)) {
+        $numsections = 1;
+        if ($CFG->version >= 2012120300) {
+            $courseformat = course_get_format($this->course);
+            $opts = $courseformat->get_format_options();
+            if (isset($opts['numsections'])) {
+                $numsections = $opts['numsections'];
+            }
+        } else {
+            $numsections = $this->course->numsections;
+        }
+        $sections = $mods->get_sections();
+        while ($section <=  $numsections) {
+            if (!array_key_exists($section, $sections)) {
                 $section++;
                 continue;
             }
@@ -210,11 +222,19 @@ class checklist_class {
                 reset($this->items);
             }
 
+            if ($CFG->version >= 2012120300) {
+                $sectionname = $courseformat->get_section_name($section);
+            } else {
+                $sectionname = get_string('section').' '.$section;
+            }
             if (!$sectionheading) {
                 //echo 'adding section '.$section.'<br/>';
-                $name = get_string('section').' '.$section;
-                $sectionheading = $this->additem($name, 0, 0, false, false, $section, CHECKLIST_OPTIONAL_HEADING);
+                $sectionheading = $this->additem($sectionname, 0, 0, false, false, $section, CHECKLIST_OPTIONAL_HEADING);
                 reset($this->items);
+            } else {
+                if ($this->items[$sectionheading]->displaytext != $sectionname) {
+                    $this->updateitemtext($sectionheading, $sectionname);
+                }
             }
             $this->items[$sectionheading]->stillexists = true;
 
@@ -224,11 +244,11 @@ class checklist_class {
             }
             $nextpos = $this->items[$sectionheading]->position + 1;
 
-            foreach($mods->sections[$section] as $cmid) {
+            foreach($sections[$section] as $cmid) {
                 if ($this->cm->id == $cmid) {
                     continue; // Do not include this checklist in the list of modules
                 }
-                if ($mods->cms[$cmid]->modname == 'label') {
+                if ($mods->get_cm($cmid)->modname == 'label') {
                     continue; // Ignore any labels
                 }
 
@@ -254,7 +274,7 @@ class checklist_class {
                     }
                     reset($this->items);
                 }
-                $modname = $mods->cms[$cmid]->name;
+                $modname = $mods->get_cm($cmid)->name;
                 if ($foundit) {
                     $item->stillexists = true;
                     if ($item->position != $nextpos) {
@@ -265,7 +285,7 @@ class checklist_class {
                     if ($item->displaytext != $modname) {
                         $this->updateitemtext($item->id, $modname);
                     }
-                    if (($item->hidden == CHECKLIST_HIDDEN_BYMODULE) && $mods->cms[$cmid]->visible) {
+                    if (($item->hidden == CHECKLIST_HIDDEN_BYMODULE) && $mods->get_cm($cmid)->visible) {
                         // Course module was hidden and now is not
                         $item->hidden = CHECKLIST_HIDDEN_NO;
                         $upd = new stdClass;
@@ -274,7 +294,7 @@ class checklist_class {
                         $DB->update_record('checklist_item', $upd);
                         $changes = true;
 
-                    } else if (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->cms[$cmid]->visible) {
+                    } else if (($item->hidden == CHECKLIST_HIDDEN_NO) && !$mods->get_cm($cmid)->visible) {
                         // Course module is now hidden
                         $item->hidden = CHECKLIST_HIDDEN_BYMODULE;
                         $upd = new stdClass;
@@ -284,8 +304,8 @@ class checklist_class {
                         $changes = true;
                     }
 
-                    $groupingid = $mods->cms[$cmid]->groupingid;
-                    if ($groupmembersonly && $groupingid && $mods->cms[$cmid]->groupmembersonly) {
+                    $groupingid = $mods->get_cm($cmid)->groupingid;
+                    if ($groupmembersonly && $groupingid && $mods->get_cm($cmid)->groupmembersonly) {
                         if ($item->grouping != $groupingid) {
                             $item->grouping = $groupingid;
                             $upd = new stdClass;
@@ -306,15 +326,15 @@ class checklist_class {
                     }
                 } else {
                     //echo '+++adding item '.$name.' at '.$nextpos.'<br/>';
-                    $hidden = $mods->cms[$cmid]->visible ? CHECKLIST_HIDDEN_NO : CHECKLIST_HIDDEN_BYMODULE;
+                    $hidden = $mods->get_cm($cmid)->visible ? CHECKLIST_HIDDEN_NO : CHECKLIST_HIDDEN_BYMODULE;
                     $itemid = $this->additem($modname, 0, 0, $nextpos, false, $cmid, CHECKLIST_OPTIONAL_NO, $hidden);
                     $changes = true;
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
-                    $this->items[$itemid]->grouping = ($groupmembersonly && $mods->cms[$cmid]->groupmembersonly) ? $mods->cms[$cmid]->groupingid : 0;
+                    $this->items[$itemid]->grouping = ($groupmembersonly && $mods->get_cm($cmid)->groupmembersonly) ? $mods->get_cm($cmid)->groupingid : 0;
                     $item = $this->items[$itemid];
                 }
-                $item->modulelink = new moodle_url('/mod/'.$mods->cms[$cmid]->modname.'/view.php', array('id' => $cmid));
+                $item->modulelink = new moodle_url('/mod/'.$mods->get_cm($cmid)->modname.'/view.php', array('id' => $cmid));
                 $nextpos++;
             }
 
