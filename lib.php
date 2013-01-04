@@ -332,30 +332,24 @@ function checklist_update_grades($checklist, $userid=0) {
                         }
                     }
                     
+                    //prepare email content
                     $details = new stdClass();
+                    $details->user = fullname($grade);
+                    $details->checklist = s($checklist->name);
+                    $details->coursename = $course->fullname;
+                    $subj = get_string('emailoncompletesubject', 'checklist', $details);
+                    $content = get_string('emailoncompletebody', 'checklist', $details);
+                    $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
+                                
                     if ($checklist->emailoncomplete > CHECKLIST_EMAIL_STUDENT ){//email will be sended to the all teachers who have capability
                         if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
                             foreach ($recipients as $recipient) {                                
-                                $details->user = fullname($grade);
-                                $details->checklist = s($checklist->name);
-                                $details->coursename = $course->fullname;
-
-                                $subj = get_string('emailoncompletesubject', 'checklist', $details);
-                                $content = get_string('emailoncompletebody', 'checklist', $details);
-                                $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
                                 email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
                             }
                         }
                     }
                     if ($checklist->emailoncomplete == CHECKLIST_EMAIL_STUDENT||$checklist->emailoncomplete == CHECKLIST_EMAIL_BOTH ) {//email will be sended to the student who complete this checklist
                         $recipient_stud = $DB->get_record('user', array('id' => $grade->userid) );
-                        $details->user = fullname($grade);
-                        $details->checklist = s($checklist->name);
-                        $details->coursename = $course->fullname;
-
-                        $subj = get_string('emailoncompletesubjectown', 'checklist', $details);
-                        $content = get_string('emailoncompletebodyown', 'checklist', $details);
-                        $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
                         email_to_user($recipient_stud, $grade, $subj, $content, '', '', '', false);                        
                     }
                 }
