@@ -94,10 +94,13 @@ $string['editdatesstop'] = 'Stop editing dates';
 $string['edititem'] = 'Edit this item';
 
 $string['emailoncomplete'] = 'Email teachers when checklist is complete';
-$string['emailoncomplete_help'] = 'When a checklist is complete, a notification email is sent to all the teachers on the course.<br />
+$string['emailoncomplete_help'] = 'When a checklist is complete, a notification email can be sent: to the student who completed it, to all the teachers on the course or to both.<br />
 An administrator can control who receives this email using the capability \'mod:checklist/emailoncomplete\' - by default all teachers and non-editing teachers have this capability.';
 $string['emailoncompletesubject'] = 'User {$a->user} has completed checklist \'{$a->checklist}\'';
-$string['emailoncompletebody'] = 'User {$a->user} has completed checklist \'{$a->checklist}\'
+$string['emailoncompletesubjectown'] = 'You have completed checklist \'{$a->checklist}\'';
+$string['emailoncompletebody'] = 'User {$a->user} has completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\' 
+View the checklist here:';
+$string['emailoncompletebodyown'] = 'You have completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\' 
 View the checklist here:';
 
 $string['export'] = 'Export items';
