@@ -67,10 +67,9 @@ class mod_checklist_mod_form extends moodleform_mod {
         $ynoptions = array( 0 => get_string('no'), 1 => get_string('yes'));
         $mform->addElement('select', 'useritemsallowed', get_string('useritemsallowed', 'checklist'), $ynoptions);
 
-        $teditoptions = array();
-        $teditoptions[CHECKLIST_MARKING_STUDENT] = get_string('teachernoteditcheck','checklist');
-        $teditoptions[CHECKLIST_MARKING_TEACHER] = get_string('teacheroverwritecheck', 'checklist');
-        $teditoptions[CHECKLIST_MARKING_BOTH] = get_string('teacheralongsidecheck', 'checklist');
+        $teditoptions = array(  CHECKLIST_MARKING_STUDENT => get_string('teachernoteditcheck','checklist'),
+                                CHECKLIST_MARKING_TEACHER => get_string('teacheroverwritecheck', 'checklist'),
+                                CHECKLIST_MARKING_BOTH => get_string('teacheralongsidecheck', 'checklist'));
         $mform->addElement('select', 'teacheredit', get_string('teacheredit', 'checklist'), $teditoptions);
 
         $mform->addElement('select', 'duedatesoncalendar', get_string('duedatesoncalendar', 'checklist'), $ynoptions);
@@ -91,7 +90,11 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('maxgrade', 100);
         $mform->setAdvanced('maxgrade');
 
-        $mform->addElement('selectyesno', 'emailoncomplete', get_string('emailoncomplete', 'checklist'));
+        $emailrecipients = array(   CHECKLIST_EMAIL_NO => get_string('no'),
+                                    CHECKLIST_EMAIL_STUDENT => get_string('teachernoteditcheck', 'checklist'),
+                                    CHECKLIST_EMAIL_TEACHER => get_string('teacheroverwritecheck', 'checklist'),
+                                    CHECKLIST_EMAIL_BOTH => get_string('teacheralongsidecheck', 'checklist'));
+        $mform->addElement('select', 'emailoncomplete', get_string('emailoncomplete', 'checklist'), $emailrecipients);
         $mform->setDefault('emailoncomplete', 0);
         $mform->addHelpButton('emailoncomplete', 'emailoncomplete', 'checklist');
 
