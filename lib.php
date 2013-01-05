@@ -337,18 +337,25 @@ function checklist_update_grades($checklist, $userid=0) {
                     $details->user = fullname($grade);
                     $details->checklist = s($checklist->name);
                     $details->coursename = $course->fullname;
-                    $subj = get_string('emailoncompletesubject', 'checklist', $details);
-                    $content = get_string('emailoncompletebody', 'checklist', $details);
-                    $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
-                                
-                    if ($checklist->emailoncomplete > CHECKLIST_EMAIL_STUDENT ){//email will be sended to the all teachers who have capability
+
+                    if ($checklist->emailoncomplete == CHECKLIST_EMAIL_TEACHER || $checklist->emailoncomplete == CHECKLIST_EMAIL_BOTH) {
+                        //email will be sended to the all teachers who have capability
+                        $subj = get_string('emailoncompletesubject', 'checklist', $details);
+                        $content = get_string('emailoncompletebody', 'checklist', $details);
+                        $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
+
                         if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
                             foreach ($recipients as $recipient) {                                
                                 email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
                             }
                         }
                     }
-                    if ($checklist->emailoncomplete == CHECKLIST_EMAIL_STUDENT||$checklist->emailoncomplete == CHECKLIST_EMAIL_BOTH ) {//email will be sended to the student who complete this checklist
+                    if ($checklist->emailoncomplete == CHECKLIST_EMAIL_STUDENT || $checklist->emailoncomplete == CHECKLIST_EMAIL_BOTH) {
+                        //email will be sended to the student who complete this checklist
+                        $subj = get_string('emailoncompletesubjectown', 'checklist', $details);
+                        $content = get_string('emailoncompletebodyown', 'checklist', $details);
+                        $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
+
                         $recipient_stud = $DB->get_record('user', array('id' => $grade->userid) );
                         email_to_user($recipient_stud, $grade, $subj, $content, '', '', '', false);                        
                     }
