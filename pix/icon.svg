@@ -76,7 +76,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -91,13 +91,7 @@
        y="1027.9965"
        x="0.31854743"
        id="image2993"
-       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAN9JREFU
-OI21UsENwjAMPKdISCDEn/JlBvpOv9kAlugThkg/7MACHQKmgA6AxKdS+zoeYKAIBCJgyTrZji/x
-OUISIdYBABH5ioWkdK7BZILjULAbGZTjCGVsUMYR9mODfWxQxgaHwVb0vF5q2pTnhBAQxTt/ZkIy
-aAQJFdG8KvSbhPNm+Z6dJEhiVa+p2KunnNULas17T+89rbUtJHkj6NVTarPmnrk2Kl7XWHU30m8S
-Vt2NPL4yz/PWKGma0jkH4LKFEPudiCra30S01vJRSJJtDT4VsSgKOOeQZVn4TzwB0tP9meftx8sA
-AAAASUVORK5CYII=
-"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAN9JREFU OI21UsENwjAMPKdISCDEn/JlBvpOv9kAlugThkg/7MACHQKmgA6AxKdS+zoeYKAIBCJgyTrZji/x OUISIdYBABH5ioWkdK7BZILjULAbGZTjCGVsUMYR9mODfWxQxgaHwVb0vF5q2pTnhBAQxTt/ZkIy aAQJFdG8KvSbhPNm+Z6dJEhiVa+p2KunnNULas17T+89rbUtJHkj6NVTarPmnrk2Kl7XWHU30m8S Vt2NPL4yz/PWKGma0jkH4LKFEPudiCra30S01vJRSJJtDT4VsSgKOOeQZVn4TzwB0tP9meftx8sA AAAASUVORK5CYII= "
        height="23.857145"
        width="23.857145" />
   </g>
@@ -107,13 +101,12 @@ AAAASUVORK5CYII=
      id="layer1"
      transform="translate(0,-1028.3622)">
     <rect
-       style="opacity:0.93000010000000000;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:4.59999999999999964"
+       style="opacity:0.93000034;fill:#ffffff;fill-opacity:1;stroke:none"
        id="rect5317"
-       width="13.965359"
-       height="2.8284271"
-       x="5.2149124"
-       y="4.642952"
-       transform="translate(0,1028.3622)" />
+       width="21.566755"
+       height="3.7123106"
+       x="1.1490483"
+       y="1029.9774" />
     <g
        id="g5299"
        transform="matrix(1.1504432,0,0,1.1504432,-1.7833585,-156.03766)">
