@@ -1835,8 +1835,14 @@ class checklist_class {
             if ($key == $lastkey) {
                 $levelclass .= ' lastcol';
             }
+            if ($key == 0) {
+                $levelclass .= ' headcol_checklist';
+            }
             $output .= '<th style="vertical-align:top; align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
             $output .= $heading.'</th>';
+            if ($key == 0) {
+                $output .= '<th style="min-width:150px">&nbsp;</th>';
+            }
         }
         $output .= '</tr>';
 
@@ -1864,7 +1870,8 @@ class checklist_class {
                 }
                 if ($key == 0) {
                     // First item is the name
-                    $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0">'.$item.'</td>';
+                    $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0 headcol_checklist">'.$item.'</td>';
+                    $output .= '<td>&nbsp;</td>';
                 } else {
                     $size = $table->size[$key];
                     $img = '&nbsp;';

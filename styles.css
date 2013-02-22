@@ -253,3 +253,9 @@ p.checklistwarning {
     top: 0;
     left: 0;
 }
+
+.headcol_checklist {
+    position: absolute;
+    min-width: 150px;
+    max-width: 150px;
+}
