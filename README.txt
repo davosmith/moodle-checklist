@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2013-03-01 - Fixed the backup & restore of items linked to course modules.
 * 2013-01-04 - Option to email students when their checklists are complete - added by Andriy Semenets
 * 2013-01-03 - Fixed the 'show course modules in checklist' feature in Moodle 2.4
 * 2012-12-07 - Moodle 2.4 compatibility fixes
