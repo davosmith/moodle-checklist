@@ -73,4 +73,24 @@ class restore_checklist_activity_task extends restore_activity_task {
 
         return $rules;
     }
+
+    public function after_restore() {
+        global $DB;
+
+        // Find all the items that have a 'moduleid' but are not headings and match them up to the newly-restored activities.
+        $items = $DB->get_records_select('checklist_item', 'checklist = ? AND moduleid > 0 AND itemoptional <> 2', array($this->get_activityid()));
+
+        foreach ($items as $item) {
+            $moduleid = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $item->moduleid);
+            if ($moduleid) {
+                // Match up the moduleid to the restored activity module.
+                $DB->set_field('checklist_item', 'moduleid', $moduleid->newitemid, array('id' => $item->id));
+            } else {
+                // Does not match up to a restored activity module => delete the item + associated user data.
+                $DB->delete_records('checklist_check', array('item' => $item->id));
+                $DB->delete_records('checklist_comment', array('itemid' => $item->id));
+                $DB->delete_records('checklist_item', array('id' => $item->id));
+            }
+        }
+    }
 }
