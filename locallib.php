@@ -88,7 +88,7 @@ class checklist_class {
         }
 
         if (isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly && $checklist->autopopulate && $userid) {
-            $this->groupings = $this->get_user_groupings($userid, $this->course->id);
+            $this->groupings = self::get_user_groupings($userid, $this->course->id);
         } else {
             $this->groupings = false;
         }
@@ -3201,7 +3201,7 @@ class checklist_class {
         }
         $groupings_sel = '';
         if (isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly && $checklist->autopopulate) {
-            $groupings = checklist_class::get_user_groupings($userid, $checklist->course);
+            $groupings = self::get_user_groupings($userid, $checklist->course);
             $groupings[] = 0;
             $groupings_sel = ' AND grouping IN ('.implode(',',$groupings).') ';
         }
@@ -3224,7 +3224,7 @@ class checklist_class {
         return array($ticked, $total);
     }
 
-    function get_user_groupings($userid, $courseid) {
+    public static function get_user_groupings($userid, $courseid) {
         global $DB;
         $sql = "SELECT gg.groupingid
                   FROM ({groups} g JOIN {groups_members} gm ON g.id = gm.groupid)
