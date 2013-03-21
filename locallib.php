@@ -670,7 +670,7 @@ class checklist_class {
             if (($item->itemoptional == CHECKLIST_OPTIONAL_HEADING)||($item->hidden)) {
                 continue;
             }
-            if ($checkgroupings && $item->grouping) {
+            if ($checkgroupings && !empty($item->grouping)) {
                 if (!in_array($item->grouping, $this->groupings)) {
                     continue; // Current user is not a member of this item's grouping
                 }
@@ -934,7 +934,7 @@ class checklist_class {
                     continue;
                 }
 
-                if ($checkgroupings && $item->grouping) {
+                if ($checkgroupings && !empty($item->grouping)) {
                     if (!in_array($item->grouping, $this->groupings)) {
                         continue; // Current user is not a member of this item's grouping, so skip
                     }
