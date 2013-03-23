@@ -197,7 +197,7 @@ class checklist_class {
                 continue;
             }
 
-            if ($importsection > 0 && $importsection != $section) {
+            if ($importsection >= 0 && $importsection != $section) {
                 $section++; // Only importing the section with the checklist in it
                 continue;
             }
