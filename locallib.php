@@ -163,20 +163,21 @@ class checklist_class {
 
         $mods = get_fast_modinfo($this->course);
 
+        $section = 1;
+        $nextpos = 1;
+        $changes = false;
+        reset($this->items);
+
         $importsection = -1;
         if ($this->checklist->autopopulate == CHECKLIST_AUTOPOPULATE_SECTION) {
             foreach ($mods->get_sections() as $num => $section) {
                 if (in_array($this->cm->id, $section)) {
                     $importsection = $num;
+                    $section = $importsection;
                     break;
                 }
             }
         }
-
-        $nextpos = 1;
-        $section = 1;
-        $changes = false;
-        reset($this->items);
 
         $groupmembersonly = isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly;
 
@@ -191,7 +192,7 @@ class checklist_class {
             $numsections = $this->course->numsections;
         }
         $sections = $mods->get_sections();
-        while ($section <=  $numsections) {
+        while ($section <= $numsections || $section == $importsection) {
             if (!array_key_exists($section, $sections)) {
                 $section++;
                 continue;
