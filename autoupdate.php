@@ -85,6 +85,7 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
         || (($module == 'lams') && ($action == 'view'))
         || (($module == 'scorm') && ($action == 'view'))
         || (($module == 'assignment') && ($action == 'upload'))
+        || (($module == 'assign') && ($action == 'submit'))
         || (($module == 'journal') && ($action == 'add entry'))
         || (($module == 'lesson') && ($action == 'end'))
         || (($module == 'realtimequiz') && ($action == 'submit'))
@@ -93,6 +94,7 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
         || (($module == 'data') && ($action == 'add'))
         || (($module == 'chat') && ($action == 'talk'))
         || (($module == 'feedback') && ($action == 'submit'))
+        || (($module == 'questionnaire') && ($action == 'submit'))
         ) {
 
         if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
