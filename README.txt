@@ -11,7 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
-* 2013-04-09 - Allow checklists to import current section when they are located in an 'orphaned' section
+* 2013-04-09 - Allow checklists to import current section when they are located in an 'orphaned' section, add 'questionnaire' + 'assign' to autoupdate list
 * 2013-03-01 - Fixed the backup & restore of items linked to course modules.
 * 2013-01-04 - Option to email students when their checklists are complete - added by Andriy Semenets
 * 2013-01-03 - Fixed the 'show course modules in checklist' feature in Moodle 2.4
