@@ -253,3 +253,7 @@ p.checklistwarning {
     top: 0;
     left: 0;
 }
+
+ol.checklist label {
+    display: inline;
+}

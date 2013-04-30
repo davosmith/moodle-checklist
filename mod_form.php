@@ -63,6 +63,7 @@ class mod_checklist_mod_form extends moodleform_mod {
 //-------------------------------------------------------------------------------
 
         $mform->addElement('header', 'checklistsettings', get_string('checklistsettings', 'checklist'));
+        $mform->setExpanded('checklistsettings', true);
 
         $ynoptions = array( 0 => get_string('no'), 1 => get_string('yes'));
         $mform->addElement('select', 'useritemsallowed', get_string('useritemsallowed', 'checklist'), $ynoptions);
@@ -89,6 +90,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('text', 'maxgrade', get_string('maximumgrade'), array('size'=>'10'));
         $mform->setDefault('maxgrade', 100);
         $mform->setAdvanced('maxgrade');
+        $mform->setType('maxgrade', PARAM_INT);
 
         $emailrecipients = array(   CHECKLIST_EMAIL_NO => get_string('no'),
                                     CHECKLIST_EMAIL_STUDENT => get_string('teachernoteditcheck', 'checklist'),
