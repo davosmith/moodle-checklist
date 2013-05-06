@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2013-05-06 - Fix Moodle 2.4 compatibility regression
 * 2013-04-24 - Minor fixes for Moodle 2.5 compatibility
 * 2013-04-09 - Allow checklists to import current section when they are located in an 'orphaned' section, add 'questionnaire' + 'assign' to autoupdate list
 * 2013-03-01 - Fixed the backup & restore of items linked to course modules.
