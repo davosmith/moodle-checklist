@@ -2,6 +2,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
+global $CFG, $PAGE, $OUTPUT, $DB;
 require_once($CFG->libdir.'/formslib.php');
 
 define('STATE_WAITSTART', 0);
@@ -109,7 +110,7 @@ if ($data = $form->get_data()) {
             unlink($filename);
 
             /// Check for Macintosh OS line returns (ie file on one line), and fix
-            if (ereg("\r", $filearray[0]) AND !ereg("\n", $filearray[0])) {
+            if (strpos($filearray[0], "\r") !== false && strpos($filearray[0], "\n") === false) {
                 $filearray = explode("\r", $filearray[0]);
             }
 

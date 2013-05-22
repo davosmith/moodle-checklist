@@ -2,6 +2,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
+global $DB, $PAGE, $CFG;
 $id = required_param('id', PARAM_INT); // course module id
 
 if (! $cm = get_coursemodule_from_id('checklist', $id)) {

@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
-
+global $CFG;
 $CFG->checklist_autoupdate_use_cron = true;
 
 /* Remove the '//' at the start of the next line to output lots of

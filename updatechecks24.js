@@ -56,7 +56,7 @@ M.mod_checklist = {
                 check_click: function (e) {
                     var YD = YAHOO.util.Dom, change, el;
 
-                    el = e.currentTarget?e.currentTarget:e.srcElement;
+                    el = e.currentTarget || e.srcElement;
                     // Update progress bar
                     if (this.updateprogress) {
                         change = -1;

@@ -39,13 +39,16 @@
  *             function for more info
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 
 class mod_checklist_mod_form extends moodleform_mod {
 
     function definition() {
 
-        global $COURSE, $CFG;
+        global $CFG;
         $mform =& $this->_form;
 
 //-------------------------------------------------------------------------------

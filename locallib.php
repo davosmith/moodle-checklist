@@ -51,7 +51,14 @@ class checklist_class {
     var $editdates;
     var $groupings;
 
-    function checklist_class($cmid='staticonly', $userid=0, $checklist=null, $cm=null, $course=null) {
+    /**
+     * @param int|string $cmid optional
+     * @param int $userid optional
+     * @param object $checklist optional
+     * @param object $cm optional
+     * @param object $course optional
+     */
+    function __construct($cmid = 'staticonly', $userid = 0, $checklist = null, $cm = null, $course = null) {
         global $COURSE, $DB, $CFG;
 
         if ($cmid == 'staticonly') {
@@ -112,8 +119,6 @@ class checklist_class {
         global $DB;
 
         // Load all shared checklist items
-        $sql = 'checklist = ? ';
-        $sql .= ' AND userid = 0';
         $this->items = $DB->get_records('checklist_item', array('checklist' => $this->checklist->id, 'userid' => 0), 'position');
 
         // Makes sure all items are numbered sequentially, starting at 1
@@ -121,9 +126,8 @@ class checklist_class {
 
         // Load student's own checklist items
         if ($this->userid && $this->canaddown()) {
-            $sql = 'checklist = ? ';//.$this->checklist->id;
-            $sql .= ' AND userid = ? ';//.$this->userid;
-            $this->useritems = $DB->get_records('checklist_item', array('checklist' => $this->checklist->id, 'userid' => $this->userid), 'position, id');
+            $this->useritems = $DB->get_records('checklist_item', array('checklist' => $this->checklist->id,
+                                                                       'userid' => $this->userid), 'position, id');
         } else {
             $this->useritems = false;
         }
@@ -182,6 +186,7 @@ class checklist_class {
         $groupmembersonly = isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly;
 
         $numsections = 1;
+        $courseformat = null;
         if ($CFG->version >= 2012120300) {
             $courseformat = course_get_format($this->course);
             $opts = $courseformat->get_format_options();
@@ -381,9 +386,9 @@ class checklist_class {
      * then, move any items between $start and $end
      * the number of places indicated by $move
      *
-     * @param $move (optional) - how far to offset the current positions
-     * @oaram $start (optional) - where to start offsetting positions
-     * @param $end (optional) - where to stop offsetting positions
+     * @param int $move (optional) - how far to offset the current positions
+     * @param int $start (optional) - where to start offsetting positions
+     * @param bool $end (optional) - where to stop offsetting positions
      */
     function update_item_positions($move=0, $start=1, $end=false) {
         global $DB;
@@ -413,6 +418,10 @@ class checklist_class {
         }
     }
 
+    /**
+     * @param int $position
+     * @return bool|object
+     */
     function get_item_at_position($position) {
         if (!$this->items) {
             return false;
@@ -771,6 +780,9 @@ class checklist_class {
 
         $teachermarklocked = false;
         $showcompletiondates = false;
+        $strteachername = '';
+        $struserdate = '';
+        $strteacherdate = '';
         if ($viewother) {
             if ($comments) {
                 $editcomments = optional_param('editcomments', false, PARAM_BOOL);
@@ -900,12 +912,12 @@ class checklist_class {
                 reset($this->useritems);
             }
 
+            $commentusers = array();
             if ($comments) {
                 list($isql, $iparams) = $DB->get_in_or_equal(array_keys($this->items));
                 $params = array_merge(array($this->userid), $iparams);
                 $commentsunsorted = $DB->get_records_select('checklist_comment',"userid = ? AND itemid $isql", $params);
                 $commentuserids = array();
-                $commentusers = array();
                 if (!empty($commentsunsorted)) {
                     $comments = array();
                     foreach ($commentsunsorted as $comment) {
@@ -973,22 +985,19 @@ class checklist_class {
                     $itemcolour = 'itemblack';
                 }
 
+                $checkclass = '';
                 if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
                     $optional = ' class="itemheading '.$itemcolour.'" ';
-                    $spacerimg = $OUTPUT->pix_url('check_spacer','checklist');
                 } else if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $optional = ' class="itemoptional '.$itemcolour.'" ';
                     $checkclass = ' itemoptional';
                 } else {
                     $optional = ' class="'.$itemcolour.'" ';
-                    $checkclass = '';
                 }
 
                 echo '<li>';
                 if ($showteachermark) {
-                    if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                        //echo '<img src="'.$spacerimg.'" alt="" title="" />';
-                    } else {
+                    if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
                         if ($viewother) {
                             $disabled = ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'disabled="disabled" ' : '';
 
@@ -1008,9 +1017,7 @@ class checklist_class {
                     }
                 }
                 if ($showcheckbox) {
-                    if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
-                        //echo '<img src="'.$spacerimg.'" alt="" title="" />';
-                    } else {
+                    if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
                         echo '<input class="checklistitem'.$checkclass.'" type="checkbox" name="items[]" id='.$itemname.$checked.' value="'.$item->id.'" />';
                     }
                 }
@@ -1859,20 +1866,20 @@ class checklist_class {
             $output .= '<tr class="r'.$oddeven.$class.'">';
             $keys2 = array_keys($row);
             $lastkey = end($keys2);
-            foreach ($row as $key => $item) {
-                if ($table->skip[$key]) {
+            foreach ($row as $colkey => $item) {
+                if ($table->skip[$colkey]) {
                     continue;
                 }
-                if ($key == 0) {
+                if ($colkey == 0) {
                     // First item is the name
                     $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0">'.$item.'</td>';
                 } else {
-                    $size = $table->size[$key];
+                    $size = $table->size[$colkey];
                     $img = '&nbsp;';
-                    $cellclass = 'level'.$table->level[$key];
+                    $cellclass = 'level'.$table->level[$colkey];
                     list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
                     if ($heading) {
-                        $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$key.' reportheading">&nbsp;</td>';
+                        $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$colkey.' reportheading">&nbsp;</td>';
                     } else {
                         if ($showteachermark) {
                             if ($teachermark == CHECKLIST_TEACHERMARK_YES) {
@@ -1908,9 +1915,9 @@ class checklist_class {
                             }
                         }
 
-                        $cellclass .= ' cell c'.$key;
+                        $cellclass .= ' cell c'.$colkey;
 
-                        if ($key == $lastkey) {
+                        if ($colkey == $lastkey) {
                             $cellclass .= ' lastcol';
                         }
 
@@ -2978,7 +2985,7 @@ class checklist_class {
         $items = $DB->get_records_sql($sql, array($this->checklist->id));
         foreach ($items as $item) {
             if ($using_completion && $item->completion) {
-                $fakecm = new stdClass;
+                $fakecm = new stdClass();
                 $fakecm->id = $item->cmid;
 
                 foreach ($users as $user) {
@@ -3088,8 +3095,6 @@ class checklist_class {
             }
 
             foreach ($log_entries as $entry) {
-                //echo "User: {$entry->userid} has completed '{$item->mod_name}' with cmid {$item->cmid}, so updating checklist item {$item->itemid}<br />\n";
-
                 $check = $DB->get_record('checklist_check', array('item' => $item->itemid, 'userid' => $entry->userid));
                 if ($check) {
                     if ($check->usertimestamp) {
@@ -3186,9 +3191,10 @@ class checklist_class {
         $output .= '<br style="clear:both;" />';
         if ($return) {
             return $output;
-        } else {
-            echo $output;
         }
+
+        echo $output;
+        return '';
     }
 
     static function get_user_progress($checklistid, $userid) {

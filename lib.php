@@ -53,6 +53,7 @@ define("CHECKLIST_AUTOPOPULATE_COURSE", 1);
 
 define("CHECKLIST_MAX_INDENT", 10);
 
+global $CFG;
 require_once(dirname(__FILE__).'/locallib.php');
 require_once($CFG->libdir.'/completionlib.php');
 
@@ -158,22 +159,23 @@ function checklist_delete_instance($id) {
         }
     }
 
-    $result = true;
-
     $items = $DB->get_records('checklist_item', array('checklist'=>$checklist->id), '', 'id');
     if (!empty($items)) {
         $items = array_keys($items);
-        $result = $DB->delete_records_list('checklist_check', 'item', $items);
-        $result = $DB->delete_records_list('checklist_comment', 'itemid', $items);
-        $result = $result && $DB->delete_records('checklist_item', array('checklist' => $checklist->id) );
+        $DB->delete_records_list('checklist_check', 'item', $items);
+         $DB->delete_records_list('checklist_comment', 'itemid', $items);
+         $DB->delete_records('checklist_item', array('checklist' => $checklist->id) );
     }
-    $result = $result && $DB->delete_records('checklist', array('id' => $checklist->id));
+    $DB->delete_records('checklist', array('id' => $checklist->id));
 
     checklist_grade_item_delete($checklist);
 
-    return $result;
+    return true;
 }
 
+/**
+ *
+ */
 function checklist_update_all_grades() {
     global $DB;
 
@@ -183,6 +185,10 @@ function checklist_update_all_grades() {
     }
 }
 
+/**
+ * @param object $checklist
+ * @param int $userid
+ */
 function checklist_update_grades($checklist, $userid=0) {
     global $CFG, $DB;
 
@@ -372,6 +378,10 @@ function checklist_update_grades($checklist, $userid=0) {
     checklist_grade_item_update($checklist, $grades);
 }
 
+/**
+ * @param $checklist
+ * @return int
+ */
 function checklist_grade_item_delete($checklist) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
@@ -382,6 +392,11 @@ function checklist_grade_item_delete($checklist) {
     return grade_update('mod/checklist', $checklist->courseid, 'mod', 'checklist', $checklist->id, 0, null, array('deleted'=>1));
 }
 
+/**
+ * @param $checklist
+ * @param null $grades
+ * @return int
+ */
 function checklist_grade_item_update($checklist, $grades=null) {
     global $CFG;
     if (!function_exists('grade_update')) { //workaround for buggy PHP versions
@@ -405,7 +420,6 @@ function checklist_grade_item_update($checklist, $grades=null) {
     return grade_update('mod/checklist', $checklist->courseid, 'mod', 'checklist', $checklist->id, 0, $grades, $params);
 }
 
-
 /**
  * Return a small object with summary information about what a
  * user has done with a given particular instance of this module
@@ -413,13 +427,16 @@ function checklist_grade_item_update($checklist, $grades=null) {
  * $return->time = the time they did it
  * $return->info = a short text description
  *
+ * @param $course
+ * @param $user
+ * @param $mod
+ * @param $checklist
  * @return null
- * @todo Finish documenting this function
  */
 function checklist_user_outline($course, $user, $mod, $checklist) {
     global $DB, $CFG;
 
-    $groupins_sel = '';
+    $groupings_sel = '';
     if (isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly && $checklist->autopopulate) {
         $groupings = checklist_class::get_user_groupings($user->id, $checklist->course);
         $groupings[] = 0;
@@ -465,13 +482,15 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
     return $return;
 }
 
-
 /**
  * Print a detailed representation of what a user has done with
  * a given particular instance of this module, for user activity reports.
  *
+ * @param $course
+ * @param $user
+ * @param $mod
+ * @param $checklist
  * @return boolean
- * @todo Finish documenting this function
  */
 function checklist_user_complete($course, $user, $mod, $checklist) {
     $chk = new checklist_class($mod->id, $user->id, $checklist, $mod, $course);
@@ -481,20 +500,24 @@ function checklist_user_complete($course, $user, $mod, $checklist) {
     return true;
 }
 
-
 /**
  * Given a course and a time, this module should find recent activity
  * that has occurred in checklist activities and print it out.
  * Return true if there was output, or false is there was none.
  *
+ * @param $course
+ * @param $isteacher
+ * @param $timestart
  * @return boolean
- * @todo Finish documenting this function
  */
 function checklist_print_recent_activity($course, $isteacher, $timestart) {
     return false;  //  True if anything was printed, otherwise false
 }
 
-
+/**
+ * @param $courses
+ * @param $htmlarray
+ */
 function checklist_print_overview($courses, &$htmlarray) {
     global $USER, $CFG, $DB;
 
@@ -663,14 +686,13 @@ function checklist_cron () {
     return true;
 }
 
-
 /**
  * Must return an array of user records (all data) who are participants
  * for a given instance of newmodule. Must include every user involved
  * in the instance, independient of his role (student, teacher, admin...)
  * See other modules as example.
  *
- * @param int $newmoduleid ID of an instance of this module
+ * @param int $checklistid ID of an instance of this module
  * @return mixed boolean/array of students
  */
 function checklist_get_participants($checklistid) {
@@ -683,16 +705,15 @@ function checklist_get_participants($checklistid) {
     return $return;
 }
 
-
 /**
  * This function returns if a scale is being used by one checklist
  * if it has support for grading and scales. Commented code should be
  * modified if necessary. See forum, glossary or journal modules
  * as reference.
  *
- * @param int $newmoduleid ID of an instance of this module
- * @return mixed
- * @todo Finish documenting this function
+ * @param int $checklistid ID of an instance of this module
+ * @param int $scaleid
+ * @return bool
  */
 function checklist_scale_used($checklistid, $scaleid) {
     return false;
@@ -733,15 +754,26 @@ function checklist_uninstall() {
     return true;
 }
 
+/**
+ * @param HTML_QuickForm $mform
+ */
 function checklist_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'checklistheader', get_string('modulenameplural', 'checklist'));
     $mform->addElement('checkbox', 'reset_checklist_progress', get_string('resetchecklistprogress', 'checklist'));
 }
 
+/**
+ * @param object $course
+ * @return array
+ */
 function checklist_reset_course_form_defaults($course) {
     return array('reset_checklist_progress' => 1);
 }
 
+/**
+ * @param object $data
+ * @return array
+ */
 function checklist_reset_userdata($data) {
     global $DB;
 
@@ -778,6 +810,10 @@ function checklist_reset_userdata($data) {
     return $status;
 }
 
+/**
+ * @param int $courseid
+ * @return bool
+ */
 function checklist_refresh_events($courseid = 0) {
     global $DB;
 
@@ -800,7 +836,16 @@ function checklist_refresh_events($courseid = 0) {
     return true;
 }
 
+/**
+ * @param string $feature
+ * @return bool|null
+ */
 function checklist_supports($feature) {
+    if (!defined('FEATURE_SHOW_DESCRIPTION')) {
+        // For backwards compatibility
+        define('FEATURE_SHOW_DESCRIPTION', 'showdescription');
+    }
+
     switch($feature) {
     case FEATURE_GROUPS:                  return true;
     case FEATURE_GROUPINGS:               return true;
@@ -809,11 +854,19 @@ function checklist_supports($feature) {
     case FEATURE_GRADE_HAS_GRADE:         return true;
     case FEATURE_COMPLETION_HAS_RULES:    return true;
     case FEATURE_BACKUP_MOODLE2:          return true;
+    case FEATURE_SHOW_DESCRIPTION:        return true;
 
     default: return null;
     }
 }
 
+/**
+ * @param object $course
+ * @param object $cm
+ * @param int $userid
+ * @param int $type
+ * @return bool
+ */
 function checklist_get_completion_state($course, $cm, $userid, $type) {
     global $DB;
 

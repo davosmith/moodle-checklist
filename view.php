@@ -26,7 +26,7 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-global $DB;
+global $DB, $PAGE, $CFG, $USER;
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID
