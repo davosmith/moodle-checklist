@@ -1508,10 +1508,9 @@ class checklist_class {
                     if (!$focusitem) {
                         $focusitem = 'additembox';
                     }
-
-
-                    $lastindent = $currindent;
                 }
+
+                $lastindent = $currindent;
 
                 echo '</li>';
             }
