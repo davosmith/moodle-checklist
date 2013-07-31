@@ -348,7 +348,7 @@ function checklist_update_grades($checklist, $userid=0) {
                         //email will be sended to the all teachers who have capability
                         $subj = get_string('emailoncompletesubject', 'checklist', $details);
                         $content = get_string('emailoncompletebody', 'checklist', $details);
-                        $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
+                        $content .= new moodle_url('/mod/checklist/view.php', array('id' => $cm->id));
 
                         if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
                             foreach ($recipients as $recipient) {                                
@@ -360,7 +360,7 @@ function checklist_update_grades($checklist, $userid=0) {
                         //email will be sended to the student who complete this checklist
                         $subj = get_string('emailoncompletesubjectown', 'checklist', $details);
                         $content = get_string('emailoncompletebodyown', 'checklist', $details);
-                        $content .= new moodle_url('/mod/checklst/view.php', array('id' => $cm->id));
+                        $content .= new moodle_url('/mod/checklist/view.php', array('id' => $cm->id));
 
                         $recipient_stud = $DB->get_record('user', array('id' => $grade->userid) );
                         email_to_user($recipient_stud, $grade, $subj, $content, '', '', '', false);                        
