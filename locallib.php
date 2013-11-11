@@ -228,9 +228,11 @@ class checklist_class {
                 reset($this->items);
             }
 
+            $sectionname = '';
             if ($CFG->version >= 2012120300) {
                 $sectionname = $courseformat->get_section_name($section);
-            } else {
+            }
+            if (trim($sectionname) == '') {
                 $sectionname = get_string('section').' '.$section;
             }
             if (!$sectionheading) {
@@ -242,13 +244,16 @@ class checklist_class {
                     $this->updateitemtext($sectionheading, $sectionname);
                 }
             }
-            $this->items[$sectionheading]->stillexists = true;
 
-            if ($this->items[$sectionheading]->position < $nextpos) {
-                $this->moveitemto($sectionheading, $nextpos, true);
-                reset($this->items);
+            if ($sectionheading) {
+                $this->items[$sectionheading]->stillexists = true;
+
+                if ($this->items[$sectionheading]->position < $nextpos) {
+                    $this->moveitemto($sectionheading, $nextpos, true);
+                    reset($this->items);
+                }
+                $nextpos = $this->items[$sectionheading]->position + 1;
             }
-            $nextpos = $this->items[$sectionheading]->position + 1;
 
             foreach($sections[$section] as $cmid) {
                 if ($this->cm->id == $cmid) {
