@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2013-19-11 - Moodle 2.6 compatibility fixes
 * 2013-11-11 - Cope with empty section names
 * 2013-07-30 - Fix editing of item indents
 * 2013-05-22 - 'Display description on course page' + (old)IE compatibility fix

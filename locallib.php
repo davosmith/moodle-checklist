@@ -838,7 +838,7 @@ class checklist_class {
                         $teacherids[$item->teacherid] = $item->teacherid;
                     }
                 }
-                $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, firstname, lastname');
+                $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, '.get_all_user_name_fields(true));
                 foreach ($this->items as $item) {
                     if (isset($teachers[$item->teacherid])) {
                         $item->teachername = fullname($teachers[$item->teacherid]);
@@ -1568,7 +1568,7 @@ class checklist_class {
     }
 
     function view_report() {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $CFG;
 
         $reportsettings = $this->get_report_settings();
 
@@ -1663,7 +1663,12 @@ class checklist_class {
             $users = array_slice($users, $page*$perpage, $perpage);
 
             list($usql, $uparams) = $DB->get_in_or_equal($users);
-            $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id '.$usql.' ORDER BY '.$orderby, $uparams);
+            if ($CFG->version < 2013111800) {
+                $fields = 'u.firstname, u.lastname';
+            } else {
+                $fields = get_all_user_name_fields(true, 'u');
+            }
+            $ausers = $DB->get_records_sql("SELECT u.id, $fields FROM {user} u WHERE u.id ".$usql.' ORDER BY '.$orderby, $uparams);
         }
 
         if ($reportsettings->showprogressbars) {
@@ -1823,7 +1828,7 @@ class checklist_class {
     }
 
     function print_report_table($table, $editchecks) {
-        global $OUTPUT;
+        global $OUTPUT, $CFG;
 
         $output = '';
 
@@ -1853,7 +1858,11 @@ class checklist_class {
         $output .= '</tr>';
 
         // Output the data
-        $tickimg = '<img src="'.$OUTPUT->pix_url('/i/tick_green_big').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        if ($CFG->version < 2013111800) {
+            $tickimg = '<img src="'.$OUTPUT->pix_url('i/tick_green_big').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        } else {
+            $tickimg = '<img src="'.$OUTPUT->pix_url('i/grade_correct').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        }
         $teacherimg = array(CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$OUTPUT->pix_url('empty_box','checklist').'" alt="'.get_string('teachermarkundecided','checklist').'" />',
                             CHECKLIST_TEACHERMARK_YES => '<img src="'.$OUTPUT->pix_url('tick_box','checklist').'" alt="'.get_string('teachermarkyes','checklist').'" />',
                             CHECKLIST_TEACHERMARK_NO => '<img src="'.$OUTPUT->pix_url('cross_box','checklist').'" alt="'.get_string('teachermarkno','checklist').'" />');
