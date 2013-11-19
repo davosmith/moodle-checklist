@@ -1821,6 +1821,43 @@ class checklist_class {
             }
         }
     }
+    
+    
+    /**
+     * This function gets called when we are in editing mode
+     * adding the button the the row
+     *
+     * @table object object being parsed
+     * @ret_output string code that is ammended and returned
+     * @return string Return ammended code to output
+     */
+	
+	function add_row ($table) {
+		global $PAGE;
+		$PAGE->requires->yui_module('moodle-mod_checklist-buttons', 'M.mod_checklist.buttons.init');
+		
+		$passed_row = $table->data;
+		$ret_output = '';
+		$ret_output .= '<tr class="r1">';
+		foreach ($passed_row[0] as $key => $item) {
+			if ($key == 0) {
+				 $ret_output .= '<td colspan="2" style=" text-align: left; width: '.$table->size[0].';" class="cell c0">&nbsp;</td>';
+           	} else {
+                $size = $table->size[$key];
+                $img = '&nbsp;';
+                $cellclass = 'cell c'.$key.' level'.$table->level[$key];
+				list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
+				if ($heading) {
+					$ret_output .= '<td style=" text-align: center; width: '.$size.';" class="cell c0">&nbsp;</td>';
+                } else {
+					$ret_output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'"><input type="button" style="width:80px;" class="make_col_c" value="Set to C"><input type="hidden" value="'.$checkid.'"></td>';											
+            	}
+        	}
+        }
+        $ret_output .= '</tr>';
+		return $ret_output;
+	}	
+	
 
     function print_report_table($table, $editchecks) {
         global $OUTPUT;
@@ -1838,11 +1875,24 @@ class checklist_class {
         $output .= '<tr>';
         $keys = array_keys($table->head);
         $lastkey = end($keys);
+        
+        /** @colspan_bool This variable is a flag to test when a checklist column does not contain any dropdowns  */
+		$colspan_bool = true;	
+        
         foreach ($table->head as $key => $heading) {
             if ($table->skip[$key]) {
                 continue;
             }
             $size = $table->size[$key];
+            
+            /** @colspan This variable is used when building the page to allow for correct layout */
+			if ($colspan_bool && $editchecks) {
+				$colspan = "2";
+				$colspan_bool = false;
+			} else {
+				$colspan = "1";				
+			}
+            
             $levelclass = ' head'.$table->level[$key];
             if ($key == $lastkey) {
                 $levelclass .= ' lastcol';
@@ -1870,11 +1920,25 @@ class checklist_class {
             $output .= '<tr class="r'.$oddeven.$class.'">';
             $keys2 = array_keys($row);
             $lastkey = end($keys2);
+            
+			/** @colspan_bool This variable is a flag to insert a button at the beginning of a row  */
+			$bool = true;	            
+            
             foreach ($row as $colkey => $item) {
                 if ($table->skip[$colkey]) {
                     continue;
                 }
                 if ($colkey == 0) {
+                    
+                    /** series of statments to retreive the id of the row in question  */
+					/** @esc_link htmlentities of the first td element in this row */
+					/** @uid the value which will be added to the hidden value after the button */
+					$esc_link = htmlentities($item);
+					$esc_link_id = strpos($esc_link, '?id=');
+					$esc_link_2 = substr($esc_link, $esc_link_id + 4);
+					$esc_link_and = strpos($esc_link_2, '&amp;');					
+					$uid = substr($esc_link_2, 0, $esc_link_and);
+
                     // First item is the name
                     $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0">'.$item.'</td>';
                 } else {
@@ -1882,6 +1946,13 @@ class checklist_class {
                     $img = '&nbsp;';
                     $cellclass = 'level'.$table->level[$colkey];
                     list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
+                    
+                    /* if statement to add button at beginning of row in edting mode */
+					if ($bool && $editchecks) {
+						$output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'"><input type="button" style="width:80px;" class="make_c" value="Set all to C"><input type="hidden" value="'.$uid.'"></td>';
+						$bool = false;
+					}	                    
+                    
                     if ($heading) {
                         $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$colkey.' reportheading">&nbsp;</td>';
                     } else {
