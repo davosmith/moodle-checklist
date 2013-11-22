@@ -1524,6 +1524,9 @@ class checklist_class {
         $thisurl .= $this->showoptional ? '' : '&amp;action=hideoptional';
         $thisurl .= $showbars ? '&amp;showbars=on' : '';
         $thisurl .= '&amp;sortby='.$this->sortby;
+        $thisurl .= $editchecks ? '&amp;editchecks=on' : '';
+        $thisurl .= $page ? '&amp;page='.$page : '';
+        $thisurl .= ($perpage != 30) ? '&amp;perpage='.$perpage : '';
 
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
@@ -1592,6 +1595,10 @@ class checklist_class {
             echo '<input type="hidden" name="sortby" value="'.$this->sortby.'" />';
             echo $this->showoptional ? '' : '<input type="hidden" name="action" value="hideoptional" />';
             echo '<input type="hidden" name="editchecks" value="on" />';
+            echo '<input type="hidden" name="page" value="'.$page.'" />';
+            if ($perpage != 30) {
+                echo '<input type="hidden" name="perpage" value="'.$perpage.'" />';
+            }
             echo '<input type="hidden" name="action" value="updateallchecks" />';
             echo '<input type="submit" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
         } else if (!$showbars && $this->caneditother() && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
