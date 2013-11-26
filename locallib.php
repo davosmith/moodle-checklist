@@ -838,7 +838,12 @@ class checklist_class {
                         $teacherids[$item->teacherid] = $item->teacherid;
                     }
                 }
-                $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, '.get_all_user_name_fields(true));
+                if ($CFG->version < 2013111800) {
+                    $fields = 'firstname, lastname';
+                } else {
+                    $fields = get_all_user_name_fields(true);
+                }
+                $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, '.$fields);
                 foreach ($this->items as $item) {
                     if (isset($teachers[$item->teacherid])) {
                         $item->teachername = fullname($teachers[$item->teacherid]);
