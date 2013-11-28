@@ -702,11 +702,21 @@ function checklist_cron () {
 function checklist_get_participants($checklistid) {
     global $DB;
 
-    $sql = 'SELECT DISTINCT u.id, u.id FROM {user} u, {checklist_item} i, {checklist_check} c ';
-    $sql .= 'WHERE i.checklist = ? AND ((c.item = i.id AND c.userid = u.id) OR (i.userid = u.id))';
-    $return = $DB->get_records_sql($sql, array($checklistid));
+    $params = array($checklistid);
+    $sql = 'SELECT DISTINCT u.id
+              FROM {user} u
+              JOIN {checklist_item} i ON i.userid = u.id
+             WHERE i.checklist = ?';
+    $userids1 = $DB->get_records_sql($sql, $params);
 
-    return $return;
+    $sql = 'SELECT DISTINCT u.id
+              FROM {user} u
+              JOIN {checklist_check} c ON c.userid = u.id
+              JOIN {checklist_item} i ON i.id = c.item
+             WHERE i.checklist = ?';
+    $userids2 = $DB->get_records_sql($sql, $params);
+
+    return $userids1 + $userids2;
 }
 
 /**
