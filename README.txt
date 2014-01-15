@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2014-01-15 - Fix compatibility of MS SQL with 2.6 version of plugin.
 * 2013-19-11 - Moodle 2.6 compatibility fixes (+ correction to this fix)
 * 2013-11-11 - Cope with empty section names
 * 2013-07-30 - Fix editing of item indents

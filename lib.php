@@ -309,16 +309,18 @@ function checklist_update_grades($checklist, $userid=0) {
         list($usql, $uparams) = $DB->get_in_or_equal($users);
         list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
 
-        $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
         if ($CFG->version < 2013111800) {
-            $sql .= ' , u.firstname, u.lastname ';
+            $namefields = 'u.firstname, u.lastname ';
         } else {
-            $sql .= ' , '.get_all_user_name_fields(true, 'u');
+            $namefields = get_all_user_name_fields(true, 'u');
         }
+
+        $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
+        $sql .= ' , '.$namefields;
         $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
         $sql .= " WHERE u.id $usql";
         $sql .= " AND c.item $isql";
-        $sql .= ' GROUP BY u.id, u.firstname, u.lastname';
+        $sql .= ' GROUP BY u.id, '.$namefields;
 
         $params = array_merge($uparams, $iparams);
         $params = array_merge(array($checklist->maxgrade, $total), $params);
