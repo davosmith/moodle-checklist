@@ -228,9 +228,11 @@ class checklist_class {
                 reset($this->items);
             }
 
+            $sectionname = '';
             if ($CFG->version >= 2012120300) {
                 $sectionname = $courseformat->get_section_name($section);
-            } else {
+            }
+            if (trim($sectionname) == '') {
                 $sectionname = get_string('section').' '.$section;
             }
             if (!$sectionheading) {
@@ -242,13 +244,16 @@ class checklist_class {
                     $this->updateitemtext($sectionheading, $sectionname);
                 }
             }
-            $this->items[$sectionheading]->stillexists = true;
 
-            if ($this->items[$sectionheading]->position < $nextpos) {
-                $this->moveitemto($sectionheading, $nextpos, true);
-                reset($this->items);
+            if ($sectionheading) {
+                $this->items[$sectionheading]->stillexists = true;
+
+                if ($this->items[$sectionheading]->position < $nextpos) {
+                    $this->moveitemto($sectionheading, $nextpos, true);
+                    reset($this->items);
+                }
+                $nextpos = $this->items[$sectionheading]->position + 1;
             }
-            $nextpos = $this->items[$sectionheading]->position + 1;
 
             foreach($sections[$section] as $cmid) {
                 if ($this->cm->id == $cmid) {
@@ -540,7 +545,7 @@ class checklist_class {
 
     function edit() {
         global $OUTPUT;
-		
+
         if (!$this->canedit()) {
             redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)) );
         }
@@ -577,7 +582,7 @@ class checklist_class {
         if (!$this->canviewreports()) {
             redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)) );
         }
-		
+
         if ($this->userid && $this->only_view_mentee_reports()) {
             // Check this user is a mentee of the logged in user
             if (!$this->is_mentor($this->userid)) {
@@ -602,9 +607,8 @@ class checklist_class {
             add_to_log($this->course->id, "checklist", "report", "report.php?id={$this->cm->id}", $this->checklist->name, $this->cm->id);
             $this->view_report();
         }
- 
-        $this->view_footer();
 
+        $this->view_footer();
     }
 
     function user_complete() {
@@ -834,7 +838,12 @@ class checklist_class {
                         $teacherids[$item->teacherid] = $item->teacherid;
                     }
                 }
-                $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, firstname, lastname');
+                if ($CFG->version < 2013111800) {
+                    $fields = 'firstname, lastname';
+                } else {
+                    $fields = get_all_user_name_fields(true);
+                }
+                $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, '.$fields);
                 foreach ($this->items as $item) {
                     if (isset($teachers[$item->teacherid])) {
                         $item->teachername = fullname($teachers[$item->teacherid]);
@@ -1564,7 +1573,7 @@ class checklist_class {
     }
 
     function view_report() {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $CFG;
 
         $reportsettings = $this->get_report_settings();
 
@@ -1659,7 +1668,12 @@ class checklist_class {
             $users = array_slice($users, $page*$perpage, $perpage);
 
             list($usql, $uparams) = $DB->get_in_or_equal($users);
-            $ausers = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {user} u WHERE u.id '.$usql.' ORDER BY '.$orderby, $uparams);
+            if ($CFG->version < 2013111800) {
+                $fields = 'u.firstname, u.lastname';
+            } else {
+                $fields = get_all_user_name_fields(true, 'u');
+            }
+            $ausers = $DB->get_records_sql("SELECT u.id, $fields FROM {user} u WHERE u.id ".$usql.' ORDER BY '.$orderby, $uparams);
         }
 
         if ($reportsettings->showprogressbars) {
@@ -1817,7 +1831,7 @@ class checklist_class {
             }
         }
     }
-	
+
     /**
      * This function gets called when we are in editing mode
      * adding the button the the row
@@ -1826,8 +1840,8 @@ class checklist_class {
      * @ret_output string code that is ammended and returned
      * @return string Return ammended code to output
      */
-	
-	function add_row ($table) {
+    
+    function report_add_toggle_button_row($table) {
         global $PAGE;
         $PAGE->requires->yui_module('moodle-mod_checklist-buttons', 'M.mod_checklist.buttons.init');
         
@@ -1836,25 +1850,26 @@ class checklist_class {
         $ret_output .= '<tr class="r1">';
         foreach ($passed_row[0] as $key => $item) {
             if ($key == 0) {
-                 $ret_output .= '<td colspan="2" style=" text-align: left; width: '.$table->size[0].';" class="cell c0">&nbsp;</td>';
-           } else {
+                $ret_output .= '<td colspan="2" style=" text-align: left; width: '.$table->size[0].';" class="cell c0"></td>';
+            } else {
                 $size = $table->size[$key];
-                $img = '&nbsp;';
                 $cellclass = 'cell c'.$key.' level'.$table->level[$key];
                 list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
                 if ($heading) {
                     $ret_output .= '<td style=" text-align: center; width: '.$size.';" class="cell c0">&nbsp;</td>';
                 } else {
-                    $ret_output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'"><input type="button" style="width:80px;" class="make_col_c" id='.$checkid.' value="Set to C"></td>';
+                    $ret_output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">';
+                    $ret_output .= html_writer::tag('button', get_string('togglecolumn', 'checklist'), array('class'=>'make_col_c', 'style'=>'width:120px', 'id'=>$checkid, 'type' => 'button'));
+                    $ret_output .= '</td>';
                 }
             }
         }
         $ret_output .= '</tr>';
         return $ret_output;
-    }	
+    }
 
     function print_report_table($table, $editchecks) {
-        global $OUTPUT;
+        global $OUTPUT, $CFG;
 
         $output = '';
 
@@ -1869,38 +1884,38 @@ class checklist_class {
         $output .= '<tr>';
         $keys = array_keys($table->head);
         $lastkey = end($keys);
-		
-		// @addbutton This variable is a flag to test when a checklist column does not contain any dropdowns  
-		$addbutton = true;	
-		
         foreach ($table->head as $key => $heading) {
             if ($table->skip[$key]) {
                 continue;
             }
             $size = $table->size[$key];
-
-            // @colspan This variable is used when building the page to allow for correct layout 
-			if ($addbutton && $editchecks) {
-				$colspan = "2";
-				$addbutton = false;
-			} else {
-				$colspan = "1";				
-			}			
-			
             $levelclass = ' head'.$table->level[$key];
             if ($key == $lastkey) {
                 $levelclass .= ' lastcol';
+            }
+            // If statement to judge if the header is the first cell in the row, if so the <th> needs colspan=2 added
+            // to cover the extra column added (containing the toggle button) to retain the correct table structure
+            if ($key == 0  && $editchecks) {
+                $output .= '<th colspan="2" style="vertical-align:top; align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
+            } else {
+                $output .= '<th style="vertical-align:top; align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
             }
             $output .= '<th style="vertical-align:top; align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
             $output .= $heading.'</th>';
         }
         $output .= '</tr>';
-		
-		// if we are in editing mode, run the add_row function that adds the button and necessary code to the document 
-		if ($editchecks) { $output .= $this->add_row($table); }		
+
+        // if we are in editing mode, run the add_row function that adds the button and necessary code to the document 
+        if ($editchecks) { 
+            $output .= $this->report_add_toggle_button_row($table); 
+        }
 
         // Output the data
-        $tickimg = '<img src="'.$OUTPUT->pix_url('/i/tick_green_big').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        if ($CFG->version < 2013111800) {
+            $tickimg = '<img src="'.$OUTPUT->pix_url('i/tick_green_big').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        } else {
+            $tickimg = '<img src="'.$OUTPUT->pix_url('i/grade_correct').'" alt="'.get_string('itemcomplete','checklist').'" />';
+        }
         $teacherimg = array(CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$OUTPUT->pix_url('empty_box','checklist').'" alt="'.get_string('teachermarkundecided','checklist').'" />',
                             CHECKLIST_TEACHERMARK_YES => '<img src="'.$OUTPUT->pix_url('tick_box','checklist').'" alt="'.get_string('teachermarkyes','checklist').'" />',
                             CHECKLIST_TEACHERMARK_NO => '<img src="'.$OUTPUT->pix_url('cross_box','checklist').'" alt="'.get_string('teachermarkno','checklist').'" />');
@@ -1917,25 +1932,13 @@ class checklist_class {
             $output .= '<tr class="r'.$oddeven.$class.'">';
             $keys2 = array_keys($row);
             $lastkey = end($keys2);
-			
-			// @addbutton This variable is a flag to insert a button at the beginning of a row  
-			$bool = true;			
-			
+            // @uid the value which will be added to the hidden value after the button
+            $uid = $row[2][3];
             foreach ($row as $colkey => $item) {
                 if ($table->skip[$colkey]) {
                     continue;
                 }
                 if ($colkey == 0) {
-                    // series of statments to retreive the id of the row in question  
-					// @esc_link htmlentities of the first td element in this row 
-					// @uid the value which will be added to the hidden value after the button 
-
-					$esc_link = htmlentities($item);
-					$esc_link_id = strpos($esc_link, '?id=');
-					$esc_link_2 = substr($esc_link, $esc_link_id + 4);
-					$esc_link_and = strpos($esc_link_2, '&amp;');					
-					$uid = substr($esc_link_2, 0, $esc_link_and);
-
                     // First item is the name
                     $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0">'.$item.'</td>';
                 } else {
@@ -1943,13 +1946,13 @@ class checklist_class {
                     $img = '&nbsp;';
                     $cellclass = 'level'.$table->level[$colkey];
                     list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
-					
-                    // if statement to add button at beginning of row in edting mode 
-					if ($bool && $editchecks) {
-						$output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'"><input type="button" style="width:80px;" class="make_c" value="Set all to C"><input type="hidden" value="'.$uid.'"></td>';
-						$bool = false;
-					}						
-					
+                    // if statement to add button at beginning of row in edting mode get_string('modulename', 'checklist');
+                    if ($colkey == 1 && $editchecks) {
+                        $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">';
+                        //$output .= '<input type="button" style="width:80px;" class="make_c" value="'.get_string('togglerow', 'checklist').'"><input type="hidden" value="'.$uid.'">';
+                        $output .= html_writer::tag('button', get_string('togglerow', 'checklist'), array('class'=>'make_c', 'style'=>'width:100px', 'id'=>$uid, 'type' => 'button'));
+                        $output .= '</td>';
+                    }
                     if ($heading) {
                         $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$colkey.' reportheading">&nbsp;</td>';
                     } else {
