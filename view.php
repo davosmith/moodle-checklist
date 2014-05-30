@@ -33,29 +33,15 @@ $checklistid  = optional_param('checklist', 0, PARAM_INT);  // checklist instanc
 
 $url = new moodle_url('/mod/checklist/view.php');
 if ($id) {
-    if (! $cm = get_coursemodule_from_id('checklist', $id)) {
-        error('Course Module ID was incorrect');
-    }
-
-    if (! $course = $DB->get_record('course', array('id' => $cm->course) )) {
-        error('Course is misconfigured');
-    }
-
-    if (! $checklist = $DB->get_record('checklist', array('id' => $cm->instance) )) {
-        error('Course module is incorrect');
-    }
+    $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
     $url->param('id', $id);
 
 } else if ($checklistid) {
-    if (! $checklist = $DB->get_record('checklist', array('id' => $checklistid) )) {
-        error('Course module is incorrect');
-    }
-    if (! $course = $DB->get_record('course', array('id' => $checklist->course) )) {
-        error('Course is misconfigured');
-    }
-    if (! $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
-        error('Course Module ID was incorrect');
-    }
+    $checklist = $DB->get_record('checklist', array('id' => $checklistid), '*', MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $checklist->course), '*', MUST_EXIST);
+    $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id, false, MUST_EXIST);
     $url->param('checklist', $checklistid);
 
 } else {

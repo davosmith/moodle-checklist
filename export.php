@@ -5,17 +5,9 @@ require_once(dirname(__FILE__).'/importexportfields.php');
 global $DB, $PAGE, $CFG;
 $id = required_param('id', PARAM_INT); // course module id
 
-if (! $cm = get_coursemodule_from_id('checklist', $id)) {
-    error('Course Module ID was incorrect');
-}
-
-if (! $course = $DB->get_record('course', array('id' => $cm->course))) {
-    error('Course is misconfigured');
-}
-
-if (! $checklist = $DB->get_record('checklist', array('id' => $cm->instance))) {
-    error('Course module is incorrect');
-}
+$cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+$checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $url = new moodle_url('/mod/checklist/export.php', array('id' => $cm->id));
 $PAGE->set_url($url);
