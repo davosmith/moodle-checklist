@@ -1866,7 +1866,7 @@ class checklist_class {
             if ($key == $lastkey) {
                 $levelclass .= ' lastcol';
             }
-            $output .= '<th style="vertical-align:top; align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
+            $output .= '<th style="vertical-align:top; text-align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
             $output .= $heading.'</th>';
         }
         $output .= '</tr>';
