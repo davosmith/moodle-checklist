@@ -1595,6 +1595,13 @@ class checklist_class {
 
         groups_print_activity_menu($this->cm, $thisurl);
         $activegroup = groups_get_activity_group($this->cm, true);
+        if ($activegroup == 0) {
+            if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS) {
+                if (!has_capability('moodle/site:accessallgroups', $this->context)) {
+                    $activegroup = -1; // Not allowed to access any groups.
+                }
+            }
+        }
 
         echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
         echo html_writer::input_hidden_params($thisurl, array('action'));
@@ -1653,7 +1660,9 @@ class checklist_class {
         }
 
         $ausers = false;
-        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '', $activegroup, '', false)) {
+        if ($activegroup == -1) {
+            $users = array();
+        } else if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '', $activegroup, '', false)) {
             $users = array_keys($users);
             if ($this->only_view_mentee_reports()) {
                 // Filter to only show reports for users who this user mentors (ie they have been assigned to them in a context)
