@@ -267,18 +267,18 @@ function checklist_update_grades($checklist, $userid=0) {
             } else {
                 $itemlist = substr($itemlist, 0, -1); // Remove trailing ','
 
-                $sql = 'SELECT ? AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
+                $sql = 'SELECT (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
                 $sql .= " FROM {checklist_check} c ";
                 $sql .= " WHERE c.item IN ($itemlist)";
                 $sql .= ' AND c.userid = ? ';
 
-                $ugrade = $DB->get_record_sql($sql, array($userid, $checklist->maxgrade, $total, $userid));
+                $ugrade = $DB->get_record_sql($sql, array($checklist->maxgrade, $total, $userid));
                 if (!$ugrade) {
                     $ugrade = new stdClass;
-                    $ugrade->userid = $userid;
                     $ugrade->rawgrade = 0;
                     $ugrade->date = time();
                 }
+                $ugrade->userid = $userid;
             }
 
             $ugrade->firstname = $user->firstname;
