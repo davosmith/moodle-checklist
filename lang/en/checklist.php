@@ -181,8 +181,9 @@ $string['teachernoteditcheck'] = 'Student only';
 $string['teacheroverwritecheck'] = 'Teacher only';
 $string['teacheralongsidecheck'] = 'Student and teacher';
 
+$string['togglecolumn'] = 'Toggle Column';
 $string['toggledates'] = 'Toggle names & dates';
-
+$string['togglerow'] = 'Toggle Row';
 $string['theme'] = 'Checklist display theme';
 
 $string['updatecompletescore'] = 'Save completion grades';

@@ -1873,6 +1873,47 @@ class checklist_class {
         }
     }
 
+    /**
+     * This function gets called when we are in editing mode
+     * adding the button the the row
+     *
+     * @table object object being parsed
+     * @param $table
+     * @return string Return ammended code to output
+     */
+    function report_add_toggle_button_row($table) {
+        global $PAGE;
+        $PAGE->requires->yui_module('moodle-mod_checklist-buttons', 'M.mod_checklist.buttons.init');
+        
+        $passed_row = $table->data;
+        $ret_output = '';
+        $ret_output .= '<tr class="r1">';
+        foreach ($passed_row[0] as $key => $item) {
+            if ($key == 0) {
+                // Left align + colspan of 2 (overlapping the button column).
+                $ret_output .= '<td colspan="2" style=" text-align: left; width: '.$table->size[0].';" class="cell c0"></td>';
+            } else {
+                $size = $table->size[$key];
+                $cellclass = 'cell c'.$key.' level'.$table->level[$key];
+                list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
+                if ($heading) {
+                    // 'Heading' items have no buttons.
+                    $ret_output .= '<td style=" text-align: center; width: '.$size.';" class="cell c0">&nbsp;</td>';
+                } else {
+                    // Not a 'heading' item => add a button.
+                    $ret_output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">';
+                    $ret_output .= html_writer::tag('button', get_string('togglecolumn', 'checklist'),
+                                                    array('class' => 'make_col_c',
+                                                          'id' => $checkid,
+                                                          'type' => 'button'));
+                    $ret_output .= '</td>';
+                }
+            }
+        }
+        $ret_output .= '</tr>';
+        return $ret_output;
+    }
+
     function print_report_table($table, $editchecks) {
         global $OUTPUT, $CFG;
 
@@ -1898,11 +1939,21 @@ class checklist_class {
             if ($key == $lastkey) {
                 $levelclass .= ' lastcol';
             }
-            $output .= '<th style="vertical-align:top; text-align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
+            // If statement to judge if the header is the first cell in the row, if so the <th> needs colspan=2 added
+            // to cover the extra column added (containing the toggle button) to retain the correct table structure
+            $colspan = '';
+            if ($key == 0  && $editchecks) {
+                $colspan = 'colspan="2"';
+            }
+            $output .= '<th '.$colspan.' style="vertical-align:top; text-align: center; width:'.$size.'" class="header c'.$key.$levelclass.'" scope="col">';
             $output .= $heading.'</th>';
         }
         $output .= '</tr>';
 
+        // if we are in editing mode, run the add_row function that adds the button and necessary code to the document 
+        if ($editchecks) { 
+            $output .= $this->report_add_toggle_button_row($table); 
+        }
         // Output the data
         if ($CFG->version < 2013111800) {
             $tickimg = '<img src="'.$OUTPUT->pix_url('i/tick_green_big').'" alt="'.get_string('itemcomplete','checklist').'" />';
@@ -1937,6 +1988,15 @@ class checklist_class {
                     $img = '&nbsp;';
                     $cellclass = 'level'.$table->level[$colkey];
                     list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
+                    // if statement to add button at beginning of row in edting mode.
+                    if ($colkey == 1 && $editchecks) {
+                        $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">';
+                        $output .= html_writer::tag('button', get_string('togglerow', 'checklist'),
+                                                    array('class' => 'make_c',
+                                                          'id' => $userid,
+                                                          'type' => 'button'));
+                        $output .= '</td>';
+                    }
                     if ($heading) {
                         $output .= '<td style=" text-align: center; width: '.$size.';" class="cell c'.$colkey.' reportheading">&nbsp;</td>';
                     } else {
