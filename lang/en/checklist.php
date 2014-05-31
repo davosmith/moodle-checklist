@@ -103,6 +103,12 @@ View the checklist here:';
 $string['emailoncompletebodyown'] = 'You have completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\' 
 View the checklist here:';
 
+$string['eventchecklistcomplete'] = 'Checklist complete';
+$string['eventeditpageviewed'] = 'Edit page viewed';
+$string['eventreportviewed'] = 'Report viewed';
+$string['eventstudentchecksupdated'] = 'Student checks updated';
+$string['eventteacherchecksupdated'] = 'Teacher checks updated';
+
 $string['export'] = 'Export items';
 
 $string['forceupdate'] = 'Update checks for all automatic items';

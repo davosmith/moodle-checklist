@@ -30,15 +30,22 @@ global $DB, $PAGE, $OUTPUT, $CFG, $USER;
 
 $id = required_param('id', PARAM_INT);   // course
 
-if (! $course = $DB->get_record('course', array('id' => $id) )) {
-    error('Course ID is incorrect');
-}
+$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/checklist/index.php', array('id'=>$course->id));
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
 
-add_to_log($course->id, 'checklist', 'view all', "index.php?id=$course->id", '');
+if ($CFG->version > 2014051200) { // Moodle 2.7+
+    $params = array(
+        'context' => context_course::instance($course->id)
+    );
+    $event = \mod_checklist\event\course_module_instance_list_viewed::create($params);
+    $event->add_record_snapshot('course', $course);
+    $event->trigger();
+} else { // Before Moodle 2.7
+    add_to_log($course->id, 'checklist', 'view all', "index.php?id=$course->id", '');
+}
 
 /// Get all required stringsnewmodule
 

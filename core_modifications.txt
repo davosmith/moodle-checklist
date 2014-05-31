@@ -2,6 +2,8 @@ The changes shown in this file are only needed if you are worried about a short 
 
 ** If you are happy with this delay, then ignore all of these suggested changes below **
 If this is not acceptable, then you should make the following changes to the Moodle core code (for extra help with this, scroll down to the bottom of this file to see, roughly what the modified files should look like):
+
+*** THIS FIRST CORE MODIFICATION WILL NOT WORK IN MOODLE 2.7 AND ABOVE - DO NOT USE IT ***
 Open the file - moodle/lib/datalib.php
 
 Find the function 'add_to_log', then add these lines to the end of it:
@@ -9,6 +11,7 @@ Find the function 'add_to_log', then add these lines to the end of it:
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
     checklist_autoupdate($courseid, $module, $action, $cm, $userid, $url);
 
+*** THIS SECOND CORE MODIFICATION WILL STILL WORK IN MOODLE 2.7, BUT LOGS WILL NOT BE CHECKED FOR COMPLETION ***
 Now, open the file - moodle/lib/completionlib.php
 
 Find the function 'update_state', then add these lines, just after the

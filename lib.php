@@ -207,6 +207,11 @@ function checklist_update_grades($checklist, $userid=0) {
     if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
         return;
     }
+    if ($CFG->version < 2011120100) {
+        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    } else {
+        $context = context_module::instance($cm->id);
+    }
 
     $checkgroupings = false; // Don't check items against groupings unless we really have to
     if (isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly && $checklist->autopopulate) {
@@ -230,11 +235,6 @@ function checklist_update_grades($checklist, $userid=0) {
         if ($userid) {
             $users = $DB->get_records('user', array('id'=>$userid), null, 'id, firstname, lastname');
         } else {
-            if ($CFG->version < 2011120100) {
-                $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-            } else {
-                $context = context_module::instance($cm->id);
-            }
             if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname', '', '', '', '', '', false)) {
                 return;
             }
@@ -293,11 +293,6 @@ function checklist_update_grades($checklist, $userid=0) {
         if ($userid) {
             $users = $userid;
         } else {
-            if ($CFG->version < 2011120100) {
-                $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-            } else {
-                $context = context_module::instance($cm->id);
-            }
             if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
                 return;
             }
@@ -373,7 +368,17 @@ function checklist_update_grades($checklist, $userid=0) {
                     }
                 }
             }
-            add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", $checklist->name, $cm->id, $grade->userid);
+            if ($CFG->version > 2014051200) { // Moodle 2.7+
+                $params = array(
+                    'contextid' => $context->id,
+                    'objectid' => $checklist->id,
+                    'userid' => $grade->userid,
+                );
+                $event = \mod_checklist\event\checklist_completed::create($params);
+                $event->trigger();
+            } else { // Before Moodle 2.7
+                add_to_log($checklist->course, 'checklist', 'complete', "view.php?id={$cm->id}", $checklist->id, $cm->id, $grade->userid);
+            }
         }
         $ci = new completion_info($course);
         if ($cm->completion == COMPLETION_TRACKING_AUTOMATIC) {

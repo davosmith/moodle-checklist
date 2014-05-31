@@ -25,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$module->version  = 2014011500;  // The current module version (Date: YYYYMMDDXX)
+$module->version  = 2014053100;  // The current module version (Date: YYYYMMDDXX)
 $module->cron     = 60;          // Period for cron to check this module (secs)
 $module->maturity = MATURITY_STABLE;
-$module->release  = '2.x (Build: 2014011500)';
+$module->release  = '2.x (Build: 2014053100)';
 $module->requires = 2010112400;
 $module->component = 'mod_checklist';
