@@ -1883,8 +1883,12 @@ class checklist_class {
      */
     function report_add_toggle_button_row($table) {
         global $PAGE;
+
+        if (!$table->data) {
+            return '';
+        }
+
         $PAGE->requires->yui_module('moodle-mod_checklist-buttons', 'M.mod_checklist.buttons.init');
-        
         $passed_row = $table->data;
         $ret_output = '';
         $ret_output .= '<tr class="r1">';
