@@ -338,7 +338,7 @@ function checklist_update_grades($checklist, $userid=0) {
                             $context = context_module::instance($cm->id);
                         }
                     }
-                    
+
                     //prepare email content
                     $details = new stdClass();
                     $details->user = fullname($grade);
@@ -352,7 +352,7 @@ function checklist_update_grades($checklist, $userid=0) {
                         $content .= new moodle_url('/mod/checklist/view.php', array('id' => $cm->id));
 
                         if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*', '', '', '', '', '', false)) {
-                            foreach ($recipients as $recipient) {                                
+                            foreach ($recipients as $recipient) {
                                 email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
                             }
                         }
@@ -364,7 +364,7 @@ function checklist_update_grades($checklist, $userid=0) {
                         $content .= new moodle_url('/mod/checklist/view.php', array('id' => $cm->id));
 
                         $recipient_stud = $DB->get_record('user', array('id' => $grade->userid) );
-                        email_to_user($recipient_stud, $grade, $subj, $content, '', '', '', false);                        
+                        email_to_user($recipient_stud, $grade, $subj, $content, '', '', '', false);
                     }
                 }
             }
@@ -552,13 +552,24 @@ function checklist_print_overview($courses, &$htmlarray) {
 
     foreach ($checklists as $checklist) {
         $show_all = true;
-        if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-            if ($CFG->version < 2011120100) {
-                $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
-            } else {
-                $context = context_module::instance($checklist->coursemodule);
+
+        if ($CFG->version < 2011120100) {
+            $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
+        } else {
+            $context = context_module::instance($checklist->coursemodule);
+        }
+
+        if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT || $checklist->teacheredit == CHECKLIST_MARKING_BOTH) {
+            if(has_capability('mod/checklist:updateother', $context)) { // You are the teacher.
+                return;
+            } else if(!has_capability('mod/checklist:updateown', $context)) { // You do not have a checklist you can modify.
+                return;
             }
-            $show_all = !has_capability('mod/checklist:updateown', $context);
+
+            $completed = checklist_class::get_user_progress($checklist->id, $USER->id);
+            if ($completed[0] === $completed[1]){ // Completed checklist.
+                return;
+            }
         }
 
         $progressbar = checklist_class::print_user_progressbar($checklist->id, $USER->id,
