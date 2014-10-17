@@ -30,4 +30,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('checklist/showcompletemymoodle',
                                                     get_string('showcompletemymoodle', 'mod_checklist'),
                                                     get_string('configshowcompletemymoodle', 'mod_checklist'), 1));
+    $settings->add(new admin_setting_configcheckbox('checklist/showupdateablemymoodle',
+                                                    get_string('showupdateablemymoodle', 'mod_checklist'),
+                                                    get_string('configshowupdateablemymoodle', 'mod_checklist'), 1));
 }
