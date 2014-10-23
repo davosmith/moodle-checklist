@@ -147,7 +147,7 @@ function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url,
         list($csql, $cparams) = $DB->get_in_or_equal(array_keys($checklists));
         $params = array_merge(array($userid, $cmid), $cparams);
 
-        $sql = "SELECT i.id itemid, c.id checkid, c.usertimestamp FROM {checklist_item} i ";
+        $sql = "SELECT i.id AS itemid, c.id AS checkid, c.usertimestamp FROM {checklist_item} i ";
         $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
         $sql .= "WHERE i.moduleid = ? AND i.checklist $csql AND i.itemoptional < 2";
         $items = $DB->get_records_sql($sql, $params);
@@ -210,7 +210,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
         mtrace("Completion status change for cmid: $cmid, userid: $userid, newstate: $newstate");
     }
 
-    $sql = "SELECT i.id itemid, c.id checkid, c.usertimestamp, i.checklist FROM {checklist_item} i ";
+    $sql = "SELECT i.id AS itemid, c.id AS checkid, c.usertimestamp, i.checklist FROM {checklist_item} i ";
     $sql .= "JOIN {checklist} cl ON i.checklist = cl.id ";
     $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
     $sql .= "WHERE cl.autoupdate > 0 AND i.moduleid = ? AND i.itemoptional < 2 ";
