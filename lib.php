@@ -539,7 +539,9 @@ function checklist_print_overview($courses, &$htmlarray) {
     if (!isset($config->showcompletemymoodle)) {
         $config->showcompletemymoodle = 1;
     }
-
+    if (!isset($config->showupdateablemymoodle)) {
+        $config->showupdateablemymoodle = 1;
+    }
     if (empty($courses) || !is_array($courses) || count($courses) == 0) {
         return;
     }
@@ -552,13 +554,23 @@ function checklist_print_overview($courses, &$htmlarray) {
 
     foreach ($checklists as $checklist) {
         $show_all = true;
+        if ($CFG->version < 2011120100) {
+            $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
+        } else {
+            $context = context_module::instance($checklist->coursemodule);
+        }
+        
+        // If only the student is responsible for updating the checklist.
         if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
-            if ($CFG->version < 2011120100) {
-                $context = get_context_instance(CONTEXT_MODULE, $checklist->coursemodule);
-            } else {
-                $context = context_module::instance($checklist->coursemodule);
+            if ($show_all = !has_capability('mod/checklist:updateown', $context, null, false)) {
+                if ($config->showupdateablemymoodle) {
+                    continue;
+                }
             }
-            $show_all = !has_capability('mod/checklist:updateown', $context);
+        } else { // If the teacher is involved with updating the checklist.
+            if ($config->showupdateablemymoodle) {
+                continue;
+            }
         }
 
         $progressbar = checklist_class::print_user_progressbar($checklist->id, $USER->id,
