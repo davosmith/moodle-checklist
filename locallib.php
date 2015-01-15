@@ -2163,7 +2163,11 @@ class checklist_class {
             if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                 $duetime = false;
             } else {
-                $duetime = optional_param('duetime', false, PARAM_INT);
+                if ($CFG->version < 2011120100) {
+                    $duetime = optional_param('duetime', false, PARAM_INT);
+                } else {
+                    $duetime = optional_param_array('duetime', false, PARAM_INT);
+                }
             }
             $this->additem($displaytext, 0, $indent, $position, $duetime);
             if ($position) {
