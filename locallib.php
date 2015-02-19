@@ -2163,7 +2163,11 @@ class checklist_class {
             if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                 $duetime = false;
             } else {
-                $duetime = optional_param('duetime', false, PARAM_INT);
+                if ($CFG->branch >= 22) {
+                    $duetime = optional_param_array('duetime', false, PARAM_INT);
+                } else {
+                    $duetime = optional_param('duetime', false, PARAM_INT);
+                }
             }
             $this->additem($displaytext, 0, $indent, $position, $duetime);
             if ($position) {
@@ -2387,41 +2391,44 @@ class checklist_class {
     }
 
     function setevent($itemid, $add) {
-        global $DB;
+        global $CFG, $DB;
+        require_once($CFG->dirroot.'/calendar/lib.php');
 
         $item = $this->items[$itemid];
         $update = false;
 
-        if  ((!$add) || ($item->duetime == 0)) {  // Remove the event (if any)
+        if  ((!$add) || ($item->duetime == 0)) {  // Remove the event (if any).
             if (!$item->eventid) {
-                return; // No event to remove
+                return; // No event to remove.
             }
 
-            delete_event($item->eventid);
+            $event = calendar_event::load($item->eventid);
+            $event->delete();
             $this->items[$itemid]->eventid = 0;
             $update = true;
 
-        } else {  // Add/update event
-            $event = new stdClass;
-            $event->name = $item->displaytext;
-            $event->description = get_string('calendardescription', 'checklist', $this->checklist->name);
-            $event->courseid = $this->course->id;
-            $event->modulename = 'checklist';
-            $event->instance = $this->checklist->id;
-            $event->eventtype = 'due';
-            $event->timestart = $item->duetime;
+        } else {  // Add/update event.
+            $eventdata = new stdClass();
+            $eventdata->name = $item->displaytext;
+            $eventdata->description = get_string('calendardescription', 'checklist', $this->checklist->name);
+            $eventdata->courseid = $this->course->id;
+            $eventdata->modulename = 'checklist';
+            $eventdata->instance = $this->checklist->id;
+            $eventdata->eventtype = 'due';
+            $eventdata->timestart = $item->duetime;
 
             if ($item->eventid) {
-                $event->id = $item->eventid;
-                update_event($event);
+                $event = calendar_event::load($item->eventid);
+                $event->update($eventdata);
             } else {
-                $this->items[$itemid]->eventid = add_event($event);
+                $event = calendar_event::create($eventdata, false);
+                $this->items[$itemid]->eventid = $event->id;
                 $update = true;
             }
         }
 
-        if ($update) { // Event added or removed
-            $upditem = new stdClass;
+        if ($update) { // Event added or removed.
+            $upditem = new stdClass();
             $upditem->id = $itemid;
             $upditem->eventid = $this->items[$itemid]->eventid;
             $DB->update_record('checklist_item', $upditem);
