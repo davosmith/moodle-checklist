@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2015-02-19 - Setting 'max grade' to 0 in the checklist removes it from the gradebook
 * 2014-10-26 - Option to hide checklists you cannot update from 'My home' (thanks to Syxton); fix PostgreSQL compatibility with autoupdate.
 * 2014-07-06 - Fix toggle row/column buttons. Update version.php.
 * 2014-05-31 - Add toggle row / toggle column buttons to report view - developed by Simon Bertoli

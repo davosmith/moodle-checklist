@@ -419,9 +419,13 @@ function checklist_grade_item_update($checklist, $grades=null) {
     }
 
     $params = array('itemname'=>$checklist->name);
-    $params['gradetype'] = GRADE_TYPE_VALUE;
-    $params['grademax']  = $checklist->maxgrade;
-    $params['grademin']  = 0;
+    if ($checklist->maxgrade > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax'] = $checklist->maxgrade;
+        $params['grademin'] = 0;
+    } else {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+    }
 
     if ($grades  === 'reset') {
         $params['reset'] = true;
