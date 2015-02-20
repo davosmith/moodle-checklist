@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -20,7 +19,7 @@
  */
 
 $capabilities = array(
-    // Check if user is able to add a checklist module (M2.3+ only)
+    // Check if user is able to add a checklist module (M2.3+ only).
     'mod/checklist:addinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -31,7 +30,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
 
-    // Ability to view and update own checklist
+    // Ability to view and update own checklist.
     'mod/checklist:updateown' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
@@ -41,7 +40,7 @@ $capabilities = array(
         )
     ),
 
-    // Ability to alter the marks on another person's checklist
+    // Ability to alter the marks on another person's checklist.
     'mod/checklist:updateother' => array(
         'riskbitmask' => RISK_PERSONAL | RISK_SPAM,
         'captype' => 'write',
@@ -53,7 +52,7 @@ $capabilities = array(
         )
     ),
 
-    // Ability to preview a checklist (to check it is OK)
+    // Ability to preview a checklist (to check it is OK).
     'mod/checklist:preview' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -65,7 +64,7 @@ $capabilities = array(
     ),
 
     // Ability to check up on the progress of all users through
-    // their checklists
+    // their checklists.
     'mod/checklist:viewreports' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
@@ -77,15 +76,15 @@ $capabilities = array(
         )
     ),
 
-    // Ability to view reports related to their 'mentees' only
+    // Ability to view reports related to their 'mentees' only.
     'mod/checklist:viewmenteereports' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array()  // Not assigned by default
+        'legacy' => array()  // Not assigned by default.
     ),
 
-    // Ability to create and manage checklists
+    // Ability to create and manage checklists.
     'mod/checklist:edit' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
@@ -96,7 +95,7 @@ $capabilities = array(
         )
     ),
 
-    // Will receive emails when checklists complete (if checklist is set to do so)
+    // Will receive emails when checklists complete (if checklist is set to do so).
     'mod/checklist:emailoncomplete' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
@@ -107,7 +106,7 @@ $capabilities = array(
         )
     ),
 
-    // Can update teacher checklist marks even if locked
+    // Can update teacher checklist marks even if locked.
     'mod/checklist:updatelocked' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

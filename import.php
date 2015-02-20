@@ -10,7 +10,7 @@ define('STATE_INQUOTES', 1);
 define('STATE_ESCAPE', 2);
 define('STATE_NORMAL', 3);
 
-$id = required_param('id', PARAM_INT); // course module id
+$id = required_param('id', PARAM_INT); // Course module id.
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -20,7 +20,7 @@ $url = new moodle_url('/mod/checklist/import.php', array('id' => $cm->id));
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-if ($CFG->version < 2011120100) {
+if ($CFG->branch < 22) {
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 } else {
     $context = context_module::instance($cm->id);
@@ -32,7 +32,7 @@ if (!has_capability('mod/checklist:edit', $context)) {
 $returl = new moodle_url('/mod/checklist/edit.php', array('id' => $cm->id));
 
 class checklist_import_form extends moodleform {
-    function definition() {
+    public function definition() {
         $mform = $this->_form;
 
         $mform->addElement('hidden', 'id', 0);
@@ -40,39 +40,59 @@ class checklist_import_form extends moodleform {
 
         $mform->addElement('header', 'formheading', get_string('import', 'checklist'));
 
-        $mform->addElement('filepicker', 'importfile', get_string('importfile', 'checklist'), null, array('accepted_types'=>array('*.csv')));
+        $mform->addElement('filepicker', 'importfile', get_string('importfile', 'checklist'), null,
+                           array('accepted_types' => array('*.csv')));
 
         $this->add_action_buttons(true, get_string('import', 'checklist'));
     }
 }
 
 function cleanrow($separator, $row) {
-    // Convert and $separator inside quotes into [!SEPARATOR!] (to skip it during the 'explode')
+    // Convert and $separator inside quotes into [!SEPARATOR!] (to skip it during the 'explode').
     $state = STATE_WAITSTART;
     $chars = str_split($row);
     $cleanrow = '';
     $quotes = '"';
     foreach ($chars as $char) {
         switch ($state) {
-        case STATE_WAITSTART:
-            if ($char == ' ' || $char == ',') { } // Still in STATE_WAITSTART
-            else if ($char == '"') { $quotes = '"'; $state = STATE_INQUOTES; }
-            else if ($char == "'") { $quotes = "'"; $state = STATE_INQUOTES; }
-            else { $state = STATE_NORMAL; }
-            break;
-        case STATE_INQUOTES:
-            if ($char == $quotes) { $state = STATE_NORMAL; } // End of quotes
-            else if ($char == '\\') { $state = STATE_ESCAPE; continue 2; }  // Possible escaped quotes skip (for now)
-            else if ($char == $separator) { $cleanrow .= '[!SEPARATOR!]'; continue 2; } // Replace $separator and continue loop
-            break;
-        case STATE_ESCAPE:
-            // Retain escape char, unless escaping a quote character
-            if ($char != $quotes) { $cleanrow .= '\\'; }
-            $state = STATE_INQUOTES;
-            break;
-        default:
-            if ($char == ',') { $state = STATE_WAITSTART; }
-            break;
+            case STATE_WAITSTART:
+                if ($char == ' ' || $char == ',') {
+                } // Still in STATE_WAITSTART.
+                else if ($char == '"') {
+                    $quotes = '"';
+                    $state = STATE_INQUOTES;
+                } else if ($char == "'") {
+                    $quotes = "'";
+                    $state = STATE_INQUOTES;
+                } else {
+                    $state = STATE_NORMAL;
+                }
+                break;
+            case STATE_INQUOTES:
+                if ($char == $quotes) {
+                    $state = STATE_NORMAL;
+                } // End of quotes
+                else if ($char == '\\') {
+                    $state = STATE_ESCAPE;
+                    continue 2;
+                }  // Possible escaped quotes skip (for now)
+                else if ($char == $separator) {
+                    $cleanrow .= '[!SEPARATOR!]';
+                    continue 2;
+                } // Replace $separator and continue loop
+                break;
+            case STATE_ESCAPE:
+                // Retain escape char, unless escaping a quote character
+                if ($char != $quotes) {
+                    $cleanrow .= '\\';
+                }
+                $state = STATE_INQUOTES;
+                break;
+            default:
+                if ($char == ',') {
+                    $state = STATE_WAITSTART;
+                }
+                break;
         }
         $cleanrow .= $char;
     }
@@ -101,7 +121,7 @@ if ($data = $form->get_data()) {
             $filearray = file($filename);
             unlink($filename);
 
-            /// Check for Macintosh OS line returns (ie file on one line), and fix
+            // Check for Macintosh OS line returns (ie file on one line), and fix.
             if (strpos($filearray[0], "\r") !== false && strpos($filearray[0], "\n") === false) {
                 $filearray = explode("\r", $filearray[0]);
             }
@@ -117,7 +137,7 @@ if ($data = $form->get_data()) {
                 }
 
                 // Separator defined in importexportfields.php (currently ',')
-                // Split $row into array $item, by $separator, but ignore $separator when it occurs within ""
+                // Split $row into array $item, by $separator, but ignore $separator when it occurs within "".
                 $row = cleanrow($separator, $row);
                 $item = explode($separator, $row);
 
@@ -133,7 +153,7 @@ if ($data = $form->get_data()) {
                 $newitem->position = $position++;
                 $newitem->userid = 0;
 
-                // $fields defined in importexportfields.php
+                // $fields defined in importexportfields.php.
                 foreach ($fields as $field => $fieldtext) {
                     $itemfield = trim($itemfield);
                     if (substr($itemfield, 0, 1) == '"' && substr($itemfield, -1) == '"') {
@@ -142,47 +162,47 @@ if ($data = $form->get_data()) {
                     $itemfield = trim($itemfield);
                     $itemfield = str_replace('[!SEPARATOR!]', $separator, $itemfield);
                     switch ($field) {
-                    case 'displaytext':
-                        $newitem->displaytext = trim($itemfield);
-                        break;
+                        case 'displaytext':
+                            $newitem->displaytext = trim($itemfield);
+                            break;
 
-                    case 'indent':
-                        $newitem->indent = intval($itemfield);
-                        if ($newitem->indent < 0) {
-                            $newitem->indent = 0;
-                        } else if ($newitem->indent > 10) {
-                            $newitem->indent = 10;
-                        }
-                        break;
+                        case 'indent':
+                            $newitem->indent = intval($itemfield);
+                            if ($newitem->indent < 0) {
+                                $newitem->indent = 0;
+                            } else if ($newitem->indent > 10) {
+                                $newitem->indent = 10;
+                            }
+                            break;
 
-                    case 'itemoptional':
-                        $newitem->itemoptional = intval($itemfield);
-                        if ($newitem->itemoptional < 0 || $newitem->itemoptional > 2) {
-                            $newitem->itemoptional = 0;
-                        }
-                        break;
+                        case 'itemoptional':
+                            $newitem->itemoptional = intval($itemfield);
+                            if ($newitem->itemoptional < 0 || $newitem->itemoptional > 2) {
+                                $newitem->itemoptional = 0;
+                            }
+                            break;
 
-                    case 'duetime':
-                        $newitem->duetime = intval($itemfield);
-                        if ($newitem->itemoptional < 0) {
-                            $newitem->itemoptional = 0;
-                        }
-                        break;
+                        case 'duetime':
+                            $newitem->duetime = intval($itemfield);
+                            if ($newitem->itemoptional < 0) {
+                                $newitem->itemoptional = 0;
+                            }
+                            break;
 
-                    case 'colour':
-                        $allowedcolours = array('red', 'orange', 'green', 'purple', 'black');
-                        $itemfield = trim(strtolower($itemfield));
-                        if (!in_array($itemfield, $allowedcolours)) {
-                            $itemfield = 'black';
-                        }
-                        $newitem->colour = $itemfield;
-                        break;
+                        case 'colour':
+                            $allowedcolours = array('red', 'orange', 'green', 'purple', 'black');
+                            $itemfield = trim(strtolower($itemfield));
+                            if (!in_array($itemfield, $allowedcolours)) {
+                                $itemfield = 'black';
+                            }
+                            $newitem->colour = $itemfield;
+                            break;
                     }
 
                     $itemfield = next($item);
                 }
 
-                if ($newitem->displaytext) { // Don't insert items without any text in them
+                if ($newitem->displaytext) { // Don't insert items without any text in them.
                     if (!$DB->insert_record('checklist_item', $newitem)) {
                         $ok = false;
                         $errormsg = 'Unable to insert DB record for item';

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,12 +17,12 @@
 // This file replaces:
 //   * STATEMENTS section in db/install.xml
 //   * lib.php/modulename_install() post installation hook
-//   * partially defaults.php
+//   * partially defaults.php.
 
 function xmldb_checklist_install() {
     global $DB;
 
-/// Install logging support
+// Install logging support.
 /*    update_log_display_entry('checklist', 'view', 'checklist', 'name');
     update_log_display_entry('checklist', 'edit', 'checklist', 'name');
     update_log_display_entry('checklist', 'update checks', 'checklist', 'name');

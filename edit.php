@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -21,7 +20,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 global $DB, $PAGE;
 
-$id = required_param('id', PARAM_INT); // course_module ID
+$id = required_param('id', PARAM_INT); // Course_module ID.
 
 $url = new moodle_url('/mod/checklist/view.php', array('id' => $id));
 

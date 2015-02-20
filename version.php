@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,10 +29,10 @@ if (!isset($plugin)) {
     $plugin = new stdClass();
 }
 // Used by M2.6 and above.
-$plugin->version  = 2015021900;  // The current module version (Date: YYYYMMDDXX)
-$plugin->cron     = 60;          // Period for cron to check this module (secs).
+$plugin->version = 2015021901;  // The current module version (Date: YYYYMMDDXX)
+$plugin->cron = 60;          // Period for cron to check this module (secs).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release  = '2.x (Build: 2014080601)';
+$plugin->release = '2.x (Build: 2014080601)';
 $plugin->requires = 2010112400;
 $plugin->component = 'mod_checklist';
 

@@ -3,7 +3,7 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
 global $DB, $PAGE, $CFG;
-$id = required_param('id', PARAM_INT); // course module id
+$id = required_param('id', PARAM_INT); // Course module id.
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -13,7 +13,7 @@ $url = new moodle_url('/mod/checklist/export.php', array('id' => $cm->id));
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-if ($CFG->version < 2011120100) {
+if ($CFG->branch < 22) {
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 } else {
     $context = context_module::instance($cm->id);
@@ -27,13 +27,13 @@ if (!$items) {
     error(get_string('noitems', 'checklist'));
 }
 
-if (strpos($CFG->wwwroot, 'https://') === 0) { //https sites - watch out for IE! KB812935 and KB316431
+if (strpos($CFG->wwwroot, 'https://') === 0) { // Https sites - watch out for IE! KB812935 and KB316431.
     @header('Cache-Control: max-age=10');
-    @header('Expires: '. gmdate('D, d M Y H:i:s', 0) .' GMT');
+    @header('Expires: '.gmdate('D, d M Y H:i:s', 0).' GMT');
     @header('Pragma: ');
-} else { //normal http - prevent caching at all cost
+} else { // Normal http - prevent caching at all cost.
     @header('Cache-Control: private, must-revalidate, pre-check=0, post-check=0, max-age=0');
-    @header('Expires: '. gmdate('D, d M Y H:i:s', 0) .' GMT');
+    @header('Expires: '.gmdate('D, d M Y H:i:s', 0).' GMT');
     @header('Pragma: no-cache');
 }
 
@@ -43,7 +43,7 @@ header("Content-Type: application/download\n");
 $downloadfilename = clean_filename("{$course->shortname} $strchecklist {$checklist->name}");
 header("Content-Disposition: attachment; filename=\"$downloadfilename.csv\"");
 
-// Output the headings
+// Output the headings.
 echo implode($separator, $fields)."\n";
 
 foreach ($items as $item) {

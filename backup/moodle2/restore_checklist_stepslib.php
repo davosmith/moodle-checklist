@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -29,14 +28,14 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
             $paths[] = new restore_path_element('checklist_comment', '/activity/checklist/items/item/comments/comment');
         }
 
-        // Return the paths wrapped into standard activity structure
+        // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
 
     protected function process_checklist($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
 
@@ -51,7 +50,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
     protected function process_checklist_item($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $oldid = $data->id;
 
         $data->checklist = $this->get_new_parentid('checklist');
@@ -59,7 +58,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         if ($data->userid > 0) {
             $data->userid = $this->get_mappingid('user', $data->userid);
         }
-        // Update to new data structure, where 'hidden' status is stored in separate field
+        // Update to new data structure, where 'hidden' status is stored in separate field.
         if ($data->itemoptional == 3) {
             $data->itemoptional = 0;
             $data->hidden = 1;
@@ -68,7 +67,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
             $data->hidden = 1;
         }
 
-        // Apply offset to the deadline
+        // Apply offset to the deadline.
         $data->duetime = $this->apply_date_offset($data->duetime);
 
         // Sort out the rest of moduleids in the 'after_restore' function - after all the other activities have been restored.
@@ -80,7 +79,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
     protected function process_checklist_check($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $oldid = $data->id;
 
         $data->item = $this->get_new_parentid('checklist_item');
@@ -102,7 +101,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
     protected function process_checklist_comment($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $oldid = $data->id;
 
         $data->itemid = $this->get_new_parentid('checklist_item');
@@ -116,9 +115,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
     }
 
     protected function after_execute() {
-        global $DB;
-
-        // Add checklist related files, no need to match by itemname (just internally handled context)
+        // Add checklist related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_checklist', 'intro', null);
     }
 }

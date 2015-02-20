@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -28,7 +27,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 global $DB, $CFG, $PAGE, $USER;
 
-$id = required_param('id', PARAM_INT); // course_module ID
+$id = required_param('id', PARAM_INT); // Course_module ID.
 if ($CFG->version < 2011120100) {
     $items = optional_param('items', false, PARAM_INT);
 } else {
@@ -44,7 +43,7 @@ $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUS
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-if ($CFG->version < 2011120100) {
+if ($CFG->branch < 22) {
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 } else {
     $context = context_module::instance($cm->id);

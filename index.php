@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of the Checklist plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -28,66 +27,65 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 global $DB, $PAGE, $OUTPUT, $CFG, $USER;
 
-$id = required_param('id', PARAM_INT);   // course
+$id = required_param('id', PARAM_INT);   // Course.
 
 $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/checklist/index.php', array('id'=>$course->id));
+$PAGE->set_url('/mod/checklist/index.php', array('id' => $course->id));
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
 
-if ($CFG->version > 2014051200) { // Moodle 2.7+
+if ($CFG->branch >= 27) { // Moodle 2.7+.
     $params = array(
         'context' => context_course::instance($course->id)
     );
     $event = \mod_checklist\event\course_module_instance_list_viewed::create($params);
     $event->add_record_snapshot('course', $course);
     $event->trigger();
-} else { // Before Moodle 2.7
+} else { // Before Moodle 2.7.
     add_to_log($course->id, 'checklist', 'view all', "index.php?id=$course->id", '');
 }
 
-/// Get all required stringsnewmodule
+// Get all required stringsnewmodule.
 
 $strchecklists = get_string('modulenameplural', 'checklist');
-$strchecklist  = get_string('modulename', 'checklist');
+$strchecklist = get_string('modulename', 'checklist');
 
-
-/// Print the header
+// Print the header.
 
 $PAGE->navbar->add($strchecklists);
 $PAGE->set_title($strchecklists);
 echo $OUTPUT->header();
 
-/// Get all the appropriate data
+// Get all the appropriate data.
 
-if (! $checklists = get_all_instances_in_course('checklist', $course)) {
+if (!$checklists = get_all_instances_in_course('checklist', $course)) {
     notice('There are no instances of checklist', "../../course/view.php?id=$course->id");
     die;
 }
 
-/// Print the list of instances (your module will probably extend this)
+// Print the list of instances (your module will probably extend this).
 
-$timenow  = time();
-$strname  = get_string('name');
-$strweek  = get_string('week');
+$timenow = time();
+$strname = get_string('name');
+$strweek = get_string('week');
 $strtopic = get_string('topic');
 $strprogress = get_string('progress', 'checklist');
 
 $table = new html_table();
 
 if ($course->format == 'weeks') {
-    $table->head  = array ($strweek, $strname);
-    $table->align = array ('center', 'left', 'left');
+    $table->head = array($strweek, $strname);
+    $table->align = array('center', 'left', 'left');
 } else if ($course->format == 'topics') {
-    $table->head  = array ($strtopic, $strname);
-    $table->align = array ('center', 'left', 'left');
+    $table->head = array($strtopic, $strname);
+    $table->align = array('center', 'left', 'left');
 } else {
-    $table->head  = array ($strname);
-    $table->align = array ('left', 'left');
+    $table->head = array($strname);
+    $table->align = array('left', 'left');
 }
 
-if ($CFG->version < 2011120100) {
+if ($CFG->branch < 22) {
     $context = get_context_instance(CONTEXT_COURSE, $course->id);
 } else {
     $context = context_course::instance($course->id);
@@ -99,18 +97,17 @@ if ($canupdateown) {
 
 foreach ($checklists as $checklist) {
     if (!$checklist->visible) {
-        //Show dimmed if the mod is hidden
+        // Show dimmed if the mod is hidden.
         $link = '<a class="dimmed" href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
     } else {
-        //Show normal if the mod is visible
+        // Show normal if the mod is visible.
         $link = '<a href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
     }
 
-
     if ($course->format == 'weeks' or $course->format == 'topics') {
-        $row = array ($checklist->section, $link);
+        $row = array($checklist->section, $link);
     } else {
-        $row = array ($link);
+        $row = array($link);
     }
 
     if ($canupdateown) {
@@ -123,6 +120,6 @@ foreach ($checklists as $checklist) {
 echo $OUTPUT->heading($strchecklists);
 echo html_writer::table($table);
 
-/// Finish the page
+// Finish the page.
 
 echo $OUTPUT->footer();
