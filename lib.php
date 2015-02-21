@@ -327,12 +327,9 @@ function checklist_update_grades($checklist, $userid = 0) {
         if ($grade->rawgrade == $checklist->maxgrade) {
             if ($checklist->emailoncomplete) {
                 // Do not send another email if this checklist was already 'completed' in the last hour.
-                $timelimit = time() - 1 * 60 * 60;
-                $filter = "l.time > ? AND l.cmid = ? AND l.userid = ? AND l.action = 'complete'";
-                get_logs($filter, array($timelimit, $cm->id, $grade->userid), '', 1, 1, $logcount);
-                if ($logcount == 0) {
+                if (!checklist_sent_email_recently($cm->id)) {
                     if (!isset($context)) {
-                        if ($CFG->version < 2011120100) {
+                        if ($CFG->branch < 22) {
                             $context = get_context_instance(CONTEXT_MODULE, $cm->id);
                         } else {
                             $context = context_module::instance($cm->id);
@@ -370,7 +367,7 @@ function checklist_update_grades($checklist, $userid = 0) {
                     }
                 }
             }
-            if ($CFG->version > 2014051200) { // Moodle 2.7+.
+            if ($CFG->branch >= 27) { // Moodle 2.7+.
                 $params = array(
                     'contextid' => $context->id,
                     'objectid' => $checklist->id,
@@ -390,6 +387,28 @@ function checklist_update_grades($checklist, $userid = 0) {
     }
 
     checklist_grade_item_update($checklist, $grades);
+}
+
+/**
+ * Make sure multiple completion emails are not sent from the same user within the last hour.
+ * (Assuming they don't log out and log back in again).
+ *
+ * @param int $cmid
+ * @return bool - true if an email has already been sent recently
+ */
+function checklist_sent_email_recently($cmid) {
+    global $SESSION;
+    if (!isset($SESSION->checklist_recent_email)) {
+        $SESSION->checklist_recent_email = array();
+    }
+    if (!empty($SESSION->checklist_recent_email[$cmid])) {
+        $nexttime = $SESSION->checklist_recent_email[$cmid] + HOURSECS;
+        if (time() < $nexttime) {
+            return true;
+        }
+    }
+    $SESSION->checklist_recent_email[$cmid] = time();
+    return false;
 }
 
 /**
