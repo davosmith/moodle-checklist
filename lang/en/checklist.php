@@ -153,7 +153,7 @@ $string['progress'] = 'Progress';
 
 $string['removeauto'] = 'Remove course module items';
 
-$string['report'] = 'View Progress';
+$string['report'] = 'View progress';
 $string['reporttablesummary'] = 'Table showing the items on the checklist that each student has completed';
 
 $string['requireditem'] = 'This item is required - it must be completed';

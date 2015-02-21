@@ -814,13 +814,25 @@ class checklist_class {
         }
         switch ($this->items[$itemid]->teachermark) {
             case CHECKLIST_TEACHERMARK_YES:
-                return array($OUTPUT->pix_url('tick_box', 'checklist'), get_string('teachermarkyes', 'checklist'));
+                return array(
+                    $OUTPUT->pix_url('tick_box', 'checklist'),
+                    get_string('teachermarkyes', 'checklist'),
+                    'teachermarkyes'
+                );
 
             case CHECKLIST_TEACHERMARK_NO:
-                return array($OUTPUT->pix_url('cross_box', 'checklist'), get_string('teachermarkno', 'checklist'));
+                return array(
+                    $OUTPUT->pix_url('cross_box', 'checklist'),
+                    get_string('teachermarkno', 'checklist'),
+                    'teachermarkno'
+                );
 
             default:
-                return array($OUTPUT->pix_url('empty_box', 'checklist'), get_string('teachermarkundecided', 'checklist'));
+                return array(
+                    $OUTPUT->pix_url('empty_box', 'checklist'),
+                    get_string('teachermarkundecided', 'checklist'),
+                    'teachermarkundecided'
+                );
         }
     }
 
@@ -1073,20 +1085,26 @@ class checklist_class {
                             $sely = ($item->teachermark == CHECKLIST_TEACHERMARK_YES) ? 'selected="selected" ' : '';
                             $seln = ($item->teachermark == CHECKLIST_TEACHERMARK_NO) ? 'selected="selected" ' : '';
 
-                            echo '<select name="items['.$item->id.']" '.$disabled.'>';
+                            $selectid = ' id='.$itemname.' ';
+
+                            echo '<select name="items['.$item->id.']" '.$disabled.$selectid.'>';
                             echo '<option value="'.CHECKLIST_TEACHERMARK_UNDECIDED.'" '.$selu.'></option>';
                             echo '<option value="'.CHECKLIST_TEACHERMARK_YES.'" '.$sely.'>'.get_string('yes').'</option>';
                             echo '<option value="'.CHECKLIST_TEACHERMARK_NO.'" '.$seln.'>'.get_string('no').'</option>';
                             echo '</select>';
                         } else {
-                            list($imgsrc, $titletext) = $this->get_teachermark($item->id);
-                            echo '<img src="'.$imgsrc.'" alt="'.$titletext.'" title="'.$titletext.'" />';
+                            list($imgsrc, $titletext, $class) = $this->get_teachermark($item->id);
+                            echo '<img src="'.$imgsrc.'" alt="'.$titletext.'" title="'.$titletext.'" class="'.$class.'" />';
                         }
                     }
                 }
                 if ($showcheckbox) {
                     if ($item->itemoptional != CHECKLIST_OPTIONAL_HEADING) {
-                        echo '<input class="checklistitem'.$checkclass.'" type="checkbox" name="items[]" id='.$itemname.$checked.
+                        $id = ' id='.$itemname.' ';
+                        if ($viewother && $showteachermark) {
+                            $id = '';
+                        }
+                        echo '<input class="checklistitem'.$checkclass.'" type="checkbox" name="items[]" '.$id.$checked.
                             ' value="'.$item->id.'" />';
                     }
                 }
@@ -1840,7 +1858,8 @@ class checklist_class {
                     echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.
                         $OUTPUT->pix_url('progress', 'checklist').');" >&nbsp;</div>';
                     echo '</div>';
-                    echo '<div style="float:left; width: 3em;">&nbsp;'.sprintf('%0d%%', $percentcomplete).'</div>';
+                    echo '<div class="checklist_percentcomplete" style="float:left; width: 3em;">&nbsp;'.
+                        sprintf('%0d%%', $percentcomplete).'</div>';
                     echo '<div style="float:left;">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
                     echo '<br style="clear:both;" />';
                 }
@@ -2404,7 +2423,7 @@ class checklist_class {
         }
     }
 
-    protected function additem($displaytext, $userid = 0, $indent = 0, $position = false, $duetime = false, $moduleid = 0,
+    public function additem($displaytext, $userid = 0, $indent = 0, $position = false, $duetime = false, $moduleid = 0,
                                $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO) {
         global $DB;
 
@@ -2993,7 +3012,6 @@ class checklist_class {
             return;
         }
 
-        $updategrades = false;
         if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
             if (!$student = $DB->get_record('user', array('id' => $this->userid))) {
                 error('No such user!');
@@ -3014,40 +3032,7 @@ class checklist_class {
             $teachermarklocked = $this->checklist->lockteachermarks
                 && !has_capability('mod/checklist:updatelocked', $this->context);
 
-            foreach ($newchecks as $itemid => $newval) {
-                if (isset($this->items[$itemid])) {
-                    $item = $this->items[$itemid];
-
-                    if ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) {
-                        continue; // Does not have permission to update marks that are already 'Yes'.
-                    }
-                    if ($newval != $item->teachermark) {
-                        $updategrades = true;
-
-                        $newcheck = new stdClass;
-                        $newcheck->teachertimestamp = time();
-                        $newcheck->teachermark = $newval;
-                        $newcheck->teacherid = $USER->id;
-
-                        $item->teachermark = $newcheck->teachermark;
-                        $item->teachertimestamp = $newcheck->teachertimestamp;
-                        $item->teacherid = $newcheck->teacherid;
-
-                        $oldcheck = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid));
-                        if ($oldcheck) {
-                            $newcheck->id = $oldcheck->id;
-                            $DB->update_record('checklist_check', $newcheck);
-                        } else {
-                            $newcheck->item = $itemid;
-                            $newcheck->userid = $this->userid;
-                            $newcheck->id = $DB->insert_record('checklist_check', $newcheck);
-                        }
-                    }
-                }
-            }
-            if ($updategrades) {
-                checklist_update_grades($this->checklist, $this->userid);
-            }
+            $this->update_teachermarks($newchecks, $USER->id, $teachermarklocked);
         }
 
         if ($CFG->version < 2011120100) {
@@ -3095,6 +3080,53 @@ class checklist_class {
                     $DB->insert_record('checklist_comment', $addcomment);
                 }
             }
+        }
+    }
+
+    /**
+     * Public to allow use in Behat tests.
+     *
+     * @param int[] $newchecks maps itemid => teachermark
+     * @param int $teacherid userid of the teacher doing the update
+     * @param bool $teachermarklocked (optional) set to true to prevent teachers from changing 'yes' to 'no'.
+     */
+    public function update_teachermarks($newchecks, $teacherid, $teachermarklocked = false) {
+        global $DB;
+
+        $updategrades = false;
+        foreach ($newchecks as $itemid => $newval) {
+            if (isset($this->items[$itemid])) {
+                $item = $this->items[$itemid];
+
+                if ($teachermarklocked && $item->teachermark == CHECKLIST_TEACHERMARK_YES) {
+                    continue; // Does not have permission to update marks that are already 'Yes'.
+                }
+                if ($newval != $item->teachermark) {
+                    $updategrades = true;
+
+                    $newcheck = new stdClass;
+                    $newcheck->teachertimestamp = time();
+                    $newcheck->teachermark = $newval;
+                    $newcheck->teacherid = $teacherid;
+
+                    $item->teachermark = $newcheck->teachermark;
+                    $item->teachertimestamp = $newcheck->teachertimestamp;
+                    $item->teacherid = $newcheck->teacherid;
+
+                    $oldcheck = $DB->get_record('checklist_check', array('item' => $item->id, 'userid' => $this->userid));
+                    if ($oldcheck) {
+                        $newcheck->id = $oldcheck->id;
+                        $DB->update_record('checklist_check', $newcheck);
+                    } else {
+                        $newcheck->item = $itemid;
+                        $newcheck->userid = $this->userid;
+                        $newcheck->id = $DB->insert_record('checklist_check', $newcheck);
+                    }
+                }
+            }
+        }
+        if ($updategrades) {
+            checklist_update_grades($this->checklist, $this->userid);
         }
     }
 
@@ -3492,6 +3524,33 @@ class checklist_class {
         }
         return array();
     }
+
+    /**
+     * Used to support Behat testing.
+     *
+     * @param string $itemname
+     * @param int $strictness (optional) defaults to throwing an exception if the item is missing
+     * @return int|null
+     * @throws dml_missing_record_exception
+     */
+    public function get_itemid_by_name($itemname, $strictness = MUST_EXIST) {
+        foreach ($this->items as $item) {
+            if ($item->displaytext == $itemname) {
+                return $item->id;
+            }
+        }
+        foreach ($this->useritems as $item) {
+            if ($item->displaytext == $itemname) {
+                return $item->id;
+            }
+        }
+        if ($strictness == MUST_EXIST) {
+            // OK - not actually failed to get the record, but if we've not found it then it is missing in the DB.
+            throw new dml_missing_record_exception('checklist_item', 'displayname = ?', array($itemname));
+        }
+        return null;
+    }
+
 }
 
 function checklist_itemcompare($item1, $item2) {
