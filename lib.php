@@ -622,7 +622,7 @@ function checklist_print_overview($courses, &$htmlarray) {
             $checklist->name.'</a></div>';
         $str .= '<div class="info">'.$progressbar.'</div>';
         foreach ($dateitems as $item) {
-            $str .= '<div class="info">'.$item->displaytext.': ';
+            $str .= '<div class="info">'.format_string($item->displaytext).': ';
             if ($item->duetime > time()) {
                 $str .= '<span class="itemdue">';
             } else {

@@ -1108,7 +1108,7 @@ class checklist_class {
                             ' value="'.$item->id.'" />';
                     }
                 }
-                echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>';
+                echo '<label for='.$itemname.$optional.'>'.format_string($item->displaytext).'</label>';
                 if (isset($item->modulelink)) {
                     echo '&nbsp;<a href="'.$item->modulelink.'"><img src="'.$OUTPUT->pix_url('follow_link', 'checklist').'" alt="'.
                         get_string('linktomodule', 'checklist').'" /></a>';
@@ -1530,7 +1530,7 @@ class checklist_class {
                     $addatend = false;
 
                 } else {
-                    echo '<label for='.$itemname.$optional.'>'.s($item->displaytext).'</label>&nbsp;';
+                    echo '<label for='.$itemname.$optional.'>'.format_string($item->displaytext).'</label>&nbsp;';
 
                     echo '<a href="'.$thispage->out(true, array('action' => 'nextcolour')).'">';
                     $title = '"'.get_string('changetextcolour', 'checklist').'"';
@@ -1899,7 +1899,7 @@ class checklist_class {
                     continue;
                 }
 
-                $table->head[] = s($item->displaytext);
+                $table->head[] = format_string($item->displaytext);
                 $table->level[] = ($item->indent < 3) ? $item->indent : 2;
                 $table->size[] = '80px';
                 $table->skip[] = (!$reportsettings->showoptional) && ($item->itemoptional == CHECKLIST_OPTIONAL_YES);
