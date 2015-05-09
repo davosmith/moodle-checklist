@@ -48,7 +48,7 @@ class mod_checklist_mod_form extends moodleform_mod {
     public function definition() {
 
         global $CFG;
-        $mform =& $this->_form;
+        $mform = $this->_form;
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -59,7 +59,11 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $this->add_intro_editor(true, get_string('checklistintro', 'checklist'));
+        if ($CFG->branch < 29) {
+            $this->add_intro_editor(true, get_string('checklistintro', 'checklist'));
+        } else {
+            $this->standard_intro_elements(get_string('checklistintro', 'checklist'));
+        }
 
         $mform->addElement('header', 'checklistsettings', get_string('checklistsettings', 'checklist'));
         if ($CFG->branch >= 25) {

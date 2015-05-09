@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2015-05-09 - Moodle 2.9 compatibility fixes
 * 2015-03-02 - Fix item output so that multilang filters will work
 * 2015-02-21 - Add automated testing. Fix code to prevent multiple emails when same checklist completed multiple times by the same student within an hour.
 * 2015-02-19 - Setting 'max grade' to 0 in the checklist removes it from the gradebook
