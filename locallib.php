@@ -2093,7 +2093,7 @@ class checklist_class {
                         $output .= html_writer::tag('button', get_string('togglerow', 'checklist'),
                                                     array(
                                                         'class' => 'make_c',
-                                                        'id' => $userid,
+                                                        'id' => $this->find_userid($row),
                                                         'type' => 'button'
                                                     ));
                         $output .= '</td>';
@@ -2153,6 +2153,19 @@ class checklist_class {
         $output .= '</table>';
 
         echo $output;
+    }
+
+    private function find_userid($row) {
+        foreach ($row as $colkey => $item) {
+            if ($colkey == 0) {
+                continue;
+            }
+            list($teachermark, $studentmark, $heading, $userid, $checkid) = $item;
+            if ($userid) {
+                return $userid;
+            }
+        }
+        return null;
     }
 
     protected function view_footer() {
