@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2015-06-19 - In M2.7+ automatic update from logs now happens immediately (via the new events system), cron still needed for updates from completion.
 * 2015-05-09 - Moodle 2.9 compatibility fixes
 * 2015-04-28 - Autoupdate now works with Moodle 2.7+ logs, as well as legacy logs (for activities which do not have completion enabled)
 * 2015-03-02 - Fix item output so that multilang filters will work
@@ -55,8 +56,6 @@ http://moodle.org/plugins/view.php?plugin=gradeexport_checklist
 
 IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds (or more - depending on how often your site runs 'cron' updates), between a student completing an activity and their checklist being updated.
 If you are not happy with this delay, then make the changes found in the file core_modifications.txt
-
-Note: if you are upgrading from a previous version, please delete the file 'mod/checklist/settings.php' from the server, as it is no longer needed.
 
 ==Problems with automatic update?==
 

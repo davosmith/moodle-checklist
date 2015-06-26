@@ -11,7 +11,7 @@ Find the function 'add_to_log', then add these lines to the end of it:
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
     checklist_autoupdate($courseid, $module, $action, $cm, $userid, $url);
 
-*** THIS SECOND CORE MODIFICATION WILL STILL WORK IN MOODLE 2.7, BUT LOGS WILL NOT BE CHECKED FOR COMPLETION ***
+*** THIS SECOND CORE MODIFICATION WILL STILL WORK IN MOODLE 2.7 ***
 Now, open the file - moodle/lib/completionlib.php
 
 Find the function 'update_state', then add these lines, just after the
@@ -112,7 +112,7 @@ function add_to_log($courseid, $module, $action, $url='', $info='', $cm=0, $user
         }
     }
 
-    /**** These are the extra lines of code to add for the checklist plugin *****/
+    /**** These are the extra lines of code to add for the checklist plugin (only for Moodle 2.6 and below!) *****/
     require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
     checklist_autoupdate($courseid, $module, $action, $cm, $userid, $url);
     /***** End of extra lines of code *****/
@@ -163,7 +163,7 @@ function add_to_log($courseid, $module, $action, $url='', $info='', $cm=0, $user
 
             /**** These are the extra lines of code to add for the checklist plugin *****/
             global $CFG;
-    	    require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+            require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
             checklist_completion_autoupdate($cm->id, $userid, $newstate);
             /***** End of extra lines of code *****/
         }

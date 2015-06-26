@@ -323,24 +323,40 @@ class autoupdate {
         $entries = self::$reader->get_events_select($select, $params, 'timecreated ASC', 0, 0);
         $ret = array();
         foreach ($entries as $entry) {
-            $module = self::get_module_from_component($entry->component);
-            if (!$module) {
-                continue;
-            }
-            $wantedaction = self::get_log_action_new($module);
-            if (!$wantedaction) {
-                continue;
-            }
-            if ($entry->target == $wantedaction[0] && $entry->action == $wantedaction[1]) {
-                $ret[] = (object)array(
-                    'course' => $entry->courseid,
-                    'module' => $module,
-                    'cmid' => $entry->contextinstanceid,
-                    'userid' => $entry->userid,
-                );
+            $info = self::get_entry_info($entry);
+            if ($info) {
+                $ret[] = $info;
             }
         }
 
         return $ret;
+    }
+
+    protected static function get_entry_info($entry) {
+        $module = self::get_module_from_component($entry->component);
+        if ($module) {
+            $wantedaction = self::get_log_action_new($module);
+            if ($wantedaction) {
+                if ($entry->target == $wantedaction[0] && $entry->action == $wantedaction[1]) {
+                    return (object) array(
+                        'course' => $entry->courseid,
+                        'module' => $module,
+                        'cmid' => $entry->contextinstanceid,
+                        'userid' => $entry->userid,
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
+    public static function update_from_event(\core\event\base $event) {
+        global $CFG;
+        $info = self::get_entry_info($event);
+        if (!$info) {
+            return;
+        }
+        require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+        checklist_autoupdate_internal($info->course, $info->module, $info->cmid, $info->userid);
     }
 }

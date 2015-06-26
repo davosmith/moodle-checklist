@@ -686,23 +686,26 @@ function checklist_cron() {
         mtrace("Looking for updates in courses: ".implode(', ', $courseids));
     }
 
-    // Process all logs since the last cron update.
-    $logupdate = 0;
-    $logs = mod_checklist\local\autoupdate::get_logs($courseids, $lastlogtime);
-    if ($logs) {
-        if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
-            mtrace("Found ".count($logs)." log updates to check");
+    if ($CFG->branch < 27) {
+        // Process all logs since the last cron update - in Moodle 2.7 or above this is
+        // handled immdediately via events, so cron processing is no longer needed.
+        $logupdate = 0;
+        $logs = mod_checklist\local\autoupdate::get_logs($courseids, $lastlogtime);
+        if ($logs) {
+            if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+                mtrace("Found ".count($logs)." log updates to check");
+            }
+            foreach ($logs as $log) {
+                $logupdate += checklist_autoupdate_internal($log->course, $log->module, $log->cmid, $log->userid,
+                                                            $courses[$log->course]);
+            }
         }
-        foreach ($logs as $log) {
-            $logupdate += checklist_autoupdate_internal($log->course, $log->module, $log->cmid, $log->userid,
-                                                        $courses[$log->course]); 
-        }
-    }
 
-    if ($logupdate) {
-        mtrace(" Updated $logupdate checkmark(s) from log changes");
-    } else {
-        mtrace(" No checkmarks need updating from log changes");
+        if ($logupdate) {
+            mtrace(" Updated $logupdate checkmark(s) from log changes");
+        } else {
+            mtrace(" No checkmarks need updating from log changes");
+        }
     }
 
     // Process all the completion changes since the last cron update

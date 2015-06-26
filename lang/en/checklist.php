@@ -33,9 +33,9 @@ To remove the automatic items from the list, change this option back to \'No\', 
 $string['autoupdate'] = 'Check-off when modules complete';
 $string['autoupdate_help'] = 'This will automatically check-off items in your checklist when you complete the relevant activity in the course.<br />
 \'Completing\' an activity varies from one activity to another - \'view\' a resource, \'submit\' a quiz or assignment, \'post\' to a forum or join in with a chat, etc.<br />
-If a Moodle 2.0 completion tracking is switched on for a particular activity, that will be used to tick-off the item in the list<br />
+If completion tracking is switched on for a particular activity, that will be used to tick-off the item in the list<br />
 For details of exactly what causes an activity to be marked as \'complete\', ask your site administrator to look in the file \'mod/checklist/autoupdate.php\'<br />
-Note: it can take up to 60 seconds for a student\'s activity to be reflected in their checklist';
+Note: it can take a short while for a student\'s activity to be reflected in their checklist (when using completion tracking)';
 $string['autoupdatenote'] = 'It is the \'student\' mark that is automatically updated - no updates will be displayed for \'Teacher only\' checklists';
 
 $string['autoupdatewarning_both'] = 'There are items on this list that will be automatically updated (as students complete the related activity). However, as this is a \'student and teacher\' checklist the progress bars will not update until a teacher agrees the marks given.';
