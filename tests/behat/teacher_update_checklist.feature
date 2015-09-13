@@ -1,4 +1,4 @@
-@mod @mod_checklist
+@mod @mod_checklist @checklist
 Feature: Teacher update checklist works as expected
 
   Background:

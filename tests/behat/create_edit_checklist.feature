@@ -1,4 +1,4 @@
-@mod @mod_checklist
+@mod @mod_checklist @checklist
 Feature: I can create and update a checklist
 
   Background:

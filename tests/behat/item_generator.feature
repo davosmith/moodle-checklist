@@ -1,4 +1,4 @@
-@mod @mod_checklist
+@mod @mod_checklist @checklist
 Feature: Check the item generator generates items as expected
 
   Background:

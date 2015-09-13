@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2015-09-13 - M2.7+ cron not needed at all for automatic update of checklist (Moodle completion + 'complete from logs' both handled via events).
 * 2015-06-19 - In M2.7+ automatic update from logs now happens immediately (via the new events system), cron still needed for updates from completion.
 * 2015-05-09 - Moodle 2.9 compatibility fixes
 * 2015-04-28 - Autoupdate now works with Moodle 2.7+ logs, as well as legacy logs (for activities which do not have completion enabled)

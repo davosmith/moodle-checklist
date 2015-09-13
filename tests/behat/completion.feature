@@ -1,4 +1,4 @@
-@mod @mod_checklist
+@mod @mod_checklist @checklist
 Feature: Student checklist can track completion of other activities
 
   Background:
@@ -67,10 +67,6 @@ Feature: Student checklist can track completion of other activities
       | Test page 2 | 0 |
     When I click on "Link to this module" "link" in the "Test page 1" "list_item"
     And I should see "This page 1 should be complete when I view it"
-    And make checklist cron run first time
-    And I trigger cron
-    And I wait until "Cron completed at" "text" exists
-    And I am on homepage
     And I follow "Course 1"
     And I follow "Test checklist"
     Then the following fields match these values:

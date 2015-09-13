@@ -1,4 +1,4 @@
-@mod @mod_checklist
+@mod @mod_checklist @checklist
 Feature: A student can update their progress in a checklist
 
   Background:

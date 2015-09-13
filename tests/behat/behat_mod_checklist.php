@@ -228,15 +228,4 @@ class behat_mod_checklist extends behat_base {
             }
         }
     }
-
-    /**
-     * Work around the fact that the checklist module never does anything the first time cron is run
-     * (to avoid processing huge amounts of old data when the checklist module is first installed)
-     *
-     * @When /^make checklist cron run first time$/
-     */
-    public function make_checklist_cron_run_first_time() {
-        global $DB;
-        $DB->set_field('modules', 'lastcron', '1', array('name' => 'checklist'));
-    }
 }
