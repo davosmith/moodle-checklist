@@ -29,10 +29,10 @@ if (!isset($plugin)) {
     $plugin = new stdClass();
 }
 // Used by M2.6 and above.
-$plugin->version = 2015091300;  // The current module version (Date: YYYYMMDDXX)
+$plugin->version = 2015100200;  // The current module version (Date: YYYYMMDDXX)
 $plugin->cron = 60;          // Period for cron to check this module (secs).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.x (Build: 2015091300)';
+$plugin->release = '2.x (Build: 2015100200)';
 $plugin->requires = 2010112400;
 $plugin->component = 'mod_checklist';
 

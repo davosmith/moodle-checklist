@@ -124,7 +124,10 @@ class autoupdate {
                 return array('course_module', 'viewed');
                 break;
             case 'forum':
-                return array('post', 'created');
+                return array(
+                    array('post', 'created'),
+                    array('discussion', 'created'),
+                );
                 break;
             case 'glossary':
                 return array('entry', 'created');
@@ -340,13 +343,21 @@ class autoupdate {
         if ($module) {
             $wantedaction = self::get_log_action_new($module);
             if ($wantedaction) {
-                if ($entry->target == $wantedaction[0] && $entry->action == $wantedaction[1]) {
-                    return (object) array(
-                        'course' => $entry->courseid,
-                        'module' => $module,
-                        'cmid' => $entry->contextinstanceid,
-                        'userid' => $entry->userid,
-                    );
+                if (!is_array($wantedaction[0])) {
+                    // Most activities only have a single 'complete' action, but to support those with more
+                    // than one (forum!), wrap those with just one action in an array.
+                    $wantedaction = array($wantedaction);
+                }
+                foreach ($wantedaction as $candidate) {
+                    list($target, $action) = $candidate;
+                    if ($entry->target == $target && $entry->action == $action) {
+                        return (object) array(
+                            'course' => $entry->courseid,
+                            'module' => $module,
+                            'cmid' => $entry->contextinstanceid,
+                            'userid' => $entry->userid,
+                        );
+                    }
                 }
             }
         }
