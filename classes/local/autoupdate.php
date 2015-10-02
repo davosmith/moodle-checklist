@@ -129,6 +129,9 @@ class autoupdate {
             case 'glossary':
                 return array('entry', 'created');
                 break;
+            case 'hotpot':
+                return array('attempt', 'submitted');
+                break;
             case 'imscp':
                 return array('course_module', 'viewed');
                 break;
