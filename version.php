@@ -23,6 +23,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
 
 if (!isset($plugin)) {
     // Avoid warning message in M2.5 and below.
@@ -36,7 +37,7 @@ $plugin->release = '2.x (Build: 2015100200)';
 $plugin->requires = 2010112400;
 $plugin->component = 'mod_checklist';
 
-if (isset($module)) {
+if ($CFG->branch < 26) {
     // Used by M2.5 and below.
     $module->version = $plugin->version;
     $module->cron = $plugin->cron;
