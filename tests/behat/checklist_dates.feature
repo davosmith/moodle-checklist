@@ -1,4 +1,4 @@
-@mod @mod_checklist @checklist
+@mod @mod_checklist @checklist @javascript
 Feature: I can add dates to a checklist and they appear in the calendar.
 
   Background:
