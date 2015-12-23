@@ -528,9 +528,15 @@ class checklist_class {
             } else {
                 $this->view_header();
 
+                if ($CFG->branch >= 30) {
+                    $ref = get_local_referer(false);
+                } else {
+                    $ref = get_referer(false);
+                }
+
                 echo $OUTPUT->heading(format_string($this->checklist->name));
                 echo $OUTPUT->confirm('<p>'.get_string('guestsno', 'checklist')."</p>\n\n<p>".
-                                      get_string('liketologin')."</p>\n", get_login_url(), get_referer(false));
+                                      get_string('liketologin')."</p>\n", get_login_url(), $ref);
                 echo $OUTPUT->footer();
                 die;
             }
