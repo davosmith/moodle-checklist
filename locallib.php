@@ -2515,8 +2515,12 @@ class checklist_class {
                 return; // No event to remove.
             }
 
-            $event = calendar_event::load($item->eventid);
-            $event->delete();
+            try {
+                $event = calendar_event::load($item->eventid);
+                $event->delete();
+            } catch (dml_missing_record_exception $e) {
+                // Just ignore this error - the event is missing, so does not need deleting.
+            }
             $this->items[$itemid]->eventid = 0;
             $update = true;
 
@@ -2531,9 +2535,14 @@ class checklist_class {
             $eventdata->timestart = $item->duetime;
 
             if ($item->eventid) {
-                $event = calendar_event::load($item->eventid);
-                $event->update($eventdata);
-            } else {
+                try {
+                    $event = calendar_event::load($item->eventid);
+                    $event->update($eventdata);
+                } catch (dml_missing_record_exception $e) {
+                    $item->eventid = 0; // Event missing, so create a new event.
+                }
+            }
+            if (!$item->eventid) {
                 $event = calendar_event::create($eventdata, false);
                 $this->items[$itemid]->eventid = $event->id;
                 $update = true;
