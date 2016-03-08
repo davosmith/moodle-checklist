@@ -1421,6 +1421,9 @@ class checklist_class {
         if ($this->editdates) {
             $thispage->param('editdates', 'on');
         }
+        if ($itemid = optional_param('itemid', null, PARAM_INT)) {
+            $thispage->param('itemid', $itemid);
+        }
 
         if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
             if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
@@ -1436,6 +1439,17 @@ class checklist_class {
         if ($this->items) {
             $lastitem = count($this->items);
             $lastindent = 0;
+
+            echo html_writer::start_tag('form', array('action' => $thispage->out_omit_querystring(), 'method' => 'post'));
+            echo html_writer::input_hidden_params($thispage);
+
+            if ($this->checklist->autopopulate) {
+                echo html_writer::empty_tag('input', array(
+                    'type' => 'submit', 'name' => 'showhideitems',
+                    'value' => get_string('showhidechecked', 'checklist')
+                ));
+            }
+
             foreach ($this->items as $item) {
 
                 while ($item->indent > $currindent) {
@@ -1481,6 +1495,13 @@ class checklist_class {
                 $hasauto = $hasauto || ($item->moduleid != 0);
 
                 echo '<li>';
+
+                echo html_writer::start_span('', array('style' => 'display: inline-block; width: 16px;'));
+                if ($autoitem && $item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
+                    echo html_writer::checkbox('items[' . $item->id . ']', $item->id, false);
+                }
+                echo html_writer::end_span();
+
                 if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $title = '"'.get_string('optionalitem', 'checklist').'"';
                     echo '<a href="'.$thispage->out(true, array('action' => 'makeheading')).'">';
@@ -1515,23 +1536,16 @@ class checklist_class {
                 }
 
                 if (isset($item->editme)) {
-                    echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="post">';
                     echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.
                         s($item->displaytext).'" id="updateitembox" />';
-                    echo '<input type="hidden" name="action" value="updateitem" />';
-                    echo html_writer::input_hidden_params($thispage);
                     if ($this->editdates) {
                         $this->print_edit_date($item->duetime);
                     }
                     echo '<input type="submit" name="updateitem" value="'.get_string('updateitem', 'checklist').'" />';
-                    echo '</form>';
 
                     $focusitem = 'updateitembox';
 
-                    echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="get">';
-                    echo html_writer::input_hidden_params($thispage, array('sesskey', 'itemid'));
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
-                    echo '</form>';
 
                     $addatend = false;
 
@@ -1611,9 +1625,6 @@ class checklist_class {
                 if ($this->additemafter == $item->id) {
                     $addatend = false;
                     echo '<li>';
-                    echo '<form style="display:inline;" action="'.$thispage->out_omit_querystring().'" method="post">';
-                    echo html_writer::input_hidden_params($thispage);
-                    echo '<input type="hidden" name="action" value="additem" />';
                     echo '<input type="hidden" name="position" value="'.($item->position + 1).'" />';
                     echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
                     echo '<img src="'.$OUTPUT->pix_url('tick_box', 'checklist').'" /> ';
@@ -1622,12 +1633,7 @@ class checklist_class {
                         $this->print_edit_date();
                     }
                     echo '<input type="submit" name="additem" value="'.get_string('additem', 'checklist').'" />';
-                    echo '</form>';
-
-                    echo '<form style="display:inline" action="'.$thispage->out_omit_querystring().'" method="get">';
-                    echo html_writer::input_hidden_params($thispage, array('sesskey', 'additemafter'));
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
-                    echo '</form>';
                     echo '</li>';
 
                     if (!$focusitem) {
@@ -1639,6 +1645,8 @@ class checklist_class {
 
                 echo '</li>';
             }
+
+            echo html_writer::end_tag('form');
         }
 
         $thispage->remove_params(array('itemid'));
@@ -2189,9 +2197,7 @@ class checklist_class {
             return;
         }
 
-        if (!confirm_sesskey()) {
-            error('Invalid sesskey');
-        }
+        require_sesskey();
 
         $itemid = optional_param('itemid', 0, PARAM_INT);
 
@@ -2237,7 +2243,7 @@ class checklist_class {
                 break;
 
             default:
-                error('Invalid action - "'.s($action).'"');
+                throw new moodle_exception('invalidaction', 'mod_checklist', '', $action);
         }
 
         if ($action != 'updatechecks') {
@@ -2254,22 +2260,29 @@ class checklist_class {
         if ($removeauto) {
             // Remove any automatically generated items from the list
             // (if no longer using automatic items).
-            if (!confirm_sesskey()) {
-                error('Invalid sesskey');
-            }
+            require_sesskey();
             $this->removeauto();
             return;
         }
 
         $action = optional_param('action', false, PARAM_TEXT);
         if (!$action) {
+            if (optional_param('additem', false, PARAM_BOOL)) {
+                $action = 'additem';
+            } else if (optional_param('updateitem', false, PARAM_BOOL)) {
+                $action = 'updateitem';
+            } else if (optional_param('showhideitems', false, PARAM_BOOL)) {
+                $action = 'showhideitems';
+            } else if (optional_param('canceledititem', false, PARAM_BOOL)) {
+                $additemafter = false;
+            }
+        }
+        if (!$action) {
             $this->additemafter = $additemafter;
             return;
         }
 
-        if (!confirm_sesskey()) {
-            error('Invalid sesskey');
-        }
+        require_sesskey();
 
         $itemid = optional_param('itemid', 0, PARAM_INT);
 
@@ -2344,8 +2357,16 @@ class checklist_class {
             case 'nextcolour':
                 $this->nextcolour($itemid);
                 break;
+
+            case 'showhideitems':
+                $itemids = optional_param_array('items', array(), PARAM_INT);
+                foreach ($itemids as $itemid) {
+                    $this->toggledisableitem($itemid);
+                }
+                break;
+
             default:
-                error('Invalid action - "'.s($action).'"');
+                throw new moodle_exception('invalidaction', 'mod_checklist', '', $action);
         }
 
         if ($additemafter) {
