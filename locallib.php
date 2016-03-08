@@ -1436,6 +1436,11 @@ class checklist_class {
         if ($this->items) {
             $lastitem = count($this->items);
             $lastindent = 0;
+
+            if ($this->checklist->autopopulate) {
+                echo html_writer::start_tag('form', array('action' => $thispage->out_omit_querystring(), 'method' => 'post'));
+            }
+
             foreach ($this->items as $item) {
 
                 while ($item->indent > $currindent) {
@@ -1481,6 +1486,13 @@ class checklist_class {
                 $hasauto = $hasauto || ($item->moduleid != 0);
 
                 echo '<li>';
+
+                echo html_writer::start_span('', array('style' => 'display: inline-block; width: 16px;'));
+                if ($autoitem && $item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
+                    echo html_writer::checkbox('items[' . $item->id . ']', $item->id, false);
+                }
+                echo html_writer::end_span();
+
                 if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $title = '"'.get_string('optionalitem', 'checklist').'"';
                     echo '<a href="'.$thispage->out(true, array('action' => 'makeheading')).'">';
@@ -1638,6 +1650,14 @@ class checklist_class {
                 $lastindent = $currindent;
 
                 echo '</li>';
+            }
+
+            if ($this->checklist->autopopulate) {
+                echo html_writer::input_hidden_params($thispage);
+                echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'showhideitems'));
+                echo html_writer::empty_tag('input',
+                        array('type' => 'submit', 'value' => get_string('showhidechecked', 'checklist')));
+                echo html_writer::end_tag('form');
             }
         }
 
@@ -2298,6 +2318,12 @@ class checklist_class {
             case 'edititem':
                 if (isset($this->items[$itemid])) {
                     $this->items[$itemid]->editme = true;
+                }
+                break;
+            case 'showhideitems':
+                $items = optional_param_array('items', array(), PARAM_INT);
+                foreach ($items as $item) {
+                    $this->toggledisableitem($item);
                 }
                 break;
             case 'updateitem':

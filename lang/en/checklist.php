@@ -164,6 +164,7 @@ $string['savechecks'] = 'Save';
 
 $string['showcompletemymoodle'] = 'Show completed Checklists on \'My Moodle\' page';
 $string['showfulldetails'] = 'Show full details';
+$string['showhidechecked'] = 'Show/hide selected items';
 $string['showupdateablemymoodle'] = 'Show only updatable Checklists on \'My Moodle\' page';
 $string['showmymoodle'] = 'Show Checklists on \'My Moodle\' page';
 $string['showprogressbars'] = 'Show progress bars';
