@@ -1498,7 +1498,8 @@ class checklist_class {
 
                 echo html_writer::start_span('', array('style' => 'display: inline-block; width: 16px;'));
                 if ($autoitem && $item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
-                    echo html_writer::checkbox('items[' . $item->id . ']', $item->id, false);
+                    echo html_writer::checkbox('items[' . $item->id . ']', $item->id, false, '',
+                            array('title' => $item->displaytext));
                 }
                 echo html_writer::end_span();
 

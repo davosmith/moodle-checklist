@@ -23,6 +23,8 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
 class mod_checklist_generator extends testing_module_generator {
     public function create_instance($record = null, array $options = null) {
