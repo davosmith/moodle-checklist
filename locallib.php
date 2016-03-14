@@ -1421,6 +1421,9 @@ class checklist_class {
         if ($this->editdates) {
             $thispage->param('editdates', 'on');
         }
+        if ($itemid = optional_param('itemid', null, PARAM_INT)) {
+            $thispage->param('itemid', $itemid);
+        }
 
         if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
             if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
@@ -1438,6 +1441,14 @@ class checklist_class {
             $lastindent = 0;
 
             echo html_writer::start_tag('form', array('action' => $thispage->out_omit_querystring(), 'method' => 'post'));
+            echo html_writer::input_hidden_params($thispage);
+
+            if ($this->checklist->autopopulate) {
+                echo html_writer::empty_tag('input', array(
+                    'type' => 'submit', 'name' => 'showhideitems',
+                    'value' => get_string('showhidechecked', 'checklist')
+                ));
+            }
 
             foreach ($this->items as $item) {
 
@@ -1494,7 +1505,7 @@ class checklist_class {
 
                 if ($item->itemoptional == CHECKLIST_OPTIONAL_YES) {
                     $title = '"'.get_string('optionalitem', 'checklist').'"';
-                    echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'a]' => 'makeheading')).'">';
+                    echo '<a href="'.$thispage->out(true, array('action' => 'makeheading')).'">';
                     echo '<img src="'.$OUTPUT->pix_url('empty_box', 'checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="itemoptional '.$itemcolour.$autoclass.'" ';
                 } else if ($item->itemoptional == CHECKLIST_OPTIONAL_HEADING) {
@@ -1505,7 +1516,7 @@ class checklist_class {
                     } else {
                         $title = '"'.get_string('headingitem', 'checklist').'"';
                         if (!$autoitem) {
-                            echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'b]' => 'makerequired')).'">';
+                            echo '<a href="'.$thispage->out(true, array('action' => 'makerequired')).'">';
                         }
                         echo '<img src="'.$OUTPUT->pix_url('no_box', 'checklist').'" alt='.$title.' title='.$title.' />';
                         if (!$autoitem) {
@@ -1520,7 +1531,7 @@ class checklist_class {
                     $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
                 } else {
                     $title = '"'.get_string('requireditem', 'checklist').'"';
-                    echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'c]' => 'makeoptional')).'">';
+                    echo '<a href="'.$thispage->out(true, array('action' => 'makeoptional')).'">';
                     echo '<img src="'.$OUTPUT->pix_url('tick_box', 'checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
                     $optional = ' class="'.$itemcolour.$autoclass.'"';
                 }
@@ -1528,8 +1539,6 @@ class checklist_class {
                 if (isset($item->editme)) {
                     echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.
                         s($item->displaytext).'" id="updateitembox" />';
-                    echo '<input type="hidden" name="actions[' . $item->id . 'd]" value="updateitem" />';
-                    echo html_writer::input_hidden_params($thispage);
                     if ($this->editdates) {
                         $this->print_edit_date($item->duetime);
                     }
@@ -1537,7 +1546,6 @@ class checklist_class {
 
                     $focusitem = 'updateitembox';
 
-                    echo html_writer::input_hidden_params($thispage, array('sesskey', 'itemid'));
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
 
                     $addatend = false;
@@ -1545,24 +1553,24 @@ class checklist_class {
                 } else {
                     echo '<label for='.$itemname.$optional.'>'.format_string($item->displaytext).'</label>&nbsp;';
 
-                    echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'e]' => 'nextcolour')).'">';
+                    echo '<a href="'.$thispage->out(true, array('action' => 'nextcolour')).'">';
                     $title = '"'.get_string('changetextcolour', 'checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url($nexticon, 'checklist').'" alt='.$title.' title='.$title.' /></a>';
 
                     if (!$autoitem) {
-                        echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'f]' => 'edititem')).'">';
+                        echo '<a href="'.$thispage->out(true, array('action' => 'edititem')).'">';
                         $title = '"'.get_string('edititem', 'checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/edit').'"  alt='.$title.' title='.$title.' /></a>&nbsp;';
                     }
 
                     if (!$autoitem && $item->indent > 0) {
-                        echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'g]' => 'unindentitem')).'">';
+                        echo '<a href="'.$thispage->out(true, array('action' => 'unindentitem')).'">';
                         $title = '"'.get_string('unindentitem', 'checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/left').'" alt='.$title.' title='.$title.'  /></a>';
                     }
 
                     if (!$autoitem && ($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent + 1) > $currindent)) {
-                        echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'h]' => 'indentitem')).'">';
+                        echo '<a href="'.$thispage->out(true, array('action' => 'indentitem')).'">';
                         $title = '"'.get_string('indentitem', 'checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/right').'" alt='.$title.' title='.$title.' /></a>';
                     }
@@ -1571,20 +1579,20 @@ class checklist_class {
 
                     // TODO more complex checks to take into account indentation.
                     if (!$autoitem && $item->position > 1) {
-                        echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'i]' => 'moveitemup')).'">';
+                        echo '<a href="'.$thispage->out(true, array('action' => 'moveitemup')).'">';
                         $title = '"'.get_string('moveitemup', 'checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/up').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     if (!$autoitem && $item->position < $lastitem) {
-                        echo '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'j]' => 'moveitemdown')).'">';
+                        echo '<a href="'.$thispage->out(true, array('action' => 'moveitemdown')).'">';
                         $title = '"'.get_string('moveitemdown', 'checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/down').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
                     if ($autoitem) {
                         if ($item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
-                            echo '&nbsp;<a href="'.$thispage->out(true, array('actions[' . $item->id . 'k]' => 'deleteitem')).'">';
+                            echo '&nbsp;<a href="'.$thispage->out(true, array('action' => 'deleteitem')).'">';
                             if ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
                                 $title = '"'.get_string('show').'"';
                                 echo '<img src="'.$OUTPUT->pix_url('/t/show').'" alt='.$title.' title='.$title.' /></a>';
@@ -1594,13 +1602,12 @@ class checklist_class {
                             }
                         }
                     } else {
-                        echo '&nbsp;<a href="'.$thispage->out(true, array('actions[' . $item->id . 'l]' => 'deleteitem')).'">';
+                        echo '&nbsp;<a href="'.$thispage->out(true, array('action' => 'deleteitem')).'">';
                         $title = '"'.get_string('deleteitem', 'checklist').'"';
                         echo '<img src="'.$OUTPUT->pix_url('/t/delete').'" alt='.$title.' title='.$title.' /></a>';
                     }
 
-                    echo '&nbsp;&nbsp;&nbsp;' .
-                            '<a href="'.$thispage->out(true, array('actions[' . $item->id . 'm]' => 'startadditem')).'">';
+                    echo '&nbsp;&nbsp;&nbsp;<a href="'.$thispage->out(true, array('action' => 'startadditem')).'">';
                     $title = '"'.get_string('additemhere', 'checklist').'"';
                     echo '<img src="'.$OUTPUT->pix_url('add', 'checklist').'" alt='.$title.' title='.$title.' /></a>';
                     if ($item->duetime) {
@@ -1619,8 +1626,6 @@ class checklist_class {
                 if ($this->additemafter == $item->id) {
                     $addatend = false;
                     echo '<li>';
-                    echo html_writer::input_hidden_params($thispage);
-                    echo '<input type="hidden" name="actions[' . $item->id . 'n]" value="additem" />';
                     echo '<input type="hidden" name="position" value="'.($item->position + 1).'" />';
                     echo '<input type="hidden" name="indent" value="'.$item->indent.'" />';
                     echo '<img src="'.$OUTPUT->pix_url('tick_box', 'checklist').'" /> ';
@@ -1629,8 +1634,6 @@ class checklist_class {
                         $this->print_edit_date();
                     }
                     echo '<input type="submit" name="additem" value="'.get_string('additem', 'checklist').'" />';
-
-                    echo html_writer::input_hidden_params($thispage, array('sesskey', 'additemafter'));
                     echo '<input type="submit" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
                     echo '</li>';
 
@@ -1644,14 +1647,6 @@ class checklist_class {
                 echo '</li>';
             }
 
-            if ($this->checklist->autopopulate) {
-                echo html_writer::input_hidden_params($thispage);
-                echo html_writer::empty_tag('input',
-                        array('type' => 'hidden', 'name' => 'actions[' . $item->id . 'o]', 'value' => 'showhideitems'));
-                echo html_writer::empty_tag('input',
-                        array('type' => 'submit', 'value' => get_string('showhidechecked', 'checklist')));
-            }
-
             echo html_writer::end_tag('form');
         }
 
@@ -1661,7 +1656,7 @@ class checklist_class {
             echo '<li>';
             echo '<form action="'.$thispage->out_omit_querystring().'" method="post">';
             echo html_writer::input_hidden_params($thispage);
-            echo '<input type="hidden" name="actions[p]" value="additem" />';
+            echo '<input type="hidden" name="action" value="additem" />';
             echo '<input type="hidden" name="indent" value="'.$currindent.'" />';
             echo '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
             if ($this->editdates) {
@@ -2203,9 +2198,7 @@ class checklist_class {
             return;
         }
 
-        if (!confirm_sesskey()) {
-            error('Invalid sesskey');
-        }
+        require_sesskey();
 
         $itemid = optional_param('itemid', 0, PARAM_INT);
 
@@ -2251,7 +2244,7 @@ class checklist_class {
                 break;
 
             default:
-                error('Invalid action - "'.s($action).'"');
+                throw new moodle_exception('invalidaction', 'mod_checklist', '', $action);
         }
 
         if ($action != 'updatechecks') {
@@ -2268,110 +2261,117 @@ class checklist_class {
         if ($removeauto) {
             // Remove any automatically generated items from the list
             // (if no longer using automatic items).
-            if (!confirm_sesskey()) {
-                error('Invalid sesskey');
-            }
+            require_sesskey();
             $this->removeauto();
             return;
         }
 
-        $actions = optional_param_array('actions', array(), PARAM_TEXT);
-        if (!$actions) {
+        $action = optional_param('action', false, PARAM_TEXT);
+        if (!$action) {
+            if (optional_param('additem', false, PARAM_BOOL)) {
+                $action = 'additem';
+            } else if (optional_param('updateitem', false, PARAM_BOOL)) {
+                $action = 'updateitem';
+            } else if (optional_param('showhideitems', false, PARAM_BOOL)) {
+                $action = 'showhideitems';
+            } else if (optional_param('canceledititem', false, PARAM_BOOL)) {
+                $additemafter = false;
+            }
+        }
+        if (!$action) {
             $this->additemafter = $additemafter;
             return;
         }
 
-        if (!confirm_sesskey()) {
-            error('Invalid sesskey');
-        }
+        require_sesskey();
 
         $itemid = optional_param('itemid', 0, PARAM_INT);
 
-        foreach ($actions as $action) {
-            switch ($action) {
-                case 'additem':
-                    $displaytext = optional_param('displaytext', '', PARAM_TEXT);
-                    $indent = optional_param('indent', 0, PARAM_INT);
-                    $position = optional_param('position', false, PARAM_INT);
-                    if (optional_param('duetimedisable', false, PARAM_BOOL)) {
-                        $duetime = false;
+        switch ($action) {
+            case 'additem':
+                $displaytext = optional_param('displaytext', '', PARAM_TEXT);
+                $indent = optional_param('indent', 0, PARAM_INT);
+                $position = optional_param('position', false, PARAM_INT);
+                if (optional_param('duetimedisable', false, PARAM_BOOL)) {
+                    $duetime = false;
+                } else {
+                    if ($CFG->branch >= 22) {
+                        $duetime = optional_param_array('duetime', false, PARAM_INT);
                     } else {
-                        if ($CFG->branch >= 22) {
-                            $duetime = optional_param_array('duetime', false, PARAM_INT);
-                        } else {
-                            $duetime = optional_param('duetime', false, PARAM_INT);
-                        }
+                        $duetime = optional_param('duetime', false, PARAM_INT);
                     }
-                    $this->additem($displaytext, 0, $indent, $position, $duetime);
-                    if ($position) {
-                        $additemafter = false;
-                    }
-                    break;
-                case 'startadditem':
-                    $additemafter = $itemid;
-                    break;
-                case 'edititem':
-                    if (isset($this->items[$itemid])) {
-                        $this->items[$itemid]->editme = true;
-                    }
-                    break;
-                case 'showhideitems':
-                    $items = optional_param_array('items', array(), PARAM_INT);
-                    foreach ($items as $item) {
-                        $this->toggledisableitem($item);
-                    }
-                    break;
-                case 'updateitem':
-                    $displaytext = optional_param('displaytext', '', PARAM_TEXT);
-                    if (optional_param('duetimedisable', false, PARAM_BOOL)) {
-                        $duetime = false;
+                }
+                $this->additem($displaytext, 0, $indent, $position, $duetime);
+                if ($position) {
+                    $additemafter = false;
+                }
+                break;
+            case 'startadditem':
+                $additemafter = $itemid;
+                break;
+            case 'edititem':
+                if (isset($this->items[$itemid])) {
+                    $this->items[$itemid]->editme = true;
+                }
+                break;
+            case 'updateitem':
+                $displaytext = optional_param('displaytext', '', PARAM_TEXT);
+                if (optional_param('duetimedisable', false, PARAM_BOOL)) {
+                    $duetime = false;
+                } else {
+                    if ($CFG->version < 2011120100) {
+                        $duetime = optional_param('duetime', false, PARAM_INT);
                     } else {
-                        if ($CFG->version < 2011120100) {
-                            $duetime = optional_param('duetime', false, PARAM_INT);
-                        } else {
-                            $duetime = optional_param_array('duetime', false, PARAM_INT);
-                        }
+                        $duetime = optional_param_array('duetime', false, PARAM_INT);
                     }
-                    $this->updateitemtext($itemid, $displaytext, $duetime);
-                    break;
-                case 'deleteitem':
-                    if (($this->checklist->autopopulate) && (isset($this->items[$itemid])) && ($this->items[$itemid]->moduleid)) {
-                        $this->toggledisableitem($itemid);
-                    } else {
-                        $this->deleteitem($itemid);
-                    }
-                    break;
-                case 'moveitemup':
-                    $this->moveitemup($itemid);
-                    break;
-                case 'moveitemdown':
-                    $this->moveitemdown($itemid);
-                    break;
-                case 'indentitem':
-                    $this->indentitem($itemid);
-                    break;
-                case 'unindentitem':
-                    $this->unindentitem($itemid);
-                    break;
-                case 'makeoptional':
-                    $this->makeoptional($itemid, true);
-                    break;
-                case 'makerequired':
-                    $this->makeoptional($itemid, false);
-                    break;
-                case 'makeheading':
-                    $this->makeoptional($itemid, true, true);
-                    break;
-                case 'nextcolour':
-                    $this->nextcolour($itemid);
-                    break;
-                default:
-                    error('Invalid action - "' . s($action) . '"');
-            }
+                }
+                $this->updateitemtext($itemid, $displaytext, $duetime);
+                break;
+            case 'deleteitem':
+                if (($this->checklist->autopopulate) && (isset($this->items[$itemid])) && ($this->items[$itemid]->moduleid)) {
+                    $this->toggledisableitem($itemid);
+                } else {
+                    $this->deleteitem($itemid);
+                }
+                break;
+            case 'moveitemup':
+                $this->moveitemup($itemid);
+                break;
+            case 'moveitemdown':
+                $this->moveitemdown($itemid);
+                break;
+            case 'indentitem':
+                $this->indentitem($itemid);
+                break;
+            case 'unindentitem':
+                $this->unindentitem($itemid);
+                break;
+            case 'makeoptional':
+                $this->makeoptional($itemid, true);
+                break;
+            case 'makerequired':
+                $this->makeoptional($itemid, false);
+                break;
+            case 'makeheading':
+                $this->makeoptional($itemid, true, true);
+                break;
+            case 'nextcolour':
+                $this->nextcolour($itemid);
+                break;
 
-            if ($additemafter) {
-                $this->additemafter = $additemafter;
-            }
+            case 'showhideitems':
+                $itemids = optional_param_array('items', array(), PARAM_INT);
+                foreach ($itemids as $itemid) {
+                    $this->toggledisableitem($itemid);
+                }
+                break;
+
+            default:
+                throw new moodle_exception('invalidaction', 'mod_checklist', '', $action);
+        }
+
+        if ($additemafter) {
+            $this->additemafter = $additemafter;
         }
     }
 
