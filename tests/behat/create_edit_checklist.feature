@@ -13,12 +13,20 @@ Feature: I can create and update a checklist
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
+    And the following "activities" exist:
+      | activity | course | section | idnumber | name            | intro                 |
+      | assign   | C1     | 1       | assign1  | Test assignment | This is an assignment |
+      | data     | C1     | 1       | data1    | Test database   | This is a database    |
     And I log in as "teacher1"
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist    | Test checklist      |
       | Introduction | This is a checklist |
+    And I add a "Checklist" to section "2" and I fill the form with:
+      | Checklist                        | Test auto-pop checklist             |
+      | Introduction                     | This is an auto-populated checklist |
+      | Show course modules in checklist | Whole course                        |
     And I log out
 
   Scenario: When I add no items to a checklist a student sees no items
@@ -28,6 +36,15 @@ Feature: I can create and update a checklist
     Then I should see "Test checklist"
     And I should see "This is a checklist"
     And I should see "No items in the checklist"
+
+  Scenario: When viewing an auto-populated checklist, a student should see items corresponding to the course modules
+    When I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Test auto-pop checklist"
+    Then I should see "Test auto-pop checklist"
+    And I should see "This is an auto-populated checklist"
+    And I should see "Test assignment"
+    And I should see "Test database"
 
   Scenario: When I add some items to a checklist a student should see them
     Given I log in as "teacher1"
@@ -200,3 +217,22 @@ Feature: I can create and update a checklist
     And I should see "Required items"
     And "label.itemheading" "css_element" should appear before "You must tick this" "text"
     And "You must tick this" "text" should appear before "label.itemoptional" "css_element"
+
+  Scenario: When I select multiple items and click the 'Show/hide' button, the items' visibility should toggle
+    Given I log in as "teacher1"
+    And I follow "Course 1"
+    And I follow "Test auto-pop checklist"
+    And I follow "Edit checklist"
+    And I set the field with xpath "//input[@type='checkbox' and @title='Test assignment']" to "1"
+    And I set the field with xpath "//input[@type='checkbox' and @title='Test database']" to "1"
+    And I press "Show/hide selected items"
+    And I set the field with xpath "//input[@type='checkbox' and @title='Test database']" to "1"
+    And I set the field with xpath "//input[@type='checkbox' and @title='Test checklist']" to "1"
+    And I press "Show/hide selected items"
+    And I log out
+    When I log in as "student1"
+    And I follow "Course 1"
+    And I follow "Test auto-pop checklist"
+    Then I should not see "Test assignment"
+    And I should see "Test database"
+    And I should not see "Test checklist"
