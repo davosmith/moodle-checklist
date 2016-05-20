@@ -110,6 +110,7 @@ Feature: A student can update their progress in a checklist
     And I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Edit settings"
+    And I expand all fieldsets
     And I set the field "Enable completion tracking" to "Yes"
     # For Moodle 2.8 and below, this should read "Save changes"
     And I press "Save and display"

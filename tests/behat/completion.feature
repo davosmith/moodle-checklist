@@ -19,7 +19,10 @@ Feature: Student checklist can track completion of other activities
     And I log out
     And I log in as "teacher1"
     And I follow "Course 1"
-    And completion tracking is "Enabled" in current course
+    And I follow "Edit settings"
+    And I expand all fieldsets
+    And I set the field "Enable completion tracking" to "Yes"
+    And I press "Save and display"
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist                        | Test checklist       |
@@ -77,7 +80,10 @@ Feature: Student checklist can track completion of other activities
   Scenario: The checklist state should update based on logs, if completion is disabled.
     Given I log in as "teacher1"
     And I follow "Course 1"
-    And completion tracking is "Disabled" in current course
+    And I follow "Edit settings"
+    And I expand all fieldsets
+    And I set the field "Enable completion tracking" to "No"
+    And I press "Save and display"
     And I log out
     Given I log in as "student1"
     And I follow "Course 1"

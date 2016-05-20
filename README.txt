@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2016-05-20 - Minor behat fixes for Moodle 3.1 compatibility
 * 2016-03-15 - Show/hide multiple activity items at once when editing the checklist (Tony Butler)
 * 2015-12-23 - Handle missing calendar events + fix deprecated 'get_referer' warning.
 * 2015-11-08 - M3.0 compatibility fixes
