@@ -110,12 +110,12 @@ ol.checklist li .itemteachername {
 
 .checklist-itemdue {
     font-style: italic;
-    color: #90d090;
+    color: #095C09;
 }
 
 .checklist-itemoverdue {
     font-style: italic;
-    color: #f09090;
+    color: #C71212;
 }
 
 .checklistreport .header {
