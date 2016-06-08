@@ -2313,6 +2313,7 @@ class checklist_class {
                 if (isset($this->items[$itemid])) {
                     $this->items[$itemid]->editme = true;
                 }
+                $additemafter = false;
                 break;
             case 'updateitem':
                 $displaytext = optional_param('displaytext', '', PARAM_TEXT);
