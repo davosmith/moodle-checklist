@@ -72,8 +72,10 @@ class teacher_checks_updated extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/checklist/report.php', array('id' => $this->contextinstanceid,
-                                                                  'studentid' => $this->relateduserid));
+        return new \moodle_url('/mod/checklist/report.php', array(
+            'id' => $this->contextinstanceid,
+            'studentid' => $this->relateduserid
+        ));
     }
 
     /**
@@ -82,8 +84,10 @@ class teacher_checks_updated extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'checklist', 'update checks', 'report.php?id='.$this->contextinstanceid.
-        '&studentid='.$this->relateduserid, $this->objectid, $this->contextinstanceid);
+        return array(
+            $this->courseid, 'checklist', 'update checks', 'report.php?id='.$this->contextinstanceid.
+            '&studentid='.$this->relateduserid, $this->objectid, $this->contextinstanceid
+        );
     }
 
     protected function validate_data() {

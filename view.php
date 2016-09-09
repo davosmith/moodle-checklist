@@ -50,11 +50,7 @@ if ($id) {
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-if ($CFG->branch < 22) {
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-} else {
-    $context = context_module::instance($cm->id);
-}
+$context = context_module::instance($cm->id);
 $userid = 0;
 if (has_capability('mod/checklist:updateown', $context)) {
     $userid = $USER->id;

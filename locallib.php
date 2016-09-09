@@ -72,11 +72,7 @@ class checklist_class {
             $this->cm = get_coursemodule_from_id('checklist', $cmid, 0, false, MUST_EXIST);
         }
 
-        if ($CFG->version < 2011120100) {
-            $this->context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
-        } else {
-            $this->context = context_module::instance($this->cm->id);
-        }
+        $this->context = context_module::instance($this->cm->id);
 
         if ($course) {
             $this->course = $course;
@@ -185,18 +181,13 @@ class checklist_class {
             }
         }
 
-        $groupmembersonly = isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly;
+        $groupmembersonly = !empty($CFG->enablegroupmembersonly);
 
         $numsections = 1;
-        $courseformat = null;
-        if ($CFG->version >= 2012120300) {
-            $courseformat = course_get_format($this->course);
-            $opts = $courseformat->get_format_options();
-            if (isset($opts['numsections'])) {
-                $numsections = $opts['numsections'];
-            }
-        } else {
-            $numsections = $this->course->numsections;
+        $courseformat = course_get_format($this->course);
+        $opts = $courseformat->get_format_options();
+        if (isset($opts['numsections'])) {
+            $numsections = $opts['numsections'];
         }
         $sections = $mods->get_sections();
         while ($section <= $numsections || $section == $importsection) {
@@ -230,10 +221,7 @@ class checklist_class {
                 reset($this->items);
             }
 
-            $sectionname = '';
-            if ($CFG->version >= 2012120300) {
-                $sectionname = $courseformat->get_section_name($section);
-            }
+            $sectionname = $courseformat->get_section_name($section);
             if (trim($sectionname) == '') {
                 $sectionname = get_string('section').' '.$section;
             }
@@ -549,16 +537,12 @@ class checklist_class {
 
         $this->view_tabs($currenttab);
 
-        if ($CFG->version > 2014051200) { // Moodle 2.7+.
-            $params = array(
-                'contextid' => $this->context->id,
-                'objectid' => $this->checklist->id,
-            );
-            $event = \mod_checklist\event\course_module_viewed::create($params);
-            $event->trigger();
-        } else { // Before Moodle 2.7.
-            add_to_log($this->course->id, 'checklist', 'view', "view.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
-        }
+        $params = array(
+            'contextid' => $this->context->id,
+            'objectid' => $this->checklist->id,
+        );
+        $event = \mod_checklist\event\course_module_viewed::create($params);
+        $event->trigger();
 
         if ($this->canupdateown()) {
             $this->process_view_actions();
@@ -570,22 +554,18 @@ class checklist_class {
     }
 
     public function edit() {
-        global $OUTPUT, $CFG;
+        global $OUTPUT;
 
         if (!$this->canedit()) {
             redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)));
         }
 
-        if ($CFG->version > 2014051200) { // Moodle 2.7+.
-            $params = array(
-                'contextid' => $this->context->id,
-                'objectid' => $this->checklist->id,
-            );
-            $event = \mod_checklist\event\edit_page_viewed::create($params);
-            $event->trigger();
-        } else { // Before Moodle 2.7.
-            add_to_log($this->course->id, "checklist", "edit", "edit.php?id={$this->cm->id}", $this->checklist->id, $this->cm->id);
-        }
+        $params = array(
+            'contextid' => $this->context->id,
+            'objectid' => $this->checklist->id,
+        );
+        $event = \mod_checklist\event\edit_page_viewed::create($params);
+        $event->trigger();
 
         $this->view_header();
 
@@ -608,7 +588,7 @@ class checklist_class {
     }
 
     public function report() {
-        global $OUTPUT, $CFG;
+        global $OUTPUT;
 
         if ((!$this->items) && $this->canedit()) {
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)));
@@ -636,23 +616,15 @@ class checklist_class {
 
         $this->process_report_actions();
 
-        if ($CFG->version > 2014051200) { // Moodle 2.7+.
-            $params = array(
-                'contextid' => $this->context->id,
-                'objectid' => $this->checklist->id,
-            );
-            if ($this->userid) {
-                $params['relateduserid'] = $this->userid;
-            }
-            $event = \mod_checklist\event\report_viewed::create($params);
-            $event->trigger();
-        } else { // Before Moodle 2.7.
-            $url = "report.php?id={$this->cm->id}";
-            if ($this->userid) {
-                $url .= "&studentid={$this->userid}";
-            }
-            add_to_log($this->course->id, "checklist", "report", $url, $this->checklist->id, $this->cm->id);
+        $params = array(
+            'contextid' => $this->context->id,
+            'objectid' => $this->checklist->id,
+        );
+        if ($this->userid) {
+            $params['relateduserid'] = $this->userid;
         }
+        $event = \mod_checklist\event\report_viewed::create($params);
+        $event->trigger();
 
         if ($this->userid) {
             $this->view_items(true);
@@ -906,11 +878,7 @@ class checklist_class {
                         $teacherids[$item->teacherid] = $item->teacherid;
                     }
                 }
-                if ($CFG->version < 2013111800) {
-                    $fields = 'firstname, lastname';
-                } else {
-                    $fields = get_all_user_name_fields(true);
-                }
+                $fields = get_all_user_name_fields(true);
                 $teachers = $DB->get_records_list('user', 'id', $teacherids, '', 'id, '.$fields);
                 foreach ($this->items as $item) {
                     if (isset($teachers[$item->teacherid])) {
@@ -1498,8 +1466,8 @@ class checklist_class {
 
                 echo html_writer::start_span('', array('style' => 'display: inline-block; width: 16px;'));
                 if ($autoitem && $item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
-                    echo html_writer::checkbox('items[' . $item->id . ']', $item->id, false, '',
-                            array('title' => $item->displaytext));
+                    echo html_writer::checkbox('items['.$item->id.']', $item->id, false, '',
+                                               array('title' => $item->displaytext));
                 }
                 echo html_writer::end_span();
 
@@ -1697,7 +1665,7 @@ class checklist_class {
     }
 
     protected function view_report() {
-        global $DB, $OUTPUT, $CFG;
+        global $DB, $OUTPUT;
 
         $reportsettings = $this->get_report_settings();
 
@@ -1758,7 +1726,8 @@ class checklist_class {
             echo '<input type="hidden" name="action" value="updateallchecks"/>';
             echo '<input type="submit" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
         } else if (!$reportsettings->showprogressbars && $this->caneditother()
-            && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
+            && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT
+        ) {
             echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
             echo html_writer::input_hidden_params($thisurl);
             echo '<input type="hidden" name="editchecks" value="on" />';
@@ -1790,7 +1759,8 @@ class checklist_class {
         if ($activegroup == -1) {
             $users = array();
         } else if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '',
-                                                    $activegroup, '', false)) {
+                                                    $activegroup, '', false)
+        ) {
             $users = array_keys($users);
             if ($this->only_view_mentee_reports()) {
                 // Filter to only show reports for users who this user mentors (ie they have been assigned to them in a context).
@@ -1805,11 +1775,7 @@ class checklist_class {
             $users = array_slice($users, $page * $perpage, $perpage);
 
             list($usql, $uparams) = $DB->get_in_or_equal($users);
-            if ($CFG->version < 2013111800) {
-                $fields = 'u.firstname, u.lastname';
-            } else {
-                $fields = get_all_user_name_fields(true, 'u');
-            }
+            $fields = get_all_user_name_fields(true, 'u');
             $ausers = $DB->get_records_sql("SELECT u.id, $fields FROM {user} u WHERE u.id ".$usql.' ORDER BY '.$orderby, $uparams);
         }
 
@@ -2009,11 +1975,11 @@ class checklist_class {
                     // Not a heading item => add a button.
                     $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">';
                     $output .= html_writer::tag('button', get_string('togglecolumn', 'checklist'),
-                                                    array(
-                                                        'class' => 'make_col_c',
-                                                        'id' => $checkid,
-                                                        'type' => 'button'
-                                                    ));
+                                                array(
+                                                    'class' => 'make_col_c',
+                                                    'id' => $checkid,
+                                                    'type' => 'button'
+                                                ));
                     $output .= '</td>';
                 }
             }
@@ -2023,7 +1989,7 @@ class checklist_class {
     }
 
     protected function print_report_table($table, $editchecks) {
-        global $OUTPUT, $CFG;
+        global $OUTPUT;
 
         $output = '';
 
@@ -2064,11 +2030,7 @@ class checklist_class {
             $output .= $this->report_add_toggle_button_row($table);
         }
         // Output the data.
-        if ($CFG->version < 2013111800) {
-            $tickimg = '<img src="'.$OUTPUT->pix_url('i/tick_green_big').'" alt="'.get_string('itemcomplete', 'checklist').'" />';
-        } else {
-            $tickimg = '<img src="'.$OUTPUT->pix_url('i/grade_correct').'" alt="'.get_string('itemcomplete', 'checklist').'" />';
-        }
+        $tickimg = '<img src="'.$OUTPUT->pix_url('i/grade_correct').'" alt="'.get_string('itemcomplete', 'checklist').'" />';
         $teacherimg = array(
             CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$OUTPUT->pix_url('empty_box', 'checklist').'" alt="'
                 .get_string('teachermarkundecided', 'checklist').'" />',
@@ -2189,8 +2151,6 @@ class checklist_class {
     }
 
     protected function process_view_actions() {
-        global $CFG;
-
         $this->useredit = optional_param('useredit', false, PARAM_BOOL);
 
         $action = optional_param('action', false, PARAM_TEXT);
@@ -2204,11 +2164,7 @@ class checklist_class {
 
         switch ($action) {
             case 'updatechecks':
-                if ($CFG->version < 2011120100) {
-                    $newchecks = optional_param('items', array(), PARAM_INT);
-                } else {
-                    $newchecks = optional_param_array('items', array(), PARAM_INT);
-                }
+                $newchecks = optional_param_array('items', array(), PARAM_INT);
                 $this->updatechecks($newchecks);
                 break;
 
@@ -2253,7 +2209,6 @@ class checklist_class {
     }
 
     protected function process_edit_actions() {
-        global $CFG;
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
         $removeauto = optional_param('removeauto', false, PARAM_TEXT);
@@ -2295,11 +2250,7 @@ class checklist_class {
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
-                    if ($CFG->branch >= 22) {
-                        $duetime = optional_param_array('duetime', false, PARAM_INT);
-                    } else {
-                        $duetime = optional_param('duetime', false, PARAM_INT);
-                    }
+                    $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
                 $this->additem($displaytext, 0, $indent, $position, $duetime);
                 if ($position) {
@@ -2320,11 +2271,7 @@ class checklist_class {
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
-                    if ($CFG->version < 2011120100) {
-                        $duetime = optional_param('duetime', false, PARAM_INT);
-                    } else {
-                        $duetime = optional_param_array('duetime', false, PARAM_INT);
-                    }
+                    $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
                 $this->updateitemtext($itemid, $displaytext, $duetime);
                 break;
@@ -2466,7 +2413,7 @@ class checklist_class {
     }
 
     public function additem($displaytext, $userid = 0, $indent = 0, $position = false, $duetime = false, $moduleid = 0,
-                               $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO) {
+                            $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO) {
         global $DB;
 
         $displaytext = trim($displaytext);
@@ -2960,24 +2907,19 @@ class checklist_class {
     }
 
     protected function updatechecks($newchecks) {
-        global $DB, $CFG;
+        global $DB;
 
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing.
             return;
         }
 
-        if ($CFG->version > 2014051200) { // Moodle 2.7+.
-            $params = array(
-                'contextid' => $this->context->id,
-                'objectid' => $this->checklist->id,
-            );
-            $event = \mod_checklist\event\student_checks_updated::create($params);
-            $event->trigger();
-        } else { // Before Moodle 2.7.
-            add_to_log($this->course->id, 'checklist', 'update checks',
-                       "report.php?id={$this->cm->id}&studentid={$this->userid}", $this->checklist->id, $this->cm->id);
-        }
+        $params = array(
+            'contextid' => $this->context->id,
+            'objectid' => $this->checklist->id,
+        );
+        $event = \mod_checklist\event\student_checks_updated::create($params);
+        $event->trigger();
 
         $updategrades = false;
         if ($this->items) {
@@ -3053,11 +2995,7 @@ class checklist_class {
     protected function updateteachermarks() {
         global $USER, $DB, $CFG;
 
-        if ($CFG->version < 2011120100) {
-            $newchecks = optional_param('items', array(), PARAM_TEXT);
-        } else {
-            $newchecks = optional_param_array('items', array(), PARAM_TEXT);
-        }
+        $newchecks = optional_param_array('items', array(), PARAM_TEXT);
         if (!is_array($newchecks)) {
             // Something has gone wrong, so update nothing.
             return;
@@ -3067,18 +3005,13 @@ class checklist_class {
             if (!$student = $DB->get_record('user', array('id' => $this->userid))) {
                 error('No such user!');
             }
-            if ($CFG->version > 2014051200) { // Moodle 2.7+.
-                $params = array(
-                    'contextid' => $this->context->id,
-                    'objectid' => $this->checklist->id,
-                    'relateduserid' => $this->userid,
-                );
-                $event = \mod_checklist\event\teacher_checks_updated::create($params);
-                $event->trigger();
-            } else { // Before Moodle 2.7.
-                add_to_log($this->course->id, 'checklist', 'update checks',
-                           "report.php?id={$this->cm->id}&studentid={$this->userid}", $this->checklist->id, $this->cm->id);
-            }
+            $params = array(
+                'contextid' => $this->context->id,
+                'objectid' => $this->checklist->id,
+                'relateduserid' => $this->userid,
+            );
+            $event = \mod_checklist\event\teacher_checks_updated::create($params);
+            $event->trigger();
 
             $teachermarklocked = $this->checklist->lockteachermarks
                 && !has_capability('mod/checklist:updatelocked', $this->context);
@@ -3182,18 +3115,14 @@ class checklist_class {
     }
 
     protected function updateallteachermarks() {
-        global $DB, $CFG, $USER;
+        global $DB, $USER;
 
         if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
             // Student only lists do not have teacher marks to update.
             return;
         }
 
-        if ($CFG->version < 2011120100) {
-            $userids = optional_param('userids', array(), PARAM_INT);
-        } else {
-            $userids = optional_param_array('userids', array(), PARAM_INT);
-        }
+        $userids = optional_param_array('userids', array(), PARAM_INT);
         if (!is_array($userids)) {
             // Something has gone wrong, so update nothing.
             return;
@@ -3201,17 +3130,14 @@ class checklist_class {
 
         $userchecks = array();
         foreach ($userids as $userid) {
-            if ($CFG->version < 2011120100) {
-                $checkdata = optional_param('items_'.$userid, array(), PARAM_INT);
-            } else {
-                $checkdata = optional_param_array('items_'.$userid, array(), PARAM_INT);
-            }
+            $checkdata = optional_param_array('items_'.$userid, array(), PARAM_INT);
             if (!is_array($checkdata)) {
                 continue;
             }
             foreach ($checkdata as $itemid => $val) {
                 if ($val != CHECKLIST_TEACHERMARK_NO && $val != CHECKLIST_TEACHERMARK_YES
-                    && $val != CHECKLIST_TEACHERMARK_UNDECIDED) {
+                    && $val != CHECKLIST_TEACHERMARK_UNDECIDED
+                ) {
                     continue; // Invalid value.
                 }
                 if (!$itemid) {
@@ -3273,15 +3199,13 @@ class checklist_class {
                 }
             }
             if ($updategrades) {
-                if ($CFG->version > 2014051200) { // Moodle 2.7+.
-                    $params = array(
-                        'contextid' => $this->context->id,
-                        'objectid' => $this->checklist->id,
-                        'relateduserid' => $userid,
-                    );
-                    $event = \mod_checklist\event\teacher_checks_updated::create($params);
-                    $event->trigger();
-                }
+                $params = array(
+                    'contextid' => $this->context->id,
+                    'objectid' => $this->checklist->id,
+                    'relateduserid' => $userid,
+                );
+                $event = \mod_checklist\event\teacher_checks_updated::create($params);
+                $event->trigger();
 
                 checklist_update_grades($this->checklist, $userid);
             }
@@ -3289,7 +3213,7 @@ class checklist_class {
     }
 
     public function update_all_autoupdate_checks() {
-        global $DB, $CFG;
+        global $DB;
 
         if (!$this->checklist->autoupdate) {
             return;
@@ -3300,10 +3224,6 @@ class checklist_class {
             return;
         }
         $userids = array_keys($users);
-
-        if ($CFG->branch < 26) { // No auto class loading before Moodle 2.6.
-            require_once($CFG->dirroot.'/mod/checklist/classes/local/autoupdate.php');
-        }
 
         // Get a list of all the checklist items with a module linked to them (ignoring headings).
         $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid, cm.completion AS completion
@@ -3322,7 +3242,8 @@ class checklist_class {
                 foreach ($users as $user) {
                     $compdata = $completion->get_data($fakecm, false, $user->id);
                     if ($compdata->completionstate == COMPLETION_COMPLETE
-                        || $compdata->completionstate == COMPLETION_COMPLETE_PASS) {
+                        || $compdata->completionstate == COMPLETION_COMPLETE_PASS
+                    ) {
                         $check = $DB->get_record('checklist_check', array('item' => $item->itemid, 'userid' => $user->id));
                         if ($check) {
                             if ($check->usertimestamp) {
@@ -3401,7 +3322,8 @@ class checklist_class {
 
         $ausers = false;
         if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '',
-                                             $activegroup, '', false)) {
+                                             $activegroup, '', false)
+        ) {
             $users = array_keys($users);
             if ($this->only_view_mentee_reports()) {
                 $users = $this->filter_mentee_users($users);

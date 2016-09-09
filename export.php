@@ -1,4 +1,18 @@
 <?php
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
@@ -13,11 +27,7 @@ $url = new moodle_url('/mod/checklist/export.php', array('id' => $cm->id));
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-if ($CFG->branch < 22) {
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-} else {
-    $context = context_module::instance($cm->id);
-}
+$context = context_module::instance($cm->id);
 if (!has_capability('mod/checklist:edit', $context)) {
     error('You do not have permission to export items from this checklist');
 }

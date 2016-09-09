@@ -25,24 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-if (!isset($plugin)) {
-    // Avoid warning message in M2.5 and below.
-    $plugin = new stdClass();
-}
-// Used by M2.6 and above.
-$plugin->version = 2016052001;  // The current module version (Date: YYYYMMDDXX)
-$plugin->cron = 60;          // Period for cron to check this module (secs).
+$plugin->version = 2016090900;  // The current module version (Date: YYYYMMDDXX)
+$plugin->cron = 0;          // Period for cron to check this module (secs).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.x (Build: 2016052001)';
-$plugin->requires = 2010112400;
+$plugin->release = '2.7+ (Build: 2016090900)';
+$plugin->requires = 2014051200; // Moodle 2.7+.
 $plugin->component = 'mod_checklist';
-
-if ($CFG->branch < 26) {
-    // Used by M2.5 and below.
-    $module->version = $plugin->version;
-    $module->cron = $plugin->cron;
-    $module->maturity = $plugin->maturity;
-    $module->release = $plugin->release;
-    $module->requires = $plugin->requires;
-    $module->component = $plugin->component;
-}

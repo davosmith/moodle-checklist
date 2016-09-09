@@ -33,7 +33,7 @@ M.mod_checklist = {
 
                     this.updatelist = [];
                     items = YD.getElementsByClassName('checklistitem');
-                    for (i = 0; i < items.length; i += 1) {
+                    for (i = 0; i<items.length; i += 1) {
                         YE.addListener(items[i], 'click', this.check_click, null, this);
                         if (YD.hasClass(items[i], 'itemoptional')) {
                             this.optionalcount += 1;
@@ -48,7 +48,7 @@ M.mod_checklist = {
                         }
                     }
 
-                    window.onunload =  function () {
+                    window.onunload = function () {
                         self.send_update_batch(true);
                     };
                 },
@@ -104,13 +104,13 @@ M.mod_checklist = {
                     inner = YD.getElementsByClassName('checklist_progress_inner', 'div', prall)[0];
                     inneranim = YD.getElementsByClassName('checklist_progress_anim', 'div', prall)[0];
                     oldpercent = parseFloat(YD.getStyle(inner, 'width').replace("%", ""));
-                    if (allpercent > oldpercent) {
+                    if (allpercent>oldpercent) {
                         YD.setStyle(inneranim, 'width', allpercent + '%');
-                        this.startanim(1, new YA(inner, { width: { from: oldpercent, to: allpercent, unit: '%' } }, 1, YE));
-                    } else if (allpercent < oldpercent) {
+                        this.startanim(1, new YA(inner, {width: {from: oldpercent, to: allpercent, unit: '%'}}, 1, YE));
+                    } else if (allpercent<oldpercent) {
                         YD.setStyle(inner, 'width', allpercent + '%');
                         oldanimpercent = parseFloat(YD.getStyle(inneranim, 'width').replace("%", ""));
-                        this.startanim(1, new YA(inneranim, { width: { from: oldanimpercent, to: allpercent, unit: '%' } }, 1, YE));
+                        this.startanim(1, new YA(inneranim, {width: {from: oldanimpercent, to: allpercent, unit: '%'}}, 1, YE));
                     }
                     disppercent = YD.getElementsByClassName('checklist_progress_percent', 'span', prall)[0];
                     disppercent.innerHTML = '&nbsp;' + allpercent.toFixed(0) + '% ';
@@ -120,13 +120,13 @@ M.mod_checklist = {
                         inner = YD.getElementsByClassName('checklist_progress_inner', 'div', prreq)[0];
                         inneranim = YD.getElementsByClassName('checklist_progress_anim', 'div', prreq)[0];
                         oldpercent = parseFloat(YD.getStyle(inner, 'width').replace("%", ""));
-                        if (reqpercent > oldpercent) {
+                        if (reqpercent>oldpercent) {
                             YD.setStyle(inneranim, 'width', reqpercent + '%');
-                            this.startanim(2, new YA(inner, { width: { from: oldpercent, to: reqpercent, unit: '%' } }, 1, YE));
-                        } else if (reqpercent < oldpercent) {
+                            this.startanim(2, new YA(inner, {width: {from: oldpercent, to: reqpercent, unit: '%'}}, 1, YE));
+                        } else if (reqpercent<oldpercent) {
                             YD.setStyle(inner, 'width', reqpercent + '%');
                             oldanimpercent = parseFloat(YD.getStyle(inneranim, 'width').replace("%", ""));
-                            this.startanim(2, new YA(inneranim, { width: { from: oldanimpercent, to: reqpercent, unit: '%' } }, 1, YE));
+                            this.startanim(2, new YA(inneranim, {width: {from: oldanimpercent, to: reqpercent, unit: '%'}}, 1, YE));
                         }
 
                         disppercent = YD.getElementsByClassName('checklist_progress_percent', 'span', prreq)[0];
@@ -137,7 +137,7 @@ M.mod_checklist = {
 
                 update_server: function (itemid, state) {
                     var i, self = this;
-                    for (i = 0; i < this.updatelist.length; i += 1) {
+                    for (i = 0; i<this.updatelist.length; i += 1) {
                         if (this.updatelist[i].itemid === itemid) {
                             if (this.updatelist[i].state !== state) {
                                 this.updatelist.splice(i, 1);
@@ -170,7 +170,7 @@ M.mod_checklist = {
                     }
 
                     params = [];
-                    for (i = 0; i < this.updatelist.length; i += 1) {
+                    for (i = 0; i<this.updatelist.length; i += 1) {
                         val = this.updatelist[i].state ? 1 : 0;
                         params.push('items[' + this.updatelist[i].itemid + ']=' + val);
                     }

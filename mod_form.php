@@ -66,9 +66,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         }
 
         $mform->addElement('header', 'checklistsettings', get_string('checklistsettings', 'checklist'));
-        if ($CFG->branch >= 25) {
-            $mform->setExpanded('checklistsettings', true);
-        }
+        $mform->setExpanded('checklistsettings', true);
 
         $ynoptions = array(0 => get_string('no'), 1 => get_string('yes'));
         $mform->addElement('select', 'useritemsallowed', get_string('useritemsallowed', 'checklist'), $ynoptions);

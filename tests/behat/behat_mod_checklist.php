@@ -26,7 +26,7 @@
 
 use Behat\Gherkin\Node\TableNode;
 
-require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
+require_once(__DIR__.'/../../../../lib/behat/behat_base.php');
 
 /**
  * Steps definitions related with the checklist module.
@@ -41,6 +41,8 @@ class behat_mod_checklist extends behat_base {
      * View the calendar for a specific course + date
      *
      * @When /^I visit the calendar for course "(?P<course_string>[^"]*)" showing date "(?P<date_string>[^"]*)"$/
+     * @param $coursename
+     * @param $datestring
      */
     public function i_visit_the_calendar_for_course_showing_date($coursename, $datestring) {
         global $DB;

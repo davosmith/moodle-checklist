@@ -15,55 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-$CFG->checklist_autoupdate_use_cron = true;
 
 /**
  * Remove the '//' at the start of the next line to output lots of
- * helpful information during the cron update. Do NOT use this if you
- * have made the core modifications outlined in core_modifications.txt
+ * helpful information during automatic updates.
  */
 //define("DEBUG_CHECKLIST_AUTOUPDATE", 1);
 
-function checklist_autoupdate($courseid, $module, $action, $cmid, $userid, $url) {
-    global $CFG;
-
-    if ($userid == 0) {
-        return 0;
-    }
-
-    if ($CFG->branch < 26) {
-        require_once($CFG->dirroot.'/mod/checklist/classes/local/autoupdate.php');
-    }
-
-    $logactions = mod_checklist\local\autoupdate::get_log_actions_legacy($module);
-    if (!in_array($action, $logactions)) {
-        return 0;
-    }
-
-    if ($cmid == 0) {
-        $matches = array();
-        if (!preg_match('/id=(\d+)/i', $url, $matches)) {
-            return 0;
-        }
-        $cmid = $matches[1];
-    }
-
-    return checklist_autoupdate_internal($courseid, $module, $cmid, $userid);
-}
-
 /**
- * @param $courseid
- * @param $module
- * @param $cmid
- * @param $userid
- * @param $url
- * @param null $checklists
+ * @param int $courseid
+ * @param string $module
+ * @param int $cmid
+ * @param int $userid
+ * @param object[] $checklists
  * @return int
- * @throws coding_exception
- * @throws dml_exception
  */
-function checklist_autoupdate_internal($courseid, $module, $cmid, $userid, $checklists=null) {
+function checklist_autoupdate_internal($courseid, $module, $cmid, $userid, $checklists = null) {
     global $CFG, $DB;
 
     if ($userid == 0) {
@@ -118,8 +85,7 @@ function checklist_autoupdate_internal($courseid, $module, $cmid, $userid, $chec
     $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
     $sql .= "WHERE i.moduleid = ? AND i.checklist $csql AND i.itemoptional < 2";
     $items = $DB->get_records_sql($sql, $params);
-    // itemoptional - 0: required; 1: optional; 2: heading;
-    // not loading defines from mod/checklist/locallib.php to reduce overhead.
+    // Itemoptional - 0: required; 1: optional; 2: heading.
     if (empty($items)) {
         if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
             mtrace("No checklist items linked to this course module");
@@ -181,8 +147,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
     $sql .= "WHERE cl.autoupdate > 0 AND i.moduleid = ? AND i.itemoptional < 2 ";
     $items = $DB->get_records_sql($sql, array($userid, $cmid));
-    // Itemoptional - 0: required; 1: optional; 2: heading;
-    // not loading defines from mod/checklist/locallib.php to reduce overhead.
+    // Itemoptional - 0: required; 1: optional; 2: heading.
     if (empty($items)) {
         if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
             mtrace("No checklist items linked to this course module");

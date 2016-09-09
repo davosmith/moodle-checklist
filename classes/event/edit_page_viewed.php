@@ -60,8 +60,8 @@ class edit_page_viewed extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' viewed the edit page for the checklist with " .
-            "the course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' viewed the edit page for the checklist with ".
+        "the course module id '$this->contextinstanceid'.";
     }
 
     /**
@@ -79,7 +79,9 @@ class edit_page_viewed extends \core\event\base {
      * @return array
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'checklist', 'edit', 'view.php?id='.$this->contextinstanceid,
-            $this->objectid, $this->contextinstanceid);
+        return array(
+            $this->courseid, 'checklist', 'edit', 'view.php?id='.$this->contextinstanceid,
+            $this->objectid, $this->contextinstanceid
+        );
     }
 }

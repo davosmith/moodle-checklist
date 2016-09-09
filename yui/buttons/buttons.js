@@ -26,7 +26,6 @@ YUI.add('moodle-mod_checklist-buttons', function (Y) {
         regex = new RegExp('items_\\d+\\[' + id + '\\]');
         // loop through all the select elements in the column
         Y.all('select').each(function (sel) {
-            var i;
             if (!sel.get('name').match(regex)) {
                 return; // Only if the select name matches the ID of the column.
             }

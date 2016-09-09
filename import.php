@@ -1,4 +1,18 @@
 <?php
+// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
@@ -20,11 +34,7 @@ $url = new moodle_url('/mod/checklist/import.php', array('id' => $cm->id));
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-if ($CFG->branch < 22) {
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-} else {
-    $context = context_module::instance($cm->id);
-}
+$context = context_module::instance($cm->id);
 if (!has_capability('mod/checklist:edit', $context)) {
     error('You do not have permission to import items to this checklist');
 }
@@ -57,8 +67,8 @@ function cleanrow($separator, $row) {
         switch ($state) {
             case STATE_WAITSTART:
                 if ($char == ' ' || $char == ',') {
-                } // Still in STATE_WAITSTART.
-                else if ($char == '"') {
+                    // Still in STATE_WAITSTART.
+                } else if ($char == '"') {
                     $quotes = '"';
                     $state = STATE_INQUOTES;
                 } else if ($char == "'") {
@@ -70,19 +80,20 @@ function cleanrow($separator, $row) {
                 break;
             case STATE_INQUOTES:
                 if ($char == $quotes) {
+                    // End of quotes.
                     $state = STATE_NORMAL;
-                } // End of quotes
-                else if ($char == '\\') {
+                } else if ($char == '\\') {
+                    // Possible escaped quotes skip (for now).
                     $state = STATE_ESCAPE;
                     continue 2;
-                }  // Possible escaped quotes skip (for now)
-                else if ($char == $separator) {
+                } else if ($char == $separator) {
+                    // Replace $separator and continue loop.
                     $cleanrow .= '[!SEPARATOR!]';
                     continue 2;
-                } // Replace $separator and continue loop
+                }
                 break;
             case STATE_ESCAPE:
-                // Retain escape char, unless escaping a quote character
+                // Retain escape char, unless escaping a quote character.
                 if ($char != $quotes) {
                     $cleanrow .= '\\';
                 }
@@ -153,7 +164,7 @@ if ($data = $form->get_data()) {
                 $newitem->position = $position++;
                 $newitem->userid = 0;
 
-                // $fields defined in importexportfields.php.
+                // Fields defined in importexportfields.php.
                 foreach ($fields as $field => $fieldtext) {
                     $itemfield = trim($itemfield);
                     if (substr($itemfield, 0, 1) == '"' && substr($itemfield, -1) == '"') {

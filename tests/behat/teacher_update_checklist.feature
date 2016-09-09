@@ -86,7 +86,7 @@ Feature: Teacher update checklist works as expected
       | Checklist required item 2 | Yes |
       | Checklist required item 3 | No  |
       | Checklist optional item 4 | Yes |
-      | Checklist optional item 5 | Yes  |
+      | Checklist optional item 5 | Yes |
     # Lowercase 'save' to avoid clash with hidden 'Save' element.
     And I press "save"
     Then I should see "33%" in the "#checklistprogressrequired" "css_element"

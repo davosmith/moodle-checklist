@@ -66,8 +66,8 @@ class report_viewed extends \core\event\base {
         if ($this->relateduserid) {
             $userdesc = "user '$this->relateduserid' in ";
         }
-        return "The user with id '$this->userid' viewed the report for {$userdesc}the checklist with " .
-            "the course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' viewed the report for {$userdesc}the checklist with ".
+        "the course module id '$this->contextinstanceid'.";
     }
 
     /**

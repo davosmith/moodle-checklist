@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 function xmldb_checklist_upgrade($oldversion = 0) {
-    global $DB;
+    global $DB, $OUTPUT;
 
     $dbman = $DB->get_manager();
     $result = true;
@@ -48,7 +48,8 @@ function xmldb_checklist_upgrade($oldversion = 0) {
     }
 
     if ($result && $oldversion < 2010031600) {
-        notify('Processing checklist grades, this may take a while if there are many checklists...', 'notifysuccess');
+        $OUTPUT->notification('Processing checklist grades, this may take a while if there are many checklists...',
+                              'notifysuccess');
 
         require_once(dirname(dirname(__FILE__)).'/lib.php');
 
