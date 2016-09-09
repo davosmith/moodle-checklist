@@ -203,13 +203,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 if ($status->is_viewother() || $status->is_userreport()) {
                     $checked .= ' disabled="disabled" ';
                 } else if (!$status->is_overrideauto()) {
-                    if ($item->moduleid) {
+                    if ($item->is_auto_item()) {
                         $checked .= ' disabled="disabled" ';
-                    } else if ($item->linkcourseid) {
-                        $completion = new completion_info(get_course($item->linkcourseid));
-                        if ($completion->is_enabled()) {
-                            $checked .= ' disabled="disabled" ';
-                        }
                     }
                 }
                 switch ($item->colour) {
@@ -250,6 +245,10 @@ class mod_checklist_renderer extends plugin_renderer_base {
                             ];
                             $attr = ['id' => 'item'.$item->id]; // TODO davo - fix itemname handling.
                             if ($status->is_teachermarklocked() && $item->is_checked_teacher()) {
+                                $attr['disabled'] = 'disabled';
+                            } else if (!$status->is_showcheckbox() && !$status->is_overrideauto() && $item->is_auto_item()) {
+                                // For teacher-only checklists with autoupdate not allowed to override, disable changing of
+                                // automatic update items.
                                 $attr['disabled'] = 'disabled';
                             }
 
@@ -534,7 +533,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     echo '<p>'.get_string('autoupdatewarning_student', 'checklist').'</p>';
                     break;
                 case CHECKLIST_MARKING_TEACHER:
-                    echo '<p class="checklistwarning">'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+                    echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
                     break;
                 default:
                     echo '<p class="checklistwarning">'.get_string('autoupdatewarning_both', 'checklist').'</p>';

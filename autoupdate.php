@@ -17,12 +17,53 @@
 use mod_checklist\local\checklist_check;
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
 /**
  * Remove the '//' at the start of the next line to output lots of
  * helpful information during automatic updates.
  */
 //define("DEBUG_CHECKLIST_AUTOUPDATE", 1);
+
+function checklist_completion_update_checks($userid, $itemchecks, $newstate) {
+    global $DB;
+
+    $updatecount = 0;
+    $updatechecklists = array();
+    foreach ($itemchecks as $itemcheck) {
+        if ($itemcheck->id) {
+            $check = new checklist_check((array)$itemcheck, false);
+        } else {
+            $check = new checklist_check(['item' => $itemcheck->itemid, 'userid' => $userid], false);
+        }
+        if ($itemcheck->teacheredit == CHECKLIST_MARKING_TEACHER) {
+            if ($check->is_checked_teacher() != $newstate) {
+                $check->set_teachermark(CHECKLIST_TEACHERMARK_YES, null);
+                $check->save();
+                $updatechecklists[] = $itemcheck->checklist;
+                $updatecount++;
+            }
+        } else {
+            if ($newstate != $check->is_checked_student()) {
+                $check->set_checked_student($newstate);
+                $check->save();
+                $updatechecklists[] = $itemcheck->checklist;
+                $updatecount++;
+            }
+        }
+    }
+    if (!empty($updatechecklists)) {
+        $updatechecklists = array_unique($updatechecklists);
+        list($csql, $cparams) = $DB->get_in_or_equal($updatechecklists);
+        $checklists = $DB->get_records_select('checklist', 'id '.$csql, $cparams);
+        foreach ($checklists as $checklist) {
+            checklist_update_grades($checklist, $userid);
+        }
+    }
+
+    return $updatecount;
+}
 
 /**
  * @param int $courseid
@@ -32,8 +73,8 @@ defined('MOODLE_INTERNAL') || die();
  * @param object[] $checklists
  * @return int
  */
-function checklist_autoupdate_internal($courseid, $module, $cmid, $userid, $checklists = null) {
-    global $CFG, $DB;
+function checklist_autoupdate_internal($courseid, $module, $cmid, $userid) {
+    global $DB;
 
     if ($userid == 0) {
         return 0;
@@ -44,97 +85,38 @@ function checklist_autoupdate_internal($courseid, $module, $cmid, $userid, $chec
                "cmid: $cmid, userid: $userid");
     }
 
-    if (!$checklists) {
-        $checklists = $DB->get_records_select('checklist',
-                                              'course = ? AND autoupdate > 0',
-                                              array($courseid));
-
-        if (empty($checklists)) {
-            if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
-                mtrace("No suitable checklists to update in course $courseid");
-            }
-            return 0;
-            // No checklists in this course that are auto-updating.
+    $completion = new completion_info((object)['id' => $courseid]);
+    $cm = $DB->get_record('course_modules', ['id' => $cmid], 'id, completion');
+    if ($completion->is_enabled($cm)) {
+        if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
+            mtrace("This course module has completion enabled - allow that to control any checklist items");
         }
+        return 0;
     }
 
-    if (isset($CFG->enablecompletion) && $CFG->enablecompletion) {
-        // Completion is enabled on this site, so we need to check if this module
-        // can do completion (and then wait for that to indicate the module is complete).
-        $coursecompletion = $DB->get_field('course',
-                                           'enablecompletion',
-                                           array('id' => $courseid));
-        if ($coursecompletion) {
-            $cmcompletion = $DB->get_field('course_modules',
-                                           'completion',
-                                           array('id' => $cmid));
-            if ($cmcompletion) {
-                if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
-                    mtrace("This course module has completion enabled - allow that to control any checklist items");
-                }
-                return 0;
-                // No checklists in this course that are auto-updating.
-            }
-        }
-    }
-
-    // Find all checklist_item records which are related to these $checklists which have a moduleid matching $module
-    // and any information about checks they might have.
-    list($csql, $cparams) = $DB->get_in_or_equal(array_keys($checklists));
-    $params = array_merge(array($userid, $cmid), $cparams);
-
-    $sql = "SELECT i.id AS itemid, c.id AS checkid, c.usertimestamp FROM {checklist_item} i ";
-    $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
-    $sql .= "WHERE i.moduleid = ? AND i.checklist $csql AND i.itemoptional < 2";
-    $items = $DB->get_records_sql($sql, $params);
-    // Itemoptional - 0: required; 1: optional; 2: heading.
-    if (empty($items)) {
+    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*
+              FROM {checklist_item} i
+              JOIN {checklist} cl ON i.checklist = cl.id
+              LEFT JOIN {checklist_check} ck ON (ck.item = i.id AND ck.userid = :userid)
+             WHERE cl.autoupdate > 0 AND i.moduleid = :cmid AND i.itemoptional < :heading";
+    $itemchecks = $DB->get_records_sql($sql, ['userid' => $userid, 'cmid' => $cmid, 'heading' => CHECKLIST_OPTIONAL_HEADING]);
+    if (empty($itemchecks)) {
         if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
             mtrace("No checklist items linked to this course module");
         }
         return 0;
     }
 
-    $updatecount = 0;
-    foreach ($items as $item) {
-        if ($item->checkid) {
-            if ($item->usertimestamp) {
-                continue;
-            }
-            $check = new stdClass;
-            $check->id = $item->checkid;
-            $check->usertimestamp = time();
-            $DB->update_record('checklist_check', $check);
-            $updatecount++;
-        } else {
-            $check = new stdClass;
-            $check->item = $item->itemid;
-            $check->userid = $userid;
-            $check->usertimestamp = time();
-            $check->teachertimestamp = 0;
-            $check->teachermark = 0;
-            // CHECKLIST_TEACHERMARK_UNDECIDED - not loading from mod/checklist/lib.php to reduce overhead.
-
-            $check->id = $DB->insert_record('checklist_check', $check);
-            $updatecount++;
-        }
-    }
+    $updatecount = checklist_completion_update_checks($userid, $itemchecks, true);
     if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
         mtrace("$updatecount checklist items updated from this log entry");
-    }
-    if ($updatecount) {
-        require_once($CFG->dirroot.'/mod/checklist/lib.php');
-        foreach ($checklists as $checklist) {
-            checklist_update_grades($checklist, $userid);
-        }
-        return $updatecount;
     }
 
     return 0;
 }
 
 function checklist_completion_autoupdate($cmid, $userid, $newstate) {
-    global $DB, $CFG, $USER;
+    global $DB, $USER;
 
     if ($userid == 0) {
         $userid = $USER->id;
@@ -144,13 +126,13 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
         mtrace("Completion status change for cmid: $cmid, userid: $userid, newstate: $newstate");
     }
 
-    $sql = "SELECT i.id AS itemid, c.id AS checkid, c.usertimestamp, i.checklist FROM {checklist_item} i ";
-    $sql .= "JOIN {checklist} cl ON i.checklist = cl.id ";
-    $sql .= "LEFT JOIN {checklist_check} c ON (c.item = i.id AND c.userid = ?) ";
-    $sql .= "WHERE cl.autoupdate > 0 AND i.moduleid = ? AND i.itemoptional < 2 ";
-    $items = $DB->get_records_sql($sql, array($userid, $cmid));
-    // Itemoptional - 0: required; 1: optional; 2: heading.
-    if (empty($items)) {
+    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*
+              FROM {checklist_item} i 
+              JOIN {checklist} cl ON i.checklist = cl.id 
+              LEFT JOIN {checklist_check} ck ON (ck.item = i.id AND ck.userid = :userid) 
+             WHERE cl.autoupdate > 0 AND i.moduleid = :cmid AND i.itemoptional < :heading";
+    $itemchecks = $DB->get_records_sql($sql, ['userid' => $userid, 'cmid' => $cmid, 'heading' => CHECKLIST_OPTIONAL_HEADING]);
+    if (empty($itemchecks)) {
         if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
             mtrace("No checklist items linked to this course module");
         }
@@ -158,57 +140,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     }
 
     $newstate = ($newstate == COMPLETION_COMPLETE || $newstate == COMPLETION_COMPLETE_PASS); // Not complete if failed.
-    $updatecount = 0;
-    $updatechecklists = array();
-    foreach ($items as $item) {
-        if ($item->checkid) {
-            if ($newstate) {
-                if ($item->usertimestamp) {
-                    continue;
-                }
-                $check = new stdClass;
-                $check->id = $item->checkid;
-                $check->usertimestamp = time();
-                $DB->update_record('checklist_check', $check);
-                $updatechecklists[] = $item->checklist;
-                $updatecount++;
-            } else {
-                if (!$item->usertimestamp) {
-                    continue;
-                }
-                $check = new stdClass;
-                $check->id = $item->checkid;
-                $check->usertimestamp = 0;
-                $DB->update_record('checklist_check', $check);
-                $updatechecklists[] = $item->checklist;
-                $updatecount++;
-            }
-        } else {
-            if (!$newstate) {
-                continue;
-            }
-            $check = new stdClass;
-            $check->item = $item->itemid;
-            $check->userid = $userid;
-            $check->usertimestamp = time();
-            $check->teachertimestamp = 0;
-            $check->teachermark = 0;
-            // CHECKLIST_TEACHERMARK_UNDECIDED - not loading from mod/checklist/lib.php to reduce overhead.
-
-            $check->id = $DB->insert_record('checklist_check', $check);
-            $updatechecklists[] = $item->checklist;
-            $updatecount++;
-        }
-    }
-    if (!empty($updatechecklists)) {
-        $updatechecklists = array_unique($updatechecklists);
-        list($csql, $cparams) = $DB->get_in_or_equal($updatechecklists);
-        $checklists = $DB->get_records_select('checklist', 'id '.$csql, $cparams);
-        require_once($CFG->dirroot.'/mod/checklist/lib.php');
-        foreach ($checklists as $checklist) {
-            checklist_update_grades($checklist, $userid);
-        }
-    }
+    $updatecount = checklist_completion_update_checks($userid, $itemchecks, $newstate);
 
     if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
         mtrace("Updated $updatecount checklist items from this completion status change");
@@ -220,26 +152,16 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
 function checklist_course_completion_autoupdate($courseid, $userid) {
     global $DB;
 
-    $sql = "SELECT i.id AS itemid, ck.*
+    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*
               FROM {checklist_item} i
-              JOIN {checklist} c ON c.id = i.checklist
+              JOIN {checklist} cl ON cl.id = i.checklist
               LEFT JOIN {checklist_check} ck ON ck.item = i.id AND ck.userid = :userid
-             WHERE c.autoupdate > 0 AND i.linkcourseid = :courseid AND i.itemoptional < :heading";
+             WHERE cl.autoupdate > 0 AND i.linkcourseid = :courseid AND i.itemoptional < :heading";
     $params = ['userid' => $userid, 'courseid' => $courseid, 'heading' => 2];
     $itemchecks = $DB->get_records_sql($sql, $params);
     if (!$itemchecks) {
         return;
     }
 
-    foreach ($itemchecks as $itemcheck) {
-        if (!$itemcheck->usertimestamp) {
-            if ($itemcheck->id) {
-                $check = new checklist_check((array)$itemcheck, false);
-            } else {
-                $check = new checklist_check(['item' => $itemcheck->itemid, 'userid' => $userid], false);
-            }
-            $check->set_checked_student(true);
-            $check->save();
-        }
-    }
+    checklist_completion_update_checks($userid, $itemchecks, true);
 }

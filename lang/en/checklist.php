@@ -44,7 +44,7 @@ $string['autoupdatenote'] = 'It is the \'student\' mark that is automatically up
 
 $string['autoupdatewarning_both'] = 'There are items on this list that will be automatically updated (as students complete the related activity). However, as this is a \'student and teacher\' checklist the progress bars will not update until a teacher agrees the marks given.';
 $string['autoupdatewarning_student'] = 'There are items on this list that will be automatically updated (as students complete the related activity).';
-$string['autoupdatewarning_teacher'] = 'Automatic updating has been switched on for this checklist, but these marks will not be displayed as only \'teacher\' marks are shown.';
+$string['autoupdatewarning_teacher'] = 'There are items on this list that will be automatically updated (as students complete the related activity).';
 
 $string['canceledititem'] = 'Cancel';
 

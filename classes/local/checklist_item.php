@@ -322,6 +322,25 @@ class checklist_item extends data_object {
     }
 
     /**
+     * Check if this item can be automatically updated.
+     * i.e. is it linked to an activity or linked to a course with completion enabled
+     *
+     * @return bool
+     */
+    public function is_auto_item() {
+        if ($this->moduleid) {
+            return true;
+        }
+        if ($this->linkcourseid) {
+            $completion = new \completion_info(get_course($this->linkcourseid));
+            if ($completion->is_enabled()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Add links from the checklist items to the comments on them (for a particular user).
      * @param checklist_item[] $items (indexed by id)
      * @param checklist_comment[] $comments (indexed by itemid)
@@ -372,7 +391,7 @@ class checklist_item extends data_object {
         }
         foreach ($items as $item) {
             if ($item->grouping && isset($groupings[$item->grouping])) {
-                 $item->groupingname = $groupings[$item->grouping];
+                $item->groupingname = $groupings[$item->grouping];
             }
         }
     }

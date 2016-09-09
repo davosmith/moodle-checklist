@@ -90,14 +90,19 @@ function checklist_update_instance($checklist) {
     $checklist->timemodified = time();
     $checklist->id = $checklist->instance;
 
+    $oldrecord = $DB->get_record('checklist', ['id' => $checklist->id]);
+
     $newmax = $checklist->maxgrade;
-    $oldmax = $DB->get_field('checklist', 'maxgrade', array('id' => $checklist->id));
+    $oldmax = $oldrecord->maxgrade;
 
     $newcompletion = $checklist->completionpercent;
-    $oldcompletion = $DB->get_field('checklist', 'completionpercent', array('id' => $checklist->id));
+    $oldcompletion = $oldrecord->completionpercent;
 
     $newautoupdate = $checklist->autoupdate;
-    $oldautoupdate = $DB->get_field('checklist', 'autoupdate', array('id' => $checklist->id));
+    $oldautoupdate = $oldrecord->autoupdate;
+
+    $newteacheredit = $checklist->teacheredit;
+    $oldteacheredit = $oldrecord->teacheredit;
 
     $DB->update_record('checklist', $checklist);
 
@@ -119,8 +124,18 @@ function checklist_update_instance($checklist) {
             $ci->update_state($cm, COMPLETION_UNKNOWN, $user->id);
         }
     }
-    if ($newautoupdate && !$oldautoupdate) {
-        $chk->update_all_autoupdate_checks();
+    if ($newautoupdate) {
+        if (!$oldautoupdate) {
+            $chk->update_all_autoupdate_checks();
+        } else {
+            $oldautoteacher = ($oldteacheredit == CHECKLIST_MARKING_TEACHER);
+            $newautoteacher = ($newteacheredit == CHECKLIST_MARKING_TEACHER);
+            if ($oldautoteacher != $newautoteacher) {
+                // Just switched to/from teacher-only marking => automatic checkmarks need updating
+                // (as they are updating a different value from before).
+                $chk->update_all_autoupdate_checks();
+            }
+        }
     }
 
     return true;

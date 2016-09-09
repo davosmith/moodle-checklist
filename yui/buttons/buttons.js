@@ -26,6 +26,9 @@ YUI.add('moodle-mod_checklist-buttons', function (Y) {
         regex = new RegExp('items_\\d+\\[' + id + '\\]');
         // loop through all the select elements in the column
         Y.all('select').each(function (sel) {
+            if (sel.get('disabled')) {
+                return;
+            }
             if (!sel.get('name').match(regex)) {
                 return; // Only if the select name matches the ID of the column.
             }
@@ -47,6 +50,9 @@ YUI.add('moodle-mod_checklist-buttons', function (Y) {
         regex = new RegExp('items_' + id + '\\[\\d+\\]');
         // loop through all the select elements in the row
         Y.all('select').each(function (sel) {
+            if (sel.get('disabled')) {
+                return;
+            }
             if (!sel.get('name').match(regex)) {
                 return; // Only if the select name matches the ID of the row.
             }

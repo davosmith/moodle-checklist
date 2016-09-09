@@ -14,6 +14,7 @@ Students are presented with a simple chart showing how far they have progressed 
 * 2016-09-09 - Major restructuring of checklist code, to aid future maintenance; dropping of pre-Moodle 2.7 support.
                Support for linking items to courses (with automatic check-off on course completion) OR external URLs.
                Support for linking items to groupings (only shown to users who are members of groups within the item's grouping)
+               For 'teacher only' checklists, automatic check-off now affects teacher marks, instead of student marks
 * 2016-05-20 - Minor behat fixes for Moodle 3.1 compatibility
 * 2016-03-15 - Show/hide multiple activity items at once when editing the checklist (Tony Butler)
 * 2015-12-23 - Handle missing calendar events + fix deprecated 'get_referer' warning.

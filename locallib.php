@@ -920,7 +920,7 @@ class checklist_class {
 
         if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
             if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
-                echo '<p class="checklistwarning">'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
             } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH) {
                 echo '<p class="checklistwarning">'.get_string('autoupdatewarning_both', 'checklist').'</p>';
             }
@@ -1125,6 +1125,8 @@ class checklist_class {
                 $table->skip[] = (!$reportsettings->showoptional) && ($item->itemoptional == CHECKLIST_OPTIONAL_YES);
             }
 
+            $disableditems = $this->get_teacher_disabled_items();
+
             $table->data = array();
             if ($ausers) {
                 foreach ($ausers as $auser) {
@@ -1170,7 +1172,7 @@ class checklist_class {
             }
 
             echo '<div style="overflow:auto">';
-            $this->print_report_table($table, $editchecks);
+            $this->print_report_table($table, $editchecks, $disableditems);
             echo '</div>';
 
             if ($editchecks) {
@@ -1227,7 +1229,7 @@ class checklist_class {
         return $output;
     }
 
-    protected function print_report_table($table, $editchecks) {
+    protected function print_report_table($table, $editchecks, $disableditems) {
         global $OUTPUT;
 
         $output = '';
@@ -1331,6 +1333,7 @@ class checklist_class {
 
                             if ($editchecks) {
                                 $lock = $teachermarklocked && $teachermark == CHECKLIST_TEACHERMARK_YES;
+                                $lock = $lock || in_array($checkid, $disableditems);
                                 $disabled = $lock ? 'disabled="disabled" ' : '';
 
                                 $selu = ($teachermark == CHECKLIST_TEACHERMARK_UNDECIDED) ? 'selected="selected" ' : '';
@@ -2172,6 +2175,35 @@ class checklist_class {
         }
     }
 
+    /**
+     * Get a list of items that cannot be updated by teachers (as they are auto updating).
+     *
+     * @return array
+     */
+    protected function get_teacher_disabled_items() {
+        global $DB;
+        $disableitems = [];
+        if ($this->checklist->autoupdate == CHECKLIST_AUTOUPDATE_YES &&
+            $this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER
+        ) {
+            // Checklist is auto updating + only showing teacher marks => disable teacher marks for items that auto update.
+            $select = "checklist = ? AND userid = 0 AND
+                          ((moduleid IS NOT NULL AND moduleid > 0) OR (linkcourseid IS NOT NULL AND linkcourseid > 0))";
+            $autoitems = $DB->get_records_select('checklist_item', $select, [$this->checklist->id]);
+            foreach ($autoitems as $autoitem) {
+                if ($autoitem->moduleid) {
+                    $disableitems[] = $autoitem->id;
+                } else if ($autoitem->linkcourseid) {
+                    $completion = new completion_info(get_course($autoitem->linkcourseid));
+                    if ($completion->is_enabled()) {
+                        $disableitems[] = $autoitem->id;
+                    }
+                }
+            }
+        }
+        return $disableitems;
+    }
+
     protected function updateteachermarks() {
         global $USER, $DB;
 
@@ -2251,6 +2283,7 @@ class checklist_class {
      * @param bool $teachermarklocked (optional) set to true to prevent teachers from changing 'yes' to 'no'.
      */
     public function update_teachermarks($newchecks, $teacherid, $teachermarklocked = false) {
+        $disableditems = $this->get_teacher_disabled_items();
         $updategrades = false;
         foreach ($newchecks as $itemid => $newval) {
             if (isset($this->items[$itemid])) {
@@ -2258,6 +2291,10 @@ class checklist_class {
 
                 if ($teachermarklocked && $item->is_checked_teacher()) {
                     continue; // Does not have permission to update marks that are already 'Yes'.
+                }
+
+                if (in_array($item->id, $disableditems)) {
+                    continue; // Item is auto-updating, so we cannot change it.
                 }
 
                 if ($item->set_teachermark($this->userid, $newval, $teacherid)) {
@@ -2284,6 +2321,8 @@ class checklist_class {
             return;
         }
 
+        $disableditems = $this->get_teacher_disabled_items();
+
         $userchecks = array();
         foreach ($userids as $userid) {
             $checkdata = optional_param_array('items_'.$userid, array(), PARAM_INT);
@@ -2299,6 +2338,9 @@ class checklist_class {
                 }
                 if (!checklist_check::teachermark_valid($val)) {
                     continue; // Invalid value.
+                }
+                if (in_array($itemid, $disableditems)) {
+                    continue; // Cannot update autoupdate item.
                 }
                 if (!array_key_exists($userid, $userchecks)) {
                     $userchecks[$userid] = array();
@@ -2382,6 +2424,8 @@ class checklist_class {
         }
         $userids = array_keys($users);
 
+        $teachermark = ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER);
+
         // Update all checklist items that are linked to course modules.
         if ($updmodules) {
             // Get a list of all the checklist items with a module linked to them (ignoring headings).
@@ -2404,9 +2448,16 @@ class checklist_class {
                             || $compdata->completionstate == COMPLETION_COMPLETE_PASS
                         ) {
                             $check = new checklist_check(['item' => $item->itemid, 'userid' => $user->id]);
-                            if (!$check->is_checked_student()) {
-                                $check->set_checked_student(true);
-                                $check->save();
+                            if ($teachermark) {
+                                if (!$check->is_checked_teacher()) {
+                                    $check->set_teachermark(CHECKLIST_TEACHERMARK_YES, null);
+                                    $check->save();
+                                }
+                            } else {
+                                if (!$check->is_checked_student()) {
+                                    $check->set_checked_student(true);
+                                    $check->save();
+                                }
                             }
                         }
                     }
@@ -2420,9 +2471,16 @@ class checklist_class {
 
                 foreach ($loguserids as $loguserid) {
                     $check = new checklist_check(['item' => $item->itemid, 'userid' => $loguserid]);
-                    if (!$check->is_checked_student()) {
-                        $check->set_checked_student(true);
-                        $check->save();
+                    if ($teachermark) {
+                        if (!$check->is_checked_teacher()) {
+                            $check->set_teachermark(CHECKLIST_TEACHERMARK_YES, null);
+                            $check->save();
+                        }
+                    } else {
+                        if (!$check->is_checked_student()) {
+                            $check->set_checked_student(true);
+                            $check->save();
+                        }
                     }
                 }
             }
@@ -2471,6 +2529,7 @@ class checklist_class {
             }
             $userids = array_keys($users);
         }
+        $teachermark = ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER);
 
         // Generate a list of users who have completed the given course.
         list($usql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
@@ -2481,9 +2540,16 @@ class checklist_class {
         // Mark the checklist item as complete for these users.
         foreach ($completions as $completion) {
             $check = new checklist_check(['item' => $item->id, 'userid' => $completion->userid]);
-            if (!$check->is_checked_student()) {
-                $check->set_checked_student(true, $completion->timecompleted);
-                $check->save();
+            if ($teachermark) {
+                if (!$check->is_checked_teacher()) {
+                    $check->set_teachermark(CHECKLIST_TEACHERMARK_YES, null);
+                    $check->save();
+                }
+            } else {
+                if (!$check->is_checked_student()) {
+                    $check->set_checked_student(true);
+                    $check->save();
+                }
             }
         }
     }
