@@ -185,14 +185,14 @@ function checklist_update_all_grades() {
 function checklist_update_grades($checklist, $userid = 0) {
     global $CFG, $DB;
 
-    $items = $DB->get_records('checklist_item',
-                              array(
-                                  'checklist' => $checklist->id,
-                                  'userid' => 0,
-                                  'itemoptional' => CHECKLIST_OPTIONAL_NO,
-                                  'hidden' => CHECKLIST_HIDDEN_NO
-                              ),
-                              '', 'id, grouping');
+    $params = array(
+        'checklist' => $checklist->id,
+        'userid' => 0,
+        'itemoptional' => CHECKLIST_OPTIONAL_NO,
+        'hidden' => CHECKLIST_HIDDEN_NO
+    );
+    $items = \mod_checklist\local\checklist_item::fetch_all($params);
+
     if (!$items) {
         return;
     }
@@ -238,16 +238,17 @@ function checklist_update_grades($checklist, $userid = 0) {
             $groupings = checklist_class::get_user_groupings($userid, $course->id);
 
             $total = 0;
-            $itemlist = '';
+            $itemlist = [];
             foreach ($items as $item) {
                 if ($item->grouping) {
                     if (!in_array($item->grouping, $groupings)) {
                         continue;
                     }
                 }
-                $itemlist .= $item->id.',';
+                $itemlist[] = $item->id;
                 $total++;
             }
+            $itemlist = implode(',', $itemlist);
 
             if (!$total) { // No items - set score to 0.
                 $ugrade = new stdClass;
@@ -256,8 +257,6 @@ function checklist_update_grades($checklist, $userid = 0) {
                 $ugrade->date = time();
 
             } else {
-                $itemlist = substr($itemlist, 0, -1); // Remove trailing ','.
-
                 $sql = 'SELECT (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
                 $sql .= " FROM {checklist_check} c ";
                 $sql .= " WHERE c.item IN ($itemlist)";

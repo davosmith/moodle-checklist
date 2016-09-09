@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use mod_checklist\local\checklist_item;
+
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
 global $CFG, $PAGE, $OUTPUT, $DB;
@@ -159,7 +161,7 @@ if ($data = $form->get_data()) {
                 }
 
                 $itemfield = reset($item);
-                $newitem = new stdClass;
+                $newitem = new checklist_item();
                 $newitem->checklist = $checklist->id;
                 $newitem->position = $position++;
                 $newitem->userid = 0;
@@ -214,7 +216,7 @@ if ($data = $form->get_data()) {
                 }
 
                 if ($newitem->displaytext) { // Don't insert items without any text in them.
-                    if (!$DB->insert_record('checklist_item', $newitem)) {
+                    if (!$newitem->insert()) {
                         $ok = false;
                         $errormsg = 'Unable to insert DB record for item';
                         break;

@@ -28,7 +28,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 global $DB, $CFG, $PAGE, $USER;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
-$items = optional_param_array('items', false, PARAM_INT);
+$items = required_param_array('items', PARAM_INT);
 
 $url = new moodle_url('/mod/checklist/view.php', array('id' => $id));
 
@@ -41,19 +41,10 @@ require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 $userid = $USER->id;
-if (!has_capability('mod/checklist:updateown', $context)) {
-    echo 'Error: you do not have permission to update this checklist';
-    die();
-}
-if (!confirm_sesskey()) {
-    echo 'Error: invalid sesskey';
-    die();
-}
-if (!$items || !is_array($items)) {
-    echo 'Error: invalid (or missing) items list';
-    die();
-}
-if (!empty($items)) {
+require_capability('mod/checklist:updateown', $context);
+require_sesskey();
+
+if ($items) {
     $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
     $chk->ajaxupdatechecks($items);
 }

@@ -4,6 +4,9 @@ ol.checklist {
     margin-top: 10px;
     margin-bottom: 0;
 }
+ol.checklist ol.checklist {
+    margin-top: 0;
+}
 
 ol.checklist li {
     list-style-type: none;
@@ -175,6 +178,12 @@ ol.checklist li .itemteachername {
     background-color: #bf0000;
 }
 
+.checklist_progress_heading {
+    display: block;
+    float: left;
+    width: 150px;
+}
+
 .checklist_progress_outer {
     border-width: 1px;
     border-style: solid;
@@ -191,6 +200,7 @@ ol.checklist li .itemteachername {
 
 .checklist_progress_inner {
     background-color: #229b15;
+    background-image: url([[pix:mod_checklist|progress]]);
     height: 100%;
     width: 100%;
     background-repeat: repeat-x;
@@ -206,6 +216,7 @@ ol.checklist li .itemteachername {
 
 .checklist_progress_anim {
     background-color: #98c193;
+    background-image: url([[pix:mod_checklist|progress-fade]]);
     height: 15px;
     width: 0;
     background-repeat: repeat-x;
@@ -256,4 +267,10 @@ p.checklistwarning {
 
 ol.checklist label {
     display: inline;
+}
+
+.checklist-extendedit .checklist-edititem {
+    border: 1px solid #ddd;
+    padding: 10px 0 5px;
+    margin: 5px 0;
 }

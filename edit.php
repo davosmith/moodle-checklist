@@ -22,7 +22,7 @@ global $DB, $PAGE;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 
-$url = new moodle_url('/mod/checklist/view.php', array('id' => $id));
+$url = new moodle_url('/mod/checklist/edit.php', array('id' => $id));
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
