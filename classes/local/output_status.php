@@ -49,6 +49,8 @@ class output_status {
 
     // Edit items only.
     protected $editdates = false;
+    protected $editlinks = false;
+    protected $allowcourselinks = false;
     protected $itemid = null;
     protected $autopopulate = false;
     protected $autoupdatewarning = null;
@@ -354,6 +356,34 @@ class output_status {
      */
     public function set_autoupdatewarning($autoupdatewarning) {
         $this->autoupdatewarning = $autoupdatewarning;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function is_editlinks() {
+        return $this->editlinks;
+    }
+
+    /**
+     * @param boolean $editlinks
+     */
+    public function set_editlinks($editlinks) {
+        $this->editlinks = $editlinks;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function is_allowcourselinks() {
+        return $this->allowcourselinks;
+    }
+
+    /**
+     * @param boolean $allowcourselinks
+     */
+    public function set_allowcourselinks($allowcourselinks) {
+        $this->allowcourselinks = $allowcourselinks;
     }
 
 }

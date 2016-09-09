@@ -368,6 +368,11 @@ class autoupdate {
             $comp = $event->get_record_snapshot('course_modules_completion', $event->objectid);
             // Update any relevant checklists.
             checklist_completion_autoupdate($comp->coursemoduleid, $comp->userid, $comp->completionstate);
+        } else if ($event->target == 'course' && $event->action == 'completed') {
+
+            // Update from a course completion event.
+            checklist_course_completion_autoupdate($event->courseid, $event->relateduserid);
+
         } else {
             // Check if this is an action that counts as 'completing' an activity (when completion is off).
             $info = self::get_entry_info($event);

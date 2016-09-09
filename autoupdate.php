@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use mod_checklist\local\checklist_check;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -213,4 +215,31 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     }
 
     return $updatecount;
+}
+
+function checklist_course_completion_autoupdate($courseid, $userid) {
+    global $DB;
+
+    $sql = "SELECT i.id AS itemid, ck.*
+              FROM {checklist_item} i
+              JOIN {checklist} c ON c.id = i.checklist
+              LEFT JOIN {checklist_check} ck ON ck.item = i.id AND ck.userid = :userid
+             WHERE c.autoupdate > 0 AND i.linkcourseid = :courseid AND i.itemoptional < :heading";
+    $params = ['userid' => $userid, 'courseid' => $courseid, 'heading' => 2];
+    $itemchecks = $DB->get_records_sql($sql, $params);
+    if (!$itemchecks) {
+        return;
+    }
+
+    foreach ($itemchecks as $itemcheck) {
+        if (!$itemcheck->usertimestamp) {
+            if ($itemcheck->id) {
+                $check = new checklist_check((array)$itemcheck, false);
+            } else {
+                $check = new checklist_check(['item' => $itemcheck->itemid, 'userid' => $userid], false);
+            }
+            $check->set_checked_student(true);
+            $check->save();
+        }
+    }
 }

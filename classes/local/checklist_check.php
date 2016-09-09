@@ -29,6 +29,7 @@ use data_object;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/completion/data_object.php');
+require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
 class checklist_check extends data_object {
     public $table = 'checklist_check';
@@ -122,7 +123,8 @@ class checklist_check extends data_object {
         $this->teachertimestamp = time();
     }
 
-    public function set_checked_student($checked) {
-        $this->usertimestamp = $checked ? time() : 0;
+    public function set_checked_student($checked, $timestamp = null) {
+        $timestamp = $timestamp ?: time();
+        $this->usertimestamp = $checked ? $timestamp : 0;
     }
 }

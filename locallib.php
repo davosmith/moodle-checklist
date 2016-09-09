@@ -58,6 +58,8 @@ class checklist_class {
     /** @var mod_checklist_renderer */
     protected $output;
 
+    protected $canlinkcourses = null;
+
     /**
      * @param int|string $cmid optional
      * @param int $userid optional
@@ -124,6 +126,17 @@ class checklist_class {
     private static function get_renderer() {
         global $PAGE;
         return $PAGE->get_renderer('mod_checklist');
+    }
+
+    /**
+     * Is linking items to courses enabled on the site?
+     * @return bool
+     */
+    protected function can_link_courses() {
+        if ($this->canlinkcourses === null) {
+            $this->canlinkcourses = (bool)get_config('mod_checklist', 'linkcourses');
+        }
+        return $this->canlinkcourses;
     }
 
     /**
@@ -243,7 +256,7 @@ class checklist_class {
                 reset($this->items);
             } else {
                 if ($this->items[$sectionheading]->displaytext != $sectionname) {
-                    $this->updateitemtext($sectionheading, $sectionname);
+                    $this->updateitem($sectionheading, $sectionname);
                 }
             }
 
@@ -295,7 +308,7 @@ class checklist_class {
                         reset($this->items);
                     }
                     if ($item->displaytext != $modname) {
-                        $this->updateitemtext($item->id, $modname);
+                        $this->updateitem($item->id, $modname);
                     }
                     if (($item->hidden == CHECKLIST_HIDDEN_BYMODULE) && $mods->get_cm($cmid)->visible) {
                         // Course module was hidden and now is not.
@@ -346,7 +359,7 @@ class checklist_class {
                     $this->items[$itemid]->grouping = $usegrouping ? $mods->get_cm($cmid)->groupingid : 0;
                     $item = $this->items[$itemid];
                 }
-                $item->modulelink = new moodle_url('/mod/'.$mods->get_cm($cmid)->modname.'/view.php', array('id' => $cmid));
+                $item->set_modulelink(new moodle_url('/mod/'.$mods->get_cm($cmid)->modname.'/view.php', array('id' => $cmid)));
                 $nextpos++;
             }
 
@@ -364,7 +377,7 @@ class checklist_class {
         }
 
         if ($changes) {
-            $this->update_all_autoupdate_checks();
+            $this->update_all_autoupdate_checks(true, false);
         }
     }
 
@@ -793,7 +806,7 @@ class checklist_class {
                 checklist_item::add_teacher_names($this->items);
             }
         }
-        $status->set_overrideauto($this->checklist->autoupdate !== CHECKLIST_AUTOUPDATE_YES);
+        $status->set_overrideauto($this->checklist->autoupdate != CHECKLIST_AUTOUPDATE_YES);
         if ($status->is_canaddown()) {
             if ($this->useredit) {
                 $status->set_addown(true);
@@ -864,6 +877,8 @@ class checklist_class {
     }
 
     protected function view_edit_items() {
+        global $PAGE;
+
         $status = new output_status();
         $status->set_additemafter($this->additemafter);
         $status->set_editdates($this->editdates);
@@ -871,6 +886,12 @@ class checklist_class {
         $status->set_autopopulate($this->checklist->autopopulate);
         if ($this->checklist->autopopulate && $this->checklist->autoupdate) {
             $status->set_autoupdatewarning($this->checklist->teacheredit);
+        }
+        $status->set_editlinks(true);
+        $status->set_allowcourselinks($this->can_link_courses());
+
+        if ($status->is_allowcourselinks()) {
+            $PAGE->requires->yui_module('moodle-mod_checklist-linkselect', 'M.mod_checklist.linkselect.init');
         }
 
         $this->output->checklist_edit_items($this->items, $status);
@@ -1408,7 +1429,7 @@ class checklist_class {
             case 'updateitem':
                 $displaytext = optional_param('displaytext', '', PARAM_TEXT);
                 $displaytext .= "\n".optional_param('displaytextnote', '', PARAM_TEXT);
-                $this->updateitemtext($itemid, $displaytext);
+                $this->updateitem($itemid, $displaytext);
                 break;
 
             default:
@@ -1459,12 +1480,15 @@ class checklist_class {
                 $displaytext = optional_param('displaytext', '', PARAM_TEXT);
                 $indent = optional_param('indent', 0, PARAM_INT);
                 $position = optional_param('position', false, PARAM_INT);
+                $linkcourseid = optional_param('linkcourseid', null, PARAM_INT);
+                $linkurl = optional_param('linkurl', null, PARAM_URL);
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
                     $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
-                $this->additem($displaytext, 0, $indent, $position, $duetime);
+                $this->additem($displaytext, 0, $indent, $position, $duetime, 0, CHECKLIST_OPTIONAL_NO, CHECKLIST_HIDDEN_NO,
+                               $linkcourseid, $linkurl);
                 if ($position) {
                     $additemafter = false;
                 }
@@ -1480,12 +1504,14 @@ class checklist_class {
                 break;
             case 'updateitem':
                 $displaytext = optional_param('displaytext', '', PARAM_TEXT);
+                $linkcourseid = optional_param('linkcourseid', null, PARAM_INT);
+                $linkurl = optional_param('linkurl', null, PARAM_URL);
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
                     $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
-                $this->updateitemtext($itemid, $displaytext, $duetime);
+                $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl);
                 break;
             case 'deleteitem':
                 if (($this->checklist->autopopulate) && (isset($this->items[$itemid])) && ($this->items[$itemid]->moduleid)) {
@@ -1624,8 +1650,29 @@ class checklist_class {
         }
     }
 
+    protected function validate_links(&$linkcourseid, &$linkurl) {
+        if ($linkcourseid && $this->can_link_courses()) {
+            $courses = self::get_linkable_courses();
+            if (!array_key_exists($linkcourseid, $courses)) {
+                $linkcourseid = null;
+            } else {
+                $linkurl = null; // If the courseid is valid, then the url should be blank.
+            }
+        } else {
+            $linkcourseid = null;
+        }
+
+        if ($linkurl) {
+            $scheme = parse_url($linkurl, PHP_URL_SCHEME);
+            if (!$scheme) {
+                $linkurl = 'http://'.$linkurl;
+            }
+        }
+    }
+
     public function additem($displaytext, $userid = 0, $indent = 0, $position = false, $duetime = false, $moduleid = 0,
-                            $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO) {
+                            $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO, $linkcourseid = null,
+                            $linkurl = null) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return false;
@@ -1641,6 +1688,8 @@ class checklist_class {
                 return false;
             }
         }
+
+        $this->validate_links($linkcourseid, $linkurl);
 
         $item = new checklist_item();
         $item->checklist = $this->checklist->id;
@@ -1661,6 +1710,8 @@ class checklist_class {
         $item->eventid = 0;
         $item->colour = 'black';
         $item->moduleid = $moduleid;
+        $item->linkcourseid = $linkcourseid;
+        $item->linkurl = $linkurl;
 
         $item->insert();
         if ($item->id) {
@@ -1679,6 +1730,10 @@ class checklist_class {
                 if ($this->checklist->duedatesoncalendar) {
                     $this->setevent($item, true);
                 }
+            }
+
+            if ($item->linkcourseid) {
+                $this->update_course_completion_for_item($item);
             }
         }
 
@@ -1743,7 +1798,7 @@ class checklist_class {
         }
     }
 
-    protected function updateitemtext($itemid, $displaytext, $duetime = false) {
+    protected function updateitem($itemid, $displaytext, $duetime = false, $linkcourseid = null, $linkurl = null) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1751,15 +1806,29 @@ class checklist_class {
 
         if (isset($this->items[$itemid])) {
             if ($this->canedit()) {
+                $this->validate_links($linkcourseid, $linkurl);
+
                 $item = $this->items[$itemid];
+                $oldlinkcourseid = $item->linkcourseid;
                 $item->displaytext = $displaytext;
                 $item->duetime = 0;
                 if ($duetime) {
                     $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
                 }
+                $item->linkcourseid = $linkcourseid;
+                $item->linkurl = $linkurl;
                 $item->update();
                 if ($this->checklist->duedatesoncalendar) {
                     $this->setevent($item, true);
+                }
+
+                if ($item->linkcourseid != $oldlinkcourseid) {
+                    if ($this->checklist->autoupdate == CHECKLIST_AUTOUPDATE_YES) {
+                        // If autoupdate is yes, cannot override, reset all checks for this item, before recalculating status
+                        // (if the student *can* override, or if there is no autoupdate, then leave them as they are).
+                        $item->clear_all_student_checks();
+                    }
+                    $this->update_course_completion_for_item($item);
                 }
             }
         } else if (isset($this->useritems[$itemid])) {
@@ -2055,8 +2124,16 @@ class checklist_class {
         $updategrades = false;
         if ($this->items) {
             foreach ($this->items as $item) {
-                if (($this->checklist->autoupdate == CHECKLIST_AUTOUPDATE_YES) && ($item->moduleid)) {
-                    continue; // Shouldn't get updated anyway, but just in case...
+                if ($this->checklist->autoupdate == CHECKLIST_AUTOUPDATE_YES) {
+                    if ($item->moduleid) {
+                        continue; // Item linked to course module and autoupdate enabled and cannot override.
+                    }
+                    if ($item->linkcourseid) {
+                        $completion = new completion_info(get_course($item->linkcourseid));
+                        if ($completion->is_enabled()) {
+                            continue; // Item linked to course and autoupdate enabled and cannot override.
+                        }
+                    }
                 }
 
                 $newval = in_array($item->id, $newchecks);
@@ -2176,7 +2253,7 @@ class checklist_class {
     }
 
     protected function updateallteachermarks() {
-        global $DB, $USER;
+        global $USER;
 
         if ($this->checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
             // Student only lists do not have teacher marks to update.
@@ -2263,11 +2340,22 @@ class checklist_class {
         }
     }
 
-    public function update_all_autoupdate_checks() {
+    /**
+     * Update all automatically-completing checklist items
+     *
+     * @param bool $updmodules update items related to course modules
+     * @param bool $updcourses update items related to courses
+     * @throws coding_exception
+     */
+    public function update_all_autoupdate_checks($updmodules = true, $updcourses = true) {
         global $DB;
 
         if (!$this->checklist->autoupdate) {
             return;
+        }
+
+        if (!$updmodules && !$updcourses) {
+            throw new coding_exception('Must specify module update and/or course update');
         }
 
         $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
@@ -2276,50 +2364,109 @@ class checklist_class {
         }
         $userids = array_keys($users);
 
-        // Get a list of all the checklist items with a module linked to them (ignoring headings).
-        $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid, cm.completion AS completion
+        // Update all checklist items that are linked to course modules.
+        if ($updmodules) {
+            // Get a list of all the checklist items with a module linked to them (ignoring headings).
+            $sql = "SELECT cm.id AS cmid, m.name AS mod_name, i.id AS itemid, cm.completion AS completion
         FROM {modules} m, {course_modules} cm, {checklist_item} i
         WHERE m.id = cm.module AND cm.id = i.moduleid AND i.moduleid > 0 AND i.checklist = ? AND i.itemoptional != 2";
 
-        $completion = new completion_info($this->course);
-        $usingcompletion = $completion->is_enabled();
+            $completion = new completion_info($this->course);
+            $usingcompletion = $completion->is_enabled();
 
-        $items = $DB->get_records_sql($sql, array($this->checklist->id));
-        foreach ($items as $item) {
-            if ($usingcompletion && $item->completion) {
-                $fakecm = new stdClass();
-                $fakecm->id = $item->cmid;
+            $items = $DB->get_records_sql($sql, array($this->checklist->id));
+            foreach ($items as $item) {
+                if ($usingcompletion && $item->completion) {
+                    $fakecm = new stdClass();
+                    $fakecm->id = $item->cmid;
 
-                foreach ($users as $user) {
-                    $compdata = $completion->get_data($fakecm, false, $user->id);
-                    if ($compdata->completionstate == COMPLETION_COMPLETE
-                        || $compdata->completionstate == COMPLETION_COMPLETE_PASS
-                    ) {
-                        $check = new checklist_check(['item' => $item->itemid, 'userid' => $user->id]);
-                        if (!$check->is_checked_student()) {
-                            $check->set_checked_student(true);
-                            $check->save();
+                    foreach ($users as $user) {
+                        $compdata = $completion->get_data($fakecm, false, $user->id);
+                        if ($compdata->completionstate == COMPLETION_COMPLETE
+                            || $compdata->completionstate == COMPLETION_COMPLETE_PASS
+                        ) {
+                            $check = new checklist_check(['item' => $item->itemid, 'userid' => $user->id]);
+                            if (!$check->is_checked_student()) {
+                                $check->set_checked_student(true);
+                                $check->save();
+                            }
                         }
                     }
+                    continue;
                 }
-                continue;
-            }
 
-            $loguserids = mod_checklist\local\autoupdate::get_logged_userids($item->mod_name, $item->cmid, $userids);
-            if (!$loguserids) {
-                continue;
-            }
+                $loguserids = mod_checklist\local\autoupdate::get_logged_userids($item->mod_name, $item->cmid, $userids);
+                if (!$loguserids) {
+                    continue;
+                }
 
-            foreach ($loguserids as $loguserid) {
-                $check = new checklist_check(['item' => $item->itemid, 'userid' => $loguserid]);
-                if (!$check->is_checked_student()) {
-                    $check->set_checked_student(true);
-                    $check->save();
+                foreach ($loguserids as $loguserid) {
+                    $check = new checklist_check(['item' => $item->itemid, 'userid' => $loguserid]);
+                    if (!$check->is_checked_student()) {
+                        $check->set_checked_student(true);
+                        $check->save();
+                    }
                 }
             }
+        }
 
-            // Always update the grades.
-            checklist_update_grades($this->checklist);
+        // Update all checklist items that are linked to courses.
+        if ($updcourses && $this->can_link_courses()) {
+            $sql = "SELECT i.id, i.linkcourseid
+                      FROM {checklist_item} i
+                      JOIN {course} c ON c.id = i.linkcourseid
+                     WHERE i.checklist = :checklistid AND i.itemoptional <> :heading AND c.enablecompletion = 1";
+            $params = ['checklistid' => $this->checklist->id, 'heading' => CHECKLIST_OPTIONAL_HEADING];
+            $items = $DB->get_records_sql($sql, $params);
+
+            foreach ($items as $item) {
+                $this->update_course_completion_for_item($item, $userids);
+            }
+        }
+
+        // Always update the grades.
+        checklist_update_grades($this->checklist);
+    }
+
+    /**
+     * For the given item (which must contain id + courselinkid), look for any
+     * course completions and check-off for those users
+     * (Note: does not uncheck items for users who have not completed the course)
+     * @param object $item
+     * @param int[] $userids (optional) if provided, then the userids do not need to be loaded from the DB
+     */
+    protected function update_course_completion_for_item($item, $userids = null) {
+        global $DB;
+
+        if (!$this->checklist->autoupdate) {
+            return; // Automatic updates disabled for this checklist.
+        }
+        if (!$item->linkcourseid) {
+            return; // Not linked to a course, so nothing to do.
+        }
+
+        if ($userids === null) {
+            // Userids not provided, so load them by capability.
+            $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+            if (!$users) {
+                return;
+            }
+            $userids = array_keys($users);
+        }
+
+        // Generate a list of users who have completed the given course.
+        list($usql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        $params['courseid'] = $item->linkcourseid;
+        $select = "course = :courseid AND userid $usql AND timecompleted > 0";
+        $completions = $DB->get_records_select('course_completions', $select, $params, '', 'userid, timecompleted');
+
+        // Mark the checklist item as complete for these users.
+        foreach ($completions as $completion) {
+            $check = new checklist_check(['item' => $item->id, 'userid' => $completion->userid]);
+            if (!$check->is_checked_student()) {
+                $check->set_checked_student(true, $completion->timecompleted);
+                $check->save();
+            }
         }
     }
 
@@ -2468,5 +2615,15 @@ class checklist_class {
             throw new dml_missing_record_exception('checklist_item', 'displayname = ?', array($itemname));
         }
         return null;
+    }
+
+    /**
+     * Get a list of courses that checklist items could be linked to.
+     * @return string[] $courseid => $coursename
+     */
+    public static function get_linkable_courses() {
+        global $DB, $SITE;
+        $courses = $DB->get_records_select_menu('course', 'id <> ? AND visible = 1', [$SITE->id], 'fullname', 'id, fullname');
+        return $courses;
     }
 }

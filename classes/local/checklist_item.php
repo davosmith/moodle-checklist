@@ -25,16 +25,18 @@
 namespace mod_checklist\local;
 
 use data_object;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/completion/data_object.php');
+require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
 class checklist_item extends data_object {
     public $table = 'checklist_item';
     public $required_fields = [
         'id', 'checklist', 'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime',
-        'eventid', 'colour', 'moduleid', 'hidden', 'grouping'
+        'eventid', 'colour', 'moduleid', 'hidden', 'grouping', 'linkcourseid', 'linkurl'
     ];
 
     // DB fields.
@@ -50,6 +52,8 @@ class checklist_item extends data_object {
     public $moduleid = 0;
     public $hidden = CHECKLIST_HIDDEN_NO;
     public $grouping = 0;
+    public $linkcourseid = null;
+    public $linkurl = null;
 
     // Extra status fields (for a particular student).
     public $usertimestamp = 0;
@@ -61,6 +65,11 @@ class checklist_item extends data_object {
     /** @var checklist_comment|null */
     protected $comment = null;
     protected $editme = false;
+    protected $modulelink = null;
+
+    const LINK_MODULE = 'module';
+    const LINK_COURSE = 'course';
+    const LINK_URL = 'url';
 
     public static function fetch($params) {
         return self::fetch_helper('checklist_item', __CLASS__, $params);
@@ -218,19 +227,27 @@ class checklist_item extends data_object {
         $this->update();
     }
 
-    public function set_checked_student($userid, $checked) {
+    public function set_checked_student($userid, $checked, $timestamp = null) {
         if ($checked == $this->is_checked_student()) {
             return false; // No change.
         }
 
         // Update checkmark in the database.
         $check = new checklist_check(['item' => $this->id, 'userid' => $userid]);
-        $check->set_checked_student($checked);
+        $check->set_checked_student($checked, $timestamp);
         $check->save();
 
         // Update the stored value in this item.
         $this->usertimestamp = $check->usertimestamp;
         return true;
+    }
+
+    /**
+     * For the given item, clear all student checkmarks (leaving teacher marks untouched).
+     */
+    public function clear_all_student_checks() {
+        global $DB;
+        $DB->set_field_select('checklist_check', 'usertimestamp', 0, 'item = ? AND usertimestamp > 0', [$this->id]);
     }
 
     public function set_teachermark($userid, $teachermark, $teacherid) {
@@ -269,6 +286,36 @@ class checklist_item extends data_object {
 
     public function is_editme() {
         return $this->editme;
+    }
+
+    public function get_link_url() {
+        if ($this->modulelink) {
+            return $this->modulelink;
+        }
+        if ($this->linkcourseid) {
+            return new moodle_url('/course/view.php', ['id' => $this->linkcourseid]);
+        }
+        if ($this->linkurl) {
+            return new moodle_url($this->linkurl);
+        }
+        return null;
+    }
+
+    public function get_link_type() {
+        if ($this->modulelink) {
+            return self::LINK_MODULE;
+        }
+        if ($this->linkcourseid) {
+            return self::LINK_COURSE;
+        }
+        if ($this->linkurl) {
+            return self::LINK_URL;
+        }
+        return null;
+    }
+
+    public function set_modulelink(moodle_url $link) {
+        $this->modulelink = $link;
     }
 
     /**

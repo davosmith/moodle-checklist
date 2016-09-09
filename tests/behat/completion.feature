@@ -68,7 +68,7 @@ Feature: Student checklist can track completion of other activities
     And the following fields match these values:
       | Test page 1 | 0 |
       | Test page 2 | 0 |
-    When I click on "Link to this module" "link" in the "Test page 1" "list_item"
+    When I click on "Activity associated with this item" "link" in the "Test page 1" "list_item"
     And I should see "This page 1 should be complete when I view it"
     And I follow "Course 1"
     And I follow "Test checklist"
@@ -91,7 +91,7 @@ Feature: Student checklist can track completion of other activities
     And the following fields match these values:
       | Test page 1 | 0 |
       | Test page 2 | 0 |
-    When I click on "Link to this module" "link" in the "Test page 1" "list_item"
+    When I click on "Activity associated with this item" "link" in the "Test page 1" "list_item"
     And I should see "This page 1 should be complete when I view it"
     And I follow "Course 1"
     And I follow "Test checklist"

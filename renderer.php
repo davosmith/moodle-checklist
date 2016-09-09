@@ -202,8 +202,15 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 }
                 if ($status->is_viewother() || $status->is_userreport()) {
                     $checked .= ' disabled="disabled" ';
-                } else if (!$status->is_overrideauto() && $item->moduleid) {
-                    $checked .= ' disabled="disabled" ';
+                } else if (!$status->is_overrideauto()) {
+                    if ($item->moduleid) {
+                        $checked .= ' disabled="disabled" ';
+                    } else if ($item->linkcourseid) {
+                        $completion = new completion_info(get_course($item->linkcourseid));
+                        if ($completion->is_enabled()) {
+                            $checked .= ' disabled="disabled" ';
+                        }
+                    }
                 }
                 switch ($item->colour) {
                     case 'red':
@@ -269,10 +276,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     }
                 }
                 echo '<label for='.$itemname.$optional.'>'.format_string($item->displaytext).'</label>';
-                if (isset($item->modulelink)) {
-                    echo '&nbsp;<a href="'.$item->modulelink.'"><img src="'.$this->output->pix_url('follow_link', 'checklist').'" alt="'.
-                        get_string('linktomodule', 'checklist').'" /></a>';
-                }
+
+                echo $this->checklist_item_link($item);
 
                 if ($status->is_addown()) {
                     echo '&nbsp;<a href="'.$thispageurl->out(true, array(
@@ -479,6 +484,26 @@ class mod_checklist_renderer extends plugin_renderer_base {
         echo $this->output->box_end();
     }
 
+    protected function checklist_item_link(checklist_item $item) {
+        $out = '';
+        if ($url = $item->get_link_url()) {
+            $out .= '&nbsp;';
+            switch ($item->get_link_type()) {
+                case checklist_item::LINK_MODULE:
+                    $icon = $this->output->pix_icon('follow_link', get_string('linktomodule', 'checklist'), 'mod_checklist');
+                    break;
+                case checklist_item::LINK_COURSE:
+                    $icon = $this->output->pix_icon('i/course', get_string('linktocourse', 'checklist'));
+                    break;
+                case checklist_item::LINK_URL:
+                    $icon = $this->output->pix_icon('follow_link', get_string('linktourl', 'checklist'), 'mod_checklist');
+                    break;
+            }
+            $out .= html_writer::link($url, $icon);
+        }
+        return $out;
+    }
+
     /**
      * @param checklist_item[] $items
      * @param output_status $status
@@ -518,7 +543,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
         // Start the ordered list of checklist items.
         $attr = ['class' => 'checklist'];
-        if ($status->is_editdates()) {
+        if ($status->is_editdates() || $status->is_editlinks()) {
             $attr['class'] .= ' checklist-extendedit';
         }
         echo html_writer::start_tag('ol', $attr);
@@ -701,6 +726,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     echo '&nbsp;&nbsp;&nbsp;<a href="'.$itemurl->out(true, array('action' => 'startadditem')).'">';
                     $title = '"'.get_string('additemhere', 'checklist').'"';
                     echo '<img src="'.$this->output->pix_url('add', 'checklist').'" alt='.$title.' title='.$title.' /></a>';
+
+                    // Due time.
                     if ($item->duetime) {
                         if ($item->duetime > time()) {
                             echo '<span class="checklist-itemdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
@@ -710,6 +737,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         }
                     }
 
+                    // Link (if any).
+                    echo $this->checklist_item_link($item);
                 }
 
                 if ($status->get_additemafter() == $item->id) {
@@ -765,7 +794,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
         echo $this->output->box_end();
     }
 
-    protected function print_edit_date($ts = 0) {
+    protected function edit_date_form($ts = 0) {
         $out = '';
 
         $out .= '<br>';
@@ -838,6 +867,36 @@ ENDSCRIPT;
 
     /**
      * @param output_status $status
+     * @param checklist_item $item (optional)
+     * @return string
+     */
+    protected function edit_link_form(output_status $status, $item = null) {
+        $out = '';
+
+        $out .= '<br>';
+        $out .= html_writer::tag('label', get_string('linkto', 'mod_checklist')).' ';
+        if ($status->is_allowcourselinks()) {
+            $selected = $item ? $item->linkcourseid : null;
+            $out .= html_writer::select(checklist_class::get_linkable_courses(), 'linkcourseid', $selected,
+                                        ['' => get_string('choosecourse', 'mod_checklist')]);
+            $out .= ' '.get_string('or', 'mod_checklist').' ';
+        }
+        $out .= html_writer::label(get_string('url'), 'id_linkurl', true, ['class' => 'accesshide']);
+        $attr = [
+            'type' => 'text',
+            'name' => 'linkurl',
+            'id' => 'id_linkurl',
+            'size' => 40,
+            'value' => $item ? $item->linkurl : '',
+            'placeholder' => get_string('enterurl', 'mod_checklist'),
+        ];
+        $out .= html_writer::empty_tag('input', $attr);
+
+        return $out;
+    }
+
+    /**
+     * @param output_status $status
      * @param moodle_url $thispageurl
      * @param int $currindent
      * @param int $position (optional)
@@ -865,8 +924,11 @@ ENDSCRIPT;
         if (!$addingatend) {
             $out .= '<input type="submit" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
         }
+        if ($status->is_editlinks()) {
+            $out .= $this->edit_link_form($status);
+        }
         if ($status->is_editdates()) {
-            $out .= $this->print_edit_date();
+            $out .= $this->edit_date_form();
         }
 
         if ($position === null) {
@@ -889,8 +951,11 @@ ENDSCRIPT;
             s($item->displaytext).'" id="updateitembox" />';
         $out .= '<input type="submit" name="updateitem" value="'.get_string('updateitem', 'checklist').'" />';
         $out .= '<input type="submit" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
+        if ($status->is_editlinks()) {
+            $out .= $this->edit_link_form($status, $item);
+        }
         if ($status->is_editdates()) {
-            $out .= $this->print_edit_date($item->duetime);
+            $out .= $this->edit_date_form($item->duetime);
         }
 
         return $out;

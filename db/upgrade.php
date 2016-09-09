@@ -268,6 +268,29 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         upgrade_mod_savepoint(true, 2012092002, 'checklist');
     }
 
-    return $result;
+    if ($oldversion < 2016090902) {
 
+        $table = new xmldb_table('checklist_item');
+
+        // Define field linkcourseid to be added to checklist_item.
+        $field = new xmldb_field('linkcourseid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'grouping');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+
+            // Define key linkcourseid (foreign) to be added to checklist_item.
+            $key = new xmldb_key('linkcourseid', XMLDB_KEY_FOREIGN, array('linkcourseid'), 'course', array('id'));
+            $dbman->add_key($table, $key);
+        }
+
+        // Define field linkurl to be added to checklist_item.
+        $field = new xmldb_field('linkurl', XMLDB_TYPE_TEXT, null, null, null, null, null, 'linkcourseid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Checklist savepoint reached.
+        upgrade_mod_savepoint(true, 2016090902, 'checklist');
+    }
+
+    return $result;
 }
