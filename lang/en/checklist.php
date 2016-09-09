@@ -25,6 +25,7 @@ $string['addownitems-stop'] = 'Stop adding your own items';
 $string['allowmodulelinks'] = 'Allow module links';
 
 $string['anygrade'] = 'Any';
+$string['anygrouping'] = 'Any grouping';
 $string['autopopulate'] = 'Show course modules in checklist';
 $string['autopopulate_help'] = 'This will automatically add a list of all the resources and activities in the current course into the checklist.<br />
 This list will be updated with any changes in the course, whenever you visit the \'Edit\' page for the checklist.<br />
@@ -118,6 +119,7 @@ $string['export'] = 'Export items';
 $string['forceupdate'] = 'Update checks for all automatic items';
 
 $string['gradetocomplete'] = 'Grade to complete:';
+$string['grouping'] = 'Visible to grouping';
 $string['guestsno'] = 'You do not have permission to view this checklist';
 
 $string['headingitem'] = 'This item is a heading - it will not have a checkbox beside it';

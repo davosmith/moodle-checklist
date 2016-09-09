@@ -2,9 +2,9 @@ Checklist module
 ================
 
 ==Introduction==
-This is a Moodle plugin for Moodle 1.9 & 2.x that allows a teacher to create a checklist for their students to work through.
+This is a Moodle plugin that allows a teacher to create a checklist for their students to work through.
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
-Note: This is the Moodle 2.x version.
+Note: This is the Moodle 2.7+ version (other versions are available for Moodle 1.9 & 2.0-2.6).
 
 Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
@@ -13,6 +13,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 * 2016-09-09 - Major restructuring of checklist code, to aid future maintenance; dropping of pre-Moodle 2.7 support.
                Support for linking items to courses (with automatic check-off on course completion) OR external URLs.
+               Support for linking items to groupings (only shown to users who are members of groups within the item's grouping)
 * 2016-05-20 - Minor behat fixes for Moodle 3.1 compatibility
 * 2016-03-15 - Show/hide multiple activity items at once when editing the checklist (Tony Butler)
 * 2015-12-23 - Handle missing calendar events + fix deprecated 'get_referer' warning.
@@ -62,16 +63,11 @@ http://moodle.org/plugins/view.php?plugin=gradeexport_checklist
 2. Upload the files to the your moodle server, placing the 'mod/checklist' files in the '[moodlefolder]/mod/checklist', (optionally) the 'blocks/checklist' files in the '[moodlefolder]/blocks/checklist' folder and (optionally) the 'grade/export/checklist' files in the '[moodlefolder]/grade/export/checklist' folder.
 3. Log in as administrator and click on 'Notifications' in the admin area to update the Moodle database, ready to use this plugin.
 
-IMPORTANT: The 'Check-off modules when complete' option now works via cron, by default. This means that there can be a delay of up to 60 seconds (or more - depending on how often your site runs 'cron' updates), between a student completing an activity and their checklist being updated.
-If you are not happy with this delay, then make the changes found in the file core_modifications.txt
-
 ==Problems with automatic update?==
 
 Whilst automatic updates are working fine in all situations I have tested, there have been some reports of these not updating check-marks correctly on some sites.
-If this is the case on your site, there are a couple of things to try, before contacting me:
-1. Make sure the checklist is set to 'Student only' - it is the student mark that is automatically updated, if this is not displayed, you won't see any changes.
-2. Make sure cron updates are running on your Moodle server.
-3. Edit [moodledir]/mod/checklist/autoupdate.php and remove the '//' from the start of the line 'define("DEBUG_CHECKLIST_AUTOUPDATE", 1)'. Run a manual cron update ( http://[siteurl]/admin/cron.php ) and check the detailed feedback for the checklist module.
+If this is the case on your site, one thing to try, before contacting me:
+* Make sure the checklist is set to 'Student only' - it is the student mark that is automatically updated, if this is not displayed, you won't see any changes.
 
 ==Adding a checklist block==
 (Optional plugin)

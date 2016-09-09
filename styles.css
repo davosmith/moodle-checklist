@@ -274,3 +274,7 @@ ol.checklist label {
     padding: 10px 0 5px;
     margin: 5px 0;
 }
+
+.checklist-groupingname {
+    color: #ccc;
+}

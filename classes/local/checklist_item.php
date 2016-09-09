@@ -67,6 +67,9 @@ class checklist_item extends data_object {
     protected $editme = false;
     protected $modulelink = null;
 
+    // Name of the grouping (set by add_grouping_names).
+    public $groupingname = null;
+
     const LINK_MODULE = 'module';
     const LINK_COURSE = 'course';
     const LINK_URL = 'url';
@@ -354,6 +357,22 @@ class checklist_item extends data_object {
                 if (isset($teachers[$item->teacherid])) {
                     $item->teachername = fullname($teachers[$item->teacherid]);
                 }
+            }
+        }
+    }
+
+    /**
+     * @param checklist_item[] $items
+     * @param int $courseid
+     */
+    public static function add_grouping_names($items, $courseid) {
+        $groupings = \checklist_class::get_course_groupings($courseid);
+        if (!$groupings) {
+            return;
+        }
+        foreach ($items as $item) {
+            if ($item->grouping && isset($groupings[$item->grouping])) {
+                 $item->groupingname = $groupings[$item->grouping];
             }
         }
     }

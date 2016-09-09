@@ -54,6 +54,8 @@ class output_status {
     protected $itemid = null;
     protected $autopopulate = false;
     protected $autoupdatewarning = null;
+    protected $editgrouping = false;
+    protected $courseid = null;
 
     /**
      * Viewing another user (i.e. teacher report about a single user)
@@ -386,4 +388,34 @@ class output_status {
         $this->allowcourselinks = $allowcourselinks;
     }
 
+    /**
+     * @return boolean
+     */
+    public function is_editgrouping() {
+        return $this->editgrouping;
+    }
+
+    /**
+     * @param boolean $editgrouping
+     */
+    public function set_editgrouping($editgrouping) {
+        $this->editgrouping = $editgrouping;
+    }
+
+    /**
+     * @return int
+     */
+    public function get_courseid() {
+        if (!$this->courseid) {
+            throw new \coding_exception('No courseid set');
+        }
+        return $this->courseid;
+    }
+
+    /**
+     * @param int $courseid
+     */
+    public function set_courseid($courseid) {
+        $this->courseid = $courseid;
+    }
 }

@@ -102,7 +102,7 @@ class checklist_class {
             $this->checklist = $DB->get_record('checklist', array('id' => $this->cm->instance), '*', MUST_EXIST);
         }
 
-        if (isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly && $checklist->autopopulate && $userid) {
+        if ($userid) {
             $this->groupings = self::get_user_groupings($userid, $this->course->id);
         } else {
             $this->groupings = false;
@@ -630,6 +630,8 @@ class checklist_class {
             $this->userid = false;
         }
 
+        checklist_item::add_grouping_names($this->items, $this->course->id);
+
         $this->view_header();
 
         echo $OUTPUT->heading(format_string($this->checklist->name));
@@ -889,6 +891,10 @@ class checklist_class {
         }
         $status->set_editlinks(true);
         $status->set_allowcourselinks($this->can_link_courses());
+        $status->set_editgrouping((bool)self::get_course_groupings($this->course->id));
+        $status->set_courseid($this->course->id);
+
+        checklist_item::add_grouping_names($this->items, $this->course->id);
 
         if ($status->is_allowcourselinks()) {
             $PAGE->requires->yui_module('moodle-mod_checklist-linkselect', 'M.mod_checklist.linkselect.init');
@@ -1113,7 +1119,7 @@ class checklist_class {
                     continue;
                 }
 
-                $table->head[] = format_string($item->displaytext);
+                $table->head[] = format_string($item->displaytext).$this->output->item_grouping($item);
                 $table->level[] = ($item->indent < 3) ? $item->indent : 2;
                 $table->size[] = '80px';
                 $table->skip[] = (!$reportsettings->showoptional) && ($item->itemoptional == CHECKLIST_OPTIONAL_YES);
@@ -1482,13 +1488,14 @@ class checklist_class {
                 $position = optional_param('position', false, PARAM_INT);
                 $linkcourseid = optional_param('linkcourseid', null, PARAM_INT);
                 $linkurl = optional_param('linkurl', null, PARAM_URL);
+                $grouping = optional_param('grouping', 0, PARAM_INT);
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
                     $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
                 $this->additem($displaytext, 0, $indent, $position, $duetime, 0, CHECKLIST_OPTIONAL_NO, CHECKLIST_HIDDEN_NO,
-                               $linkcourseid, $linkurl);
+                               $linkcourseid, $linkurl, $grouping);
                 if ($position) {
                     $additemafter = false;
                 }
@@ -1506,12 +1513,13 @@ class checklist_class {
                 $displaytext = optional_param('displaytext', '', PARAM_TEXT);
                 $linkcourseid = optional_param('linkcourseid', null, PARAM_INT);
                 $linkurl = optional_param('linkurl', null, PARAM_URL);
+                $grouping = optional_param('grouping', 0, PARAM_INT);
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
                     $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
-                $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl);
+                $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl, $grouping);
                 break;
             case 'deleteitem':
                 if (($this->checklist->autopopulate) && (isset($this->items[$itemid])) && ($this->items[$itemid]->moduleid)) {
@@ -1650,7 +1658,7 @@ class checklist_class {
         }
     }
 
-    protected function validate_links(&$linkcourseid, &$linkurl) {
+    protected function validate_links(&$linkcourseid, &$linkurl, &$grouping) {
         if ($linkcourseid && $this->can_link_courses()) {
             $courses = self::get_linkable_courses();
             if (!array_key_exists($linkcourseid, $courses)) {
@@ -1668,11 +1676,17 @@ class checklist_class {
                 $linkurl = 'http://'.$linkurl;
             }
         }
+
+        if ($grouping !== null) {
+            if (!$grouping || !array_key_exists($grouping, self::get_course_groupings($this->course->id))) {
+                $grouping = 0;
+            }
+        }
     }
 
     public function additem($displaytext, $userid = 0, $indent = 0, $position = false, $duetime = false, $moduleid = 0,
                             $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO, $linkcourseid = null,
-                            $linkurl = null) {
+                            $linkurl = null, $grouping = 0) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return false;
@@ -1689,7 +1703,7 @@ class checklist_class {
             }
         }
 
-        $this->validate_links($linkcourseid, $linkurl);
+        $this->validate_links($linkcourseid, $linkurl, $grouping);
 
         $item = new checklist_item();
         $item->checklist = $this->checklist->id;
@@ -1712,6 +1726,7 @@ class checklist_class {
         $item->moduleid = $moduleid;
         $item->linkcourseid = $linkcourseid;
         $item->linkurl = $linkurl;
+        $item->grouping = $grouping;
 
         $item->insert();
         if ($item->id) {
@@ -1798,7 +1813,7 @@ class checklist_class {
         }
     }
 
-    protected function updateitem($itemid, $displaytext, $duetime = false, $linkcourseid = null, $linkurl = null) {
+    protected function updateitem($itemid, $displaytext, $duetime = false, $linkcourseid = null, $linkurl = null, $grouping = null) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1806,7 +1821,7 @@ class checklist_class {
 
         if (isset($this->items[$itemid])) {
             if ($this->canedit()) {
-                $this->validate_links($linkcourseid, $linkurl);
+                $this->validate_links($linkcourseid, $linkurl, $grouping);
 
                 $item = $this->items[$itemid];
                 $oldlinkcourseid = $item->linkcourseid;
@@ -1817,6 +1832,9 @@ class checklist_class {
                 }
                 $item->linkcourseid = $linkcourseid;
                 $item->linkurl = $linkurl;
+                if ($grouping !== null) {
+                    $item->grouping = $grouping;
+                }
                 $item->update();
                 if ($this->checklist->duedatesoncalendar) {
                     $this->setevent($item, true);
@@ -2543,7 +2561,7 @@ class checklist_class {
     }
 
     public static function get_user_progress($checklistid, $userid) {
-        global $DB, $CFG;
+        global $DB;
 
         $userid = intval($userid); // Just to be on the safe side...
 
@@ -2551,14 +2569,10 @@ class checklist_class {
         if (!$checklist) {
             return array(false, false);
         }
-        $groupingssel = '';
-        if (isset($CFG->enablegroupmembersonly) && $CFG->enablegroupmembersonly && $checklist->autopopulate) {
-            $groupings = self::get_user_groupings($userid, $checklist->course);
-            $groupings[] = 0;
-            $groupingssel = ' AND grouping IN ('.implode(',', $groupings).') ';
-        }
-        $items = $DB->get_records_select('checklist_item', 'checklist = ? AND userid = 0 AND itemoptional = '.CHECKLIST_OPTIONAL_NO.
-                                                         ' AND hidden = '.CHECKLIST_HIDDEN_NO.$groupingssel, array($checklist->id),
+        $groupingsql = self::get_grouping_sql($userid, $checklist->course);
+        $select = "checklist = ? AND userid = 0 AND itemoptional = ".CHECKLIST_OPTIONAL_NO."
+                      AND hidden = ".CHECKLIST_HIDDEN_NO." AND $groupingsql";
+        $items = $DB->get_records_select('checklist_item', $select, array($checklist->id),
                                          '', 'id');
         if (empty($items)) {
             return array(false, false);
@@ -2585,7 +2599,7 @@ class checklist_class {
                   JOIN {groupings_groups} gg ON gg.groupid = g.id
                   WHERE gm.userid = ? AND g.courseid = ? ";
         $groupings = $DB->get_records_sql($sql, array($userid, $courseid));
-        if (!empty($groupings)) {
+        if ($groupings) {
             return array_keys($groupings);
         }
         return array();
@@ -2625,5 +2639,39 @@ class checklist_class {
         global $DB, $SITE;
         $courses = $DB->get_records_select_menu('course', 'id <> ? AND visible = 1', [$SITE->id], 'fullname', 'id, fullname');
         return $courses;
+    }
+
+    /**
+     * Generate the SQL fragment needed to restrict items to those that are in the
+     * same grouping as the current user (always includes items not in any grouping).
+     *
+     * @param int $userid
+     * @param int $courseid
+     * @param string $prefix (optional) e.g. 'item.'
+     * @return string
+     */
+    public static function get_grouping_sql($userid, $courseid, $prefix = '') {
+        $groupings = self::get_user_groupings($userid, $courseid);
+        if ($groupings) {
+            $groupings[] = 0;
+            $groupingsql = " {$prefix}grouping IN (".implode(',', $groupings).') ';
+        } else {
+            $groupingsql = " {$prefix}grouping = 0 ";
+        }
+        return $groupingsql;
+    }
+
+    public static function get_course_groupings($courseid) {
+        static $allgroupings = [];
+
+        if (!isset($allgroupings[$courseid])) {
+            $groupings = groups_get_all_groupings($courseid);
+            $ret = [];
+            foreach ($groupings as $grouping) {
+                $ret[$grouping->id] = $grouping->name;
+            }
+            $allgroupings[$courseid] = $ret;
+        }
+        return $allgroupings[$courseid];
     }
 }

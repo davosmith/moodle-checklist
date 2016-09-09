@@ -276,6 +276,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     }
                 }
                 echo '<label for='.$itemname.$optional.'>'.format_string($item->displaytext).'</label>';
+                echo $this->item_grouping($item);
 
                 echo $this->checklist_item_link($item);
 
@@ -662,7 +663,10 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                 } else {
                     // Item text.
-                    echo '<label for='.$itemname.$optional.'>'.format_string($item->displaytext).'</label>&nbsp;';
+                    echo '<label for='.$itemname.$optional.'>'.format_string($item->displaytext).'</label> ';
+
+                    // Grouping.
+                    echo $this->item_grouping($item);
 
                     // Item colour.
                     echo '<a href="'.$itemurl->out(true, array('action' => 'nextcolour')).'">';
@@ -896,6 +900,26 @@ ENDSCRIPT;
     }
 
     /**
+     * Form to select the grouping for the current item
+     *
+     * @param output_status $status
+     * @param checklist_item $item (optional)
+     * @return string
+     */
+    protected function edit_grouping_form(output_status $status, $item = null) {
+        $out = '';
+
+        $out .= '<br>';
+        $out .= html_writer::label(get_string('grouping', 'mod_checklist'), 'id_grouping').' ';
+        $selected = $item ? $item->grouping : null;
+        $groupings = checklist_class::get_course_groupings($status->get_courseid());
+        $out .= html_writer::select($groupings, 'grouping', $selected, [0 => get_string('anygrouping', 'mod_checklist')],
+                                    ['id' => 'id_grouping']);
+
+        return $out;
+    }
+
+    /**
      * @param output_status $status
      * @param moodle_url $thispageurl
      * @param int $currindent
@@ -930,8 +954,11 @@ ENDSCRIPT;
         if ($status->is_editdates()) {
             $out .= $this->edit_date_form();
         }
+        if ($status->is_editgrouping()) {
+            $out .= $this->edit_grouping_form($status);
+        }
 
-        if ($position === null) {
+        if ($addingatend) {
             $out .= '</form>';
         }
         $out .= '</li>';
@@ -957,7 +984,20 @@ ENDSCRIPT;
         if ($status->is_editdates()) {
             $out .= $this->edit_date_form($item->duetime);
         }
+        if ($status->is_editgrouping()) {
+            $out .= $this->edit_grouping_form($status, $item);
+        }
 
+        return $out;
+    }
+
+    public function item_grouping($item) {
+        $out = '';
+        if ($item->groupingname) {
+            $out .= ' ';
+            $out .= html_writer::span("({$item->groupingname})", 'checklist-groupingname');
+            $out .= ' ';
+        }
         return $out;
     }
 }
