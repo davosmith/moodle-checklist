@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2016-10-30 - Make item import/export work more reliably
 * 2016-09-09 - Major restructuring of checklist code, to aid future maintenance; dropping of pre-Moodle 2.7 support.
                Support for linking items to courses (with automatic check-off on course completion) OR external URLs.
                Support for linking items to groupings (only shown to users who are members of groups within the item's grouping)

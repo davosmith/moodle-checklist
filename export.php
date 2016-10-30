@@ -17,6 +17,7 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/importexportfields.php');
 global $DB, $PAGE, $CFG;
+require_once($CFG->libdir.'/csvlib.class.php');
 $id = required_param('id', PARAM_INT); // Course module id.
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
@@ -28,40 +29,26 @@ $PAGE->set_url($url);
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
-if (!has_capability('mod/checklist:edit', $context)) {
-    error('You do not have permission to export items from this checklist');
-}
+require_capability('mod/checklist:edit', $context);
 
 $items = $DB->get_records_select('checklist_item', "checklist = ? AND userid = 0", array($checklist->id), 'position');
 if (!$items) {
-    error(get_string('noitems', 'checklist'));
+    print_error('noitems', 'mod_checklist');
 }
 
-if (strpos($CFG->wwwroot, 'https://') === 0) { // Https sites - watch out for IE! KB812935 and KB316431.
-    @header('Cache-Control: max-age=10');
-    @header('Expires: '.gmdate('D, d M Y H:i:s', 0).' GMT');
-    @header('Pragma: ');
-} else { // Normal http - prevent caching at all cost.
-    @header('Cache-Control: private, must-revalidate, pre-check=0, post-check=0, max-age=0');
-    @header('Expires: '.gmdate('D, d M Y H:i:s', 0).' GMT');
-    @header('Pragma: no-cache');
-}
-
+$csv = new csv_export_writer();
 $strchecklist = get_string('checklist', 'checklist');
-
-header("Content-Type: application/download\n");
-$downloadfilename = clean_filename("{$course->shortname} $strchecklist {$checklist->name}");
-header("Content-Disposition: attachment; filename=\"$downloadfilename.csv\"");
+$csv->filename = clean_filename("{$course->shortname} $strchecklist {$checklist->name}").'.csv';
 
 // Output the headings.
-echo implode($separator, $fields)."\n";
+$csv->add_data($fields);
 
 foreach ($items as $item) {
     $output = array();
-    foreach ($fields as $field => $title) {
+    foreach ($fields as $field => $unused) {
         $output[] = $item->$field;
     }
-    echo implode($separator, $output)."\n";
+    $csv->add_data($output);
 }
 
-exit;
+$csv->download_file();
