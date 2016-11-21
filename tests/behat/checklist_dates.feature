@@ -69,7 +69,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     Given I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Test checklist"
-    And I follow "Edit settings"
+    And I navigate to "Edit settings" node in "Checklist administration"
     And I set the field "Add due dates to calendar" to "No"
     And I press "Save and return to course"
     And I log out

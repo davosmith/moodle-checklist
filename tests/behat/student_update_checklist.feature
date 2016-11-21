@@ -109,13 +109,13 @@ Feature: A student can update their progress in a checklist
     And I log out
     And I log in as "teacher1"
     And I follow "Course 1"
-    And I follow "Edit settings"
+    And I navigate to "Edit settings" node in "Course administration"
     And I expand all fieldsets
     And I set the field "Enable completion tracking" to "Yes"
     # For Moodle 2.8 and below, this should read "Save changes"
     And I press "Save and display"
     And I follow "Test checklist"
-    And I follow "Edit settings"
+    And I navigate to "Edit settings" node in "Checklist administration"
     And I expand all fieldsets
     And I set the field "Completion tracking" to "Show activity as complete when conditions are met"
     And I set the field "completionpercentenabled" to "1"
