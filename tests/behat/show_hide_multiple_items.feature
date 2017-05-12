@@ -17,7 +17,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
       | activity  | course | section | idnumber   | name            | intro                 |
       | assign    | C1     | 1       | assign1    | Test assignment | This is an assignment |
       | data      | C1     | 1       | data1      | Test database   | This is a database    |
-      | checklist | C1     | 1       | checklist1 | Test checklist  | This is a checklist   |
+      | checklist | C1     | 2       | checklist1 | Test checklist  | This is a checklist   |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
@@ -35,6 +35,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
     And I should see "This is an auto-populated checklist"
     And I should see "Test assignment"
     And I should see "Test database"
+    And I should see "Test checklist"
 
   Scenario: When I select multiple items and click the 'Show/hide' button, the items' visibility should toggle
     Given I log in as "teacher1"

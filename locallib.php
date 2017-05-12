@@ -211,9 +211,13 @@ class checklist_class {
 
         $numsections = 1;
         $courseformat = course_get_format($this->course);
-        $opts = $courseformat->get_format_options();
-        if (isset($opts['numsections'])) {
-            $numsections = $opts['numsections'];
+        if (method_exists($courseformat, 'get_last_section_number')) {
+            $numsections = $courseformat->get_last_section_number();
+        } else {
+            $opts = $courseformat->get_format_options();
+            if (isset($opts['numsections'])) {
+                $numsections = $opts['numsections'];
+            }
         }
         $sections = $mods->get_sections();
         while ($section <= $numsections || $section == $importsection) {
