@@ -283,8 +283,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     echo '&nbsp;<a href="'.$thispageurl->out(true, array(
                             'itemid' => $item->id, 'sesskey' => sesskey(), 'action' => 'startadditem'
                         )).'">';
-                    $title = '"'.get_string('additemalt', 'checklist').'"';
-                    echo '<img src="'.$this->output->pix_url('add', 'checklist').'" alt='.$title.' title='.$title.' /></a>';
+                    $title = get_string('additemalt', 'checklist');
+                    echo $this->output->pix_icon('add', $title, 'mod_checklist', ['title' => $title]).'</a>';
                 }
 
                 if ($item->duetime) {
@@ -396,13 +396,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 if ($status->is_addown()) {
                                     $baseurl = $thispageurl.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     echo '&nbsp;<a href="'.$baseurl.'edititem">';
-                                    $title = '"'.get_string('edititem', 'checklist').'"';
-                                    echo '<img src="'.$this->output->pix_url('/t/edit').'" alt='.$title.' title='.$title.' /></a>';
+                                    $title = get_string('edititem', 'checklist');
+                                    echo $this->output->pix_icon('t/edit', $title, 'moodle', ['title' => $title]).'</a>';
 
                                     echo '&nbsp;<a href="'.$baseurl.'deleteitem" class="deleteicon">';
-                                    $title = '"'.get_string('deleteitem', 'checklist').'"';
-                                    echo '<img src="'.$this->output->pix_url('remove', 'checklist').'" alt='.$title.' title='.$title.
-                                        ' /></a>';
+                                    $title = get_string('deleteitem', 'checklist');
+                                    echo $this->output->pix_icon('remove', $title, 'mod_checklist', ['title' => $title]).'</a>';
                                 }
                                 if ($note != '') {
                                     echo '<div class="note">'.$note.'</div>';
@@ -622,21 +621,21 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                 // Item optional toggle.
                 if ($item->is_optional()) {
-                    $title = '"'.get_string('optionalitem', 'checklist').'"';
+                    $title = get_string('optionalitem', 'checklist');
                     echo '<a href="'.$itemurl->out(true, array('action' => 'makeheading')).'">';
-                    echo '<img src="'.$this->output->pix_url('empty_box', 'checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo $this->output->pix_icon('empty_box', $title, 'mod_checklist', ['title' => $title]).'</a>&nbsp;';
                     $optional = ' class="itemoptional '.$itemcolour.$autoclass.'" ';
                 } else if ($item->is_heading()) {
                     if ($item->hidden) {
-                        $title = '"'.get_string('headingitem', 'checklist').'"';
-                        echo '<img src="'.$this->output->pix_url('no_box', 'checklist').'" alt='.$title.' title='.$title.' />&nbsp;';
+                        $title = get_string('headingitem', 'checklist');
+                        echo $this->output->pix_icon('no_box', $title, 'mod_checklist', ['title' => $title]).'&nbsp;';
                         $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
                     } else {
-                        $title = '"'.get_string('headingitem', 'checklist').'"';
+                        $title = get_string('headingitem', 'checklist');
                         if (!$autoitem) {
                             echo '<a href="'.$itemurl->out(true, array('action' => 'makerequired')).'">';
                         }
-                        echo '<img src="'.$this->output->pix_url('no_box', 'checklist').'" alt='.$title.' title='.$title.' />';
+                        echo $this->output->pix_icon('no_box', $title, 'mod_checklist', ['title' => $title]);
                         if (!$autoitem) {
                             echo '</a>';
                         }
@@ -644,13 +643,13 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         $optional = ' class="itemheading '.$itemcolour.$autoclass.'" ';
                     }
                 } else if ($item->hidden) {
-                    $title = '"'.get_string('requireditem', 'checklist').'"';
-                    echo '<img src="'.$this->output->pix_url('tick_box', 'checklist').'" alt='.$title.' title='.$title.' />&nbsp;';
+                    $title = get_string('requireditem', 'checklist');
+                    echo $this->output->pix_icon('tick_box', $title, 'mod_checklist', ['title' => $title]).'&nbsp;';
                     $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
                 } else {
-                    $title = '"'.get_string('requireditem', 'checklist').'"';
+                    $title = get_string('requireditem', 'checklist');
                     echo '<a href="'.$itemurl->out(true, array('action' => 'makeoptional')).'">';
-                    echo '<img src="'.$this->output->pix_url('tick_box', 'checklist').'" alt='.$title.' title='.$title.' /></a>&nbsp;';
+                    echo $this->output->pix_icon('tick_box', $title, 'mod_checklist', ['title' => $title]).'</a>&nbsp;';
                     $optional = ' class="'.$itemcolour.$autoclass.'"';
                 }
 
@@ -669,28 +668,28 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                     // Item colour.
                     echo '<a href="'.$itemurl->out(true, array('action' => 'nextcolour')).'">';
-                    $title = '"'.get_string('changetextcolour', 'checklist').'"';
-                    echo '<img src="'.$this->output->pix_url($nexticon, 'checklist').'" alt='.$title.' title='.$title.' /></a>';
+                    $title = get_string('changetextcolour', 'checklist');
+                    echo $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]).'</a>';
 
                     // Edit item.
                     if (!$autoitem) {
                         $edititemurl = new moodle_url($itemurl, ['action' => 'edititem']);
                         $edititemurl->remove_params('additemafter');
                         echo '<a href="'.$edititemurl->out().'">';
-                        $title = '"'.get_string('edititem', 'checklist').'"';
-                        echo '<img src="'.$this->output->pix_url('/t/edit').'"  alt='.$title.' title='.$title.' /></a>&nbsp;';
+                        $title = get_string('edititem', 'checklist');
+                        echo $this->output->pix_icon('t/edit', $title, 'moodle', ['title' => $title]).'</a>&nbsp;';
                     }
 
                     // Change item indent.
                     if (!$autoitem && $item->indent > 0) {
                         echo '<a href="'.$itemurl->out(true, array('action' => 'unindentitem')).'">';
-                        $title = '"'.get_string('unindentitem', 'checklist').'"';
-                        echo '<img src="'.$this->output->pix_url('/t/left').'" alt='.$title.' title='.$title.'  /></a>';
+                        $title = get_string('unindentitem', 'checklist');
+                        echo $this->output->pix_icon('t/left', $title, 'moodle', ['title' => $title]).'</a>';
                     }
                     if (!$autoitem && ($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent + 1) > $currindent)) {
                         echo '<a href="'.$itemurl->out(true, array('action' => 'indentitem')).'">';
-                        $title = '"'.get_string('indentitem', 'checklist').'"';
-                        echo '<img src="'.$this->output->pix_url('/t/right').'" alt='.$title.' title='.$title.' /></a>';
+                        $title = get_string('indentitem', 'checklist');
+                        echo $this->output->pix_icon('t/right', $title, 'moodle', ['title' => $title]).'</a>';
                     }
 
                     echo '&nbsp;';
@@ -698,13 +697,13 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     // Move item up/down.
                     if (!$autoitem && $item->position > 1) {
                         echo '<a href="'.$itemurl->out(true, array('action' => 'moveitemup')).'">';
-                        $title = '"'.get_string('moveitemup', 'checklist').'"';
-                        echo '<img src="'.$this->output->pix_url('/t/up').'" alt='.$title.' title='.$title.' /></a>';
+                        $title = get_string('moveitemup', 'checklist');
+                        echo $this->output->pix_icon('t/up', $title, 'moodle', ['title' => $title]).'</a>';
                     }
                     if (!$autoitem && $item->position < $lastitem) {
                         echo '<a href="'.$itemurl->out(true, array('action' => 'moveitemdown')).'">';
-                        $title = '"'.get_string('moveitemdown', 'checklist').'"';
-                        echo '<img src="'.$this->output->pix_url('/t/down').'" alt='.$title.' title='.$title.' /></a>';
+                        $title = get_string('moveitemdown', 'checklist');
+                        echo $this->output->pix_icon('t/down', $title, 'moodle', ['title' => $title]).'</a>';
                     }
 
                     // Hide/delete item.
@@ -712,23 +711,23 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         if ($item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
                             echo '&nbsp;<a href="'.$itemurl->out(true, array('action' => 'deleteitem')).'">';
                             if ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
-                                $title = '"'.get_string('show').'"';
-                                echo '<img src="'.$this->output->pix_url('/t/show').'" alt='.$title.' title='.$title.' /></a>';
+                                $title = get_string('show');
+                                echo $this->output->pix_icon('t/show', $title, 'moodle', ['title' => $title]).'</a>';
                             } else {
-                                $title = '"'.get_string('hide').'"';
-                                echo '<img src="'.$this->output->pix_url('/t/hide').'" alt='.$title.' title='.$title.' /></a>';
+                                $title = get_string('hide');
+                                echo $this->output->pix_icon('t/hide', $title, 'moodle', ['title' => $title]).'</a>';
                             }
                         }
                     } else {
                         echo '&nbsp;<a href="'.$itemurl->out(true, array('action' => 'deleteitem')).'">';
-                        $title = '"'.get_string('deleteitem', 'checklist').'"';
-                        echo '<img src="'.$this->output->pix_url('/t/delete').'" alt='.$title.' title='.$title.' /></a>';
+                        $title = get_string('deleteitem', 'checklist');
+                        echo $this->output->pix_icon('t/delete', $title, 'moodle', ['title' => $title]).'</a>';
                     }
 
                     // Add item icon.
                     echo '&nbsp;&nbsp;&nbsp;<a href="'.$itemurl->out(true, array('action' => 'startadditem')).'">';
-                    $title = '"'.get_string('additemhere', 'checklist').'"';
-                    echo '<img src="'.$this->output->pix_url('add', 'checklist').'" alt='.$title.' title='.$title.' /></a>';
+                    $title = get_string('additemhere', 'checklist');
+                    echo $this->output->pix_icon('add', $title, 'mod_checklist', ['title' => $title]).'</a>';
 
                     // Due time.
                     if ($item->duetime) {
@@ -941,7 +940,7 @@ ENDSCRIPT;
             $out .= '<input type="hidden" name="position" value="'.$position.'" />';
         }
         $out .= '<input type="hidden" name="indent" value="'.$currindent.'" />';
-        $out .= '<img src="'.$this->output->pix_url('tick_box', 'checklist').'" /> ';
+        $out .= $this->output->pix_icon('tick_box', '', 'mod_checklist');
         $out .= '<input type="text" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
         $out .= '<input type="submit" name="additem" value="'.get_string('additem', 'checklist').'" />';
         if (!$addingatend) {

@@ -21,7 +21,7 @@ Feature: A teacher can link a checklist item to a course
       | linkcourses      | 1 | mod_checklist |
       | enablecompletion | 1 |               |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist                                  | Test checklist       |
@@ -69,7 +69,7 @@ Feature: A teacher can link a checklist item to a course
     And I log out
 
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
 # The first item (linked to Course 2) should be disabled
     Then the "//ol[@class='checklist']/li[1]/input" "xpath_element" should be disabled
@@ -94,17 +94,16 @@ Feature: A teacher can link a checklist item to a course
       | displaytext  | Another item with course link |
       | linkcourseid | Course 3                      |
     And I press "Add"
-    And I am on site homepage
-    And I follow "Course 2"
+    And I am on "Course 2" course homepage
     And I navigate to "Course completion" node in "Course administration"
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"
-    And I add the "selfcompletion" block
+    And I add the "Self completion" block
     And I log out
 
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then I should see "0%" in the "#checklistprogressall" "css_element"
     And the field "Item with course link" matches value "0"
@@ -115,25 +114,23 @@ Feature: A teacher can link a checklist item to a course
     And I wait "2" seconds
     And I trigger cron
     And I wait "5" seconds
-    And I am on site homepage
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then I should see "50%" in the "#checklistprogressall" "css_element"
     And the field "Item with course link" matches value "1"
 
   @javascript
   Scenario: An item linked to a course is automatically checked-off if that course is *already* completed
-    Given I am on site homepage
-    And I follow "Course 2"
+    Given I am on "Course 2" course homepage
     And I navigate to "Course completion" node in "Course administration"
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"
-    And I add the "selfcompletion" block
+    And I add the "Self completion" block
     And I log out
 
     And I log in as "student1"
-    And I follow "Course 2"
+    And I am on "Course 2" course homepage
     And I follow "Complete course"
     And I press "Yes"
     And I wait "2" seconds
@@ -143,7 +140,7 @@ Feature: A teacher can link a checklist item to a course
     And I log out
 
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the following fields to these values:
       | displaytext  | Item with course link |

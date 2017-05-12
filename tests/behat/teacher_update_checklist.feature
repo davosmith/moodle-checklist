@@ -14,7 +14,7 @@ Feature: Teacher update checklist works as expected
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist    | Test checklist      |
@@ -32,7 +32,7 @@ Feature: Teacher update checklist works as expected
   @javascript
   Scenario: A teacher updates a checklist from the report overview and the student can see it
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I follow "View progress"
     When I press "Edit checks"
@@ -50,7 +50,7 @@ Feature: Teacher update checklist works as expected
     And ".level0-checked.c5" "css_element" should exist in the "Student 1" "table_row"
     And I log out
     And I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then ".teachermarkyes" "css_element" should exist in the "Checklist required item 1" "list_item"
     And ".teachermarkno" "css_element" should exist in the "Checklist required item 2" "list_item"
@@ -63,7 +63,7 @@ Feature: Teacher update checklist works as expected
   @javascript
   Scenario: A teacher clicks 'Toggle Row' and all items are updated
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I follow "View progress"
     When I press "Edit checks"
@@ -78,7 +78,7 @@ Feature: Teacher update checklist works as expected
   @javascript
   Scenario: A teacher can update a student's checkmarks individually.
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I follow "View progress"
     When I click on "View progress for this user" "link" in the "Student 1" "table_row"

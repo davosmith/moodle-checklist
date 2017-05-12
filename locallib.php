@@ -904,7 +904,7 @@ class checklist_class {
     }
 
     protected function view_report() {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $CFG;
 
         $reportsettings = $this->get_report_settings();
 
@@ -1066,7 +1066,7 @@ class checklist_class {
                         $vslink = ' <a href="'.$thisurl->out(true, array('studentid' => $auser->id)).'" ';
                         $vslink .= 'alt="'.get_string('viewsinglereport', 'checklist').'" title="'.
                             get_string('viewsinglereport', 'checklist').'">';
-                        $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
+                        $vslink .= $OUTPUT->pix_icon('t/preview', '').'</a>';
                     } else {
                         $vslink = '';
                     }
@@ -1075,8 +1075,7 @@ class checklist_class {
                     echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
 
                     echo '<div class="checklist_progress_outer">';
-                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%; background-image: url('.
-                        $OUTPUT->pix_url('progress', 'checklist').');" >&nbsp;</div>';
+                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%;">&nbsp;</div>';
                     echo '</div>';
                     echo '<div class="checklist_percentcomplete" style="float:left; width: 3em;">&nbsp;'.
                         sprintf('%0d%%', $percentcomplete).'</div>';
@@ -1095,14 +1094,14 @@ class checklist_class {
             $lastarrow = '';
             if ($reportsettings->sortby == 'firstasc') {
                 $firstlink = 'firstdesc';
-                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
+                $firstarrow = $OUTPUT->pix_icon('t/down', get_string('asc'));
             } else if ($reportsettings->sortby == 'lastasc') {
                 $lastlink = 'lastdesc';
-                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/down').'" alt="'.get_string('asc').'" />';
+                $lastarrow = $OUTPUT->pix_icon('t/down', get_string('asc'));
             } else if ($reportsettings->sortby == 'firstdesc') {
-                $firstarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
+                $firstarrow = $OUTPUT->pix_icon('t/up', get_string('desc'));
             } else if ($reportsettings->sortby == 'lastdesc') {
-                $lastarrow = '<img src="'.$OUTPUT->pix_url('/t/up').'" alt="'.get_string('desc').'" />';
+                $lastarrow = $OUTPUT->pix_icon('t/up', get_string('desc'));
             }
             $firstlink = new moodle_url($thisurl, array('sortby' => $firstlink));
             $lastlink = new moodle_url($thisurl, array('sortby' => $lastlink));
@@ -1135,7 +1134,7 @@ class checklist_class {
                     $vslink = ' <a href="'.$thisurl->out(true, array('studentid' => $auser->id)).'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport', 'checklist').'" title="'.
                         get_string('viewsinglereport', 'checklist').'">';
-                    $vslink .= '<img src="'.$OUTPUT->pix_url('/t/preview').'" /></a>';
+                    $vslink .= $OUTPUT->pix_icon('t/preview', '');
                     $userurl = new moodle_url('/user/view.php', array('id' => $auser->id, 'course' => $this->course->id));
                     $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
 
@@ -1271,14 +1270,12 @@ class checklist_class {
             $output .= $this->report_add_toggle_button_row($table);
         }
         // Output the data.
-        $tickimg = '<img src="'.$OUTPUT->pix_url('i/grade_correct').'" alt="'.get_string('itemcomplete', 'checklist').'" />';
+        $tickimg = $OUTPUT->pix_icon('i/grade_correct', get_string('itemcomplete', 'checklist'));
         $teacherimg = array(
-            CHECKLIST_TEACHERMARK_UNDECIDED => '<img src="'.$OUTPUT->pix_url('empty_box', 'checklist').'" alt="'
-                .get_string('teachermarkundecided', 'checklist').'" />',
-            CHECKLIST_TEACHERMARK_YES => '<img src="'.$OUTPUT->pix_url('tick_box', 'checklist').'" alt="'
-                .get_string('teachermarkyes', 'checklist').'" />',
-            CHECKLIST_TEACHERMARK_NO => '<img src="'.$OUTPUT->pix_url('cross_box', 'checklist').'" alt="'
-                .get_string('teachermarkno', 'checklist').'" />'
+            CHECKLIST_TEACHERMARK_UNDECIDED => $OUTPUT->pix_icon('empty_box',
+                                                                 get_string('teachermarkundecided', 'checklist'), 'checklist'),
+            CHECKLIST_TEACHERMARK_YES => $OUTPUT->pix_icon('tick_box', get_string('teachermarkyes', 'checklist'), 'checklist'),
+            CHECKLIST_TEACHERMARK_NO => $OUTPUT->pix_icon('cross_box', get_string('teachermarkno', 'checklist'), 'checklist'),
         );
         $oddeven = 1;
         $keys = array_keys($table->data);

@@ -19,7 +19,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
       | data      | C1     | 1       | data1      | Test database   | This is a database    |
       | checklist | C1     | 1       | checklist1 | Test checklist  | This is a checklist   |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist                        | Test auto-pop checklist             |
@@ -29,7 +29,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
 
   Scenario: When viewing an auto-populated checklist, a student should see items corresponding to the course modules
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test auto-pop checklist"
     Then I should see "Test auto-pop checklist"
     And I should see "This is an auto-populated checklist"
@@ -38,7 +38,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
 
   Scenario: When I select multiple items and click the 'Show/hide' button, the items' visibility should toggle
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test auto-pop checklist"
     And I follow "Edit checklist"
     And I set the field with xpath "//input[@type='checkbox' and @title='Test assignment']" to "1"
@@ -49,7 +49,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
     And I press "Show/hide selected items"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test auto-pop checklist"
     Then I should not see "Test assignment" in the "#region-main" "css_element"
     And I should see "Test database" in the "#region-main" "css_element"

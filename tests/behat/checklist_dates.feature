@@ -14,7 +14,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist                 | Test checklist      |
@@ -47,7 +47,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
 
   Scenario: When I add dates to items, they appear to the student.
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then I should see "25 March 2025" in the "The first list item" "list_item"
     And ".checklist-itemdue" "css_element" should exist in the "The first list item" "list_item"
@@ -67,7 +67,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
 
   Scenario: When I disable the 'add due dates to calendar' feature, dates should not appear in the calendar.
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I navigate to "Edit settings" node in "Checklist administration"
     And I set the field "Add due dates to calendar" to "No"

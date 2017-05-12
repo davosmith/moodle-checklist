@@ -159,14 +159,21 @@ class checklist_item extends data_object {
         return ($this->itemoptional == CHECKLIST_OPTIONAL_YES);
     }
 
+    private function image_url($imagename, $component) {
+        global $CFG, $OUTPUT;
+        if ($CFG->branch < 33) {
+            return $OUTPUT->pix_url($imagename, $component);
+        }
+        return $OUTPUT->image_url($imagename, $component);
+    }
+
     public function get_teachermark_image_url() {
-        global $OUTPUT;
         static $images = null;
         if ($images === null) {
             $images = [
-                CHECKLIST_TEACHERMARK_YES => $OUTPUT->pix_url('tick_box', 'mod_checklist'),
-                CHECKLIST_TEACHERMARK_NO => $OUTPUT->pix_url('cross_box', 'mod_checklist'),
-                CHECKLIST_TEACHERMARK_UNDECIDED => $OUTPUT->pix_url('empty_box', 'mod_checklist'),
+                CHECKLIST_TEACHERMARK_YES => $this->image_url('tick_box', 'mod_checklist'),
+                CHECKLIST_TEACHERMARK_NO => $this->image_url('cross_box', 'mod_checklist'),
+                CHECKLIST_TEACHERMARK_UNDECIDED => $this->image_url('empty_box', 'mod_checklist'),
             ];
         }
         return $images[$this->teachermark];

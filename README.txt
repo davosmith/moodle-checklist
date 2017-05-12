@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2017-05-12 - Moodle 3.3 compatibility fixes
 * 2016-11-21 - Minor M3.2 compatibility fix (only behat affected)
 * 2016-10-30 - Make item import/export work more reliably
 * 2016-09-09 - Major restructuring of checklist code, to aid future maintenance; dropping of pre-Moodle 2.7 support.

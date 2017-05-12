@@ -14,7 +14,7 @@ Feature: I can create and update a checklist
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist    | Test checklist      |
@@ -23,7 +23,7 @@ Feature: I can create and update a checklist
 
   Scenario: When I add no items to a checklist a student sees no items
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then I should see "Test checklist"
     And I should see "This is a checklist"
@@ -31,7 +31,7 @@ Feature: I can create and update a checklist
 
   Scenario: When I add some items to a checklist a student should see them
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -44,7 +44,7 @@ Feature: I can create and update a checklist
     And I press "Add"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then "The first list item" "text" should appear before "Another list item" "text"
     And "Another list item" "text" should appear before "Extra inserted item" "text"
@@ -54,7 +54,7 @@ Feature: I can create and update a checklist
 
   Scenario: When I press the 'move down' icon the checklist is correctly reordered
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -65,14 +65,14 @@ Feature: I can create and update a checklist
     And I click on "Move item down" "link" in the "The first list item" "list_item"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then "Another list item" "text" should appear before "The first list item" "text"
     And "The first list item" "text" should appear before "Third list item" "text"
 
   Scenario: When I press the 'move up' icon the checklist is correctly reordered
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -83,7 +83,7 @@ Feature: I can create and update a checklist
     And I click on "Move item up" "link" in the "Third list item" "list_item"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then "The first list item" "text" should appear before "Third list item" "text"
     And "Third list item" "text" should appear before "Another list item" "text"
@@ -91,7 +91,7 @@ Feature: I can create and update a checklist
   @javascript
   Scenario: When I press the 'indent' icon the checklist is correctly indented
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -106,7 +106,7 @@ Feature: I can create and update a checklist
     And I click on "Indent item" "link" in the "Third list item" "list_item"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     # The following CSS selectors do not work properly if the @javascript tag is removed.
     Then "The first list item" "text" in the "form > ol.checklist > li" "css_element" should be visible
@@ -115,7 +115,7 @@ Feature: I can create and update a checklist
 
   Scenario: When I edit a checklist item's text it is saved correctly
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -129,7 +129,7 @@ Feature: I can create and update a checklist
     And I press "Update"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then I should see "Updated first item"
     # Not working as the 'I set the field' step leaves the original text behind.
@@ -137,7 +137,7 @@ Feature: I can create and update a checklist
 
   Scenario: When I delete a checklist item it disappears
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -148,14 +148,14 @@ Feature: I can create and update a checklist
     And I click on "Delete this item" "link" in the "Another list item" "list_item"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then "The first list item" "text" should appear before "Third list item" "text"
     And I should not see "Another list item"
 
   Scenario: When I click on the change colour icons for items they change colour
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -171,14 +171,14 @@ Feature: I can create and update a checklist
     And I click on "Next text colour" "link" in the "Third list item" "list_item"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then "label.itemred" "css_element" should appear before "label.itemorange" "css_element"
     And "label.itemorange" "css_element" should appear before "label.itemgreen" "css_element"
 
   Scenario: When I click on the 'item required' icon the item should toggle between required/optional/heading
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I set the field "displaytext" to "Heading item"
     And I press "Add"
@@ -194,7 +194,7 @@ Feature: I can create and update a checklist
     And I click on "This item is required" "link" in the "You can tick this" "list_item"
     And I log out
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then I should see "All items"
     And I should see "Required items"

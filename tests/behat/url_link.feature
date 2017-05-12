@@ -14,7 +14,7 @@ Feature: A teacher can attach a link to an external URL to a checklist item
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Checklist" to section "1" and I fill the form with:
       | Checklist    | Test checklist      |

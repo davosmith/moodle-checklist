@@ -18,7 +18,7 @@ Feature: Student checklist can track completion of other activities
       | enablecompletion | 1 |
     And I log out
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I navigate to "Edit settings" node in "Course administration"
     And I expand all fieldsets
     And I set the field "Enable completion tracking" to "Yes"
@@ -46,7 +46,7 @@ Feature: Student checklist can track completion of other activities
 
   Scenario: The checklist should always display the current items from the section, keeping up to date when they change.
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     When I follow "Test checklist"
     Then "Topic 1" "text" should appear before "Test page 1" "text"
     And "Test page 1" "text" should appear before "Test page 2" "text"
@@ -63,14 +63,14 @@ Feature: Student checklist can track completion of other activities
   @javascript
   Scenario: The checklist state should update to reflect the completion of imported activities.
     Given I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And the following fields match these values:
       | Test page 1 | 0 |
       | Test page 2 | 0 |
     When I click on "Activity associated with this item" "link" in the "Test page 1" "list_item"
     And I should see "This page 1 should be complete when I view it"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then the following fields match these values:
       | Test page 1 | 1 |
@@ -79,21 +79,21 @@ Feature: Student checklist can track completion of other activities
   @javascript
   Scenario: The checklist state should update based on logs, if completion is disabled.
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I navigate to "Edit settings" node in "Course administration"
     And I expand all fieldsets
     And I set the field "Enable completion tracking" to "No"
     And I press "Save and display"
     And I log out
     Given I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And the following fields match these values:
       | Test page 1 | 0 |
       | Test page 2 | 0 |
     When I click on "Activity associated with this item" "link" in the "Test page 1" "list_item"
     And I should see "This page 1 should be complete when I view it"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test checklist"
     Then the following fields match these values:
       | Test page 1 | 1 |
