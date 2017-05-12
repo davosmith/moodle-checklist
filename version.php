@@ -25,9 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-$plugin->version = 2016112100;  // The current module version (Date: YYYYMMDDXX)
-$plugin->cron = 0;          // Period for cron to check this module (secs).
-$plugin->maturity = MATURITY_BETA;
-$plugin->release = '2.7+ (Build: 2016112100)';
+$plugin->version = 2017051200;  // The current module version (Date: YYYYMMDDXX)
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = '2.7+ (Build: 2017051200)';
 $plugin->requires = 2014051200; // Moodle 2.7+.
 $plugin->component = 'mod_checklist';
