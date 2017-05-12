@@ -1134,7 +1134,7 @@ class checklist_class {
                     $vslink = ' <a href="'.$thisurl->out(true, array('studentid' => $auser->id)).'" ';
                     $vslink .= 'alt="'.get_string('viewsinglereport', 'checklist').'" title="'.
                         get_string('viewsinglereport', 'checklist').'">';
-                    $vslink .= $OUTPUT->pix_icon('t/preview', '');
+                    $vslink .= $OUTPUT->pix_icon('t/preview', '').'</a>';
                     $userurl = new moodle_url('/user/view.php', array('id' => $auser->id, 'course' => $this->course->id));
                     $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
 
