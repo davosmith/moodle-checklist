@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-$plugin->version = 2017051202;  // The current module version (Date: YYYYMMDDXX)
+$plugin->version = 2017060500;  // The current module version (Date: YYYYMMDDXX)
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.7+ (Build: 2017051202)';
+$plugin->release = '2.7+ (Build: 2017060500)';
 $plugin->requires = 2014051200; // Moodle 2.7+.
 $plugin->component = 'mod_checklist';

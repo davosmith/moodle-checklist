@@ -99,6 +99,9 @@ class mod_checklist_renderer extends plugin_renderer_base {
         echo html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner'));
 
         $thispageurl = new moodle_url($this->page->url);
+        if ($student) {
+            $thispageurl->param('studentid', $student->id);
+        }
 
         $strteachername = '';
         $struserdate = '';

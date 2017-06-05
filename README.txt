@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2017-06-05 - Fix bug in teacher marking with 'Save and show next' functionality
 * 2017-05-12 - Moodle 3.3 compatibility fixes
 * 2016-11-21 - Minor M3.2 compatibility fix (only behat affected)
 * 2016-10-30 - Make item import/export work more reliably
