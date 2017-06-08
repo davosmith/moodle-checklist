@@ -95,8 +95,12 @@ function checklist_update_instance($checklist) {
     $newmax = $checklist->maxgrade;
     $oldmax = $oldrecord->maxgrade;
 
-    $newcompletion = $checklist->completionpercent;
     $oldcompletion = $oldrecord->completionpercent;
+    if (isset($checklist->completionpercent)) {
+        $newcompletion = $checklist->completionpercent;
+    } else {
+        $newcompletion = $oldcompletion;
+    }
 
     $newautoupdate = $checklist->autoupdate;
     $oldautoupdate = $oldrecord->autoupdate;
@@ -115,7 +119,7 @@ function checklist_update_instance($checklist) {
     checklist_grade_item_update($checklist);
     if ($newmax != $oldmax) {
         checklist_update_grades($checklist);
-    } else if ($newcompletion != $oldcompletion) {
+    } else if ($newcompletion && ($newcompletion != $oldcompletion)) {
         // This will already be updated if checklist_update_grades() is called.
         $ci = new completion_info($course);
         $context = context_module::instance($cm->id);

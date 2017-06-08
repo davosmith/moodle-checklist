@@ -173,9 +173,11 @@ class mod_checklist_mod_form extends moodleform_mod {
             return false;
         }
         // Turn off completion settings if the checkboxes aren't ticked.
-        $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-        if (empty($data->completionpercentenabled) || !$autocompletion) {
-            $data->completionpercent = 0;
+        if (isset($data->completionpercent)) {
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completionpercentenabled) || !$autocompletion) {
+                $data->completionpercent = 0;
+            }
         }
         return $data;
     }
