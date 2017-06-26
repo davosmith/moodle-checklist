@@ -2661,7 +2661,7 @@ class checklist_class {
 
     public static function get_user_groupings($userid, $courseid) {
         global $DB;
-        $sql = "SELECT gg.groupingid
+        $sql = "SELECT DISTINCT gg.groupingid
                   FROM ({groups} g JOIN {groups_members} gm ON g.id = gm.groupid)
                   JOIN {groupings_groups} gg ON gg.groupid = g.id
                   WHERE gm.userid = ? AND g.courseid = ? ";
