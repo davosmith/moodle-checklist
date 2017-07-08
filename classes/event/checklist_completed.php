@@ -86,5 +86,8 @@ class checklist_completed extends \core\event\base {
         );
     }
 
+    public static function get_objectid_mapping() {
+        return ['db' => 'checklist', 'restore' => 'checklist'];
+    }
 }
 

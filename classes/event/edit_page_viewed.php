@@ -84,4 +84,8 @@ class edit_page_viewed extends \core\event\base {
             $this->objectid, $this->contextinstanceid
         );
     }
+
+    public static function get_objectid_mapping() {
+        return ['db' => 'checklist', 'restore' => 'checklist'];
+    }
 }

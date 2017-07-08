@@ -95,5 +95,9 @@ class teacher_checks_updated extends \core\event\base {
             throw new \coding_exception('Must specify the user whose checks are being updated as the \'relateduserid\'');
         }
     }
+
+    public static function get_objectid_mapping() {
+        return ['db' => 'checklist', 'restore' => 'checklist'];
+    }
 }
 
