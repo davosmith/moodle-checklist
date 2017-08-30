@@ -794,17 +794,22 @@ function checklist_refresh_events($courseid = 0) {
  * @return bool|null
  */
 function checklist_supports($feature) {
+    global $CFG;
     if (!defined('FEATURE_SHOW_DESCRIPTION')) {
         // For backwards compatibility.
         define('FEATURE_SHOW_DESCRIPTION', 'showdescription');
+    }
+
+    if ((int)$CFG->branch < 28) {
+        if ($feature === FEATURE_GROUPMEMBERSONLY) {
+            return true;
+        }
     }
 
     switch ($feature) {
         case FEATURE_GROUPS:
             return true;
         case FEATURE_GROUPINGS:
-            return true;
-        case FEATURE_GROUPMEMBERSONLY:
             return true;
         case FEATURE_MOD_INTRO:
             return true;

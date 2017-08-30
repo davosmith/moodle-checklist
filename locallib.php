@@ -207,7 +207,7 @@ class checklist_class {
             }
         }
 
-        $groupmembersonly = !empty($CFG->enablegroupmembersonly);
+        $groupmembersonly = ((int)$CFG->branch < 28) && (!empty($CFG->enablegroupmembersonly));
 
         $numsections = 1;
         $courseformat = course_get_format($this->course);
