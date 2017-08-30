@@ -1001,13 +1001,20 @@ class checklist_class {
         $ausers = false;
         if ($activegroup == -1) {
             $users = array();
-        } else if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '',
-                                                    $activegroup, '', false)
-        ) {
-            $users = array_keys($users);
-            if ($this->only_view_mentee_reports()) {
-                // Filter to only show reports for users who this user mentors (ie they have been assigned to them in a context).
-                $users = $this->filter_mentee_users($users);
+        } else {
+            if (get_config('mod_checklist', 'onlyenrolled')) {
+                $users = get_enrolled_users($this->context, 'mod/checklist:updateown', $activegroup, 'u.id', $orderby, 0, 0, true);
+            } else {
+                $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', $orderby, '', '',
+                                                 $activegroup, '', false);
+            }
+            if ($users) {
+                $users = array_keys($users);
+                if ($this->only_view_mentee_reports()) {
+                    // Filter to only show reports for users who this user mentors
+                    // (ie they have been assigned to them in a context).
+                    $users = static::filter_mentee_users($users);
+                }
             }
         }
         if ($users && !empty($users)) {
@@ -2419,7 +2426,11 @@ class checklist_class {
             throw new coding_exception('Must specify module update and/or course update');
         }
 
-        $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+        if (get_config('mod_checklist', 'onlyenrolled')) {
+            $users = get_enrolled_users($this->context, 'mod/checklist:updateown', 0, 'u.id', null, 0, 0, true);
+        } else {
+            $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+        }
         if (!$users) {
             return;
         }
@@ -2524,7 +2535,11 @@ class checklist_class {
 
         if ($userids === null) {
             // Userids not provided, so load them by capability.
-            $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+            if (get_config('mod_checklist', 'onlyenrolled')) {
+                $users = get_enrolled_users($this->context, 'mod/checklist:updateown', 0, 'u.id', null, 0, 0, true);
+            } else {
+                $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+            }
             if (!$users) {
                 return;
             }
@@ -2580,9 +2595,13 @@ class checklist_class {
         }
 
         $ausers = false;
-        if ($users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '',
-                                             $activegroup, '', false)
-        ) {
+        if (get_config('mod_checklist', 'onlyenrolled')) {
+            $users = get_enrolled_users($this->context, 'mod/checklist:updateown', $activegroup, 'u.id', null, 0, 0, true);
+        } else {
+            $users = get_users_by_capability($this->context, 'mod/checklist:updateown', 'u.id', '', '', '',
+                                             $activegroup, '', false);
+        }
+        if (!$users) {
             $users = array_keys($users);
             if ($this->only_view_mentee_reports()) {
                 $users = $this->filter_mentee_users($users);

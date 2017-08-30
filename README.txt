@@ -11,6 +11,8 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2017-08-30 - Switch to only showing enrolled users in lists (instead of all users with the 'updateown' capability)
+* 2017-08-30 - Fix bug with groupmembersonly call
 * 2017-06-08 - Fix bug when saving completion settings (where students had already completed)
 * 2017-06-05 - Fix bug in teacher marking with 'Save and show next' functionality
 * 2017-05-12 - Moodle 3.3 compatibility fixes

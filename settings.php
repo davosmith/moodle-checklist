@@ -37,4 +37,8 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('mod_checklist/linkcourses',
                                                     get_string('linkcourses', 'mod_checklist'),
                                                     get_string('linkcourses_desc', 'mod_checklist'), 0));
+
+    $settings->add(new admin_setting_configcheckbox('mod_checklist/onlyenrolled',
+                                                    get_string('onlyenrolled', 'mod_checklist'),
+                                                    get_string('onlyenrolleddesc', 'mod_checklist'), 1));
 }

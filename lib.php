@@ -123,7 +123,11 @@ function checklist_update_instance($checklist) {
         // This will already be updated if checklist_update_grades() is called.
         $ci = new completion_info($course);
         $context = context_module::instance($cm->id);
-        $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id');
+        if (get_config('mod_checklist', 'onlyenrolled')) {
+            $users = get_enrolled_users($context, 'mod/checklist:updateown', 0, 'u.id', null, 0, 0, true);
+        } else {
+            $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id');
+        }
         foreach ($users as $user) {
             $ci->update_state($cm, COMPLETION_UNKNOWN, $user->id);
         }
@@ -244,7 +248,13 @@ function checklist_update_grades($checklist, $userid = 0) {
         if ($userid) {
             $users = $DB->get_records('user', array('id' => $userid), null, 'id, firstname, lastname');
         } else {
-            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname')) {
+            if (get_config('mod_checklist', 'onlyenrolled')) {
+                $users = get_enrolled_users($context, 'mod/checklist:updateown', 0, 'u.id, u.firstname, u.lastname',
+                                            null, 0, 0, true);
+            } else {
+                $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id, u.firstname, u.lastname');
+            }
+            if (!$users) {
                 return;
             }
         }
@@ -252,8 +262,8 @@ function checklist_update_grades($checklist, $userid = 0) {
         $grades = array();
 
         // With groupings, need to update each user individually (as each has different groupings).
-        foreach ($users as $userid => $user) {
-            $groupings = checklist_class::get_user_groupings($userid, $course->id);
+        foreach ($users as $uid => $user) {
+            $groupings = checklist_class::get_user_groupings($uid, $course->id);
 
             $total = 0;
             $itemlist = [];
@@ -270,7 +280,7 @@ function checklist_update_grades($checklist, $userid = 0) {
 
             if (!$total) { // No items - set score to 0.
                 $ugrade = new stdClass;
-                $ugrade->userid = $userid;
+                $ugrade->userid = $uid;
                 $ugrade->rawgrade = 0;
                 $ugrade->date = time();
 
@@ -280,19 +290,19 @@ function checklist_update_grades($checklist, $userid = 0) {
                 $sql .= " WHERE c.item IN ($itemlist)";
                 $sql .= ' AND c.userid = ? ';
 
-                $ugrade = $DB->get_record_sql($sql, array($checklist->maxgrade, $total, $userid));
+                $ugrade = $DB->get_record_sql($sql, array($checklist->maxgrade, $total, $uid));
                 if (!$ugrade) {
                     $ugrade = new stdClass;
                     $ugrade->rawgrade = 0;
                     $ugrade->date = time();
                 }
-                $ugrade->userid = $userid;
+                $ugrade->userid = $uid;
             }
 
             $ugrade->firstname = $user->firstname;
             $ugrade->lastname = $user->lastname;
 
-            $grades[$userid] = $ugrade;
+            $grades[$uid] = $ugrade;
         }
 
     } else {
@@ -301,7 +311,12 @@ function checklist_update_grades($checklist, $userid = 0) {
         if ($userid) {
             $users = $userid;
         } else {
-            if (!$users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false)) {
+            if (get_config('mod_checklist', 'onlyenrolled')) {
+                $users = get_enrolled_users($context, 'mod/checklist:updateown', 0, 'u.id', null, 0, 0, true);
+            } else {
+                $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+            }
+            if (!$users) {
                 return;
             }
             $users = array_keys($users);
