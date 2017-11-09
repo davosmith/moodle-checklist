@@ -33,9 +33,9 @@ Feature: Multiple autopopulate items can be shown/hidden at once
     And I follow "Test auto-pop checklist"
     Then I should see "Test auto-pop checklist"
     And I should see "This is an auto-populated checklist"
-    And I should see "Test assignment"
-    And I should see "Test database"
-    And I should see "Test checklist"
+    And I should see "Test assignment" in the "ol.checklist" "css_element"
+    And I should see "Test database" in the "ol.checklist" "css_element"
+    And I should see "Test checklist" in the "ol.checklist" "css_element"
 
   Scenario: When I select multiple items and click the 'Show/hide' button, the items' visibility should toggle
     Given I log in as "teacher1"
@@ -52,6 +52,6 @@ Feature: Multiple autopopulate items can be shown/hidden at once
     When I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Test auto-pop checklist"
-    Then I should not see "Test assignment" in the "#region-main" "css_element"
-    And I should see "Test database" in the "#region-main" "css_element"
-    And I should not see "Test checklist" in the "#region-main" "css_element"
+    Then I should not see "Test assignment" in the "ol.checklist" "css_element"
+    And I should see "Test database" in the "ol.checklist" "css_element"
+    And I should not see "Test checklist" in the "ol.checklist" "css_element"
