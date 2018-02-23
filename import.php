@@ -97,6 +97,8 @@ if ($data = $form->get_data()) {
         $newitem->itemoptional = max(min(intval($line->itemoptional), 2), 0);
         $newitem->duetime = max(intval($line->duetime), 0);
         $newitem->colour = trim(strtolower($line->colour));
+        $newitem->linkcourseid = $line->linkcourseid;
+        $newitem->linkurl = trim($line->linkurl);
         if (!in_array($newitem->colour, ['red', 'orange', 'green', 'purple', 'black'])) {
             $newitem->colour = 'black';
         }
