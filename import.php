@@ -77,29 +77,40 @@ if ($data = $form->get_data()) {
     $errormsg = null;
     $ok = true;
     $row = 0;
+    $expectedcount = count($fields);
     while ($line = $csv->next()) {
         $row++;
-        if (count($line) != count($fields)) {
-            $errormsg = "Row has incorrect number of columns in it:<br />$row";
+        $linecount = count($line);
+        if ($linecount < 1) {
+            $errormsg = "Row has no columns in it";
             $ok = false;
+        }
+        $linefields = array_keys($fields);
+        if ($linecount > $expectedcount) {
+            $line = array_slice($line, 0, $expectedcount);
+        }
+        if ($linecount < $expectedcount) {
+            $linefields = array_slice($linefields, 0, $linecount);
         }
 
         // Fields defined in importexportfields.php.
-        $line = (object)array_combine(array_keys($fields), $line);
+        $line = (object)array_combine($linefields, $line);
 
         $newitem = new checklist_item();
         $newitem->checklist = $checklist->id;
         $newitem->position = $position++;
         $newitem->userid = 0;
 
-        $newitem->displaytext = trim($line->displaytext);
-        $newitem->indent = max(min(intval($line->indent), 10), 0);
-        $newitem->itemoptional = max(min(intval($line->itemoptional), 2), 0);
-        $newitem->duetime = max(intval($line->duetime), 0);
-        $newitem->colour = trim(strtolower($line->colour));
+        $newitem->displaytext = isset($line->displaytext) ? trim($line->displaytext) : '';
+        $newitem->indent = empty($line->indent) ? 0 : max(min((int)($line->indent), 10), 0);
+        $newitem->itemoptional = empty($line->itemoptional) ? 0 : max(min((int)($line->itemoptional), 2), 0);
+        $newitem->duetime = empty($line->duetime) ? 0 : max((int)($line->duetime), 0);
+        $newitem->colour = empty($line->colour) ? '' : trim(strtolower($line->colour));
         if (!in_array($newitem->colour, ['red', 'orange', 'green', 'purple', 'black'])) {
             $newitem->colour = 'black';
         }
+        $newitem->linkcourseid = empty($line->linkcourseid) ? null : (int)$line->linkcourseid;
+        $newitem->linkurl = empty($line->linkurl) ? null : clean_param($line->linkurl, PARAM_URL);
 
         if ($newitem->displaytext) { // Don't insert items without any text in them.
             if (!$newitem->insert()) {

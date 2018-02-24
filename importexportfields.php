@@ -24,5 +24,7 @@ $fields = array(
     'indent' => 'Indent',
     'itemoptional' => 'Type (0 - normal; 1 - optional; 2 - heading)',
     'duetime' => 'Due Time (timestamp)',
-    'colour' => 'Colour (red; orange; green; purple; black)'
+    'colour' => 'Colour (red; orange; green; purple; black)',
+    'linkcourseid' => 'Courseid (optional - link to this course)',
+    'linkurl' => 'URL (optional - link to this URL)',
 );
