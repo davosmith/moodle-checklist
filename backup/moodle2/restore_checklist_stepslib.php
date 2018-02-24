@@ -70,6 +70,10 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         // Apply offset to the deadline.
         $data->duetime = $this->apply_date_offset($data->duetime);
 
+        if (!$this->task->is_samesite()) {
+            $data->linkcourseid = null; // Course links do not work when restoring to a different site.
+        }
+
         // Sort out the rest of moduleids in the 'after_restore' function - after all the other activities have been restored.
 
         $newid = $DB->insert_record('checklist_item', $data);

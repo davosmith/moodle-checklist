@@ -41,7 +41,8 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         $item = new backup_nested_element('item', array('id'),
                                           array(
                                               'userid', 'displaytext', 'position', 'indent',
-                                              'itemoptional', 'duetime', 'colour', 'moduleid', 'hidden'
+                                              'itemoptional', 'duetime', 'colour', 'moduleid', 'hidden',
+                                              'linkcourseid', 'linkurl',
                                           ));
 
         $checks = new backup_nested_element('checks');
