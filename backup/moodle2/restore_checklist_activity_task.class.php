@@ -47,6 +47,7 @@ class restore_checklist_activity_task extends restore_activity_task {
         $contents = array();
 
         $contents[] = new restore_decode_content('checklist', array('intro'), 'checklist');
+        $contents[] = new restore_decode_content('checklist_item', array('linkurl'),  'checklist_item');
 
         return $contents;
     }
