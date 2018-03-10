@@ -282,6 +282,9 @@ class checklist_class {
                 if ($mods->get_cm($cmid)->modname === 'label') {
                     continue; // Ignore any labels.
                 }
+                if (isset($mods->get_cm($cmid)->deletioninprogress) && $mods->get_cm($cmid)->deletioninprogress) {
+                    continue; // M3.2 onwards - if cm is in the recycle bin, being deleted, then skip it.
+                }
 
                 $foundit = false;
                 while ($item = current($this->items)) {
