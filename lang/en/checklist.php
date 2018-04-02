@@ -163,6 +163,24 @@ $string['percentcomplete'] = 'Required items';
 $string['percentcompleteall'] = 'All items';
 $string['pluginname'] = 'Checklist';
 $string['preview'] = 'Preview';
+
+$string['privacy:metadata:checklist_check'] = 'Information about which checklist items have been checked off by the user (or checked off by a teacher for the user) on a given checklist';
+$string['privacy:metadata:checklist_check:item'] = 'The ID of the checklist item that has been checked-off';
+$string['privacy:metadata:checklist_check:teacherid'] = 'The ID of the teacher who last updated the status of this item';
+$string['privacy:metadata:checklist_check:teachermark'] = 'The status allocated to this item, for the user, by a teacher';
+$string['privacy:metadata:checklist_check:teachertimestamp'] = 'The time when the teacher last allocated a status to this item';
+$string['privacy:metadata:checklist_check:userid'] = 'The ID of the user who has checked-off the item (or, if marked by a teacher, the user it was checked-off for)';
+$string['privacy:metadata:checklist_check:usertimestamp'] = 'The time when the user last checked-off the item (0 if the item is currently unchecked)';
+$string['privacy:metadata:checklist_comment'] = 'Information about comments that have been made by a teacher about the user\'s progress on a given checklist';
+$string['privacy:metadata:checklist_comment:commentby'] = 'The ID of the user (teacher) that made this comment';
+$string['privacy:metadata:checklist_comment:itemid'] = 'The ID of the checklist item that the comment relates to';
+$string['privacy:metadata:checklist_comment:text'] = 'The text of the comment';
+$string['privacy:metadata:checklist_comment:userid'] = 'The ID of the user (student) that this comment relates to';
+$string['privacy:metadata:checklist_item'] = 'Information about private items the user has added to the given checklist';
+$string['privacy:metadata:checklist_item:checklist'] = 'The ID of the checklist this private item was added to';
+$string['privacy:metadata:checklist_item:displaytext'] = 'The text of the private checklist item';
+$string['privacy:metadata:checklist_item:userid'] = 'The ID of the user who created this private item (0 for items that are created by a teacher and shown to all users)';
+
 $string['progress'] = 'Progress';
 
 $string['removeauto'] = 'Remove course module items';

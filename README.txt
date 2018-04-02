@@ -4,13 +4,15 @@ Checklist module
 ==Introduction==
 This is a Moodle plugin that allows a teacher to create a checklist for their students to work through.
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
-Note: This is the Moodle 2.7+ version (other versions are available for Moodle 1.9 & 2.0-2.6).
+Note: This is the Moodle 3.4+ version (other versions are available for Moodle 1.9 & 2.0-2.6, 2.7-3.3).
 
 Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
 
 ==Changes==
 
+* 2018-04-02 - Add support for GDPR
+* 2018-02-24 - Fix import/export, backup/restore of course + url links; fix recycle bin compatibility
 * 2017-11-09 - Minor behat fix for Moodle 3.4 compatibility
 * 2017-08-30 - Switch to only showing enrolled users in lists (instead of all users with the 'updateown' capability)
 * 2017-08-30 - Fix bug with groupmembersonly call
