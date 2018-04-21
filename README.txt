@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2018-04-21 - Fix bug when editing items with dates when date editing is disabled
 * 2018-04-02 - Add support for GDPR
 * 2018-02-24 - Fix import/export, backup/restore of course + url links; fix recycle bin compatibility
 * 2017-11-09 - Minor behat fix for Moodle 3.4 compatibility
