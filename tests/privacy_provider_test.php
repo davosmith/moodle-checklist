@@ -108,7 +108,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
      * Test for provider::get_metadata().
      */
     public function test_get_metadata() {
-        $collection = new collection('mod_choice');
+        $collection = new collection('mod_checklist');
         $newcollection = provider::get_metadata($collection);
         $itemcollection = $newcollection->get_collection();
         $this->assertCount(3, $itemcollection);
