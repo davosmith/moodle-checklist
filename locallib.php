@@ -1734,7 +1734,7 @@ class checklist_class {
         $item->itemoptional = $optional;
         $item->hidden = $hidden;
         $item->duetime = 0;
-        if ($duetime) {
+        if ($this->editdates && $duetime) {
             $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
         }
         $item->eventid = 0;
@@ -1842,9 +1842,11 @@ class checklist_class {
                 $item = $this->items[$itemid];
                 $oldlinkcourseid = $item->linkcourseid;
                 $item->displaytext = $displaytext;
-                $item->duetime = 0;
-                if ($duetime) {
-                    $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
+                if ($this->editdates) {
+                    $item->duetime = 0;
+                    if ($duetime) {
+                        $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
+                    }
                 }
                 $item->linkcourseid = $linkcourseid;
                 $item->linkurl = $linkurl;
