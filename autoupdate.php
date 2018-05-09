@@ -24,7 +24,7 @@ require_once($CFG->dirroot.'/mod/checklist/lib.php');
  * Remove the '//' at the start of the next line to output lots of
  * helpful information during automatic updates.
  */
-//define("DEBUG_CHECKLIST_AUTOUPDATE", 1);
+// define("DEBUG_CHECKLIST_AUTOUPDATE", 1);
 
 function checklist_completion_update_checks($userid, $itemchecks, $newstate) {
     global $DB;
@@ -127,9 +127,9 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
     }
 
     $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*
-              FROM {checklist_item} i 
-              JOIN {checklist} cl ON i.checklist = cl.id 
-              LEFT JOIN {checklist_check} ck ON (ck.item = i.id AND ck.userid = :userid) 
+              FROM {checklist_item} i
+              JOIN {checklist} cl ON i.checklist = cl.id
+              LEFT JOIN {checklist_check} ck ON (ck.item = i.id AND ck.userid = :userid)
              WHERE cl.autoupdate > 0 AND i.moduleid = :cmid AND i.itemoptional < :heading";
     $itemchecks = $DB->get_records_sql($sql, ['userid' => $userid, 'cmid' => $cmid, 'heading' => CHECKLIST_OPTIONAL_HEADING]);
     if (empty($itemchecks)) {

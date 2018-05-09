@@ -322,8 +322,8 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->assertEquals($student->id, $DB->get_field('checklist_check', 'userid', []));
 
         // Delete the data for the first student, for all checklists.
-        $contextlist = new \core_privacy\local\request\approved_contextlist($this->student, 'checklist',
-                                                                            [$ctxs[0]->id, $ctxs[1]->id, $ctxs[2]->id, $ctxs[3]->id]);
+        $contextids = [$ctxs[0]->id, $ctxs[1]->id, $ctxs[2]->id, $ctxs[3]->id];
+        $contextlist = new \core_privacy\local\request\approved_contextlist($this->student, 'checklist', $contextids);
         provider::delete_data_for_user($contextlist);
 
         // After deletion, we should have 1 checked off item, 1 custom item, 1 comment and 13 total items.

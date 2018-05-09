@@ -103,9 +103,9 @@ $string['emailoncomplete_help'] = 'When a checklist is complete, a notification 
 An administrator can control who receives this email using the capability \'mod:checklist/emailoncomplete\' - by default all teachers and non-editing teachers have this capability.';
 $string['emailoncompletesubject'] = 'User {$a->user} has completed checklist \'{$a->checklist}\'';
 $string['emailoncompletesubjectown'] = 'You have completed checklist \'{$a->checklist}\'';
-$string['emailoncompletebody'] = 'User {$a->user} has completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\' 
+$string['emailoncompletebody'] = 'User {$a->user} has completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\'
 View the checklist here:';
-$string['emailoncompletebodyown'] = 'You have completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\' 
+$string['emailoncompletebodyown'] = 'You have completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\'
 View the checklist here:';
 $string['enterurl'] = 'Enter url ...';
 $string['eventchecklistcomplete'] = 'Checklist complete';
