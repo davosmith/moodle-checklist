@@ -34,7 +34,7 @@ require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
 class checklist_item extends data_object {
     public $table = 'checklist_item';
-    public $required_fields = [
+    public $requiredfields = [
         'id', 'checklist', 'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime',
         'eventid', 'colour', 'moduleid', 'hidden', 'grouping', 'linkcourseid', 'linkurl'
     ];
@@ -73,6 +73,12 @@ class checklist_item extends data_object {
     const LINK_MODULE = 'module';
     const LINK_COURSE = 'course';
     const LINK_URL = 'url';
+
+    public function __construct(array $params = null, $fetch = true) {
+        // Really ugly hack to stop travis complaining about $required_fields.
+        $this->{'required_fields'} = $this->requiredfields;
+        parent::__construct($params, $fetch);
+    }
 
     public static function fetch($params) {
         return self::fetch_helper('checklist_item', __CLASS__, $params);

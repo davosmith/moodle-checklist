@@ -141,6 +141,14 @@ class checklist_class {
     }
 
     /**
+     * Force checklist into 'edit dates' mode (really only needed by behat generator).
+     * @param bool $edit
+     */
+    public function set_editing_dates($edit) {
+        $this->editdates = (bool)$edit;
+    }
+
+    /**
      * Get an array of the items in a checklist
      *
      */
