@@ -16,9 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Capability definitions for the checklist module
- */
+// Capability definitions for the checklist module.
 
 $capabilities = array(
     // Check if user is able to add a checklist module (M2.3+ only).

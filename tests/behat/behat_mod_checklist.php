@@ -122,6 +122,7 @@ class behat_mod_checklist extends behat_base {
                                 'month' => $dateinfo['mon'],
                                 'day' => $dateinfo['mday']
                             );
+                            $chk->set_editing_dates(true);
                         }
                         break;
                     default:

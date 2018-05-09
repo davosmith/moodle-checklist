@@ -34,7 +34,7 @@ require_once($CFG->dirroot.'/completion/data_object.php');
 
 class checklist_comment extends data_object {
     public $table = 'checklist_comment';
-    public $required_fields = [
+    public $requiredfields = [
         'id', 'itemid', 'userid', 'commentby', 'text'
     ];
 
@@ -48,6 +48,12 @@ class checklist_comment extends data_object {
     protected $commentbyname = null;
 
     protected static $courseid = null;
+
+    public function __construct(array $params = null, $fetch = true) {
+        // Really ugly hack to stop travis complaining about $required_fields.
+        $this->{'required_fields'} = $this->requiredfields;
+        parent::__construct($params, $fetch);
+    }
 
     public static function fetch($params) {
         return self::fetch_helper('checklist_comment', __CLASS__, $params);

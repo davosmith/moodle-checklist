@@ -33,7 +33,7 @@ require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
 class checklist_check extends data_object {
     public $table = 'checklist_check';
-    public $required_fields = [
+    public $requiredfields = [
         'id', 'item', 'userid', 'usertimestamp', 'teachermark', 'teachertimestamp', 'teacherid'
     ];
 
@@ -44,6 +44,12 @@ class checklist_check extends data_object {
     public $teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
     public $teachertimestamp = 0;
     public $teacherid = null;
+
+    public function __construct(array $params = null, $fetch = true) {
+        // Really ugly hack to stop travis complaining about $required_fields.
+        $this->{'required_fields'} = $this->requiredfields;
+        parent::__construct($params, $fetch);
+    }
 
     public static function fetch($params) {
         return self::fetch_helper('checklist_check', __CLASS__, $params);
