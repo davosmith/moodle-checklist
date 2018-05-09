@@ -113,7 +113,7 @@ class checklist_class {
         $this->pagetitle = strip_tags($this->course->shortname.': '.$this->strchecklist.': '.
                                       format_string($this->checklist->name, true));
 
-        $this->get_items();
+        $this->load_items();
 
         if ($this->checklist->autopopulate) {
             $this->update_items_from_course();
@@ -143,7 +143,7 @@ class checklist_class {
      * Get an array of the items in a checklist
      *
      */
-    protected function get_items() {
+    protected function load_items() {
         global $DB;
 
         // Load all shared checklist items.
@@ -775,6 +775,41 @@ class checklist_class {
         }
 
         return new \mod_checklist\local\progress_info($totalitems, $requireditems, $allcompleteitems, $completeitems);
+    }
+
+    public function get_items_for_template() {
+        $checklist = clone($this->checklist);
+        $checklist->name = format_string($checklist->name);
+        list($checklist->intro, $checklist->introformat) = external_format_text($checklist->intro, $checklist->introformat,
+                                                                                $this->context->id, 'mod_checklist', 'intro');
+        $data = (object)[
+            'checklist' => $checklist,
+            'cmid' => $this->cm->id,
+            'courseid' => $checklist->course,
+            'items' => [],
+            'showteachermark' => in_array($this->checklist->teacheredit, [CHECKLIST_MARKING_TEACHER, CHECKLIST_MARKING_BOTH]),
+            'showcheckbox' => in_array($this->checklist->teacheredit, [CHECKLIST_MARKING_STUDENT, CHECKLIST_MARKING_BOTH]),
+        ];
+        $format = get_string('strftimedatetime', 'langconfig');
+        foreach ($this->items as $item) {
+            if ($item->hidden) {
+                continue;
+            }
+            $data->items[] = (object)[
+                'text' => $item->displaytext,
+                'indent' => $item->indent,
+                'colour' => $item->colour,
+                'duetime' => $item->duetime ? userdate($item->duetime, $format) : false,
+                'isheading' => $item->is_heading(),
+                'isoptional' => $item->is_optional(),
+                'checkedstudent' => $item->is_checked_student(),
+                'teachermarktext' => $item->get_teachermark_text(),
+                'teachermarkimage' => $item->get_teachermark_image_url()->out(),
+                'comment' => $item->get_comment(),
+                'url' => $item->get_link_url(),
+            ];
+        }
+        return $data;
     }
 
     /**
@@ -1670,7 +1705,7 @@ class checklist_class {
 
         if ($viewnext || $savenext) {
             $this->getnextuserid();
-            $this->get_items();
+            $this->load_items();
         }
     }
 

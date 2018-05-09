@@ -1,0 +1,16 @@
+{{=<% %>=}}
+<div>
+    <core-course-module-description description="<% checklist.intro %>" component="mod_checklist" componentId="<% cmid %>"></core-course-module-description>
+
+    <ion-list>
+        <%#items%>
+            <ion-item>
+                <ion-label><% text %></ion-label>
+                <%^isheading%>
+                <ion-checkbox checked="<%#checkedstudent%>true<%/checkedstudent%><%^checkedstudent%>false<%/checkedstudent%>" disabled="false"></ion-checkbox>
+                <%/isheading%>
+            </ion-item>
+        <%/items%>
+    </ion-list>
+
+</div>
