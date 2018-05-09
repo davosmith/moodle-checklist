@@ -302,7 +302,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     if (!$item->is_heading()) {
                         if ($status->is_showteachermark() && $item->teachertimestamp) {
                             if ($item->get_teachername()) {
-                                echo '<span class="itemteachername" title="'.$strteachername.'">'.$item->get_teachername().'</span>';
+                                echo '<span class="itemteachername" title="'.$strteachername.'">'.
+                                    $item->get_teachername().'</span>';
                             }
                             echo '<span class="itemteacherdate" title="'.$strteacherdate.'">'.
                                 userdate($item->teachertimestamp, get_string('strftimedatetimeshort')).'</span>';
@@ -375,7 +376,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 echo '</form>';
                                 echo '</div>';
 
-                                echo '<form style="display:inline;" action="'.$thispageurl->out_omit_querystring().'" method="get">';
+                                echo '<form style="display:inline;" action="'.$thispageurl->out_omit_querystring().
+                                    '" method="get">';
                                 echo html_writer::input_hidden_params($thispageurl);
                                 echo '<input type="submit" name="canceledititem" value="'.
                                     get_string('canceledititem', 'checklist').'" />';
@@ -863,7 +865,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
             year.removeAttribute('disabled');
         }
     }
-    toggledate{$id}(); 
+    toggledate{$id}();
 </script>
 ENDSCRIPT;
 

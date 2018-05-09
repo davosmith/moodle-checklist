@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+sudo: required
 
 addons:
   firefox: "47.0.1"
@@ -22,7 +22,6 @@ php:
 
 env:
  global:
-  - MOODLE_BRANCH=MOODLE_34_STABLE
   - MOODLE_BRANCH=master
  matrix:
   - DB=pgsql
