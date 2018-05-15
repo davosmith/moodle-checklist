@@ -224,12 +224,17 @@ class provider implements \core_privacy\local\metadata\provider,
         if (!$context) {
             return;
         }
-        $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
-        $itemids = $DB->get_fieldset_select('checklist_item', 'id', 'checklist = ?', [$instanceid]);
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return;
+        }
+        if (!$cm = get_coursemodule_from_id('checklist', $context->instanceid)) {
+            return;
+        }
+        $itemids = $DB->get_fieldset_select('checklist_item', 'id', 'checklist = ?', [$cm->instance]);
         if ($itemids) {
             $DB->delete_records_list('checklist_check', 'item', $itemids);
             $DB->delete_records_list('checklist_comment', 'itemid', $itemids);
-            $DB->delete_records_select('checklist_item', 'checklist = ? AND userid <> 0', [$instanceid]);
+            $DB->delete_records_select('checklist_item', 'checklist = ? AND userid <> 0', [$cm->instance]);
         }
     }
 
@@ -241,14 +246,19 @@ class provider implements \core_privacy\local\metadata\provider,
 
         $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
-            $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
-            $itemids = $DB->get_fieldset_select('checklist_item', 'id', 'checklist = ?', [$instanceid]);
+            if ($context->contextlevel != CONTEXT_MODULE) {
+                continue;
+            }
+            if (!$cm = get_coursemodule_from_id('checklist', $context->instanceid)) {
+                continue;
+            }
+            $itemids = $DB->get_fieldset_select('checklist_item', 'id', 'checklist = ?', [$cm->instance]);
             if ($itemids) {
                 list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
                 $params['userid'] = $userid;
                 $DB->delete_records_select('checklist_check', "item $isql AND userid = :userid", $params);
                 $DB->delete_records_select('checklist_comment', "itemid $isql AND userid = :userid", $params);
-                $params = ['instanceid' => $instanceid, 'userid' => $userid];
+                $params = ['instanceid' => $cm->instance, 'userid' => $userid];
                 $DB->delete_records_select('checklist_item', 'checklist = :instanceid AND userid = :userid', $params);
             }
         }
