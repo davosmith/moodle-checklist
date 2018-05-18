@@ -120,6 +120,10 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->assertArrayHasKey('userid', $privacyfields);
         $this->assertArrayHasKey('displaytext', $privacyfields);
         $this->assertEquals('privacy:metadata:checklist_item', $table->get_summary());
+        foreach ($privacyfields as $field) {
+            get_string($field, 'mod_checklist');
+        }
+        get_string($table->get_summary(), 'mod_checklist');
 
         $table = array_shift($itemcollection);
         $this->assertEquals('checklist_check', $table->get_name());
@@ -131,6 +135,10 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->assertArrayHasKey('teachertimestamp', $privacyfields);
         $this->assertArrayHasKey('teacherid', $privacyfields);
         $this->assertEquals('privacy:metadata:checklist_check', $table->get_summary());
+        foreach ($privacyfields as $field) {
+            get_string($field, 'mod_checklist');
+        }
+        get_string($table->get_summary(), 'mod_checklist');
 
         $table = array_shift($itemcollection);
         $this->assertEquals('checklist_comment', $table->get_name());
@@ -140,6 +148,10 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->assertArrayHasKey('commentby', $privacyfields);
         $this->assertArrayHasKey('text', $privacyfields);
         $this->assertEquals('privacy:metadata:checklist_comment', $table->get_summary());
+        foreach ($privacyfields as $field) {
+            get_string($field, 'mod_checklist');
+        }
+        get_string($table->get_summary(), 'mod_checklist');
     }
 
     /**

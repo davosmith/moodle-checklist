@@ -61,7 +61,7 @@ class provider implements \core_privacy\local\metadata\provider,
         $collection->add_database_table(
             'checklist_comment',
             [
-                'itemid' => 'privacy:metadata:checklist_comment:item',
+                'itemid' => 'privacy:metadata:checklist_comment:itemid',
                 'userid' => 'privacy:metadata:checklist_comment:userid',
                 'commentby' => 'privacy:metadata:checklist_comment:commentby',
                 'text' => 'privacy:metadata:checklist_comment:text',
