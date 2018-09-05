@@ -784,10 +784,15 @@ function checklist_reset_userdata($data) {
  * @param int $courseid
  * @return bool
  */
-function checklist_refresh_events($courseid = 0) {
+function checklist_refresh_events($courseid = 0, $instance = null, $cm = null) {
     global $DB;
 
-    if ($courseid) {
+    if ($instance) {
+        if (!is_object($instance)) {
+            $instance = $DB->get_record('checklist', ['id' => $instance], '*', MUST_EXIST);
+        }
+        $checklists = [$instance];
+    } else if ($courseid) {
         $checklists = $DB->get_records('checklist', array('course' => $courseid));
         $course = $DB->get_record('course', array('id' => $courseid));
     } else {
