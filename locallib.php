@@ -1797,10 +1797,7 @@ class checklist_class {
                 $event = null; // Do something here to stop codechecker complaining.
             }
             $item->eventid = 0;
-            if ($add) {
-                // Don't bother updating the record if we are deleting.
-                $item->update();
-            }
+            $item->update();
 
         } else {  // Add/update event.
             $eventdata = new stdClass();
