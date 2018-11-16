@@ -26,15 +26,18 @@ namespace mod_checklist\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\helper;
 use core_privacy\local\request\transform;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
 defined('MOODLE_INTERNAL') || die();
 
 class provider implements \core_privacy\local\metadata\provider,
-                          \core_privacy\local\request\plugin\provider {
+                          \core_privacy\local\request\plugin\provider,
+                          \core_privacy\local\request\core_userlist_provider {
 
     public static function get_metadata(collection $collection) : collection {
         $collection->add_database_table(
@@ -105,7 +108,7 @@ class provider implements \core_privacy\local\metadata\provider,
         ';
         $contextlist->add_from_sql($sql, $params);
 
-        // Items that have been checked of by the user (or for the user, by their teacher).
+        // Items that have been checked-off by the user (or for the user, by their teacher).
         $sql = '
            SELECT c.id
              FROM {context} c
@@ -132,6 +135,62 @@ class provider implements \core_privacy\local\metadata\provider,
         $contextlist->add_from_sql($sql, $params);
 
         return $contextlist;
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+        if (!is_a($context, \context_module::class)) {
+            return;
+        }
+        $modid = self::get_modid();
+        if (!$modid) {
+            return; // Checklist module not installed.
+        }
+        $params = [
+            'modid' => $modid,
+            'contextlevel' => CONTEXT_MODULE,
+            'contextid'    => $context->id,
+        ];
+
+        // User-created personal checklist items.
+        $sql = "
+            SELECT ci.userid
+              FROM {checklist_item} ci
+              JOIN {checklist} ck ON ck.id = ci.checklist
+              JOIN {course_modules} cm ON cm.instance = ck.id AND cm.module = :modid
+              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :contextlevel
+             WHERE ctx.id = :contextid
+        ";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Items that have been checked-off by the user (or for the user, by their teacher).
+        $sql = "
+            SELECT cc.userid
+              FROM {checklist_check} cc
+              JOIN {checklist_item} ci ON ci.id = cc.item
+              JOIN {checklist} ck ON ck.id = ci.checklist
+              JOIN {course_modules} cm ON cm.instance = ck.id AND cm.module = :modid
+              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :contextlevel
+             WHERE ctx.id = :contextid
+        ";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        // Comments made by the teacher about a particular item for a user.
+        $sql = "
+            SELECT ccm.userid
+              FROM {checklist_comment} ccm
+              JOIN {checklist_item} ci ON ci.id = ccm.itemid
+              JOIN {checklist} ck ON ck.id = ci.checklist
+              JOIN {course_modules} cm ON cm.instance = ck.id AND cm.module = :modid
+              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :contextlevel
+             WHERE ctx.id = :contextid
+        ";
+        $userlist->add_from_sql('userid', $sql, $params);
     }
 
     public static function export_user_data(approved_contextlist $contextlist) {
@@ -262,5 +321,47 @@ class provider implements \core_privacy\local\metadata\provider,
                 $DB->delete_records_select('checklist_item', 'checklist = :instanceid AND userid = :userid', $params);
             }
         }
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist       $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+        $context = $userlist->get_context();
+        if (!is_a($context, \context_module::class)) {
+            return;
+        }
+        $modid = self::get_modid();
+        if (!$modid) {
+            return; // Checklist module not installed.
+        }
+
+        // Prepare SQL to gather all completed IDs.
+        $userids = $userlist->get_userids();
+        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+        // Delete user-created personal checklist items.
+        $DB->delete_records_select(
+            'checklist_item',
+            "userid $insql",
+            $inparams
+        );
+
+        // Delete items that have been checked-off by the user (or for the user, by their teacher).
+        $DB->delete_records_select(
+            'checklist_check',
+            "userid $insql",
+            $inparams
+        );
+
+        // Delete comments made by a teacher about a particular item for a student.
+        $DB->delete_records_select(
+            'checklist_comment',
+            "userid $insql",
+            $inparams
+        );
     }
 }

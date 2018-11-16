@@ -17,7 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 function xmldb_checklist_upgrade($oldversion = 0) {
-    global $DB, $OUTPUT;
+    global $DB, $OUTPUT, $CFG;
 
     $dbman = $DB->get_manager();
     $result = true;
@@ -292,6 +292,14 @@ function xmldb_checklist_upgrade($oldversion = 0) {
 
         // Checklist savepoint reached.
         upgrade_mod_savepoint(true, 2016090902, 'checklist');
+    }
+
+    if ($oldversion < 2018051500) {
+        // This version includes the extended privacy API only found in M3.4.6, M3.5.3 and M3.6+.
+        if ($CFG->version > 2018051700 && $CFG->version < 2018051703) {
+            // Main version.php takes care of Moodle below 3.4.6.
+            die('You must upgrade to Moodle 3.5.3 (or above) before upgrading to this version of mod_checklist');
+        }
     }
 
     return $result;
