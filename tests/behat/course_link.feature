@@ -95,7 +95,7 @@ Feature: A teacher can link a checklist item to a course
       | linkcourseid | Course 3                      |
     And I press "Add"
     And I am on "Course 2" course homepage
-    And I navigate to "Course completion" node in "Course administration"
+    And I navigate to "Course completion" in current page administration
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"
@@ -122,7 +122,7 @@ Feature: A teacher can link a checklist item to a course
   @javascript
   Scenario: An item linked to a course is automatically checked-off if that course is *already* completed
     Given I am on "Course 2" course homepage
-    And I navigate to "Course completion" node in "Course administration"
+    And I navigate to "Course completion" in current page administration
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"

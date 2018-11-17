@@ -19,7 +19,7 @@ Feature: Student checklist can track completion of other activities
     And I log out
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Edit settings" node in "Course administration"
+    And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
     And I set the field "Enable completion tracking" to "Yes"
     And I press "Save and display"
@@ -53,7 +53,7 @@ Feature: Student checklist can track completion of other activities
     # Check that changes to the course are tracked.
     When I follow "Course 1"
     And I follow "Test page 2"
-    And I navigate to "Edit settings" node in "Page module administration"
+    And I navigate to "Edit settings" in current page administration
     And I set the field "Name" to "Updated name to page 5"
     And I press "Save and return to course"
     And I follow "Test checklist"
@@ -80,7 +80,7 @@ Feature: Student checklist can track completion of other activities
   Scenario: The checklist state should update based on logs, if completion is disabled.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I navigate to "Edit settings" node in "Course administration"
+    And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
     And I set the field "Enable completion tracking" to "No"
     And I press "Save and display"
