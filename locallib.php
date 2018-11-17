@@ -1611,8 +1611,8 @@ class checklist_class {
     protected function set_report_settings($settings) {
         global $SESSION, $CFG;
 
-        $currsettings = (array)$this->get_report_settings();
-        foreach (array_keys($currsettings) as $key) {
+        $currsettings = $this->get_report_settings();
+        foreach (array_keys((array)$currsettings) as $key) {
             if (isset($settings->$key)) {
                 $currsettings->$key = $settings->$key; // Only set values if they already exist.
             }
