@@ -300,6 +300,9 @@ function xmldb_checklist_upgrade($oldversion = 0) {
             // Main version.php takes care of Moodle below 3.4.6.
             die('You must upgrade to Moodle 3.5.3 (or above) before upgrading to this version of mod_checklist');
         }
+
+        // Checklist savepoint reached.
+        upgrade_mod_savepoint(true, 2018051500, 'checklist');
     }
 
     return $result;
