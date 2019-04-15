@@ -338,30 +338,35 @@ class provider implements \core_privacy\local\metadata\provider,
         if (!$modid) {
             return; // Checklist module not installed.
         }
+        if (!$cm = get_coursemodule_from_id('checklist', $context->instanceid)) {
+            return;
+        }
 
         // Prepare SQL to gather all completed IDs.
+        $itemids = $DB->get_fieldset_select('checklist_item', 'id', 'checklist = ?', [$cm->instance]);
+        list($itsql, $itparams) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
         $userids = $userlist->get_userids();
         list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         // Delete user-created personal checklist items.
         $DB->delete_records_select(
             'checklist_item',
-            "userid $insql",
-            $inparams
+            "userid $insql AND checklist = :checklistid",
+            array_merge($inparams, ['checklistid' => $cm->instance])
         );
 
         // Delete items that have been checked-off by the user (or for the user, by their teacher).
         $DB->delete_records_select(
             'checklist_check',
-            "userid $insql",
-            $inparams
+            "userid $insql AND item $itsql",
+            array_merge($inparams, $itparams)
         );
 
         // Delete comments made by a teacher about a particular item for a student.
         $DB->delete_records_select(
             'checklist_comment',
-            "userid $insql",
-            $inparams
+            "userid $insql AND itemid $itsql",
+            array_merge($inparams, $itparams)
         );
     }
 }

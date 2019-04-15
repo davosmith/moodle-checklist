@@ -410,10 +410,32 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
 
         // Initial userlist counts tested in test_get_users_in_context(), above.
 
-        // Delete all data for student.
+        // Delete all data for student in checklist 0.
+        $approvedlist = new \core_privacy\local\request\approved_userlist($ctxs[0], 'mod_checklist', [$this->student->id]);
+        provider::delete_data_for_users($approvedlist);
+
+        // Check user list for checklist 0.
         $userlist = new \core_privacy\local\request\userlist($ctxs[0], 'mod_checklist');
         provider::get_users_in_context($userlist);
-        $approvedlist = new \core_privacy\local\request\approved_userlist($ctxs[0], 'mod_checklist', [$this->student->id]);
+        $this->assertCount(0, $userlist);
+
+        // Check user list for checklist 1.
+        $userlist = new \core_privacy\local\request\userlist($ctxs[1], 'mod_checklist');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist);
+
+        // Check user list for checklist 2.
+        $userlist = new \core_privacy\local\request\userlist($ctxs[2], 'mod_checklist');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(1, $userlist);
+
+        // Check user list for checklist 3.
+        $userlist = new \core_privacy\local\request\userlist($ctxs[3], 'mod_checklist');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(0, $userlist);
+
+        // Delete all data for student in checklist 1.
+        $approvedlist = new \core_privacy\local\request\approved_userlist($ctxs[1], 'mod_checklist', [$this->student->id]);
         provider::delete_data_for_users($approvedlist);
 
         // Check user list for checklist 0.
@@ -429,10 +451,10 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         // Check user list for checklist 2.
         $userlist = new \core_privacy\local\request\userlist($ctxs[2], 'mod_checklist');
         provider::get_users_in_context($userlist);
-        $this->assertCount(0, $userlist);
+        $this->assertCount(1, $userlist);
 
         // Check user list for checklist 3.
-        $userlist = new \core_privacy\local\request\userlist($ctxs[2], 'mod_checklist');
+        $userlist = new \core_privacy\local\request\userlist($ctxs[3], 'mod_checklist');
         provider::get_users_in_context($userlist);
         $this->assertCount(0, $userlist);
 
