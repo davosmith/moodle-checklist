@@ -154,7 +154,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform =& $this->_form;
 
         $group = array();
-        $group[] =& $mform->createElement('checkbox', 'completionpercentenabled', '', get_string('completionpercent', 'checklist'));
+        $group[] =& $mform->createElement('checkbox', 'completionpercentenabled', '', get_string('completionpercent', 'checklist'), array('class' => 'checkbox-inline'));
         $group[] =& $mform->createElement('text', 'completionpercent', '', array('size' => 3));
         $mform->setType('completionpercent', PARAM_INT);
         $mform->addGroup($group, 'completionpercentgroup', get_string('completionpercentgroup', 'checklist'), array(' '), false);

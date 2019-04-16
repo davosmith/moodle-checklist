@@ -729,7 +729,7 @@ function checklist_uninstall() {
  */
 function checklist_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'checklistheader', get_string('modulenameplural', 'checklist'));
-    $mform->addElement('checkbox', 'reset_checklist_progress', get_string('resetchecklistprogress', 'checklist'));
+    $mform->addElement('checkbox', 'reset_checklist_progress', get_string('resetchecklistprogress', 'checklist'), array('class' => 'checkbox-inline'));
 }
 
 /**

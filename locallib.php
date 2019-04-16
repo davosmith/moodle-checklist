@@ -954,41 +954,41 @@ class checklist_class {
             }
         }
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="get" />';
         echo html_writer::input_hidden_params($thisurl, array('action'));
         if ($reportsettings->showoptional) {
             echo '<input type="hidden" name="action" value="hideoptional" />';
-            echo '<input type="submit" name="submit" value="'.get_string('optionalhide', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('optionalhide', 'checklist').'" />';
         } else {
             echo '<input type="hidden" name="action" value="showoptional" />';
-            echo '<input type="submit" name="submit" value="'.get_string('optionalshow', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('optionalshow', 'checklist').'" />';
         }
         echo '</form>';
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="get" />';
         echo html_writer::input_hidden_params($thisurl);
         if ($reportsettings->showprogressbars) {
             $editchecks = false;
             echo '<input type="hidden" name="action" value="hideprogressbars" />';
-            echo '<input type="submit" name="submit" value="'.get_string('showfulldetails', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('showfulldetails', 'checklist').'" />';
         } else {
             echo '<input type="hidden" name="action" value="showprogressbars" />';
-            echo '<input type="submit" name="submit" value="'.get_string('showprogressbars', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('showprogressbars', 'checklist').'" />';
         }
         echo '</form>';
 
         if ($editchecks) {
-            echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="post" />';
+            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="post" />';
             echo html_writer::input_hidden_params($thisurl);
             echo '<input type="hidden" name="action" value="updateallchecks"/>';
-            echo '<input type="submit" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
         } else if (!$reportsettings->showprogressbars && $this->caneditother()
             && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT
         ) {
-            echo '&nbsp;&nbsp;<form style="display: inline;" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="get" />';
             echo html_writer::input_hidden_params($thisurl);
             echo '<input type="hidden" name="editchecks" value="on" />';
-            echo '<input type="submit" name="submit" value="'.get_string('editchecks', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('editchecks', 'checklist').'" />';
             echo '</form>';
         }
 
@@ -1200,7 +1200,7 @@ class checklist_class {
             echo '</div>';
 
             if ($editchecks) {
-                echo '<input type="submit" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
+                echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
                 echo '</form>';
             }
         }
@@ -1241,7 +1241,7 @@ class checklist_class {
                     $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">';
                     $output .= html_writer::tag('button', get_string('togglecolumn', 'checklist'),
                                                 array(
-                                                    'class' => 'make_col_c',
+                                                    'class' => 'make_col_c btn btn-secondary',
                                                     'id' => $checkid,
                                                     'type' => 'button'
                                                 ));
@@ -1332,7 +1332,7 @@ class checklist_class {
                         $output .= '<td style=" text-align: center; width: '.$size.';" class="'.$cellclass.'">';
                         $output .= html_writer::tag('button', get_string('togglerow', 'checklist'),
                                                     array(
-                                                        'class' => 'make_c',
+                                                        'class' => 'make_c btn btn-secondary',
                                                         'id' => $this->find_userid($row),
                                                         'type' => 'button'
                                                     ));
