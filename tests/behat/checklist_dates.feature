@@ -36,7 +36,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
       | duetimedisable | 0                 |
       | duetime[day]   | 18                |
       | duetime[month] | June              |
-      | duetime[year]  | 2013              |
+      | duetime[year]  | 2018              |
     And I press "Add"
     # No date for the last item.
     And I set the following fields to these values:
@@ -51,7 +51,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     And I follow "Test checklist"
     Then I should see "25 March 2025" in the "The first list item" "list_item"
     And ".checklist-itemdue" "css_element" should exist in the "The first list item" "list_item"
-    And I should see "18 June 2013" in the "Another list item" "list_item"
+    And I should see "18 June 2018" in the "Another list item" "list_item"
     And ".checklist-itemoverdue" "css_element" should exist in the "Another list item" "list_item"
 
   Scenario: When I add dates to items they appear in the course calendar.
@@ -60,7 +60,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     Then I should see "The first list item"
     And I should not see "Another list item"
     And I should not see "Third list item"
-    When I visit the calendar for course "C1" showing date "18 June 2013"
+    When I visit the calendar for course "C1" showing date "18 June 2018"
     Then I should see "Another list item"
     And I should not see "The first list item"
     And I should not see "Third list item"
@@ -76,5 +76,5 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     When I log in as "student1"
     And I visit the calendar for course "C1" showing date "25 March 2025"
     Then I should not see "The first list item"
-    When I visit the calendar for course "C1" showing date "18 June 2013"
+    When I visit the calendar for course "C1" showing date "18 June 2018"
     Then I should not see "Another list item"
