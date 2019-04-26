@@ -99,7 +99,7 @@ function checklist_autoupdate_internal($courseid, $module, $cmid, $userid) {
         return 0;
     }
 
-    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*
+    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*, cl.course
               FROM {checklist_item} i
               JOIN {checklist} cl ON i.checklist = cl.id
               LEFT JOIN {checklist_check} ck ON (ck.item = i.id AND ck.userid = :userid)
