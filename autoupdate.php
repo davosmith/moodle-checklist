@@ -32,6 +32,11 @@ function checklist_completion_update_checks($userid, $itemchecks, $newstate) {
     $updatecount = 0;
     $updatechecklists = array();
     foreach ($itemchecks as $itemcheck) {
+        list(, $cm) = get_course_and_cm_from_instance($itemcheck->checklist, 'checklist', $itemcheck->course);
+        $context = context_module::instance($cm->id);
+        if (!has_capability('mod/checklist:updateown', $context, $userid)) {
+            continue; // User can't update checklist, so don't save the value.
+        }
         if ($itemcheck->id) {
             $check = new checklist_check((array)$itemcheck, false);
         } else {
@@ -126,7 +131,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
         mtrace("Completion status change for cmid: $cmid, userid: $userid, newstate: $newstate");
     }
 
-    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*
+    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*, cl.course
               FROM {checklist_item} i
               JOIN {checklist} cl ON i.checklist = cl.id
               LEFT JOIN {checklist_check} ck ON (ck.item = i.id AND ck.userid = :userid)
@@ -152,7 +157,7 @@ function checklist_completion_autoupdate($cmid, $userid, $newstate) {
 function checklist_course_completion_autoupdate($courseid, $userid) {
     global $DB;
 
-    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*
+    $sql = "SELECT i.id AS itemid, i.checklist, cl.teacheredit, ck.*, cl.course
               FROM {checklist_item} i
               JOIN {checklist} cl ON cl.id = i.checklist
               LEFT JOIN {checklist_check} ck ON ck.item = i.id AND ck.userid = :userid
