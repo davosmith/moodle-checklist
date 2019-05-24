@@ -229,11 +229,11 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                 $checkclass = '';
                 if ($item->is_heading()) {
-                    $optional = ' class="itemheading '.$itemcolour.'" ';
+                    $optional = ' class="itemheading '.$itemcolour.' ml-1" ';
                 } else if ($item->is_required()) {
-                    $optional = ' class="'.$itemcolour.'" ';
+                    $optional = ' class="'.$itemcolour.' ml-1" ';
                 } else {
-                    $optional = ' class="itemoptional '.$itemcolour.'" ';
+                    $optional = ' class="itemoptional '.$itemcolour.' ml-1" ';
                     $checkclass = ' itemoptional';
                 }
 
