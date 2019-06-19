@@ -46,7 +46,7 @@
         <FIELD NAME="colour" TYPE="char" LENGTH="15" NOTNULL="true" DEFAULT="black" SEQUENCE="false"/>
         <FIELD NAME="moduleid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="id of the course module (if any) associated with this item"/>
         <FIELD NAME="hidden" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not the item should be hidden from students"/>
-        <FIELD NAME="grouping" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Grouping that the item's module belongs to"/>
+        <FIELD NAME="groupingid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Grouping that the item's module belongs to"/>
         <FIELD NAME="linkcourseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The ID of the course that this item is linked to"/>
         <FIELD NAME="linkurl" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An arbitrary URL that this item is linked to"/>
       </FIELDS>

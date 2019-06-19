@@ -349,20 +349,20 @@ class checklist_class {
 
                     $groupingid = $mods->get_cm($cmid)->groupingid;
                     if ($groupmembersonly && $groupingid && $mods->get_cm($cmid)->groupmembersonly) {
-                        if ($item->grouping != $groupingid) {
-                            $item->grouping = $groupingid;
+                        if ($item->groupingid != $groupingid) {
+                            $item->groupingid = $groupingid;
                             $upd = new stdClass;
                             $upd->id = $item->id;
-                            $upd->grouping = $groupingid;
+                            $upd->groupingid = $groupingid;
                             $DB->update_record('checklist_item', $upd);
                             $changes = true;
                         }
                     } else {
-                        if ($item->grouping) {
-                            $item->grouping = 0;
+                        if ($item->groupingid) {
+                            $item->groupingid = 0;
                             $upd = new stdClass;
                             $upd->id = $item->id;
-                            $upd->grouping = 0;
+                            $upd->groupingid = 0;
                             $DB->update_record('checklist_item', $upd);
                             $changes = true;
                         }
@@ -374,7 +374,7 @@ class checklist_class {
                     reset($this->items);
                     $this->items[$itemid]->stillexists = true;
                     $usegrouping = $groupmembersonly && $mods->get_cm($cmid)->groupmembersonly;
-                    $this->items[$itemid]->grouping = $usegrouping ? $mods->get_cm($cmid)->groupingid : 0;
+                    $this->items[$itemid]->groupingid = $usegrouping ? $mods->get_cm($cmid)->groupingid : 0;
                     $item = $this->items[$itemid];
                 }
                 $item->set_modulelink(new moodle_url('/mod/'.$mods->get_cm($cmid)->modname.'/view.php', array('id' => $cmid)));
@@ -751,8 +751,8 @@ class checklist_class {
             if (($item->is_heading()) || ($item->hidden)) {
                 continue;
             }
-            if ($checkgroupings && !empty($item->grouping)) {
-                if (!in_array($item->grouping, $this->groupings)) {
+            if ($checkgroupings && !empty($item->groupingid)) {
+                if (!in_array($item->groupingid, $this->groupings)) {
                     continue; // Current user is not a member of this item's grouping.
                 }
             }
@@ -1513,14 +1513,14 @@ class checklist_class {
                 $position = optional_param('position', false, PARAM_INT);
                 $linkcourseid = optional_param('linkcourseid', null, PARAM_INT);
                 $linkurl = optional_param('linkurl', null, PARAM_URL);
-                $grouping = optional_param('grouping', 0, PARAM_INT);
+                $groupingid = optional_param('groupingid', 0, PARAM_INT);
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
                     $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
                 $this->additem($displaytext, 0, $indent, $position, $duetime, 0, CHECKLIST_OPTIONAL_NO, CHECKLIST_HIDDEN_NO,
-                               $linkcourseid, $linkurl, $grouping);
+                               $linkcourseid, $linkurl, $groupingid);
                 if ($position) {
                     $additemafter = false;
                 }
@@ -1538,13 +1538,13 @@ class checklist_class {
                 $displaytext = optional_param('displaytext', '', PARAM_TEXT);
                 $linkcourseid = optional_param('linkcourseid', null, PARAM_INT);
                 $linkurl = optional_param('linkurl', null, PARAM_URL);
-                $grouping = optional_param('grouping', 0, PARAM_INT);
+                $groupingid = optional_param('groupingid', 0, PARAM_INT);
                 if (optional_param('duetimedisable', false, PARAM_BOOL)) {
                     $duetime = false;
                 } else {
                     $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
-                $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl, $grouping);
+                $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl, $groupingid);
                 break;
             case 'deleteitem':
                 if (($this->checklist->autopopulate) && (isset($this->items[$itemid])) && ($this->items[$itemid]->moduleid)) {
@@ -1683,7 +1683,7 @@ class checklist_class {
         }
     }
 
-    protected function validate_links(&$linkcourseid, &$linkurl, &$grouping) {
+    protected function validate_links(&$linkcourseid, &$linkurl, &$groupingid) {
         if ($linkcourseid && $this->can_link_courses()) {
             $courses = self::get_linkable_courses();
             if (!array_key_exists($linkcourseid, $courses)) {
@@ -1702,16 +1702,16 @@ class checklist_class {
             }
         }
 
-        if ($grouping !== null) {
-            if (!$grouping || !array_key_exists($grouping, self::get_course_groupings($this->course->id))) {
-                $grouping = 0;
+        if ($groupingid !== null) {
+            if (!$groupingid || !array_key_exists($groupingid, self::get_course_groupings($this->course->id))) {
+                $groupingid = 0;
             }
         }
     }
 
     public function additem($displaytext, $userid = 0, $indent = 0, $position = false, $duetime = false, $moduleid = 0,
                             $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO, $linkcourseid = null,
-                            $linkurl = null, $grouping = 0) {
+                            $linkurl = null, $groupingid = 0) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return false;
@@ -1728,7 +1728,7 @@ class checklist_class {
             }
         }
 
-        $this->validate_links($linkcourseid, $linkurl, $grouping);
+        $this->validate_links($linkcourseid, $linkurl, $groupingid);
 
         $item = new checklist_item();
         $item->checklist = $this->checklist->id;
@@ -1751,7 +1751,7 @@ class checklist_class {
         $item->moduleid = $moduleid;
         $item->linkcourseid = $linkcourseid;
         $item->linkurl = $linkurl;
-        $item->grouping = $grouping;
+        $item->groupingid = $groupingid;
 
         $item->insert();
         if ($item->id) {
@@ -1860,7 +1860,7 @@ class checklist_class {
     }
 
     protected function updateitem($itemid, $displaytext, $duetime = false, $linkcourseid = null, $linkurl = null,
-                                  $grouping = null) {
+                                  $groupingid = null) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1881,8 +1881,8 @@ class checklist_class {
                 }
                 $item->linkcourseid = $linkcourseid;
                 $item->linkurl = $linkurl;
-                if ($grouping !== null) {
-                    $item->grouping = $grouping;
+                if ($groupingid !== null) {
+                    $item->groupingid = $groupingid;
                 }
                 $item->update();
                 if ($this->checklist->duedatesoncalendar) {
@@ -2774,9 +2774,9 @@ class checklist_class {
         $groupings = self::get_user_groupings($userid, $courseid);
         if ($groupings) {
             $groupings[] = 0;
-            $groupingsql = " {$prefix}grouping IN (".implode(',', $groupings).') ';
+            $groupingsql = " {$prefix}groupingid IN (".implode(',', $groupings).') ';
         } else {
-            $groupingsql = " {$prefix}grouping = 0 ";
+            $groupingsql = " {$prefix}groupingid = 0 ";
         }
         return $groupingsql;
     }
