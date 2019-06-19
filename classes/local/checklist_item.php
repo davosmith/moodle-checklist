@@ -36,7 +36,7 @@ class checklist_item extends data_object {
     public $table = 'checklist_item';
     public $requiredfields = [
         'id', 'checklist', 'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime',
-        'eventid', 'colour', 'moduleid', 'hidden', 'grouping', 'linkcourseid', 'linkurl'
+        'eventid', 'colour', 'moduleid', 'hidden', 'groupingid', 'linkcourseid', 'linkurl'
     ];
 
     // DB fields.
@@ -51,7 +51,7 @@ class checklist_item extends data_object {
     public $colour = 'black';
     public $moduleid = 0;
     public $hidden = CHECKLIST_HIDDEN_NO;
-    public $grouping = 0;
+    public $groupingid = 0;
     public $linkcourseid = null;
     public $linkurl = null;
 
@@ -403,8 +403,8 @@ class checklist_item extends data_object {
             return;
         }
         foreach ($items as $item) {
-            if ($item->grouping && isset($groupings[$item->grouping])) {
-                $item->groupingname = $groupings[$item->grouping];
+            if ($item->groupingid && isset($groupings[$item->groupingid])) {
+                $item->groupingname = $groupings[$item->groupingid];
             }
         }
     }

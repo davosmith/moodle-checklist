@@ -182,8 +182,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     continue;
                 }
 
-                if ($status->is_checkgroupings() && $item->grouping) {
-                    if (!in_array($item->grouping, $groupings)) {
+                if ($status->is_checkgroupings() && $item->groupingid) {
+                    if (!in_array($item->groupingid, $groupings)) {
                         continue; // Current user is not a member of this item's grouping, so skip.
                     }
                 }
