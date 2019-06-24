@@ -145,6 +145,7 @@ $string['lockteachermarkswarning'] = 'Note: Once you have saved these marks, you
 
 $string['modulename'] = 'Checklist';
 $string['modulename_help'] = 'The checklist module allows a teacher to create a checklist / todo list / task list for their students to work through.';
+$string['modulename_link'] = 'mod/checklist/view';
 $string['modulenameplural'] = 'Checklists';
 
 $string['moveitemdown'] = 'Move item down';
