@@ -916,9 +916,9 @@ ENDSCRIPT;
 
         $out .= '<br>';
         $out .= html_writer::label(get_string('grouping', 'mod_checklist'), 'id_grouping').' ';
-        $selected = $item ? $item->grouping : null;
+        $selected = $item ? $item->groupingid : null;
         $groupings = checklist_class::get_course_groupings($status->get_courseid());
-        $out .= html_writer::select($groupings, 'grouping', $selected, [0 => get_string('anygrouping', 'mod_checklist')],
+        $out .= html_writer::select($groupings, 'groupingid', $selected, [0 => get_string('anygrouping', 'mod_checklist')],
                                     ['id' => 'id_grouping']);
 
         return $out;

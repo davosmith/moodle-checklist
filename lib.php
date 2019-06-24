@@ -232,7 +232,7 @@ function checklist_update_grades($checklist, $userid = 0) {
     $checkgroupings = false; // Don't check items against groupings unless we really have to.
     $groupings = checklist_class::get_course_groupings($course->id);
     foreach ($items as $item) {
-        if ($item->grouping && isset($groupings[$item->groupingid])) {
+        if ($item->groupingid && isset($groupings[$item->groupingid])) {
             $checkgroupings = true;
             break;
         }
