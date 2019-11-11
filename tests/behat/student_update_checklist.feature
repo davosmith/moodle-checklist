@@ -56,6 +56,8 @@ Feature: A student can update their progress in a checklist
     When I click on "Checklist optional item 4" "text"
     Then I should see "0%" in the "#checklistprogressrequired" "css_element"
     And I should see "20%" in the "#checklistprogressall" "css_element"
+    # Delay to allow AJAX to clear before resetting DB (avoids test-failing popup).
+    And I wait "2" seconds
 
   @javascript
   Scenario: When a student updates their progress and then returns to the page their progress is remembered
