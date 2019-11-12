@@ -381,7 +381,8 @@ function checklist_update_grades($checklist, $userid = 0) {
                             $groups = '';
                         }
 
-                        if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete', 'u.*','','','', $groups)) {
+                        if ($recipients = get_users_by_capability($context, 'mod/checklist:emailoncomplete',
+                                                                  'u.*', '', '', '', $groups)) {
                             foreach ($recipients as $recipient) {
                                 email_to_user($recipient, $grade, $subj, $content, '', '', '', false);
                             }

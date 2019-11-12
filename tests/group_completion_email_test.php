@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy provider tests
+ * Group email tests
  *
  * @package   mod_checklist
- * @copyright 2018 Davo Smith
+ * @copyright 2019 Andy McGill
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -56,27 +56,25 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
         unset_config('noemailever');
         $this->mailsink = $this->redirectEmails();
 
-        $course_record= new stdClass();
-        $course_record->groupmode = SEPARATEGROUPS;
-        $course_record->groupmodeforce = true;
-        $course_record->enablecompletion = 1;
-        $this->course = $this->getDataGenerator()->create_course($course_record);
-
+        $courserecord = new stdClass();
+        $courserecord->groupmode = SEPARATEGROUPS;
+        $courserecord->groupmodeforce = true;
+        $courserecord->enablecompletion = 1;
+        $this->course = $this->getDataGenerator()->create_course($courserecord);
 
         // Create a checklist.
         /** @var mod_checklist_generator $plugingen */
         $plugingen = $this->getDataGenerator()->get_plugin_generator('mod_checklist');
         $params = [
             'course' => $this->course->id,
-            'emailoncomplete' => 2, //2 is teacher only
+            'emailoncomplete' => 2, // 2 is teacher only.
             'completionpercent' => 100,
-            'completion' => 2, //2 is complete when completionpercent is reached
+            'completion' => 2, // 2 is complete when completionpercent is reached.
         ];
         $this->checklist = $plugingen->create_instance($params);
 
         $itemtexts = ['First item', 'Second item', 'Third item'];
 
-        
         $position = 1;
         foreach ($itemtexts as $text) {
             $item = new \mod_checklist\local\checklist_item([], false);
@@ -86,7 +84,6 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
             $item->position = $position++;
             $item->insert();
         }
-        
 
         // Create a student who will add data to these checklists.
         $this->student = $this->getDataGenerator()->create_user();
@@ -102,15 +99,15 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
         $this->teacher2 = $this->getDataGenerator()->create_user(array('email' => 'notingroupteacher@testing.com'));
         $this->getDataGenerator()->enrol_user($this->teacher2->id, $this->course->id, $teacherrole->id);
 
-        // Create a group
+        // Create a group.
         $this->group = $this->getDataGenerator()->create_group(array('courseid' => $this->course->id));
 
-        // Add the student to the group
+        // Add the student to the group.
         $this->getDataGenerator()->create_group_member(array('userid' => $this->student->id, 'groupid' => $this->group->id));
 
-        // Add one teacher to the group
+        // Add one teacher to the group.
         $this->getDataGenerator()->create_group_member(array('userid' => $this->teacher->id, 'groupid' => $this->group->id));
-    
+
     }
 
     public function tearDown() {
@@ -119,34 +116,34 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
         unset($this->mailsink);
     }
 
-
     /**
-     * Ensure that for a checklist when course is in SEPARATEGROUPS mode 
-     * teachers not in the same group as the student will not receive the 
+     * Ensure that for a checklist when course is in SEPARATEGROUPS mode
+     * teachers not in the same group as the student will not receive the
      * email but teachers in the same group as the student will receive the email
      */
     public function test_group_completion_emails() {
-        global $DB, $CFG;
-
+        global $CFG;
         require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
-         // The checklist includes checkmarks from the student for all of the items.
-        /** @var \mod_checklist\local\checklist_item $item */
+        // The checklist includes checkmarks from the student for all of the items.
+        /** @var \mod_checklist\local\checklist_item[] $items */
         $items = \mod_checklist\local\checklist_item::fetch_all(['checklist' => $this->checklist->id], true);
         $items = array_values($items);
         $items[0]->set_checked_student($this->student->id, true);
         $items[1]->set_checked_student($this->student->id, true);
         $items[2]->set_checked_student($this->student->id, true);
 
-         // test the function
-         checklist_update_grades($this->checklist, $this->student->id);
+        // Test the function.
+        checklist_update_grades($this->checklist, $this->student->id);
 
-         $recipients = array_map(function($o) { return $o->to; }, $this->mailsink->get_messages());
+        $recipients = array_map(function($o) {
+            return $o->to;
+        }, $this->mailsink->get_messages());
 
-         $this->assertContains('ingroupteacher@testing.com',$recipients, 'The teacher in the same group as the student did not receive the completion email');
-         $this->assertNotContains('notingroupteacher@testing.com',$recipients, 'The teacher NOT in the same group as the student received the completion email');
+        $this->assertContains('ingroupteacher@testing.com', $recipients,
+                              'The teacher in the same group as the student did not receive the completion email');
+        $this->assertNotContains('notingroupteacher@testing.com', $recipients,
+                                 'The teacher NOT in the same group as the student received the completion email');
 
     }
-
-    
 }
