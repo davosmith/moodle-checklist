@@ -56,7 +56,6 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         $oldid = $data->id;
 
         $data->checklist = $this->get_new_parentid('checklist');
-        $data->duetime = $this->apply_date_offset($data->duetime);
         if ($data->userid > 0) {
             $data->userid = $this->get_mappingid('user', $data->userid);
         }
