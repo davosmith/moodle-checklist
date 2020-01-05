@@ -370,9 +370,11 @@ function checklist_update_grades($checklist, $userid = 0) {
 
                         $groups = groups_get_all_groups($course->id, $grade->userid, $cm->groupingid);
 
-                        if (is_array($groups) && count($groups) > 0) {
+                        $group_mode = groups_get_activity_groupmode($cm, $course);
+
+                        if (is_array($groups) && count($groups) > 0 && $group_mode != NOGROUPS) {
                             $groups = array_keys($groups);
-                        } else if (groups_get_activity_groupmode($cm, $course) != NOGROUPS) {
+                        } else if ($group_mode != NOGROUPS) {
                             // If the user is not in a group, and the checklist is set to group mode,
                             // then set $groups to a non-existant id so that only users with
                             // 'moodle/site:accessallgroups' get notified.
