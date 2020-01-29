@@ -36,7 +36,7 @@ class checklist_item extends data_object {
     public $table = 'checklist_item';
     public $requiredfields = [
         'id', 'checklist', 'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime',
-        'eventid', 'colour', 'moduleid', 'hidden', 'groupingid', 'linkcourseid', 'linkurl'
+        'eventid', 'colour', 'moduleid', 'hidden', 'groupingid', 'linkcourseid', 'linkurl', 'openlinkinnewwindow'
     ];
 
     // DB fields.
@@ -54,6 +54,7 @@ class checklist_item extends data_object {
     public $groupingid = 0;
     public $linkcourseid = null;
     public $linkurl = null;
+    public $openlinkinnewwindow = false;
 
     // Extra status fields (for a particular student).
     public $usertimestamp = 0;

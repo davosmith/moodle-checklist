@@ -155,6 +155,7 @@ $string['noitems'] = 'No items in the checklist';
 
 $string['onlyenrolled'] = 'Only active users';
 $string['onlyenrolleddesc'] = 'When selected, only users with active enrolments are shown in checklists (deselect to return to the old behaviour)';
+$string['openlinkinnewwindow'] = 'Open in new window?';
 $string['optionalitem'] = 'This item is optional';
 $string['optionalhide'] = 'Hide optional items';
 $string['optionalshow'] = 'Show optional items';

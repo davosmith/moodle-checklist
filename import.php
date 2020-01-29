@@ -111,6 +111,7 @@ if ($data = $form->get_data()) {
         }
         $newitem->linkcourseid = empty($line->linkcourseid) ? null : (int)$line->linkcourseid;
         $newitem->linkurl = empty($line->linkurl) ? null : clean_param($line->linkurl, PARAM_URL);
+        $newitem->openlinkinnewwindow = empty($line->openlinkinnewwindow) ? false : (bool) $line->openlinkinnewwindow;
 
         if ($newitem->displaytext) { // Don't insert items without any text in them.
             if (!$newitem->insert()) {

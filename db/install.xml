@@ -49,6 +49,8 @@
         <FIELD NAME="groupingid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Grouping that the item's module belongs to"/>
         <FIELD NAME="linkcourseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The ID of the course that this item is linked to"/>
         <FIELD NAME="linkurl" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An arbitrary URL that this item is linked to"/>
+        <FIELD NAME="openlinkinnewwindow" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"  SEQUENCE="false" COMMENT="Whether or not the link should be openend in a new window"/>
+
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

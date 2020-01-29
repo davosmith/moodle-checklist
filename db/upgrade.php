@@ -318,5 +318,15 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         upgrade_mod_savepoint(true, 2019061900, 'checklist');
     }
 
+    if ($oldversion < 2020012900) {
+        $table = new xmldb_table('checklist_item');
+        $field = new xmldb_field('openlinkinnewwindow', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, 0, 'linkurl');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Checklist savepoint reached.
+        upgrade_mod_savepoint(true, 2020012900, 'checklist');
+    }
+
     return $result;
 }
