@@ -274,6 +274,10 @@ ol.checklist label {
     padding: 10px 0 5px;
     margin: 5px 0;
 }
+.checklist-extendedit .checklist-edititem label,
+.checklist-extendedit .checklist-edititem input {
+    margin: 0 3px;
+}
 
 .checklist-groupingname {
     color: #ccc;

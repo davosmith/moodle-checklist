@@ -874,7 +874,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
 </script>
 ENDSCRIPT;
 
-        return $out;
+        return html_writer::span($out, 'checklistformitem');
     }
 
     /**
@@ -918,7 +918,7 @@ ENDSCRIPT;
             $attr
         );
 
-        return $out;
+        return html_writer::span($out, 'checklistformitem');
     }
 
     /**
@@ -938,7 +938,7 @@ ENDSCRIPT;
         $out .= html_writer::select($groupings, 'groupingid', $selected, [0 => get_string('anygrouping', 'mod_checklist')],
                                     ['id' => 'id_grouping']);
 
-        return $out;
+        return html_writer::span($out, 'checklistformitem');
     }
 
     /**
