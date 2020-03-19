@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2020-01-29 - "open link in new window" option from Stefan Topfstedt
 * 2019-04-26 - Fix bug with autocompletion updating grades during unenrolment. Autocompletion now only updates checkmarks if the user has capability 'mod/checklist:updateown'.
 * 2018-11-16 - Support new privacy features in M3.4.6, M3.5.3, M3.6+
 * 2018-04-21 - Fix bug when editing items with dates when date editing is disabled
