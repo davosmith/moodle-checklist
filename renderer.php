@@ -913,7 +913,7 @@ ENDSCRIPT;
         $out .= html_writer::checkbox(
             'openlinkinnewwindow',
             1,
-            false,
+            $item ? (bool) $item->openlinkinnewwindow : false,
             get_string('openlinkinnewwindow', 'mod_checklist'),
             $attr
         );
