@@ -1545,7 +1545,8 @@ class checklist_class {
                 } else {
                     $duetime = optional_param_array('duetime', false, PARAM_INT);
                 }
-                $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl, $groupingid);
+                $openlinkinnewwindow = optional_param('openlinkinnewwindow', false, PARAM_BOOL);
+                $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl, $groupingid, $openlinkinnewwindow);
                 break;
             case 'deleteitem':
                 if (($this->checklist->autopopulate) && (isset($this->items[$itemid])) && ($this->items[$itemid]->moduleid)) {
@@ -1862,7 +1863,7 @@ class checklist_class {
     }
 
     protected function updateitem($itemid, $displaytext, $duetime = false, $linkcourseid = null, $linkurl = null,
-                                  $groupingid = null) {
+                                  $groupingid = null, $openlinkinnewwindow = false) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
@@ -1881,6 +1882,7 @@ class checklist_class {
                         $item->duetime = make_timestamp($duetime['year'], $duetime['month'], $duetime['day']);
                     }
                 }
+                $item->openlinkinnewwindow = $openlinkinnewwindow;
                 $item->linkcourseid = $linkcourseid;
                 $item->linkurl = $linkurl;
                 if ($groupingid !== null) {
