@@ -78,13 +78,26 @@ ol.checklist .teachercomment {
     margin: 0 0 0 20px;
 }
 
+/* Style Background Colors of Disabled Checklist Items */
 ol.checklist .itemauto.itemdisabled {
     text-decoration: line-through;
     background-color: #bcc4c4;
+    color: #666;
 }
 
 ol.checklist .itemauto {
     background-color: #d6e6e7;
+}
+
+/* Style Background Colors of Enabled Checklist Items */
+#page-mod-checklist-edit ol.checklist .itemauto {
+    background-color: initial;
+}
+
+
+/* Add Row Color on Hover */
+#page-mod-checklist-edit ol.checklist li:hover {
+    background: #d6e6e7;
 }
 
 ol.checklist li .itemuserdate {
@@ -267,6 +280,26 @@ p.checklistwarning {
 
 ol.checklist label {
     display: inline;
+}
+
+/* Padding Between Checkbox and Label */
+#page-mod-checklist-edit li label {
+    margin-left: 10px!important;
+}
+
+/* Right - Align Most Activity Icons */
+#page-mod-checklist-edit li img.icon {
+    float: right;
+} 
+
+/* Reduce Width between Labels and Icons*/
+#page-mod-checklist-edit ol form {
+    width: max-content;
+}
+
+/* Padding Under Show/Hide Button */
+.checklist-extendedit .btn {
+    margin-bottom: 15px;
 }
 
 .checklist-extendedit .checklist-edititem {
