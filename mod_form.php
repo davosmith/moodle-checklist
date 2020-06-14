@@ -144,12 +144,15 @@ class mod_checklist_mod_form extends moodleform_mod {
         // Set up the completion checkboxes which aren't part of standard data.
         // We also make the default value (if you turn on the checkbox) for those
         // numbers to be 1, this will not apply unless checkbox is ticked.
-        $defaultvalues['completionpercentenabled'] = !empty($defaultvalues['completionpercent']) ? 1 : 0;
+        if (empty($defaultvalues['completionenabled'])) {
+            $defaultvalues['completionenabled'] = 0;
+        }
+        
         if (empty($defaultvalues['completionpercent'])) {
             $defaultvalues['completionpercent'] = 100;
         }
-		
-	$defaultvalues['completionnumberenabled'] = !empty($defaultvalues['completionnumber']) ? 1 : 0;
+        
+        
         if (empty($defaultvalues['completionnumber'])) {
             $defaultvalues['completionnumber'] = 1;
         }
@@ -159,24 +162,30 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform =& $this->_form;
 
         $group = array();
-        $group[] =& $mform->createElement('checkbox', 'completionpercentenabled', '', get_string('completionpercent', 'checklist'), array('class' => 'checkbox-inline'));
-        $group[] =& $mform->createElement('text', 'completionpercent', '', array('size' => 3));
+
+        $options = array(1 => get_string('completionpercent', 'checklist'),
+                         2 => get_string('completionnumber', 'checklist'));
+        $group[] =& $mform->createElement('checkbox', 'completionenabled', '', '', array('class' => 'checkbox-inline'));
+        $group[] =& $mform->createElement('select', 'completiontype', '' , $options);
+        $mform->setDefault('completiontype', 1);
+        $mform->disabledIf('completiontype', 'completionenabled', 'notchecked');
+        
+        $group[] =& $mform->createElement('text', 'completionpercent', get_string('completionpercent', 'checklist'), array('size' => 3));
         $mform->setType('completionpercent', PARAM_INT);
-        $mform->addGroup($group, 'completionpercentgroup', get_string('completionpercentgroup', 'checklist'), array(' '), false);
-        $mform->disabledIf('completionpercent', 'completionpercentenabled', 'notchecked');
-
-        $group = array();
-        $group[] =& $mform->createElement('checkbox', 'completionnumberenabled', '', get_string('completionnumber', 'checklist'), array('class' => 'checkbox-inline'));
-        $group[] =& $mform->createElement('text', 'completionnumber', '', array('size' => 3));
+        $mform->hideIf('completionpercent', 'completiontype', 'neq', '1');
+        $mform->hideIf('completionpercent', 'completionenabled', 'notchecked');
+        
+        $group[] =& $mform->createElement('text', 'completionnumber', get_string('completionnumber', 'checklist'), array('size' => 3));
         $mform->setType('completionnumber', PARAM_INT);
-        $mform->addGroup($group, 'completionnumbergroup', get_string('completionnumbergroup', 'checklist'), array(' '), false);
-        $mform->disabledIf('completionnumber', 'completionnumberenabled', 'notchecked');
-
-        return array('completionpercentgroup','completionnumbergroup');
+        $mform->hideIf('completionnumber', 'completiontype', 'neq', '2');
+        $mform->hideIf('completionnumber', 'completionenabled', 'notchecked');
+        $mform->addGroup($group, 'completiongroup', get_string('completiontype', 'checklist'), array(' '), false);
+        
+        return array('completiongroup');
     }
 
     public function completion_rule_enabled($data) {
-        return (!empty($data['completionpercentenabled']) && $data['completionpercent'] != 0) || (!empty($data['completionnumberenabled']) && $data['completionnumber'] != 0) ;
+        return (!empty($data['completiontype']) && ($data['completionpercent'] != 0 || $data['completionnumber'] != 0));
     }
 
     public function get_data() {
@@ -184,18 +193,25 @@ class mod_checklist_mod_form extends moodleform_mod {
         if (!$data) {
             return false;
         }
+        
         // Turn off completion settings if the checkboxes aren't ticked.
         if (isset($data->completionpercent)) {
             $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (empty($data->completionpercentenabled)  || !$autocompletion) {
+            if (empty($data->completiontype) || !$data->completiontype == 1 || !$autocompletion) {
                 $data->completionpercent = 0;
             }
-	}
-	if (isset($data->completionnumber)) {
+        }
+        if (isset($data->completionnumber)) {
             $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (empty($data->completionnumberenabled)  || !$autocompletion) {
+            if (empty($data->completiontype) || !$data->completiontype == 2 || !$autocompletion) {
                 $data->completionnumber = 0;
             }
+        }
+        if(!isset($data->completionenabled) || $data->completionenabled == 0) {
+            $data->completionpercent = 0;
+            $data->completionnumber = 0;
+            $data->completiontype = 0;
+            $data->completionenabled = 0;
         }
         return $data;
     }

@@ -104,7 +104,7 @@ function checklist_update_instance($checklist) {
         $newcompletion = $oldcompletion;
     }
 
-	if (isset($checklist->completionnumber)) {
+    if (isset($checklist->completionnumber)) {
         $newcompletion = $checklist->completionnumber;
     } else {
         $newcompletion = $oldcompletion;
@@ -887,19 +887,13 @@ function checklist_get_completion_state($course, $cm, $userid, $type) {
 
     $result = $type; // Default return value.
 
-    if ($checklist->completionpercent) {
+    if ($checklist->completiontype && ($checklist->completionpercent>0 || $checklist->completionnumber>0)) {
         list($ticked, $total) = checklist_class::get_user_progress($cm->instance, $userid);
-        $value = $checklist->completionpercent <= ($ticked * 100 / $total);
-        if ($type == COMPLETION_AND) {
-            $result = $result && $value;
-        } else {
-            $result = $result || $value;
+        if($checklist->completiontype==1) {
+            $value = $checklist->completionpercent <= ($ticked * 100 / $total);
+        } else if($checklist->completiontype==2) {
+            $value = $checklist->completionnumber <= $ticked;
         }
-    }
-
-	if ($checklist->completionnumber) {
-        list($ticked, $total) = checklist_class::get_user_progress($cm->instance, $userid);
-        $value = $checklist->completionnumber <= $ticked;
         if ($type == COMPLETION_AND) {
             $result = $result && $value;
         } else {

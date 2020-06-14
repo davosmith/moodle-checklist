@@ -84,7 +84,7 @@ $string['completionpercent'] = 'Percentage of items that should be checked-off:'
 $string['completionnumbergroup'] = 'Require checked-off';
 $string['completionnumber'] = 'Number of items that should be checked-off:';
 
-
+$string['completiontype'] = 'Way to check completion:';
 
 $string['configchecklistautoupdate'] = 'Before allowing this you must make a few changes to the core Moodle code, please see mod/checklist/README.txt for details';
 $string['configshowupdateablemymoodle'] = 'If this is checked then only updatable Checklists will be shown from the \'My Moodle\' page';
