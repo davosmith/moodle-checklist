@@ -24,7 +24,7 @@
         <FIELD NAME="completionpercent" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Percentage of items that need to be checked off before the checklist is regarded as complete"/>
         <FIELD NAME="completionnumber" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Number of items that need to be checked off before the checklist is regarded as complete"/>
         <FIELD NAME="completiontype" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Way for checking completion"/>
-		<FIELD NAME="completionenabled" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Enable auto completion tracking"/>
+        <FIELD NAME="completionenabled" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Enable auto completion tracking"/>
         <FIELD NAME="emailoncomplete" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not to email teachers when a checklist is completed"/>
         <FIELD NAME="lockteachermarks" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="If true, then teachers will be unable to change marks after saving a 'yes'"/>
       </FIELDS>
