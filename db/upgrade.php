@@ -328,5 +328,15 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         upgrade_mod_savepoint(true, 2020012900, 'checklist');
     }
 
+	if ($oldversion < 2020061300) {
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('completionnumber', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Checklist savepoint reached.
+        upgrade_mod_savepoint(true, 2020061300, 'checklist');
+    }
+
     return $result;
 }

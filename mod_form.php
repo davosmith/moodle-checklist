@@ -148,6 +148,11 @@ class mod_checklist_mod_form extends moodleform_mod {
         if (empty($defaultvalues['completionpercent'])) {
             $defaultvalues['completionpercent'] = 100;
         }
+		
+	$defaultvalues['completionnumberenabled'] = !empty($defaultvalues['completionnumber']) ? 1 : 0;
+        if (empty($defaultvalues['completionnumber'])) {
+            $defaultvalues['completionnumber'] = 1;
+        }
     }
 
     public function add_completion_rules() {
@@ -160,11 +165,18 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addGroup($group, 'completionpercentgroup', get_string('completionpercentgroup', 'checklist'), array(' '), false);
         $mform->disabledIf('completionpercent', 'completionpercentenabled', 'notchecked');
 
-        return array('completionpercentgroup');
+        $group = array();
+        $group[] =& $mform->createElement('checkbox', 'completionnumberenabled', '', get_string('completionnumber', 'checklist'), array('class' => 'checkbox-inline'));
+        $group[] =& $mform->createElement('text', 'completionnumber', '', array('size' => 3));
+        $mform->setType('completionnumber', PARAM_INT);
+        $mform->addGroup($group, 'completionnumbergroup', get_string('completionnumbergroup', 'checklist'), array(' '), false);
+        $mform->disabledIf('completionnumber', 'completionnumberenabled', 'notchecked');
+
+        return array('completionpercentgroup','completionnumbergroup');
     }
 
     public function completion_rule_enabled($data) {
-        return (!empty($data['completionpercentenabled']) && $data['completionpercent'] != 0);
+        return (!empty($data['completionpercentenabled']) && $data['completionpercent'] != 0) || (!empty($data['completionnumberenabled']) && $data['completionnumber'] != 0) ;
     }
 
     public function get_data() {
@@ -175,8 +187,14 @@ class mod_checklist_mod_form extends moodleform_mod {
         // Turn off completion settings if the checkboxes aren't ticked.
         if (isset($data->completionpercent)) {
             $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (empty($data->completionpercentenabled) || !$autocompletion) {
+            if (empty($data->completionpercentenabled)  || !$autocompletion) {
                 $data->completionpercent = 0;
+            }
+	}
+	if (isset($data->completionnumber)) {
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completionnumberenabled)  || !$autocompletion) {
+                $data->completionnumber = 0;
             }
         }
         return $data;

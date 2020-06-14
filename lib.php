@@ -104,6 +104,12 @@ function checklist_update_instance($checklist) {
         $newcompletion = $oldcompletion;
     }
 
+	if (isset($checklist->completionnumber)) {
+        $newcompletion = $checklist->completionnumber;
+    } else {
+        $newcompletion = $oldcompletion;
+    }
+
     $newautoupdate = $checklist->autoupdate;
     $oldautoupdate = $oldrecord->autoupdate;
 
@@ -884,6 +890,16 @@ function checklist_get_completion_state($course, $cm, $userid, $type) {
     if ($checklist->completionpercent) {
         list($ticked, $total) = checklist_class::get_user_progress($cm->instance, $userid);
         $value = $checklist->completionpercent <= ($ticked * 100 / $total);
+        if ($type == COMPLETION_AND) {
+            $result = $result && $value;
+        } else {
+            $result = $result || $value;
+        }
+    }
+
+	if ($checklist->completionnumber) {
+        list($ticked, $total) = checklist_class::get_user_progress($cm->instance, $userid);
+        $value = $checklist->completionnumber <= $ticked;
         if ($type == COMPLETION_AND) {
             $result = $result && $value;
         } else {

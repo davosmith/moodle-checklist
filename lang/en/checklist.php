@@ -81,6 +81,11 @@ $string['comments'] = 'Comments';
 $string['completionpercentgroup'] = 'Require checked-off';
 $string['completionpercent'] = 'Percentage of items that should be checked-off:';
 
+$string['completionnumbergroup'] = 'Require checked-off';
+$string['completionnumber'] = 'Number of items that should be checked-off:';
+
+
+
 $string['configchecklistautoupdate'] = 'Before allowing this you must make a few changes to the core Moodle code, please see mod/checklist/README.txt for details';
 $string['configshowupdateablemymoodle'] = 'If this is checked then only updatable Checklists will be shown from the \'My Moodle\' page';
 $string['configshowcompletemymoodle'] = 'If this is unchecked then completed Checklists will be hidden from the \'My Moodle\' page';
@@ -163,6 +168,10 @@ $string['or'] = 'OR';
 
 $string['percentcomplete'] = 'Required items';
 $string['percentcompleteall'] = 'All items';
+
+$string['numbercomplete'] = 'Required items';
+$string['numbercompleteall'] = 'All items';
+
 $string['pluginname'] = 'Checklist';
 $string['preview'] = 'Preview';
 
