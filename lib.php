@@ -98,11 +98,9 @@ function checklist_update_instance($checklist) {
     $oldmax = $oldrecord->maxgrade;
 
     $oldcompletion = $oldrecord->completionpercent;
-    if (isset($checklist->completionpercent)) {
-        $newcompletion = $checklist->completionpercent;
-    } else {
-        $newcompletion = $oldcompletion;
-    }
+    $newcompletion = $checklist->completionpercent ?? $oldcompletion;
+    $oldcompletiontype = $oldrecord->completionpercenttype;
+    $newcompletiontype = $checklist->completionpercenttype ?? $oldcompletiontype;
 
     $newautoupdate = $checklist->autoupdate;
     $oldautoupdate = $oldrecord->autoupdate;
@@ -121,7 +119,7 @@ function checklist_update_instance($checklist) {
     checklist_grade_item_update($checklist);
     if ($newmax != $oldmax) {
         checklist_update_grades($checklist);
-    } else if ($newcompletion && ($newcompletion != $oldcompletion)) {
+    } else if ($newcompletion && ($newcompletion != $oldcompletion || $newcompletiontype != $oldcompletiontype)) {
         // This will already be updated if checklist_update_grades() is called.
         $ci = new completion_info($course);
         $context = context_module::instance($cm->id);
@@ -883,7 +881,13 @@ function checklist_get_completion_state($course, $cm, $userid, $type) {
 
     if ($checklist->completionpercent) {
         list($ticked, $total) = checklist_class::get_user_progress($cm->instance, $userid);
-        $value = $checklist->completionpercent <= ($ticked * 100 / $total);
+        if ($checklist->completionpercenttype === 'items') {
+            // Completionpercent is the actual number of items that need checking-off.
+            $value = $checklist->completionpercent <= $ticked;
+        } else {
+            // Completionpercent is the percentage of items that need checking-off.
+            $value = $checklist->completionpercent <= ($ticked * 100 / $total);
+        }
         if ($type == COMPLETION_AND) {
             $result = $result && $value;
         } else {

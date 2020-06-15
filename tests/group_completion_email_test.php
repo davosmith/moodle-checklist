@@ -69,6 +69,7 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
             'course' => $this->course->id,
             'emailoncomplete' => 2, // 2 is teacher only.
             'completionpercent' => 100,
+            'completionpercenttype' => 'percent',
             'completion' => 2, // 2 is complete when completionpercent is reached.
         ];
         $this->checklist = $plugingen->create_instance($params);

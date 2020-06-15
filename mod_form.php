@@ -148,17 +148,28 @@ class mod_checklist_mod_form extends moodleform_mod {
         if (empty($defaultvalues['completionpercent'])) {
             $defaultvalues['completionpercent'] = 100;
         }
+        if (empty($defaultvalues['completionpercenttype'])) {
+            $defaultvalues['completionpercenttype'] = 'percent';
+        }
     }
 
     public function add_completion_rules() {
-        $mform =& $this->_form;
+        $mform = $this->_form;
 
         $group = array();
-        $group[] =& $mform->createElement('checkbox', 'completionpercentenabled', '', get_string('completionpercent', 'checklist'), array('class' => 'checkbox-inline'));
-        $group[] =& $mform->createElement('text', 'completionpercent', '', array('size' => 3));
+        $group[] = $mform->createElement('checkbox', 'completionpercentenabled', '', get_string('completionpercent', 'checklist'), array('class' => 'checkbox-inline'));
+        $group[] = $mform->createElement('text', 'completionpercent', '', array('size' => 3));
         $mform->setType('completionpercent', PARAM_INT);
+        $opts = [
+            'percent' => get_string('percent', 'mod_checklist'),
+            'items' => get_string('itemstype', 'mod_checklist'),
+        ];
+        $group[] = $mform->createElement('select', 'completionpercenttype', '', $opts);
+
         $mform->addGroup($group, 'completionpercentgroup', get_string('completionpercentgroup', 'checklist'), array(' '), false);
         $mform->disabledIf('completionpercent', 'completionpercentenabled', 'notchecked');
+        $mform->disabledIf('completionpercenttype', 'completionpercentenabled', 'notchecked');
+        $mform->addHelpButton('completionpercentgroup', 'completionpercentgroup', 'mod_checklist');
 
         return array('completionpercentgroup');
     }

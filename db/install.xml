@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/checklist/db" VERSION="20160427" COMMENT="XMLDB file for Moodle mod/checklist"
+<XMLDB PATH="mod/checklist/db" VERSION="20200615" COMMENT="XMLDB file for Moodle mod/checklist"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -22,6 +22,7 @@
         <FIELD NAME="autopopulate" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically fill in the checklist, based on the modules in the current course"/>
         <FIELD NAME="autoupdate" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Automatically update items that are linked to course modules (tick them off when items are complete)"/>
         <FIELD NAME="completionpercent" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Percentage of items that need to be checked off before the checklist is regarded as complete"/>
+        <FIELD NAME="completionpercenttype" TYPE="char" LENGTH="8" NOTNULL="true" DEFAULT="percent" SEQUENCE="false" COMMENT="Whether completionpercent represents a percentage or raw number of items"/>
         <FIELD NAME="emailoncomplete" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not to email teachers when a checklist is completed"/>
         <FIELD NAME="lockteachermarks" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="If true, then teachers will be unable to change marks after saving a 'yes'"/>
       </FIELDS>
@@ -49,8 +50,7 @@
         <FIELD NAME="groupingid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Grouping that the item's module belongs to"/>
         <FIELD NAME="linkcourseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The ID of the course that this item is linked to"/>
         <FIELD NAME="linkurl" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An arbitrary URL that this item is linked to"/>
-        <FIELD NAME="openlinkinnewwindow" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"  SEQUENCE="false" COMMENT="Whether or not the link should be openend in a new window"/>
-
+        <FIELD NAME="openlinkinnewwindow" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not the link should be openend in a new window"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
