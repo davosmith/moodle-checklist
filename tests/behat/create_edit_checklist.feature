@@ -200,3 +200,4 @@ Feature: I can create and update a checklist
     And I should see "Required items"
     And "label.itemheading" "css_element" should appear before "You must tick this" "text"
     And "You must tick this" "text" should appear before "label.itemoptional" "css_element"
+    
