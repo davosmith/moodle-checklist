@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2020-11-04 - Fix bug preventing 'save and next' from working
 * 2020-06-15 - Add 'complete by number of items' option
 * 2020-01-29 - "open link in new window" option from Stefan Topfstedt
 * 2019-04-26 - Fix bug with autocompletion updating grades during unenrolment. Autocompletion now only updates checkmarks if the user has capability 'mod/checklist:updateown'.
