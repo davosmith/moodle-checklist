@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_checklist_group_completion_email_testcase extends advanced_testcase {
 
     /**
-     * @var \phpunit_mailer_sink
+     * @var phpunit_mailer_sink
      */
     protected $mailsink;
 
@@ -49,7 +49,7 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
     /** @var stdClass The group object. */
     protected $group;
 
-    public function setUp() {
+    public function setUp(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -111,7 +111,7 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
 
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         $this->mailsink->clear();
         $this->mailsink->close();
         unset($this->mailsink);
@@ -122,7 +122,7 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
      * teachers not in the same group as the student will not receive the
      * email but teachers in the same group as the student will receive the email
      */
-    public function test_group_completion_emails() {
+    public function test_group_completion_emails(): void {
         global $CFG;
         require_once($CFG->dirroot.'/mod/checklist/lib.php');
 

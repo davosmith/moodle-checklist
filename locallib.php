@@ -39,6 +39,9 @@ define("CHECKLIST_HIDDEN_NO", 0);
 define("CHECKLIST_HIDDEN_MANUAL", 1);
 define("CHECKLIST_HIDDEN_BYMODULE", 2);
 
+/**
+ * Class checklist_class
+ */
 class checklist_class {
     protected $cm;
     protected $course;
@@ -64,9 +67,9 @@ class checklist_class {
     /**
      * @param int|string $cmid optional
      * @param int $userid optional
-     * @param object $checklist optional
-     * @param object $cm optional
-     * @param object $course optional
+     * @param object|null $checklist optional
+     * @param object|null $cm optional
+     * @param object|null $course optional
      */
     public function __construct($cmid = 'staticonly', $userid = 0, $checklist = null, $cm = null, $course = null) {
         global $COURSE, $DB;
@@ -150,7 +153,6 @@ class checklist_class {
 
     /**
      * Get an array of the items in a checklist
-     *
      */
     protected function get_items() {
         global $DB;
@@ -399,6 +401,9 @@ class checklist_class {
         }
     }
 
+    /**
+     * Remove automatically-added items from the course activities (if no longer required).
+     */
     protected function removeauto() {
         if ($this->checklist->autopopulate) {
             return; // Still automatically populating the checklist, so don't remove the items.
@@ -451,6 +456,7 @@ class checklist_class {
     }
 
     /**
+     * Get checklist item at a particular position.
      * @param int $position
      * @return bool|object
      */
@@ -466,34 +472,62 @@ class checklist_class {
         return false;
     }
 
+    /**
+     * Can the current user update student mark for items on this list?
+     * @return bool
+     */
     protected function canupdateown() {
         global $USER;
         return (!$this->userid || ($this->userid == $USER->id)) && has_capability('mod/checklist:updateown', $this->context);
     }
 
+    /**
+     * Can the current user add their own items to this list?
+     * @return bool
+     */
     protected function canaddown() {
         global $USER;
         return $this->checklist->useritemsallowed
         && (!$this->userid || ($this->userid == $USER->id)) && has_capability('mod/checklist:updateown', $this->context);
     }
 
+    /**
+     * Can the current user preview this checklist?
+     * @return bool
+     */
     protected function canpreview() {
         return has_capability('mod/checklist:preview', $this->context);
     }
 
+    /**
+     * Can the current user edit this checklist?
+     * @return bool
+     */
     protected function canedit() {
         return has_capability('mod/checklist:edit', $this->context);
     }
 
+    /**
+     * Can the current user update the 'teacher marks' against other users?
+     * @return bool
+     */
     protected function caneditother() {
         return has_capability('mod/checklist:updateother', $this->context);
     }
 
+    /**
+     * Can the current user view reports?
+     * @return bool
+     */
     protected function canviewreports() {
         return has_capability('mod/checklist:viewreports', $this->context)
         || has_capability('mod/checklist:viewmenteereports', $this->context);
     }
 
+    /**
+     * Is the current user limited to only viewing reports on their mentees?
+     * @return bool
+     */
     protected function only_view_mentee_reports() {
         return has_capability('mod/checklist:viewmenteereports', $this->context)
         && !has_capability('mod/checklist:viewreports', $this->context);
@@ -539,6 +573,9 @@ class checklist_class {
         return $DB->get_fieldset_sql($sql, $params);
     }
 
+    /**
+     * View the checklist items
+     */
     public function view() {
         global $OUTPUT, $CFG;
 
@@ -593,6 +630,9 @@ class checklist_class {
         $this->view_footer();
     }
 
+    /**
+     * View the edit items interface.
+     */
     public function edit() {
         global $OUTPUT;
 
@@ -627,6 +667,9 @@ class checklist_class {
         $this->view_footer();
     }
 
+    /**
+     * View the report on user's checkmarks.
+     */
     public function report() {
         global $OUTPUT;
 
@@ -677,10 +720,16 @@ class checklist_class {
         $this->view_footer();
     }
 
+    /**
+     * Fill in the content of the user activity report.
+     */
     public function user_complete() {
         $this->view_items(false, true);
     }
 
+    /**
+     * Output the header for the page.
+     */
     protected function view_header() {
         global $PAGE, $OUTPUT;
 
@@ -690,6 +739,10 @@ class checklist_class {
         echo $OUTPUT->header();
     }
 
+    /**
+     * Output the view/report/edit tabs.
+     * @param $currenttab
+     */
     protected function view_tabs($currenttab) {
         $tabs = array();
         $row = array();
@@ -735,6 +788,10 @@ class checklist_class {
         print_tabs($tabs, $currenttab, $inactive, $activated);
     }
 
+    /**
+     * Get details of the overall progress for the checklist being viewed
+     * @return \mod_checklist\local\progress_info|null
+     */
     protected function get_progress() {
         if (!$this->items) {
             return null;
@@ -787,6 +844,7 @@ class checklist_class {
     }
 
     /**
+     * Output the checklist items.
      * @param bool $viewother
      * @param bool $userreport
      */
@@ -876,6 +934,9 @@ class checklist_class {
         $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress, $student);
     }
 
+    /**
+     * Output the import/export links.
+     */
     protected function view_import_export() {
         $importurl = new moodle_url('/mod/checklist/import.php', array('id' => $this->cm->id));
         $exporturl = new moodle_url('/mod/checklist/export.php', array('id' => $this->cm->id));
@@ -888,6 +949,9 @@ class checklist_class {
         echo "</div>";
     }
 
+    /**
+     * Output the list of items, with the editing interface.
+     */
     protected function view_edit_items() {
         global $PAGE;
 
@@ -913,6 +977,9 @@ class checklist_class {
         $this->output->checklist_edit_items($this->items, $status);
     }
 
+    /**
+     * Output the main report page content
+     */
     protected function view_report() {
         global $DB, $OUTPUT;
 
@@ -1245,6 +1312,12 @@ class checklist_class {
         return $output;
     }
 
+    /**
+     * Output the main table of the report
+     * @param stdClass $table
+     * @param bool $editchecks
+     * @param int[] $disableditems
+     */
     protected function print_report_table($table, $editchecks, $disableditems) {
         global $OUTPUT;
 
@@ -1388,6 +1461,11 @@ class checklist_class {
         echo $output;
     }
 
+    /**
+     * Extract the userid from the row of data.
+     * @param $row
+     * @return mixed|null
+     */
     private function find_userid($row) {
         foreach ($row as $colkey => $item) {
             if ($colkey == 0) {
@@ -1401,11 +1479,17 @@ class checklist_class {
         return null;
     }
 
+    /**
+     * Output the the page footer.
+     */
     protected function view_footer() {
         global $OUTPUT;
         echo $OUTPUT->footer();
     }
 
+    /**
+     * Process the actions that can take place on the view page.
+     */
     protected function process_view_actions() {
         $this->useredit = optional_param('useredit', false, PARAM_BOOL);
 
@@ -1464,6 +1548,9 @@ class checklist_class {
         }
     }
 
+    /**
+     * Process the actions that can take place on the edit page
+     */
     protected function process_edit_actions() {
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
@@ -1588,6 +1675,10 @@ class checklist_class {
         }
     }
 
+    /**
+     * Get the report settings, stored in the session.
+     * @return stdClass
+     */
     protected function get_report_settings() {
         global $SESSION;
 
@@ -1602,6 +1693,10 @@ class checklist_class {
         return clone $SESSION->checklist_report; // We want changes to settings to be explicit.
     }
 
+    /**
+     * Store the current report settings into the session.
+     * @param $settings
+     */
     protected function set_report_settings($settings) {
         global $SESSION, $CFG;
 
@@ -1622,6 +1717,9 @@ class checklist_class {
         $SESSION->checklist_report = $currsettings;
     }
 
+    /**
+     * Process the actions available on the report page.
+     */
     protected function process_report_actions() {
         $settings = $this->get_report_settings();
 
@@ -1677,6 +1775,12 @@ class checklist_class {
         }
     }
 
+    /**
+     * Validate the submitted link information, before saving it.
+     * @param $linkcourseid
+     * @param $linkurl
+     * @param $groupingid
+     */
     protected function validate_links(&$linkcourseid, &$linkurl, &$groupingid) {
         if ($linkcourseid && $this->can_link_courses()) {
             $courses = self::get_linkable_courses();
@@ -1703,6 +1807,22 @@ class checklist_class {
         }
     }
 
+    /**
+     * Add a new checklist item
+     * @param string $displaytext
+     * @param int $userid set if this is a private item for this user
+     * @param int $indent
+     * @param int|false $position
+     * @param int|false $duetime
+     * @param int $moduleid
+     * @param int $optional
+     * @param int $hidden
+     * @param int|null $linkcourseid
+     * @param string|null $linkurl
+     * @param int $groupingid
+     * @param bool $openlinkinnewwindow
+     * @return false|int
+     */
     public function additem($displaytext, $userid = 0, $indent = 0, $position = false, $duetime = false, $moduleid = 0,
                             $optional = CHECKLIST_OPTIONAL_NO, $hidden = CHECKLIST_HIDDEN_NO, $linkcourseid = null,
                             $linkurl = null, $groupingid = 0, $openlinkinnewwindow = false) {
@@ -1775,6 +1895,11 @@ class checklist_class {
         return $item->id;
     }
 
+    /**
+     * Create/update/delete the calendar event associated with this item.
+     * @param checklist_item $item
+     * @param bool $add adding or deleting item
+     */
     protected function setevent(checklist_item $item, $add) {
         global $CFG;
         require_once($CFG->dirroot.'/calendar/lib.php');

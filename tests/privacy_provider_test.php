@@ -40,7 +40,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * {@inheritdoc}
      */
-    protected function setUp() {
+    protected function setUp(): void {
         $this->resetAfterTest();
 
         global $DB;
@@ -107,7 +107,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test for provider::get_metadata().
      */
-    public function test_get_metadata() {
+    public function test_get_metadata(): void {
         $collection = new collection('mod_checklist');
         $newcollection = provider::get_metadata($collection);
         $itemcollection = $newcollection->get_collection();
@@ -157,7 +157,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test for provider::get_contexts_for_userid().
      */
-    public function test_get_contexts_for_userid() {
+    public function test_get_contexts_for_userid(): void {
         $cms = [
             get_coursemodule_from_instance('checklist', $this->checklists[0]->id),
             get_coursemodule_from_instance('checklist', $this->checklists[1]->id),
@@ -186,7 +186,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test for provider::export_user_data().
      */
-    public function test_export_for_context() {
+    public function test_export_for_context(): void {
         $cms = [
             get_coursemodule_from_instance('checklist', $this->checklists[0]->id),
             get_coursemodule_from_instance('checklist', $this->checklists[1]->id),
@@ -221,7 +221,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test for provider::delete_data_for_all_users_in_context().
      */
-    public function test_delete_data_for_all_users_in_context() {
+    public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
 
         $gen = self::getDataGenerator();
@@ -276,7 +276,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test for provider::delete_data_for_user().
      */
-    public function test_delete_data_for_user() {
+    public function test_delete_data_for_user(): void {
         global $DB;
 
         $gen = self::getDataGenerator();
@@ -349,7 +349,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->assertEquals($student->id, $DB->get_field('checklist_comment', 'userid', []));
     }
 
-    private function do_some_setup_in_another_function_so_travis_stops_complaining_about_it() {
+    private function do_some_setup_in_another_function_so_travis_stops_complaining_about_it(): array {
         global $DB;
 
         $cms = [
@@ -382,7 +382,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test provider::get_users_in_context()
      */
-    public function test_get_users_in_context() {
+    public function test_get_users_in_context(): void {
         $ctxs = $this->do_some_setup_in_another_function_so_travis_stops_complaining_about_it();
 
         $userlist = new \core_privacy\local\request\userlist($ctxs[0], 'mod_checklist');
@@ -405,7 +405,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test provider::delete_data_for_users()
      */
-    public function test_delete_data_for_users() {
+    public function test_delete_data_for_users(): void {
         $ctxs = $this->do_some_setup_in_another_function_so_travis_stops_complaining_about_it();
 
         // Initial userlist counts tested in test_get_users_in_context(), above.
