@@ -874,7 +874,7 @@ class checklist_class {
             $showcheckbox = in_array($this->checklist->teacheredit, [CHECKLIST_MARKING_STUDENT, CHECKLIST_MARKING_BOTH]);
             $status->set_showcheckbox($showcheckbox);
         }
-        if ($status->is_showteachermark() && $this->checklist->lockteachermarks) {
+        if ($status->is_showteachermark() && $status->is_viewother() && $this->checklist->lockteachermarks) {
             $status->set_teachermarklocked(!has_capability('mod/checklist:updatelocked', $this->context));
         }
         if ($status->is_viewother()) {

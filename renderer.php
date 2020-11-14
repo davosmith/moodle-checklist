@@ -171,7 +171,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
             }
 
             if ($status->is_teachermarklocked()) {
-                echo '<p style="checklistwarning">'.get_string('lockteachermarkswarning', 'checklist').'</p>';
+                echo '<p class="checklistwarning">'.get_string('lockteachermarkswarning', 'checklist').'</p>';
+                echo '<div style="flex-basis:100%; height:0"></div>';
             }
 
             echo '<ol class="checklist" id="checklistouter">';
@@ -455,6 +456,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
             echo '</ol>';
 
             if ($status->is_updateform()) {
+                echo '<div style="flex-basis:100%; height:0"></div>';
                 echo '<input id="checklistsavechecks" type="submit" name="submit" value="'.
                     get_string('savechecks', 'checklist').'" />';
                 if ($status->is_viewother()) {

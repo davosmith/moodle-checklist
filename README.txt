@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2020-11-14 - Minor bug fix: remove unwanted warning from student view when 'lock teacher marks' is set + minor layout fix.
 * 2020-11-04 - Fix bug preventing 'save and next' from working
 * 2020-06-15 - Add 'complete by number of items' option
 * 2020-01-29 - "open link in new window" option from Stefan Topfstedt
