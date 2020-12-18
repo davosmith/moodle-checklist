@@ -75,6 +75,11 @@ function checklist_add_instance($checklist) {
 
     checklist_grade_item_update($checklist);
 
+    if (!empty($checklist->completionexpected)) {
+        \core_completion\api::update_completion_date_event($checklist->coursemodule, 'checklist', $checklist->id,
+                                                           $checklist->completionexpected);
+    }
+
     return $checklist->id;
 }
 
@@ -144,6 +149,11 @@ function checklist_update_instance($checklist) {
                 $chk->update_all_autoupdate_checks();
             }
         }
+    }
+
+    if (!empty($checklist->completionexpected)) {
+        \core_completion\api::update_completion_date_event($checklist->coursemodule, 'checklist', $checklist->id,
+                                                           $checklist->completionexpected);
     }
 
     return true;
