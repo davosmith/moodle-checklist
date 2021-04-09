@@ -17,8 +17,9 @@
 /**
  * Stores all the functions for manipulating a checklist
  *
- * @author   David Smith <moodle@davosmith.co.uk>
- * @package  mod/checklist
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use mod_checklist\local\checklist_check;
@@ -1118,7 +1119,7 @@ class checklist_class {
                     'mappings' => [],
                 ];
             }
-            $ausers = $DB->get_records_sql("SELECT u.id {$namesql->selects} FROM {user} u {$namesql->joins} 
+            $ausers = $DB->get_records_sql("SELECT u.id {$namesql->selects} FROM {user} u {$namesql->joins}
                                              WHERE u.id {$usql} ORDER BY {$orderby}",
                                            array_merge($uparams, $namesql->params));
         }

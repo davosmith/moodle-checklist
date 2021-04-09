@@ -32,59 +32,107 @@ global $CFG;
 require_once($CFG->dirroot.'/completion/data_object.php');
 require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
+/**
+ * Class checklist_item
+ * @package mod_checklist
+ */
 class checklist_item extends data_object {
+    /** @var string */
     public $table = 'checklist_item';
+    /** @var string[] */
     public $requiredfields = [
         'id', 'checklist', 'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime',
         'eventid', 'colour', 'moduleid', 'hidden', 'groupingid', 'linkcourseid', 'linkurl', 'openlinkinnewwindow'
     ];
 
     // DB fields.
+    /** @var int */
     public $checklist;
+    /** @var int */
     public $userid;
+    /** @var string */
     public $displaytext;
+    /** @var int */
     public $position;
+    /** @var int */
     public $indent = 0;
+    /** @var int */
     public $itemoptional = CHECKLIST_OPTIONAL_NO;
+    /** @var int */
     public $duetime = 0;
+    /** @var int */
     public $eventid = 0;
+    /** @var string */
     public $colour = 'black';
+    /** @var int */
     public $moduleid = 0;
+    /** @var int */
     public $hidden = CHECKLIST_HIDDEN_NO;
+    /** @var int */
     public $groupingid = 0;
+    /** @var int|null */
     public $linkcourseid = null;
+    /** @var string|null */
     public $linkurl = null;
+    /** @var bool */
     public $openlinkinnewwindow = false;
 
     // Extra status fields (for a particular student).
+    /** @var int */
     public $usertimestamp = 0;
+    /** @var int */
     public $teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+    /** @var int */
     public $teachertimestamp = 0;
+    /** @var int|null */
     public $teacherid = null;
 
+    /** @var string|null */
     protected $teachername = null;
     /** @var checklist_comment|null */
     protected $comment = null;
+    /** @var bool */
     protected $editme = false;
+    /** @var moodle_url|null */
     protected $modulelink = null;
 
-    // Name of the grouping (set by add_grouping_names).
+    /** @var string|null Name of the grouping (set by add_grouping_names) */
     public $groupingname = null;
 
+    /** Link to activity */
     const LINK_MODULE = 'module';
+    /** Link to course */
     const LINK_COURSE = 'course';
+    /** Link to arbitrary URL */
     const LINK_URL = 'url';
 
+    /**
+     * checklist_item constructor.
+     * @param array|null $params
+     * @param bool $fetch
+     * @throws \coding_exception
+     */
     public function __construct(array $params = null, $fetch = true) {
         // Really ugly hack to stop travis complaining about $required_fields.
         $this->{'required_fields'} = $this->requiredfields;
         parent::__construct($params, $fetch);
     }
 
+    /**
+     * Fetch a single matching record.
+     * @param array $params
+     * @return data_object|false|object
+     */
     public static function fetch($params) {
         return self::fetch_helper('checklist_item', __CLASS__, $params);
     }
 
+    /**
+     * Fetch all matching records.
+     * @param array $params
+     * @param bool $sort
+     * @return array|false|mixed
+     */
     public static function fetch_all($params, $sort = false) {
         $ret = self::fetch_all_helper('checklist_item', __CLASS__, $params);
         if (!$ret) {
@@ -96,6 +144,10 @@ class checklist_item extends data_object {
         return $ret;
     }
 
+    /**
+     * Sort the given items
+     * @param self[] $items
+     */
     public static function sort_items(&$items) {
         if (!$items) {
             return;
@@ -118,6 +170,13 @@ class checklist_item extends data_object {
         });
     }
 
+    /**
+     * Store the item status (in the current user's checklist)
+     * @param int|null $usertimestamp
+     * @param int|null $teachermark
+     * @param int|null $teachertimestamp
+     * @param int|null $teacherid
+     */
     public function store_status($usertimestamp = null, $teachermark = null, $teachertimestamp = null, $teacherid = null) {
         if ($usertimestamp !== null) {
             $this->usertimestamp = $usertimestamp;
@@ -137,6 +196,11 @@ class checklist_item extends data_object {
         }
     }
 
+    /**
+     * Is the item currently checked?
+     * @param bool $byteacher
+     * @return bool
+     */
     public function is_checked($byteacher) {
         if ($this->userid > 0 || !$byteacher) {
             // User custom items are always checked-off by students (regardless of checklist settings).
@@ -146,26 +210,52 @@ class checklist_item extends data_object {
         }
     }
 
+    /**
+     * Is this checked by the teacher?
+     * @return bool
+     */
     public function is_checked_teacher() {
         return $this->is_checked(true);
     }
 
+    /**
+     * Is this checked by the student?
+     * @return bool
+     */
     public function is_checked_student() {
         return $this->is_checked(false);
     }
 
+    /**
+     * Is this item a heading?
+     * @return bool
+     */
     public function is_heading() {
         return ($this->itemoptional == CHECKLIST_OPTIONAL_HEADING);
     }
 
+    /**
+     * Is this a required item?
+     * @return bool
+     */
     public function is_required() {
         return ($this->itemoptional == CHECKLIST_OPTIONAL_NO);
     }
 
+    /**
+     * Is this an optional item?
+     * @return bool
+     */
     public function is_optional() {
         return ($this->itemoptional == CHECKLIST_OPTIONAL_YES);
     }
 
+    /**
+     * Get the relevant image URL
+     * @param string $imagename
+     * @param string $component
+     * @return moodle_url
+     */
     private function image_url($imagename, $component) {
         global $CFG, $OUTPUT;
         if ($CFG->branch < 33) {
@@ -174,6 +264,10 @@ class checklist_item extends data_object {
         return $OUTPUT->image_url($imagename, $component);
     }
 
+    /**
+     * Get the relevant teacher mark image
+     * @return moodle_url
+     */
     public function get_teachermark_image_url() {
         static $images = null;
         if ($images === null) {
@@ -186,6 +280,10 @@ class checklist_item extends data_object {
         return $images[$this->teachermark];
     }
 
+    /**
+     * Get the text for the teacher mark
+     * @return string
+     */
     public function get_teachermark_text() {
         static $text = null;
         if ($text === null) {
@@ -198,6 +296,10 @@ class checklist_item extends data_object {
         return $text[$this->teachermark];
     }
 
+    /**
+     * Get the CSS class for the teacher mark.
+     * @return string
+     */
     public function get_teachermark_class() {
         static $classes = null;
         if ($classes === null) {
@@ -210,6 +312,9 @@ class checklist_item extends data_object {
         return $classes[$this->teachermark];
     }
 
+    /**
+     * Toggle the 'hidden' status for the item.
+     */
     public function toggle_hidden() {
         if ($this->hidden == CHECKLIST_HIDDEN_BYMODULE) {
             return; // Do not override items linked to hidden Moodle activities.
@@ -222,6 +327,9 @@ class checklist_item extends data_object {
         $this->update();
     }
 
+    /**
+     * Hide the item
+     */
     public function hide_item() {
         if (!$this->moduleid) {
             return;
@@ -233,6 +341,9 @@ class checklist_item extends data_object {
         $this->update();
     }
 
+    /**
+     * Show the item
+     */
     public function show_item() {
         if (!$this->moduleid) {
             return;
@@ -244,6 +355,14 @@ class checklist_item extends data_object {
         $this->update();
     }
 
+    /**
+     * Mark the item as checked / unchecked by the student.
+     * @param int $userid
+     * @param bool $checked
+     * @param int|null $timestamp
+     * @return bool
+     * @throws \coding_exception
+     */
     public function set_checked_student($userid, $checked, $timestamp = null) {
         if ($checked == $this->is_checked_student()) {
             return false; // No change.
@@ -267,6 +386,13 @@ class checklist_item extends data_object {
         $DB->set_field_select('checklist_check', 'usertimestamp', 0, 'item = ? AND usertimestamp > 0', [$this->id]);
     }
 
+    /**
+     * Set the teacher status for the item
+     * @param int $userid
+     * @param int $teachermark
+     * @param int $teacherid
+     * @return bool
+     */
     public function set_teachermark($userid, $teachermark, $teacherid) {
         if ($teachermark == $this->teachermark) {
             return false; // No change.
@@ -289,22 +415,43 @@ class checklist_item extends data_object {
         return true;
     }
 
+    /**
+     * Get the name of the teacher who updated this item
+     * @return string|null
+     */
     public function get_teachername() {
         return $this->teachername;
     }
 
+    /**
+     * Get the comment made by the teacher on this item
+     * @return checklist_comment|null
+     */
     public function get_comment() {
         return $this->comment;
     }
 
+    /**
+     * Mark the item being edited at the moment
+     * @param bool $editme
+     */
     public function set_editme($editme = true) {
         $this->editme = $editme;
     }
 
+    /**
+     * Is this item being edited at the moment?
+     * @return bool
+     */
     public function is_editme() {
         return $this->editme;
     }
 
+    /**
+     * Get the URL to link to
+     * @return moodle_url|null
+     * @throws \moodle_exception
+     */
     public function get_link_url() {
         if ($this->modulelink) {
             return $this->modulelink;
@@ -318,6 +465,10 @@ class checklist_item extends data_object {
         return null;
     }
 
+    /**
+     * Get the link type for this item
+     * @return string|null
+     */
     public function get_link_type() {
         if ($this->modulelink) {
             return self::LINK_MODULE;
@@ -331,6 +482,10 @@ class checklist_item extends data_object {
         return null;
     }
 
+    /**
+     * Set the activity module link
+     * @param moodle_url $link
+     */
     public function set_modulelink(moodle_url $link) {
         $this->modulelink = $link;
     }
@@ -405,6 +560,7 @@ class checklist_item extends data_object {
     }
 
     /**
+     * Add grouping names to all the checklist items given
      * @param checklist_item[] $items
      * @param int $courseid
      */

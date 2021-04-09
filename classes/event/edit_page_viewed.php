@@ -85,6 +85,10 @@ class edit_page_viewed extends \core\event\base {
         );
     }
 
+    /**
+     * Get the mapping to use when restoring logs from backup
+     * @return string[]
+     */
     public static function get_objectid_mapping() {
         return ['db' => 'checklist', 'restore' => 'checklist'];
     }

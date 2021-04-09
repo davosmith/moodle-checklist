@@ -17,8 +17,9 @@
 /**
  * Used by AJAX calls to update the checklist marks
  *
- * @author  David Smith <moodle@davosmith.co.uk>
- * @package mod/checklist
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');

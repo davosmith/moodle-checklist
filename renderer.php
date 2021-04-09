@@ -18,7 +18,7 @@
  * Checklist output functions.
  *
  * @package   mod_checklist
- * @copyright 2016 Davo Smith, Synergy Learning
+ * @copyright 2016 Davo Smith
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -986,7 +986,8 @@ ENDSCRIPT;
         }
         $out .= '<input type="hidden" name="indent" value="'.$currindent.'" />';
         $out .= $this->output->pix_icon('tick_box', '', 'mod_checklist');
-        $out .= '<input type="text" class="form-control form-text-inline" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+        $out .= '<input type="text" class="form-control form-text-inline" size="'.
+            CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
         $out .= '<input type="submit" class="btn btn-secondary" name="additem" value="'.
             get_string('additem', 'checklist').'" />';
         if (!$addingatend) {

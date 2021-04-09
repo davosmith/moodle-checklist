@@ -26,18 +26,26 @@ namespace mod_checklist\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class progress_info
+ * @package mod_checklist
+ */
 class progress_info {
+    /** @var int */
     public $totalitems;
+    /** @var int */
     public $requireditems;
+    /** @var int */
     public $allcompleteitems;
+    /** @var int */
     public $requiredcompleteitems;
 
     /**
      * progress_info constructor.
-     * @param $totalitems
-     * @param $requireditems
-     * @param $allcompleteitems
-     * @param $requiredcompleteitems
+     * @param int $totalitems
+     * @param int $requireditems
+     * @param int $allcompleteitems
+     * @param int $requiredcompleteitems
      */
     public function __construct($totalitems, $requireditems, $allcompleteitems, $requiredcompleteitems) {
         $this->totalitems = $totalitems;

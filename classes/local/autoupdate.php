@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class autoupdate
- * @package mod_checklist\local
+ * @package mod_checklist
  */
 class autoupdate {
     /** @var null */
@@ -37,7 +37,8 @@ class autoupdate {
     protected static $reader = null;
 
     /**
-     * @param $modname
+     * Get the legacy log actions associated with the given activity
+     * @param string $modname
      * @return string[]|null
      */
     public static function get_log_actions_legacy($modname) {
@@ -104,7 +105,8 @@ class autoupdate {
     }
 
     /**
-     * @param $modname
+     * Get the log actions associated with the given activity
+     * @param string $modname
      * @return string[]|\string[][]|null
      */
     public static function get_log_action_new($modname) {
@@ -325,8 +327,8 @@ class autoupdate {
 
     /**
      * Get legacy log entries.
-     * @param $courseids
-     * @param $lastlogtime
+     * @param int[] $courseids
+     * @param int $lastlogtime
      * @return array
      * @throws \coding_exception
      * @throws \dml_exception

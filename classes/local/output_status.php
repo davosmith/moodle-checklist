@@ -26,35 +26,63 @@ namespace mod_checklist\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class output_status
+ * @package mod_checklist
+ */
 class output_status {
     // All output.
+    /** @var int */
     protected $additemafter = 0;
 
     // View items only.
+    /** @var bool */
     protected $viewother = false;
+    /** @var bool */
     protected $userreport = false;
+    /** @var bool */
     protected $teachercomments = false;
+    /** @var bool */
     protected $editcomments = false;
+    /** @var bool */
     protected $teachermarklocked = false;
+    /** @var bool */
     protected $showcompletiondates = false;
+    /** @var bool */
     protected $canupdateown = false;
+    /** @var bool */
     protected $canaddown = false;
+    /** @var bool */
     protected $addown = false;
+    /** @var bool */
     protected $showprogressbar = false;
+    /** @var bool */
     protected $showteachermark = false;
+    /** @var bool */
     protected $showcheckbox = false;
+    /** @var bool */
     protected $overrideauto = false;
+    /** @var bool */
     protected $checkgroupings = false;
+    /** @var bool */
     protected $updateform = false;
 
     // Edit items only.
+    /** @var bool */
     protected $editdates = false;
+    /** @var bool */
     protected $editlinks = false;
+    /** @var bool */
     protected $allowcourselinks = false;
+    /** @var int|null */
     protected $itemid = null;
+    /** @var bool */
     protected $autopopulate = false;
+    /** @var string|null */
     protected $autoupdatewarning = null;
+    /** @var bool */
     protected $editgrouping = false;
+    /** @var int|null */
     protected $courseid = null;
 
     /**
@@ -66,6 +94,7 @@ class output_status {
     }
 
     /**
+     * Set as viewing another user
      * @param boolean $viewother
      */
     public function set_viewother($viewother) {
@@ -81,6 +110,7 @@ class output_status {
     }
 
     /**
+     * Set as being a user report
      * @param boolean $userreport
      */
     public function set_userreport($userreport) {
@@ -96,6 +126,7 @@ class output_status {
     }
 
     /**
+     * Set as teacher comments enabled
      * @param boolean $teachercomments
      */
     public function set_teachercomments($teachercomments) {
@@ -111,6 +142,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not edit comments is enabled
      * @param boolean $editcomments
      */
     public function set_editcomments($editcomments) {
@@ -126,6 +158,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not teacher marks are locked
      * @param boolean $teachermarklocked
      */
     public function set_teachermarklocked($teachermarklocked) {
@@ -141,6 +174,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not to show completion dates
      * @param boolean $showcompletiondates
      */
     public function set_showcompletiondates($showcompletiondates) {
@@ -156,6 +190,7 @@ class output_status {
     }
 
     /**
+     * Set if we can update our own checkmarks.
      * @param boolean $canupdateown
      */
     public function set_canupdateown($canupdateown) {
@@ -171,6 +206,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not to show the progress bar.
      * @param boolean $showprogressbar
      */
     public function set_showprogressbar($showprogressbar) {
@@ -186,6 +222,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not teacher marks should be shown
      * @param boolean $showteachermark
      */
     public function set_showteachermark($showteachermark) {
@@ -201,6 +238,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not student marks should be shown
      * @param boolean $showcheckbox
      */
     public function set_showcheckbox($showcheckbox) {
@@ -216,6 +254,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not auto checkbox items can be overridden
      * @param boolean $overrideauto
      */
     public function set_overrideauto($overrideauto) {
@@ -231,6 +270,7 @@ class output_status {
     }
 
     /**
+     * Set whether items should be checked against groupings
      * @param boolean $checkgroupings
      */
     public function set_checkgroupings($checkgroupings) {
@@ -246,6 +286,7 @@ class output_status {
     }
 
     /**
+     * Set whether a student can add their own items
      * @param boolean $canaddown
      */
     public function set_canaddown($canaddown) {
@@ -261,6 +302,7 @@ class output_status {
     }
 
     /**
+     * Set whether the student is adding their own items
      * @param boolean $addown
      */
     public function set_addown($addown) {
@@ -276,6 +318,7 @@ class output_status {
     }
 
     /**
+     * Set the location where we should be adding the next item
      * @param int $additemafter
      */
     public function set_additemafter($additemafter) {
@@ -291,6 +334,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not the update form should be shown.
      * @param boolean $updateform
      */
     public function set_updateform($updateform) {
@@ -306,6 +350,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not date editing is enabled.
      * @param boolean $editdates
      */
     public function set_editdates($editdates) {
@@ -321,13 +366,15 @@ class output_status {
     }
 
     /**
-     * @param null $itemid
+     * Set the id of the item being edited
+     * @param int|null $itemid
      */
     public function set_itemid($itemid) {
         $this->itemid = $itemid;
     }
 
     /**
+     * Is the checklist autopopulated with course activities?
      * @return boolean
      */
     public function is_autopopulate() {
@@ -335,6 +382,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not the checklist is autopopulated
      * @param boolean $autopopulate
      */
     public function set_autopopulate($autopopulate) {
@@ -349,11 +397,16 @@ class output_status {
         return $this->autoupdatewarning;
     }
 
+    /**
+     * Is there an auto update warning?
+     * @return bool
+     */
     public function is_autoupdatewarning() {
         return ($this->autoupdatewarning !== null);
     }
 
     /**
+     * Set the auto update warning
      * @param boolean $autoupdatewarning
      */
     public function set_autoupdatewarning($autoupdatewarning) {
@@ -361,6 +414,7 @@ class output_status {
     }
 
     /**
+     * Are we editing links?
      * @return boolean
      */
     public function is_editlinks() {
@@ -368,6 +422,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not we're editing links
      * @param boolean $editlinks
      */
     public function set_editlinks($editlinks) {
@@ -375,6 +430,7 @@ class output_status {
     }
 
     /**
+     * Are course links allowed?
      * @return boolean
      */
     public function is_allowcourselinks() {
@@ -382,6 +438,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not course links are allowed
      * @param boolean $allowcourselinks
      */
     public function set_allowcourselinks($allowcourselinks) {
@@ -389,6 +446,7 @@ class output_status {
     }
 
     /**
+     * Can we edit the grouping?
      * @return boolean
      */
     public function is_editgrouping() {
@@ -396,6 +454,7 @@ class output_status {
     }
 
     /**
+     * Set whether or not we can edit the grouping
      * @param boolean $editgrouping
      */
     public function set_editgrouping($editgrouping) {
@@ -403,6 +462,7 @@ class output_status {
     }
 
     /**
+     * Get the current course id
      * @return int
      */
     public function get_courseid() {
@@ -413,6 +473,7 @@ class output_status {
     }
 
     /**
+     * Set the current course id
      * @param int $courseid
      */
     public function set_courseid($courseid) {

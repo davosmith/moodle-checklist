@@ -14,10 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class restore_checklist_activity_structure_step
+ */
 class restore_checklist_activity_structure_step extends restore_activity_structure_step {
 
+    /**
+     * List of elements that can be restored
+     * @return array
+     * @throws base_step_exception
+     */
     protected function define_structure() {
 
         $paths = array();
@@ -34,6 +48,13 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Restore a checklist record.
+     * @param $data
+     * @throws base_step_exception
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_checklist($data) {
         global $DB;
 
@@ -49,6 +70,12 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         $this->apply_activity_instance($newid);
     }
 
+    /**
+     * Restore an item record.
+     * @param $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_checklist_item($data) {
         global $DB;
 
@@ -81,6 +108,12 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         $this->set_mapping('checklist_item', $oldid, $newid);
     }
 
+    /**
+     * Restore a checkmark record.
+     * @param $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_checklist_check($data) {
         global $DB;
 
@@ -103,6 +136,12 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         $this->set_mapping('checklist_check', $oldid, $newid);
     }
 
+    /**
+     * Restore a comment record.
+     * @param $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_checklist_comment($data) {
         global $DB;
 
@@ -119,6 +158,9 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         $this->set_mapping('checklist_comment', $oldid, $newid);
     }
 
+    /**
+     * Extra actions to take once restore is complete.
+     */
     protected function after_execute() {
         // Add checklist related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_checklist', 'intro', null);

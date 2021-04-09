@@ -17,8 +17,9 @@
 /**
  * This page lists all the instances of checklist in a particular course
  *
- * @author  David Smith <moodle@davosmith.co.uk>
- * @package mod/checklist
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');

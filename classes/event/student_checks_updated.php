@@ -86,6 +86,10 @@ class student_checks_updated extends \core\event\base {
         '&studentid='.$this->relateduserid, $this->objectid, $this->contextinstanceid);
     }
 
+    /**
+     * Get the mapping to use when restoring logs from backup
+     * @return string[]
+     */
     public static function get_objectid_mapping() {
         return ['db' => 'checklist', 'restore' => 'checklist'];
     }

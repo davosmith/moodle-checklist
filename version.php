@@ -18,8 +18,9 @@
  * Code fragment to define the version of checklist
  * This fragment is called by moodle_needs_upgrading() and /admin/index.php
  *
- * @author  Davo Smith <moodle@davosmith.co.uk>
- * @package mod/checklist
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();

@@ -31,6 +31,12 @@ defined('MOODLE_INTERNAL') || die();
  *     actions across all modules.
  */
 
+/**
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 define("CHECKLIST_EMAIL_NO", 0);
 define("CHECKLIST_EMAIL_STUDENT", 1);
 define("CHECKLIST_EMAIL_TEACHER", 2);
@@ -351,7 +357,7 @@ function checklist_update_grades($checklist, $userid = 0) {
         $sql = "
              SELECT u.id AS userid, (SUM(CASE WHEN $where THEN 1 ELSE 0 END) * :maxgrade / :total ) AS rawgrade $date
                     {$namesql->selects}
-               FROM {user} u 
+               FROM {user} u
           LEFT JOIN {checklist_check} c ON u.id = c.userid
                     {$namesql->joins}
               WHERE u.id $usql

@@ -33,7 +33,7 @@ require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
 /**
  * Class checklist_check
- * @package mod_checklist\local
+ * @package mod_checklist
  */
 class checklist_check extends data_object {
     /** @var string */
@@ -70,6 +70,7 @@ class checklist_check extends data_object {
     }
 
     /**
+     * Get a single matching record.
      * @param array $params
      * @return data_object|false|object
      */
@@ -78,6 +79,7 @@ class checklist_check extends data_object {
     }
 
     /**
+     * Get all matching records.
      * @param array $params
      * @param false $sort
      * @return array|false|mixed

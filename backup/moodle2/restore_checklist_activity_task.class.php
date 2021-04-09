@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @package mod_checklist
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/mod/checklist/backup/moodle2/restore_checklist_stepslib.php'); // Because it exists (must).
@@ -74,6 +80,10 @@ class restore_checklist_activity_task extends restore_activity_task {
         return $rules;
     }
 
+    /**
+     * Match up moduleids after restore is complete
+     * @throws dml_exception
+     */
     public function after_restore() {
         global $DB;
 
