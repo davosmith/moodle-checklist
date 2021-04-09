@@ -351,7 +351,7 @@ function checklist_update_grades($checklist, $userid = 0) {
             $namesql = \core_user\fields::for_name()->get_sql('u', true);
         } else {
             $namesql = (object)[
-                'selects' => get_all_user_name_fields(true, 'u'),
+                'selects' => ','.get_all_user_name_fields(true, 'u'),
                 'joins' => '',
                 'params' => [],
                 'mappings' => [],

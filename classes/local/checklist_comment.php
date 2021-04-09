@@ -157,7 +157,7 @@ class checklist_comment extends data_object {
             $namesql = \core_user\fields::for_name()->get_sql('', true);
         } else {
             $namesql = (object)[
-                'selects' => get_all_user_name_fields(true),
+                'selects' => ','.get_all_user_name_fields(true),
                 'joins' => '',
                 'params' => [],
                 'mappings' => [],
