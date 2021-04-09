@@ -332,7 +332,8 @@ function xmldb_checklist_upgrade($oldversion = 0) {
 
         // Define field completionpercenttype to be added to checklist.
         $table = new xmldb_table('checklist');
-        $field = new xmldb_field('completionpercenttype', XMLDB_TYPE_CHAR, '8', null, XMLDB_NOTNULL, null, 'percent', 'completionpercent');
+        $field = new xmldb_field('completionpercenttype', XMLDB_TYPE_CHAR, '8', null, XMLDB_NOTNULL, null, 'percent',
+                                 'completionpercent');
 
         // Conditionally launch add field completionpercenttype.
         if (!$dbman->field_exists($table, $field)) {

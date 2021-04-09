@@ -27,8 +27,8 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 global $DB, $PAGE, $CFG, $USER;
 
-$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$checklistid = optional_param('checklist', 0, PARAM_INT);  // checklist instance ID.
+$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
+$checklistid = optional_param('checklist', 0, PARAM_INT);  // Checklist instance ID.
 
 $url = new moodle_url('/mod/checklist/view.php');
 if ($id) {
@@ -44,7 +44,7 @@ if ($id) {
     $url->param('checklist', $checklistid);
 
 } else {
-    error('You must specify a course_module ID or an instance ID');
+    throw new moodle_exception('You must specify a course_module ID or an instance ID');
 }
 
 $PAGE->set_url($url);

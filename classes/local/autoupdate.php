@@ -26,11 +26,20 @@ namespace mod_checklist\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class autoupdate
+ * @package mod_checklist\local
+ */
 class autoupdate {
+    /** @var null */
     protected static $uselegacy = null;
-    /** @var \core\log\sql_select_reader */
+    /** @var \core\log\sql_reader */
     protected static $reader = null;
 
+    /**
+     * @param $modname
+     * @return string[]|null
+     */
     public static function get_log_actions_legacy($modname) {
         switch ($modname) {
             case 'survey':
@@ -94,6 +103,10 @@ class autoupdate {
         return null;
     }
 
+    /**
+     * @param $modname
+     * @return string[]|\string[][]|null
+     */
     public static function get_log_action_new($modname) {
         switch ($modname) {
             case 'assign':
@@ -193,6 +206,9 @@ class autoupdate {
         return array_unique($userids);
     }
 
+    /**
+     * Initialise the log reader.
+     */
     protected static function init_log_status() {
         global $CFG;
         if (self::$uselegacy !== null) {
@@ -217,6 +233,15 @@ class autoupdate {
         }
     }
 
+    /**
+     * Get the relevant userids from legacy logs
+     * @param string $modname
+     * @param int $cmid
+     * @param int[] $userids
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     protected static function get_logged_userids_legacy($modname, $cmid, $userids) {
         global $DB;
 
@@ -244,6 +269,15 @@ class autoupdate {
         return $userids;
     }
 
+    /**
+     * Get the relevant userids from the logs
+     * @param string $modname
+     * @param int $cmid
+     * @param int[] $userids
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     protected static function get_logged_userids_new($modname, $cmid, $userids) {
         global $DB;
 
@@ -289,6 +323,14 @@ class autoupdate {
         return $logs;
     }
 
+    /**
+     * Get legacy log entries.
+     * @param $courseids
+     * @param $lastlogtime
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     protected static function get_logs_legacy($courseids, $lastlogtime) {
         global $DB;
 
@@ -305,6 +347,11 @@ class autoupdate {
         return $ret;
     }
 
+    /**
+     * Get the module name from the given component (if any)
+     * @param string $component
+     * @return mixed|string|null
+     */
     protected static function get_module_from_component($component) {
         list($type, $name) = \core_component::normalize_component($component);
         if ($type == 'mod') {
@@ -316,6 +363,14 @@ class autoupdate {
         return null;
     }
 
+    /**
+     * Get the relevant log records
+     * @param int[] $courseids
+     * @param int $lastlogtime
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     protected static function get_logs_new($courseids, $lastlogtime) {
         global $DB;
 
@@ -334,6 +389,11 @@ class autoupdate {
         return $ret;
     }
 
+    /**
+     * Get required info from the log entry
+     * @param object $entry
+     * @return object|null
+     */
     protected static function get_entry_info($entry) {
         $module = self::get_module_from_component($entry->component);
         if ($module) {
@@ -360,6 +420,11 @@ class autoupdate {
         return null;
     }
 
+    /**
+     * Update the checklist based on the given event
+     * @param \core\event\base $event
+     * @throws \coding_exception
+     */
     public static function update_from_event(\core\event\base $event) {
         global $CFG;
         require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');

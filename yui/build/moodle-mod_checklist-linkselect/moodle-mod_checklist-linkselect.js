@@ -6,8 +6,8 @@ var SELECTOR = {
     OPENLINKINNEWWINDOW: '#id_openlinkinnewwindow'
 };
 
-M.mod_checklist = M.mod_checklist || {};
-M.mod_checklist.linkselect = {
+M.modChecklist = M.modChecklist || {};
+M.modChecklist.linkselect = {
     courselink: null,
     urllink: null,
 

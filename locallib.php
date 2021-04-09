@@ -971,7 +971,7 @@ class checklist_class {
         checklist_item::add_grouping_names($this->items, $this->course->id);
 
         if ($status->is_allowcourselinks()) {
-            $PAGE->requires->yui_module('moodle-mod_checklist-linkselect', 'M.mod_checklist.linkselect.init');
+            $PAGE->requires->yui_module('moodle-mod_checklist-linkselect', 'M.modChecklist.linkselect.init');
         }
 
         $this->output->checklist_edit_items($this->items, $status);
@@ -1013,41 +1013,51 @@ class checklist_class {
             }
         }
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.
+            $thisurl->out_omit_querystring().'" method="get" />';
         echo html_writer::input_hidden_params($thisurl, array('action'));
         if ($reportsettings->showoptional) {
             echo '<input type="hidden" name="action" value="hideoptional" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('optionalhide', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                get_string('optionalhide', 'checklist').'" />';
         } else {
             echo '<input type="hidden" name="action" value="showoptional" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('optionalshow', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                get_string('optionalshow', 'checklist').'" />';
         }
         echo '</form>';
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
+            '" method="get" />';
         echo html_writer::input_hidden_params($thisurl);
         if ($reportsettings->showprogressbars) {
             $editchecks = false;
             echo '<input type="hidden" name="action" value="hideprogressbars" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('showfulldetails', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                get_string('showfulldetails', 'checklist').'" />';
         } else {
             echo '<input type="hidden" name="action" value="showprogressbars" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('showprogressbars', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                get_string('showprogressbars', 'checklist').'" />';
         }
         echo '</form>';
 
         if ($editchecks) {
-            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="post" />';
+            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
+                '" method="post" />';
             echo html_writer::input_hidden_params($thisurl);
             echo '<input type="hidden" name="action" value="updateallchecks"/>';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks', 'checklist').
+                '" />';
         } else if (!$reportsettings->showprogressbars && $this->caneditother()
             && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT
         ) {
-            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().'" method="get" />';
+            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
+                '" method="get" />';
             echo html_writer::input_hidden_params($thisurl);
             echo '<input type="hidden" name="editchecks" value="on" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('editchecks', 'checklist').'" />';
+            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                get_string('editchecks', 'checklist').'" />';
             echo '</form>';
         }
 
@@ -1097,9 +1107,20 @@ class checklist_class {
             echo $OUTPUT->paging_bar(count($users), $page, $perpage, new moodle_url($thisurl, array('perpage' => $perpage)));
             $users = array_slice($users, $page * $perpage, $perpage);
 
-            list($usql, $uparams) = $DB->get_in_or_equal($users);
-            $fields = get_all_user_name_fields(true, 'u');
-            $ausers = $DB->get_records_sql("SELECT u.id, $fields FROM {user} u WHERE u.id ".$usql.' ORDER BY '.$orderby, $uparams);
+            list($usql, $uparams) = $DB->get_in_or_equal($users, SQL_PARAMS_NAMED);
+            if (class_exists('\core_user\fields')) {
+                $namesql = \core_user\fields::for_name()->get_sql('u', true);
+            } else {
+                $namesql = (object)[
+                    'selects' => get_all_user_name_fields(true, 'u'),
+                    'joins' => '',
+                    'params' => [],
+                    'mappings' => [],
+                ];
+            }
+            $ausers = $DB->get_records_sql("SELECT u.id {$namesql->selects} FROM {user} u {$namesql->joins} 
+                                             WHERE u.id {$usql} ORDER BY {$orderby}",
+                                           array_merge($uparams, $namesql->params));
         }
 
         if ($reportsettings->showprogressbars) {
@@ -1259,7 +1280,8 @@ class checklist_class {
             echo '</div>';
 
             if ($editchecks) {
-                echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks', 'checklist').'" />';
+                echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                    get_string('savechecks', 'checklist').'" />';
                 echo '</form>';
             }
         }

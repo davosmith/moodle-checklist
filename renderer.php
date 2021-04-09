@@ -118,14 +118,16 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 echo '<form style="display: inline;" action="'.$thispageurl->out_omit_querystring().'" method="get">';
                 echo html_writer::input_hidden_params($thispageurl);
                 echo '<input type="hidden" name="editcomments" value="on" />';
-                echo ' <input type="submit" class="btn btn-secondary" name="viewall" value="'.get_string('addcomments', 'checklist').'" />';
+                echo ' <input type="submit" class="btn btn-secondary" name="viewall" value="'.
+                    get_string('addcomments', 'checklist').'" />';
                 echo '</form>';
             }
             echo '<form style="display: inline;" action="'.$thispageurl->out_omit_querystring().'" method="get">';
             echo html_writer::input_hidden_params($thispageurl);
             echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
             echo '<input type="hidden" name="action" value="toggledates" />';
-            echo ' <input type="submit" class="btn btn-secondary" name="toggledates" value="'.get_string('toggledates', 'checklist').'" />';
+            echo ' <input type="submit" class="btn btn-secondary" name="toggledates" value="'.
+                get_string('toggledates', 'checklist').'" />';
             echo '</form>';
 
             $strteacherdate = get_string('teacherdate', 'mod_checklist');
@@ -152,10 +154,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     if ($status->is_addown()) {
                         // Switch on for any other forms on this page (but off if this form submitted).
                         $thispageurl->param('useredit', 'on');
-                        echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('addownitems-stop', 'checklist').'" />';
+                        echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                            get_string('addownitems-stop', 'checklist').'" />';
                     } else {
                         echo '<input type="hidden" name="useredit" value="on" />';
-                        echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('addownitems', 'checklist').'" />';
+                        echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                            get_string('addownitems', 'checklist').'" />';
                     }
                     echo '</form>';
                 }
@@ -274,7 +278,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         if ($status->is_viewother() && $status->is_showteachermark()) {
                             $id = '';
                         }
-                        echo '<input class="checklistitem'.$checkclass.'" type="checkbox" class="checkbox-inline" name="items[]" '.$id.$checked.
+                        echo '<input class="checklistitem'.$checkclass.'" type="checkbox"' .
+                            ' class="checkbox-inline" name="items[]" '.$id.$checked.
                             ' value="'.$item->id.'" />';
                     }
                 }
@@ -328,14 +333,16 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $focusitem = 'firstcomment';
                                 $outid = ' id="firstcomment" ';
                             }
-                            echo '<input type="text" class="form-control form-text-inline" name="teachercomment['.$item->id.']" value="'.s($comment->text).
+                            echo '<input type="text" class="form-control form-text-inline"' .
+                                ' name="teachercomment['.$item->id.']" value="'.s($comment->text).
                                 '" '.$outid.'/>';
                         } else {
                             echo s($comment->text);
                         }
                         echo '&nbsp;</span>';
                     } else if ($status->is_editcomments()) {
-                        echo '&nbsp;<input type="text" class="form-control form-text-inline" name="teachercomment['.$item->id.']" />';
+                        echo '&nbsp;<input type="text" class="form-control form-text-inline"' .
+                            ' name="teachercomment['.$item->id.']" />';
                     }
                 }
 
@@ -363,21 +370,26 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 echo '<li>';
                                 echo '<div style="float: left;">';
                                 if ($status->is_showcheckbox()) {
-                                    echo '<input class="checklistitem itemoptional checkbox-inline" type="checkbox" name="items[]" id='.
+                                    echo '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"' .
+                                        ' name="items[]" id='.
                                         $itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
-                                echo '<form style="display:inline" class="form-inline" action="'.$thisitemurl->out_omit_querystring().
+                                echo '<form style="display:inline" class="form-inline" action="'.
+                                    $thisitemurl->out_omit_querystring().
                                     '" method="post">';
                                 echo html_writer::input_hidden_params($thisitemurl);
-                                echo '<input type="text" class="form-control form-text-inline" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).
+                                echo '<input type="text" class="form-control form-text-inline" size="'.
+                                    CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).
                                     '" id="updateitembox" />';
-                                echo '<input type="submit" class="btn btn-secondary" name="updateitem" value="'.get_string('updateitem', 'checklist').'" />';
+                                echo '<input type="submit" class="btn btn-secondary" name="updateitem" value="'.
+                                    get_string('updateitem', 'checklist').'" />';
                                 echo '<br />';
                                 echo '<textarea name="displaytextnote" rows="3" cols="25">'.s($note).'</textarea>';
                                 echo '</form>';
                                 echo '</div>';
 
-                                echo '<form style="display:inline;" class="form-inline" action="'.$thispageurl->out_omit_querystring().
+                                echo '<form style="display:inline;" class="form-inline" action="'.
+                                    $thispageurl->out_omit_querystring().
                                     '" method="get">';
                                 echo html_writer::input_hidden_params($thispageurl);
                                 echo '<input type="submit" class="btn btn-secondary" name="canceledititem" value="'.
@@ -390,7 +402,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                             } else {
                                 echo '<li>';
                                 if ($status->is_showcheckbox()) {
-                                    echo '<input class="checklistitem itemoptional checkbox-inline" type="checkbox" name="items[]" id='.
+                                    echo '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"' .
+                                        ' name="items[]" id='.
                                         $itemname.$checked.' value="'.$useritem->id.'" />';
                                 }
                                 $splittext = explode("\n", s($useritem->displaytext), 2);
@@ -434,8 +447,10 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     if ($status->is_showcheckbox()) {
                         echo '<input type="checkbox" class="checkbox-inline" disabled="disabled" />';
                     }
-                    echo '<input type="text" class="form-control form-text-inline" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
-                    echo '<input type="submit" class="btn btn-secondary" name="additem" value="'.get_string('additem', 'checklist').'" />';
+                    echo '<input type="text" class="form-control form-text-inline" size="'.
+                        CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
+                    echo '<input type="submit" class="btn btn-secondary" name="additem" value="'.
+                        get_string('additem', 'checklist').'" />';
                     echo '<br />';
                     echo '<textarea name="displaytextnote" rows="3" cols="25"></textarea>';
                     echo '</form>';
@@ -443,7 +458,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                     echo '<form style="display:inline" action="'.$thispageurl->out_omit_querystring().'" method="get">';
                     echo html_writer::input_hidden_params($thispageurl);
-                    echo '<input type="submit" class="btn btn-secondary" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
+                    echo '<input type="submit" class="btn btn-secondary" name="canceledititem" value="'.
+                        get_string('canceledititem', 'checklist').'" />';
                     echo '</form>';
                     echo '<br style="clear: both;" />';
                     echo '</li></ol>';
@@ -460,9 +476,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 echo '<input id="checklistsavechecks" type="submit" name="submit" value="'.
                     get_string('savechecks', 'checklist').'" />';
                 if ($status->is_viewother()) {
-                    echo '&nbsp;<input type="submit" class="btn btn-secondary" name="save" value="'.get_string('savechecks', 'mod_checklist').'" />';
-                    echo '&nbsp;<input type="submit" class="btn btn-secondary" name="savenext" value="'.get_string('saveandnext').'" />';
-                    echo '&nbsp;<input type="submit" class="btn btn-secondary" name="viewnext" value="'.get_string('next').'" />';
+                    echo '&nbsp;<input type="submit" class="btn btn-secondary" name="save" value="'.
+                        get_string('savechecks', 'mod_checklist').'" />';
+                    echo '&nbsp;<input type="submit" class="btn btn-secondary" name="savenext" value="'.
+                        get_string('saveandnext').'" />';
+                    echo '&nbsp;<input type="submit" class="btn btn-secondary" name="viewnext" value="'.
+                        get_string('next').'" />';
                 }
                 echo '</form>';
             }
@@ -968,9 +987,11 @@ ENDSCRIPT;
         $out .= '<input type="hidden" name="indent" value="'.$currindent.'" />';
         $out .= $this->output->pix_icon('tick_box', '', 'mod_checklist');
         $out .= '<input type="text" class="form-control form-text-inline" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
-        $out .= '<input type="submit" class="btn btn-secondary" name="additem" value="'.get_string('additem', 'checklist').'" />';
+        $out .= '<input type="submit" class="btn btn-secondary" name="additem" value="'.
+            get_string('additem', 'checklist').'" />';
         if (!$addingatend) {
-            $out .= '<input type="submit" class="btn btn-secondary" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
+            $out .= '<input type="submit" class="btn btn-secondary" name="canceledititem" value="'.
+                get_string('canceledititem', 'checklist').'" />';
         }
         if ($status->is_editlinks()) {
             $out .= $this->edit_link_form($status);
@@ -998,10 +1019,13 @@ ENDSCRIPT;
     protected function edit_item_form(output_status $status, checklist_item $item) {
         $out = '';
 
-        $out .= '<input type="text" class="form-control form-text-inline" size="'.CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.
+        $out .= '<input type="text" class="form-control form-text-inline" size="'.
+            CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.
             s($item->displaytext).'" id="updateitembox" />';
-        $out .= '<input type="submit" class="btn btn-secondary" name="updateitem" value="'.get_string('updateitem', 'checklist').'" />';
-        $out .= '<input type="submit" class="btn btn-secondary" name="canceledititem" value="'.get_string('canceledititem', 'checklist').'" />';
+        $out .= '<input type="submit" class="btn btn-secondary" name="updateitem" value="'.
+            get_string('updateitem', 'checklist').'" />';
+        $out .= '<input type="submit" class="btn btn-secondary" name="canceledititem" value="'.
+            get_string('canceledititem', 'checklist').'" />';
         if ($status->is_editlinks()) {
             $out .= $this->edit_link_form($status, $item);
         }

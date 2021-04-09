@@ -20,12 +20,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
-/**
- * Remove the '//' at the start of the next line to output lots of
- * helpful information during automatic updates.
- */
-// define("DEBUG_CHECKLIST_AUTOUPDATE", 1);
-
 function checklist_completion_update_checks($userid, $itemchecks, $newstate) {
     global $DB;
 

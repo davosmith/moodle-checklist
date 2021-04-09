@@ -55,7 +55,7 @@ define("CHECKLIST_AUTOPOPULATE_COURSE", 1);
 define("CHECKLIST_MAX_INDENT", 10);
 
 global $CFG;
-require_once(dirname(__FILE__).'/locallib.php');
+require_once(__DIR__.'/locallib.php');
 require_once($CFG->libdir.'/completionlib.php');
 
 /**
@@ -334,21 +334,32 @@ function checklist_update_grades($checklist, $userid = 0) {
 
         $total = count($items);
 
-        list($usql, $uparams) = $DB->get_in_or_equal($users);
-        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
+        list($usql, $uparams) = $DB->get_in_or_equal($users, SQL_PARAMS_NAMED);
+        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items), SQL_PARAMS_NAMED);
 
-        $namefields = get_all_user_name_fields(true, 'u');
+        if (class_exists('\core_user\fields')) {
+            $namesql = \core_user\fields::for_name()->get_sql('u', true);
+        } else {
+            $namesql = (object)[
+                'selects' => get_all_user_name_fields(true, 'u'),
+                'joins' => '',
+                'params' => [],
+                'mappings' => [],
+            ];
+        }
 
-        $sql = 'SELECT u.id AS userid, (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
-        $sql .= ' , '.$namefields;
-        $sql .= ' FROM {user} u LEFT JOIN {checklist_check} c ON u.id = c.userid';
-        $sql .= " WHERE u.id $usql";
-        $sql .= " AND c.item $isql";
-        $sql .= ' GROUP BY u.id, '.$namefields;
+        $sql = "
+             SELECT u.id AS userid, (SUM(CASE WHEN $where THEN 1 ELSE 0 END) * :maxgrade / :total ) AS rawgrade $date
+                    {$namesql->selects}
+               FROM {user} u 
+          LEFT JOIN {checklist_check} c ON u.id = c.userid
+                    {$namesql->joins}
+              WHERE u.id $usql
+                AND c.item $isql
+           GROUP BY u.id {$namesql->selects}
+        ";
 
-        $params = array_merge($uparams, $iparams);
-        $params = array_merge(array($checklist->maxgrade, $total), $params);
-
+        $params = array_merge(['maxgrade' => $checklist->maxgrade, 'total' => $total], $uparams, $iparams, $namesql->params);
         $grades = $DB->get_records_sql($sql, $params);
     }
 

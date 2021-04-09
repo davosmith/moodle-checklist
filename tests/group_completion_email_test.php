@@ -22,31 +22,33 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_checklist;
+
 defined('MOODLE_INTERNAL') || die();
 
-class mod_checklist_group_completion_email_testcase extends advanced_testcase {
+class group_completion_email_test extends \advanced_testcase {
 
     /**
-     * @var phpunit_mailer_sink
+     * @var \phpunit_mailer_sink
      */
     protected $mailsink;
 
-    /** @var stdClass The student object. */
+    /** @var \stdClass The student object. */
     protected $student;
 
-    /** @var stdClass The teacher object. */
+    /** @var \stdClass The teacher object. */
     protected $teacher;
 
-    /** @var stdClass The teacher2 object. */
+    /** @var \stdClass The teacher2 object. */
     protected $teacher2;
 
-    /** @var stdClass The checklist objects. */
+    /** @var \stdClass The checklist objects. */
     protected $checklist;
 
-    /** @var stdClass The course object. */
+    /** @var \stdClass The course object. */
     protected $course;
 
-    /** @var stdClass The group object. */
+    /** @var \stdClass The group object. */
     protected $group;
 
     public function setUp(): void {
@@ -56,14 +58,14 @@ class mod_checklist_group_completion_email_testcase extends advanced_testcase {
         unset_config('noemailever');
         $this->mailsink = $this->redirectEmails();
 
-        $courserecord = new stdClass();
+        $courserecord = new \stdClass();
         $courserecord->groupmode = SEPARATEGROUPS;
         $courserecord->groupmodeforce = true;
         $courserecord->enablecompletion = 1;
         $this->course = $this->getDataGenerator()->create_course($courserecord);
 
         // Create a checklist.
-        /** @var mod_checklist_generator $plugingen */
+        /** @var \mod_checklist_generator $plugingen */
         $plugingen = $this->getDataGenerator()->get_plugin_generator('mod_checklist');
         $params = [
             'course' => $this->course->id,

@@ -31,30 +31,57 @@ global $CFG;
 require_once($CFG->dirroot.'/completion/data_object.php');
 require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
+/**
+ * Class checklist_check
+ * @package mod_checklist\local
+ */
 class checklist_check extends data_object {
+    /** @var string */
     public $table = 'checklist_check';
+    /** @var string[] */
     public $requiredfields = [
         'id', 'item', 'userid', 'usertimestamp', 'teachermark', 'teachertimestamp', 'teacherid'
     ];
 
     // DB fields.
+    /** @var int */
     public $item;
+    /** @var int */
     public $userid;
+    /** @var int */
     public $usertimestamp = 0;
+    /** @var int */
     public $teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
+    /** @var int */
     public $teachertimestamp = 0;
+    /** @var int|null */
     public $teacherid = null;
 
+    /**
+     * checklist_check constructor.
+     * @param array|null $params
+     * @param bool $fetch
+     * @throws \coding_exception
+     */
     public function __construct(array $params = null, $fetch = true) {
         // Really ugly hack to stop travis complaining about $required_fields.
         $this->{'required_fields'} = $this->requiredfields;
         parent::__construct($params, $fetch);
     }
 
+    /**
+     * @param array $params
+     * @return data_object|false|object
+     */
     public static function fetch($params) {
         return self::fetch_helper('checklist_check', __CLASS__, $params);
     }
 
+    /**
+     * @param array $params
+     * @param false $sort
+     * @return array|false|mixed
+     */
     public static function fetch_all($params, $sort = false) {
         $ret = self::fetch_all_helper('checklist_check', __CLASS__, $params);
         if (!$ret) {
@@ -64,8 +91,9 @@ class checklist_check extends data_object {
     }
 
     /**
-     * @param $userid
-     * @param $itemids
+     * Get all checks for the given user matching the given itemids.
+     * @param int $userid
+     * @param int[] $itemids
      * @return checklist_check[] $itemid => $check
      */
     public static function fetch_by_userid_itemids($userid, $itemids) {
@@ -86,10 +114,18 @@ class checklist_check extends data_object {
         return $ret;
     }
 
+    /**
+     * Is this a valid teacher mark?
+     * @param int $teachermark
+     * @return bool
+     */
     public static function teachermark_valid($teachermark) {
         return in_array($teachermark, [CHECKLIST_TEACHERMARK_YES, CHECKLIST_TEACHERMARK_NO, CHECKLIST_TEACHERMARK_UNDECIDED]);
     }
 
+    /**
+     * Debugging check for valid fields.
+     */
     protected function check_fields_valid() {
         if (!self::teachermark_valid($this->teachermark)) {
             debugging('Unexpected teachermark value: '.$this->teachermark);
@@ -97,6 +133,9 @@ class checklist_check extends data_object {
         }
     }
 
+    /**
+     * Insert/update the record, as needed
+     */
     public function save() {
         if ($this->id) {
             $this->update();
@@ -105,30 +144,56 @@ class checklist_check extends data_object {
         }
     }
 
+    /**
+     * Insert a new record
+     * @return false|int
+     */
     public function insert() {
         $this->check_fields_valid();
         return parent::insert();
     }
 
+    /**
+     * Update an existing record
+     * @return bool
+     */
     public function update() {
         $this->check_fields_valid();
         return parent::update();
     }
 
+    /**
+     * Has the item been checked by the student?
+     * @return bool
+     */
     public function is_checked_student() {
         return $this->usertimestamp > 0;
     }
 
+    /**
+     * Has the item been checked by the teacher (and set to 'Yes')?
+     * @return bool
+     */
     public function is_checked_teacher() {
         return ($this->teachermark == CHECKLIST_TEACHERMARK_YES);
     }
 
+    /**
+     * Set the teacher mark for this item
+     * @param int $teachermark
+     * @param int $teacherid
+     */
     public function set_teachermark($teachermark, $teacherid) {
         $this->teachermark = $teachermark;
         $this->teacherid = $teacherid;
         $this->teachertimestamp = time();
     }
 
+    /**
+     * Set/clear the student mark for this item
+     * @param bool $checked
+     * @param int|null $timestamp
+     */
     public function set_checked_student($checked, $timestamp = null) {
         $timestamp = $timestamp ?: time();
         $this->usertimestamp = $checked ? $timestamp : 0;

@@ -384,7 +384,17 @@ class checklist_item extends data_object {
             return;
         }
 
-        $teachers = $DB->get_records_list('user', 'id', $userids, '', 'id,'.get_all_user_name_fields(true));
+        if (class_exists('\core_user\fields')) {
+            $namesql = \core_user\fields::for_name()->get_sql('', true);
+        } else {
+            $namesql = (object)[
+                'selects' => get_all_user_name_fields(true),
+                'joins' => '',
+                'params' => [],
+                'mappings' => [],
+            ];
+        }
+        $teachers = $DB->get_records_list('user', 'id', $userids, '', 'id'.$namesql->selects);
         foreach ($items as $item) {
             if ($item->teacherid) {
                 if (isset($teachers[$item->teacherid])) {
