@@ -15,30 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file defines the main checklist configuration form
- * It uses the standard core Moodle (>1.8) formslib. For
- * more info about them, please visit:
- *
- * http://docs.moodle.org/en/Development:lib/formslib.php
- *
- * The form must provide support for, at least these fields:
- *   - name: text element of 64cc max
- *
- * Also, it's usual to use these fields:
- *   - intro: one htmlarea element to describe the activity
- *            (will be showed in the list of activities of
- *             newmodule type (index.php) and in the header
- *             of the checklist main page (view.php).
- *   - introformat: The format used to write the contents
- *             of the intro field. It automatically defaults
- *             to HTML when the htmleditor is used and can be
- *             manually selected if the htmleditor is not used
- *             (standard formats are: MOODLE, HTML, PLAIN, MARKDOWN)
- *             See lib/weblib.php Constants and the format_text()
- *             function for more info
- */
-
-/**
+ * Activity instance editing form.
  * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package mod_checklist
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -49,8 +26,16 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 
+/**
+ * Class mod_checklist_mod_form
+ */
 class mod_checklist_mod_form extends moodleform_mod {
 
+    /**
+     * Define form elements
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function definition() {
 
         global $CFG;
@@ -144,6 +129,10 @@ class mod_checklist_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+    /**
+     * Pre-process form data
+     * @param array $defaultvalues
+     */
     public function data_preprocessing(&$defaultvalues) {
         parent::data_preprocessing($defaultvalues);
 
@@ -159,6 +148,11 @@ class mod_checklist_mod_form extends moodleform_mod {
         }
     }
 
+    /**
+     * Add completion rules
+     * @return string[]
+     * @throws coding_exception
+     */
     public function add_completion_rules() {
         $mform = $this->_form;
 
@@ -181,10 +175,19 @@ class mod_checklist_mod_form extends moodleform_mod {
         return array('completionpercentgroup');
     }
 
+    /**
+     * Are completion rules enabled?
+     * @param array $data
+     * @return bool
+     */
     public function completion_rule_enabled($data) {
         return (!empty($data['completionpercentenabled']) && $data['completionpercent'] != 0);
     }
 
+    /**
+     * Get the form data
+     * @return false|object
+     */
     public function get_data() {
         $data = parent::get_data();
         if (!$data) {

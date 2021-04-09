@@ -26,6 +26,10 @@ namespace mod_checklist;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class group_completion_email_test
+ * @package mod_checklist
+ */
 class group_completion_email_test extends \advanced_testcase {
 
     /**
@@ -51,6 +55,11 @@ class group_completion_email_test extends \advanced_testcase {
     /** @var \stdClass The group object. */
     protected $group;
 
+    /**
+     * Set up steps
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public function setUp(): void {
         global $DB;
 
@@ -113,6 +122,9 @@ class group_completion_email_test extends \advanced_testcase {
 
     }
 
+    /**
+     * Tear down steps.
+     */
     public function tearDown(): void {
         $this->mailsink->clear();
         $this->mailsink->close();

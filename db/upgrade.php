@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Extra upgrade steps
  * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package mod_checklist
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,6 +23,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Extra upgrade steps.
+ * @param int $oldversion
+ * @return bool
+ */
 function xmldb_checklist_upgrade($oldversion = 0) {
     global $DB, $OUTPUT, $CFG;
 

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Import checklist items
  * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package mod_checklist
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -43,7 +44,14 @@ require_capability('mod/checklist:edit', $context);
 
 $returl = new moodle_url('/mod/checklist/edit.php', array('id' => $cm->id));
 
+/**
+ * Class checklist_import_form
+ */
 class checklist_import_form extends moodleform {
+    /**
+     * Define form elements
+     * @throws coding_exception
+     */
     public function definition() {
         $mform = $this->_form;
 

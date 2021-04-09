@@ -41,8 +41,8 @@ class behat_mod_checklist extends behat_base {
      * View the calendar for a specific course + date
      *
      * @When /^I visit the calendar for course "(?P<course_string>[^"]*)" showing date "(?P<date_string>[^"]*)"$/
-     * @param $coursename
-     * @param $datestring
+     * @param string $coursename
+     * @param string $datestring
      */
     public function i_visit_the_calendar_for_course_showing_date($coursename, $datestring) {
         global $DB;
@@ -138,7 +138,7 @@ class behat_mod_checklist extends behat_base {
      *
      * @Given /^the following items are checked off in checklist "(?P<checklist_string>[^"]*)" for user "(?P<user_string>[^"]*)":$/
      * @param string $checklistname
-     * @param $username
+     * @param string $username
      * @param TableNode $table
      */
     public function the_following_items_are_checked_off_in_checklist_for_user($checklistname, $username, TableNode $table) {

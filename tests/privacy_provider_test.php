@@ -27,6 +27,9 @@ use mod_checklist\privacy\provider;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class mod_checklist_privacy_provider_testcase
+ */
 class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provider_testcase {
     /** @var stdClass The student object. */
     protected $student;
@@ -349,6 +352,12 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->assertEquals($student->id, $DB->get_field('checklist_comment', 'userid', []));
     }
 
+    /**
+     * Extra setup stuff.
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     private function do_some_setup_in_another_function_so_travis_stops_complaining_about_it(): array {
         global $DB;
 

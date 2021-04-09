@@ -13,10 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Code fragment to define the version of checklist
- * This fragment is called by moodle_needs_upgrading() and /admin/index.php
+ * Version information
  *
  * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package mod_checklist

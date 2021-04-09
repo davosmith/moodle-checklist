@@ -19,6 +19,7 @@
 // existing in /backup/moodle2/backup_settingslib.php (activities section).
 
 /**
+ * Backup settings.
  * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package mod_checklist
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

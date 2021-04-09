@@ -28,7 +28,18 @@ use mod_checklist\local\progress_info;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class mod_checklist_renderer
+ */
 class mod_checklist_renderer extends plugin_renderer_base {
+    /**
+     * Outpt required / total proress bars.
+     * @param int $totalitems
+     * @param int $requireditems
+     * @param int $allcompleteitems
+     * @param int $reqcompleteitems
+     * @return string
+     */
     public function progress_bars($totalitems, $requireditems, $allcompleteitems, $reqcompleteitems) {
         $out = '';
 
@@ -40,6 +51,14 @@ class mod_checklist_renderer extends plugin_renderer_base {
         return $out;
     }
 
+    /**
+     * Output a single progress bar
+     * @param int $totalitems
+     * @param int $completeitems
+     * @param bool $isrequired
+     * @return string
+     * @throws coding_exception
+     */
     public function progress_bar($totalitems, $completeitems, $isrequired) {
         $out = '';
 
@@ -70,6 +89,14 @@ class mod_checklist_renderer extends plugin_renderer_base {
         return $out;
     }
 
+    /**
+     * Output a progress bar for use outside of the checklist plugin
+     * @param int $totalitems
+     * @param int $completeitems
+     * @param int $width
+     * @param bool $showpercent
+     * @return string
+     */
     public function progress_bar_external($totalitems, $completeitems, $width, $showpercent) {
         $out = '';
 
@@ -85,6 +112,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Output the checklist items
      * @param checklist_item[] $items
      * @param checklist_item[] $useritems
      * @param bool|int[] $groupings
@@ -509,6 +537,13 @@ class mod_checklist_renderer extends plugin_renderer_base {
         echo $this->output->box_end();
     }
 
+    /**
+     * Output the item link
+     * @param checklist_item $item
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
     protected function checklist_item_link(checklist_item $item) {
         $out = '';
         if ($url = $item->get_link_url()) {
@@ -534,6 +569,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Output edit items list
      * @param checklist_item[] $items
      * @param output_status $status
      */
@@ -827,6 +863,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
         echo $this->output->box_end();
     }
 
+    /**
+     * Output the edit date form
+     * @param int $ts
+     * @return string
+     * @throws coding_exception
+     */
     protected function edit_date_form($ts = 0) {
         $out = '';
 
@@ -899,6 +941,7 @@ ENDSCRIPT;
     }
 
     /**
+     * Output the edit link form
      * @param output_status $status
      * @param checklist_item $item (optional)
      * @return string
@@ -963,6 +1006,7 @@ ENDSCRIPT;
     }
 
     /**
+     * Output the add item form
      * @param output_status $status
      * @param moodle_url $thispageurl
      * @param int $currindent
@@ -1013,6 +1057,7 @@ ENDSCRIPT;
     }
 
     /**
+     * Output the edit item form
      * @param output_status $status
      * @param checklist_item $item
      * @return string
@@ -1040,6 +1085,11 @@ ENDSCRIPT;
         return $out;
     }
 
+    /**
+     * Output the item grouping details
+     * @param object $item
+     * @return string
+     */
     public function item_grouping($item) {
         $out = '';
         if ($item->groupingname) {

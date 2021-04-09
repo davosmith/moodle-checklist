@@ -26,7 +26,17 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
+/**
+ * Class mod_checklist_generator
+ */
 class mod_checklist_generator extends testing_module_generator {
+    /**
+     * Create checklist instance
+     * @param object|array|null $record
+     * @param array|null $options
+     * @return stdClass
+     * @throws coding_exception
+     */
     public function create_instance($record = null, array $options = null) {
         $record = (object)(array)$record;
 

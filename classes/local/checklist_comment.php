@@ -97,6 +97,7 @@ class checklist_comment extends data_object {
     }
 
     /**
+     * Get all matching comments by user id and item ids
      * @param int $userid
      * @param int[] $itemids
      * @return checklist_comment[] $itemid => $check
@@ -174,7 +175,7 @@ class checklist_comment extends data_object {
 
     /**
      * Store the current course id
-     * @param $courseid
+     * @param int $courseid
      */
     public static function set_courseid($courseid) {
         self::$courseid = $courseid;

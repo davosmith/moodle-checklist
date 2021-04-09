@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Restore from backup steps.
  * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package mod_checklist
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -50,7 +51,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
 
     /**
      * Restore a checklist record.
-     * @param $data
+     * @param array|object $data
      * @throws base_step_exception
      * @throws dml_exception
      * @throws restore_step_exception
@@ -72,7 +73,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
 
     /**
      * Restore an item record.
-     * @param $data
+     * @param array|object $data
      * @throws dml_exception
      * @throws restore_step_exception
      */
@@ -110,7 +111,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
 
     /**
      * Restore a checkmark record.
-     * @param $data
+     * @param array|object $data
      * @throws dml_exception
      * @throws restore_step_exception
      */
@@ -138,7 +139,7 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
 
     /**
      * Restore a comment record.
-     * @param $data
+     * @param array|object $data
      * @throws dml_exception
      * @throws restore_step_exception
      */

@@ -14,50 +14,53 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- * Library of functions and constants for module checklist
- * This file should have two well differenced parts:
- *   - All the core Moodle functions, neeeded to allow
- *     the module to work integrated in Moodle.
- *   - All the checklist specific functions, needed
- *     to implement all the module logic. Please, note
- *     that, if the module become complex and this lib
- *     grows a lot, it's HIGHLY recommended to move all
- *     these module specific functions to a new php file,
- *     called "locallib.php" (see forum, quiz...). This will
- *     help to save some memory when Moodle is performing
- *     actions across all modules.
- */
-
-/**
+ * Functions to link into the main Moodle API
  * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package mod_checklist
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+/** Do not sent emails on completion */
 define("CHECKLIST_EMAIL_NO", 0);
+/** Send emails to students on completion */
 define("CHECKLIST_EMAIL_STUDENT", 1);
+/** Send emails to teachers on completion */
 define("CHECKLIST_EMAIL_TEACHER", 2);
+/** Send emails to students and teachers on completion */
 define("CHECKLIST_EMAIL_BOTH", 3);
 
+/** Teacher marked item as "No" */
 define("CHECKLIST_TEACHERMARK_NO", 2);
+/** Teacher marked item as "Yes" */
 define("CHECKLIST_TEACHERMARK_YES", 1);
+/** No teacher mark */
 define("CHECKLIST_TEACHERMARK_UNDECIDED", 0);
 
+/** Checklist updated by students */
 define("CHECKLIST_MARKING_STUDENT", 0);
+/** Checklist updated by teachers */
 define("CHECKLIST_MARKING_TEACHER", 1);
+/** Checklist updated by students and teachers */
 define("CHECKLIST_MARKING_BOTH", 2);
 
+/** Linked activities should not update item status */
 define("CHECKLIST_AUTOUPDATE_NO", 0);
+/** Linked activites should update item status */
 define("CHECKLIST_AUTOUPDATE_YES", 2);
+/** Linked activites should update items status, but can be overridden by students */
 define("CHECKLIST_AUTOUPDATE_YES_OVERRIDE", 1);
 
+/** Do not import activities into the checklist */
 define("CHECKLIST_AUTOPOPULATE_NO", 0);
+/** Import activities from the current section into the checklist */
 define("CHECKLIST_AUTOPOPULATE_SECTION", 2);
+/** Import all activities in the course into the checklist */
 define("CHECKLIST_AUTOPOPULATE_COURSE", 1);
 
+/** Maximum indend allowed */
 define("CHECKLIST_MAX_INDENT", 10);
 
 global $CFG;
@@ -206,7 +209,7 @@ function checklist_delete_instance($id) {
 }
 
 /**
- *
+ * Update all checklist grades on the site
  */
 function checklist_update_all_grades() {
     global $DB;
@@ -218,6 +221,7 @@ function checklist_update_all_grades() {
 }
 
 /**
+ * Update the checklist grades
  * @param object $checklist
  * @param int $userid
  */
@@ -468,7 +472,8 @@ function checklist_sent_email_recently($cmid) {
 }
 
 /**
- * @param $checklist
+ * Delete the checklist grade item.
+ * @param object $checklist
  * @return int
  */
 function checklist_grade_item_delete($checklist) {
@@ -482,7 +487,8 @@ function checklist_grade_item_delete($checklist) {
 }
 
 /**
- * @param $checklist
+ * Update the checklist grade items
+ * @param object $checklist
  * @param null $grades
  * @return int
  */
@@ -518,10 +524,10 @@ function checklist_grade_item_update($checklist, $grades = null) {
  * $return->time = the time they did it
  * $return->info = a short text description
  *
- * @param $course
- * @param $user
- * @param $mod
- * @param $checklist
+ * @param object $course
+ * @param object $user
+ * @param object $mod
+ * @param object $checklist
  * @return null
  */
 function checklist_user_outline($course, $user, $mod, $checklist) {
@@ -574,10 +580,10 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
  * Print a detailed representation of what a user has done with
  * a given particular instance of this module, for user activity reports.
  *
- * @param $course
- * @param $user
- * @param $mod
- * @param $checklist
+ * @param object $course
+ * @param object $user
+ * @param object $mod
+ * @param object $checklist
  * @return boolean
  */
 function checklist_user_complete($course, $user, $mod, $checklist) {
@@ -593,9 +599,9 @@ function checklist_user_complete($course, $user, $mod, $checklist) {
  * that has occurred in checklist activities and print it out.
  * Return true if there was output, or false is there was none.
  *
- * @param $course
- * @param $isteacher
- * @param $timestart
+ * @param object $course
+ * @param bool $isteacher
+ * @param int $timestart
  * @return boolean
  */
 function checklist_print_recent_activity($course, $isteacher, $timestart) {
@@ -603,8 +609,9 @@ function checklist_print_recent_activity($course, $isteacher, $timestart) {
 }
 
 /**
- * @param $courses
- * @param $htmlarray
+ * Print an overview of the checklist
+ * @param array $courses
+ * @param array $htmlarray
  */
 function checklist_print_overview($courses, &$htmlarray) {
     global $USER, $CFG, $DB;
@@ -738,7 +745,7 @@ function checklist_scale_used($checklistid, $scaleid) {
  * This function was added in 1.9
  *
  * This is used to find out if scale used anywhere
- * @param $scaleid int
+ * @param int $scaleid
  * @return boolean True if the scale is used by any checklist
  */
 function checklist_scale_used_anywhere($scaleid) {
@@ -766,6 +773,7 @@ function checklist_uninstall() {
 }
 
 /**
+ * Get the form elements for the reset form
  * @param HTML_QuickForm $mform
  */
 function checklist_reset_course_form_definition(&$mform) {
@@ -774,6 +782,7 @@ function checklist_reset_course_form_definition(&$mform) {
 }
 
 /**
+ * Get the options for the reset form
  * @param object $course
  * @return array
  */
@@ -782,6 +791,7 @@ function checklist_reset_course_form_defaults($course) {
 }
 
 /**
+ * Reset the checklist userdata
  * @param object $data
  * @return array
  */
@@ -822,7 +832,10 @@ function checklist_reset_userdata($data) {
 }
 
 /**
+ * Update calendar events
  * @param int $courseid
+ * @param object|int|null $instance
+ * @param object|null $cm
  * @return bool
  */
 function checklist_refresh_events($courseid = 0, $instance = null, $cm = null) {
@@ -853,6 +866,7 @@ function checklist_refresh_events($courseid = 0, $instance = null, $cm = null) {
 }
 
 /**
+ * What features does the checklist support?
  * @param string $feature
  * @return bool|null
  */
@@ -891,6 +905,7 @@ function checklist_supports($feature) {
 }
 
 /**
+ * Calculate the completion state of the checklist for the given user.
  * @param object $course
  * @param object $cm
  * @param int $userid

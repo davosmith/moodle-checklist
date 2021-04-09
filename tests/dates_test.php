@@ -26,11 +26,26 @@ namespace mod_checklist;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class dates_test
+ * @package mod_checklist
+ */
 class dates_test extends \advanced_testcase {
+    /**
+     * Set up steps
+     */
     public function setUp(): void {
         $this->resetAfterTest();
     }
 
+    /**
+     * Test importing checklist items
+     * @throws \base_plan_exception
+     * @throws \base_setting_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \restore_controller_exception
+     */
     public function test_import(): void {
         global $DB, $CFG;
         require_once($CFG->dirroot.'/backup/util/includes/backup_includes.php');
