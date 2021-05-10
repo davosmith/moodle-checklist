@@ -734,9 +734,11 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     echo $this->item_grouping($item);
 
                     // Item colour.
-                    echo '<a href="'.$itemurl->out(true, array('action' => 'nextcolour')).'">';
-                    $title = get_string('changetextcolour', 'checklist');
-                    echo $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]).'</a>';
+                    if (!empty(get_config('mod_checklist', 'showcolorchooser'))) {
+                        echo '<a href="' . $itemurl->out(true, array('action' => 'nextcolour')) . '">';
+                        $title = get_string('changetextcolour', 'checklist');
+                        echo $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]) . '</a>';
+                    }
 
                     // Edit item.
                     if (!$autoitem) {
