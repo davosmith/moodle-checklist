@@ -42,4 +42,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('mod_checklist/onlyenrolled',
                                                     get_string('onlyenrolled', 'mod_checklist'),
                                                     get_string('onlyenrolleddesc', 'mod_checklist'), 1));
+    $settings->add(new admin_setting_configcheckbox('mod_checklist/showcolorchooser',
+                                                    get_string('showcolorchooser', 'mod_checklist'),
+                                                    get_string('showcolorchooserdesc', 'mod_checklist'), 1));
 }

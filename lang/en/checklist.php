@@ -212,6 +212,8 @@ $string['showhidechecked'] = 'Show/hide selected items';
 $string['showupdateablemymoodle'] = 'Show only updatable Checklists on \'My Moodle\' page';
 $string['showmymoodle'] = 'Show Checklists on \'My Moodle\' page';
 $string['showprogressbars'] = 'Show progress bars';
+$string['showcolorchooser'] = 'Display color chooser';
+$string['showcolorchooserdesc'] = 'Displays the color chooser of the list elements in edit.php';
 
 $string['teachercomments'] = 'Teachers can add comments';
 $string['teacherdate'] = 'Date a teacher last updated this item';
