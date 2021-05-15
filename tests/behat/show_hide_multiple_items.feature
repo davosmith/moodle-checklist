@@ -14,18 +14,11 @@ Feature: Multiple autopopulate items can be shown/hidden at once
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
     And the following "activities" exist:
-      | activity  | course | section | idnumber   | name            | intro                 |
-      | assign    | C1     | 1       | assign1    | Test assignment | This is an assignment |
-      | data      | C1     | 1       | data1      | Test database   | This is a database    |
-      | checklist | C1     | 2       | checklist1 | Test checklist  | This is a checklist   |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
-      | Checklist                        | Test auto-pop checklist             |
-      | Introduction                     | This is an auto-populated checklist |
-      | Show course modules in checklist | Whole course                        |
-    And I log out
+      | activity  | course | section | idnumber   | name                    | intro                               | autopopulate |
+      | assign    | C1     | 1       | assign1    | Test assignment         | This is an assignment               |              |
+      | data      | C1     | 1       | data1      | Test database           | This is a database                  |              |
+      | checklist | C1     | 2       | checklist1 | Test checklist          | This is a checklist                 |              |
+      | checklist | C1     | 1       | checklist2 | Test auto-pop checklist | This is an auto-populated checklist | 1            |
 
   Scenario: When viewing an auto-populated checklist, a student should see items corresponding to the course modules
     When I log in as "student1"

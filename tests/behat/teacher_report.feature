@@ -5,6 +5,9 @@ Feature: Teachers can view student's progress
     Given the following "courses" exist:
       | fullname | shortname |
       | Course 1 | C1        |
+    And the following "activities" exist:
+      | activity  | name           | intro               | course | section | idnumber | teacheredit |
+      | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 0           |
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
@@ -13,13 +16,6 @@ Feature: Teachers can view student's progress
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
-      | Checklist    | Test checklist      |
-      | Introduction | This is a checklist |
-      | Updates by   | Student only        |
     And the following items exist in checklist "Test checklist":
       | text                      | required |
       | Checklist required item 1 | required |
@@ -32,7 +28,6 @@ Feature: Teachers can view student's progress
       | Checklist required item 1 | yes         |
       | Checklist required item 2 | yes         |
       | Checklist optional item 5 | yes         |
-    And I log out
 
   Scenario: A teacher can view a student's progress in a report
     Given I log in as "teacher1"

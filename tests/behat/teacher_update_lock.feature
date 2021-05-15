@@ -5,6 +5,9 @@ Feature: Teacher marks can be set to locked once updated
     Given the following "courses" exist:
       | fullname | shortname |
       | Course 1 | C1        |
+    And the following "activities" exist:
+      | activity  | name           | intro               | course | section | idnumber | teacheredit | lockteachermarks |
+      | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 1           | 1                |
     And the following "users" exist:
       | username | firstname | lastname | email                |
       | teacher1 | Teacher   | 1        | teacher1@example.com |
@@ -15,14 +18,6 @@ Feature: Teacher marks can be set to locked once updated
       | teacher1 | C1     | editingteacher |
       | teacher2 | C1     | teacher        |
       | student1 | C1     | student        |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
-      | Checklist          | Test checklist      |
-      | Introduction       | This is a checklist |
-      | Updates by         | Teacher only        |
-      | Lock teacher marks | Yes                 |
     And the following items exist in checklist "Test checklist":
       | text                      | required |
       | Checklist required item 1 | required |
@@ -30,7 +25,6 @@ Feature: Teacher marks can be set to locked once updated
       | Checklist required item 3 | required |
       | Checklist optional item 4 | optional |
       | Checklist optional item 5 | optional |
-    And I log out
 
   Scenario: A non-editing teacher can set 'Yes' marks, but cannot change them afterwards
     Given I log in as "teacher2"

@@ -344,8 +344,8 @@ function checklist_update_grades($checklist, $userid = 0) {
 
         $total = count($items);
 
-        list($usql, $uparams) = $DB->get_in_or_equal($users, SQL_PARAMS_NAMED);
-        list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items), SQL_PARAMS_NAMED);
+        [$usql, $uparams] = $DB->get_in_or_equal($users, SQL_PARAMS_NAMED);
+        [$isql, $iparams] = $DB->get_in_or_equal(array_keys($items), SQL_PARAMS_NAMED);
 
         if (class_exists('\core_user\fields')) {
             $namesql = \core_user\fields::for_name()->get_sql('u', true);
@@ -544,7 +544,7 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
     }
 
     $total = count($items);
-    list($isql, $iparams) = $DB->get_in_or_equal(array_keys($items));
+    [$isql, $iparams] = $DB->get_in_or_equal(array_keys($items));
 
     $sql = "userid = ? AND item $isql AND ";
     if ($checklist->teacheredit == CHECKLIST_MARKING_STUDENT) {
@@ -809,7 +809,7 @@ function checklist_reset_userdata($data) {
             return $status;
         }
 
-        list($csql, $cparams) = $DB->get_in_or_equal(array_keys($checklists));
+        [$csql, $cparams] = $DB->get_in_or_equal(array_keys($checklists));
         $items = $DB->get_records_select('checklist_item', 'checklist '.$csql, $cparams);
         if (!$items) {
             return $status;
@@ -906,6 +906,7 @@ function checklist_supports($feature) {
 
 /**
  * Calculate the completion state of the checklist for the given user.
+ * Retained for compatibility with Moodle 3.10 and below.
  * @param object $course
  * @param object $cm
  * @param int $userid
@@ -935,6 +936,35 @@ function checklist_get_completion_state($course, $cm, $userid, $type) {
         } else {
             $result = $result || $value;
         }
+    }
+
+    return $result;
+}
+
+/**
+ * Add extra info needed to output activity onto course page
+ * @param object $coursemodule
+ * @return cached_cm_info|false
+ */
+function checklist_get_coursemodule_info($coursemodule) {
+    global $DB;
+
+    $fields = 'id, name, intro, introformat, completionpercent, completionpercenttype';
+    if (!$checklist = $DB->get_record('checklist', ['id' => $coursemodule->instance], $fields)) {
+        return false;
+    }
+
+    $result = new cached_cm_info();
+    $result->name = $checklist->name;
+    if ($coursemodule->showdescription) {
+        $result->content = format_module_intro('checklist', $checklist, $coursemodule->id, false);
+    }
+
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        // Needed by Moodle 3.11 and above - ignored by earlier versions.
+        $result->customdata['customcompletionrules']['completionpercent'] = [
+            $checklist->completionpercent, $checklist->completionpercenttype,
+        ];
     }
 
     return $result;

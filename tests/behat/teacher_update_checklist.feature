@@ -5,6 +5,9 @@ Feature: Teacher update checklist works as expected
     Given the following "courses" exist:
       | fullname | shortname |
       | Course 1 | C1        |
+    And the following "activities" exist:
+      | activity  | name           | intro               | course | section | idnumber | teacheredit |
+      | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 1           |
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
@@ -13,13 +16,6 @@ Feature: Teacher update checklist works as expected
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
-      | Checklist    | Test checklist      |
-      | Introduction | This is a checklist |
-      | Updates by   | Teacher only        |
     And the following items exist in checklist "Test checklist":
       | text                      | required |
       | Checklist required item 1 | required |
@@ -27,7 +23,6 @@ Feature: Teacher update checklist works as expected
       | Checklist required item 3 | required |
       | Checklist optional item 4 | optional |
       | Checklist optional item 5 | optional |
-    And I log out
 
   @javascript
   Scenario: A teacher updates a checklist from the report overview and the student can see it

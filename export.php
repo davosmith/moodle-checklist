@@ -41,7 +41,7 @@ require_capability('mod/checklist:edit', $context);
 
 $items = $DB->get_records_select('checklist_item', "checklist = ? AND userid = 0", array($checklist->id), 'position');
 if (!$items) {
-    print_error('noitems', 'mod_checklist');
+    throw new moodle_exception('noitems', 'mod_checklist');
 }
 
 $csv = new csv_export_writer();

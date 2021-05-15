@@ -5,6 +5,9 @@ Feature: A teacher can attach a link to an external URL to a checklist item
     Given the following "courses" exist:
       | fullname | shortname |
       | Course 1 | C1        |
+    And the following "activities" exist:
+      | activity  | name           | intro               | course | section | idnumber | teacheredit |
+      | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 0           |
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
@@ -15,11 +18,6 @@ Feature: A teacher can attach a link to an external URL to a checklist item
       | student1 | C1     | student        |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
-      | Checklist    | Test checklist      |
-      | Introduction | This is a checklist |
-      | Updates by   | Student only        |
 
   Scenario: A teacher links to an external website and then follows that link
     Given I follow "Test checklist"

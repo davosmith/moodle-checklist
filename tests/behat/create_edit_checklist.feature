@@ -5,6 +5,9 @@ Feature: I can create and update a checklist
     Given the following "courses" exist:
       | fullname | shortname |
       | Course 1 | C1        |
+    And the following "activities" exist:
+      | activity  | name           | intro               | course | section | idnumber |
+      | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   |
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
@@ -13,13 +16,6 @@ Feature: I can create and update a checklist
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
-      | Checklist    | Test checklist      |
-      | Introduction | This is a checklist |
-    And I log out
 
   Scenario: When I add no items to a checklist a student sees no items
     When I log in as "student1"

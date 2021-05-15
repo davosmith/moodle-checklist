@@ -49,7 +49,7 @@ class restore_checklist_activity_task extends restore_activity_task {
      * Define the contents in the activity that must be
      * processed by the link decoder
      */
-    static public function define_decode_contents() {
+    public static function define_decode_contents() {
         $contents = array();
 
         $contents[] = new restore_decode_content('checklist', array('intro'), 'checklist');
@@ -62,7 +62,7 @@ class restore_checklist_activity_task extends restore_activity_task {
      * Define the decoding rules for links belonging
      * to the activity to be executed by the link decoder
      */
-    static public function define_decode_rules() {
+    public static function define_decode_rules() {
         $rules = array();
 
         // List of checklists in course.
@@ -116,7 +116,7 @@ class restore_checklist_activity_task extends restore_activity_task {
      * of restore_log_rule objects
      * @return restore_log_rule[]
      */
-    static public function define_restore_log_rules() {
+    public static function define_restore_log_rules() {
         $rules = array();
 
         $rules[] = new restore_log_rule('checklist', 'add', 'view.php?id={course_module}', '{folder}');
@@ -137,7 +137,7 @@ class restore_checklist_activity_task extends restore_activity_task {
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      * @return restore_log_rule[]
      */
-    static public function define_restore_log_rules_for_course() {
+    public static function define_restore_log_rules_for_course() {
         $rules = array();
 
         $rules[] = new restore_log_rule('checklist', 'view all', 'index.php?id={course}', null);
