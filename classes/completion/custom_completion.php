@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class custom_completion
- * @package mod_checklist\completion
+ * @package mod_checklist
  */
 class custom_completion extends \core_completion\activity_custom_completion {
     /**
