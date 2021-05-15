@@ -28,7 +28,16 @@ use checklist_class;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class custom_completion
+ * @package mod_checklist\completion
+ */
 class custom_completion extends \core_completion\activity_custom_completion {
+    /**
+     * Get the completion state for the given rule
+     * @param string $rule
+     * @return int
+     */
     public function get_state(string $rule): int {
         global $DB;
 
@@ -55,12 +64,20 @@ class custom_completion extends \core_completion\activity_custom_completion {
         return $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
 
+    /**
+     * Get a list of defined rules.
+     * @return string[]
+     */
     public static function get_defined_custom_rules(): array {
         return [
             'completionpercent',
         ];
     }
 
+    /**
+     * Get the descriptions for the rules.
+     * @return array
+     */
     public function get_custom_rule_descriptions(): array {
         [$amount, $type] = $this->cm->customdata['customcompletionrules']['completionpercent'] ?? [0, 'percent'];
 
@@ -72,6 +89,10 @@ class custom_completion extends \core_completion\activity_custom_completion {
         ];
     }
 
+    /**
+     * Get the sort order for displaying the rules.
+     * @return string[]
+     */
     public function get_sort_order(): array {
         return [
             'completionpercent',
