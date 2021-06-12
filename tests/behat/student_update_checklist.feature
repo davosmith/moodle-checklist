@@ -119,6 +119,7 @@ Feature: A student can update their progress in a checklist
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
     And I set the field "Completion tracking" to "Show activity as complete when conditions are met"
+    And I set the field "completionusegrade" to "1"
     And I set the field "completionpercentenabled" to "1"
     And I set the field "completionpercent" to "100"
     And I press "Save and return to course"
