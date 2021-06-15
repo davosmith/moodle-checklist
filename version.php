@@ -26,6 +26,6 @@ global $CFG;
 
 $plugin->version = 2021061200;  // The current module version (Date: YYYYMMDDXX).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.9+ (Build: 2021061200)';
+$plugin->release = '3.9.0.1';
 $plugin->requires = 2020061500; // Moodle 3.9.0.
 $plugin->component = 'mod_checklist';
