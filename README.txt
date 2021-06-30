@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2021-06-30 - 3.9.0.2 - Fix completion debugging error when no checklist items in M3.11
 * 2021-06-12 - 3.9.0.1 - Fix completion sort order error in M3.11
 * 2021-05-15 - Further M3.11 compatibility fixes, new setting to disable colour picker (from Peter Mayer)
 * 2021-04-09 - M3.11 compatibility fixes + work with github actions
