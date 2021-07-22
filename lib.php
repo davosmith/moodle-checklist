@@ -798,34 +798,38 @@ function checklist_reset_course_form_defaults($course) {
 function checklist_reset_userdata($data) {
     global $DB;
 
-    $status = array();
+    if (empty($data->reset_checklist_progress)) {
+        // Nothing to do. User did not request to reset checklist data.
+        return array();
+    }
+
     $component = get_string('modulenameplural', 'checklist');
     $typestr = get_string('resetchecklistprogress', 'checklist');
+
+    $status = array();
     $status[] = array('component' => $component, 'item' => $typestr, 'error' => false);
 
-    if (!empty($data->reset_checklist_progress)) {
-        $checklists = $DB->get_records('checklist', array('course' => $data->courseid));
-        if (!$checklists) {
-            return $status;
-        }
+    $checklists = $DB->get_records('checklist', array('course' => $data->courseid));
+    if (!$checklists) {
+        return $status;
+    }
 
-        [$csql, $cparams] = $DB->get_in_or_equal(array_keys($checklists));
-        $items = $DB->get_records_select('checklist_item', 'checklist '.$csql, $cparams);
-        if (!$items) {
-            return $status;
-        }
+    [$csql, $cparams] = $DB->get_in_or_equal(array_keys($checklists));
+    $items = $DB->get_records_select('checklist_item', 'checklist '.$csql, $cparams);
+    if (!$items) {
+        return $status;
+    }
 
-        $itemids = array_keys($items);
-        $DB->delete_records_list('checklist_check', 'item', $itemids);
-        $DB->delete_records_list('checklist_comment', 'itemid', $itemids);
+    $itemids = array_keys($items);
+    $DB->delete_records_list('checklist_check', 'item', $itemids);
+    $DB->delete_records_list('checklist_comment', 'itemid', $itemids);
 
-        $sql = "checklist $csql AND userid <> 0";
-        $DB->delete_records_select('checklist_item', $sql, $cparams);
+    $sql = "checklist $csql AND userid <> 0";
+    $DB->delete_records_select('checklist_item', $sql, $cparams);
 
-        // Reset the grades.
-        foreach ($checklists as $checklist) {
-            checklist_grade_item_update($checklist, 'reset');
-        }
+    // Reset the grades.
+    foreach ($checklists as $checklist) {
+        checklist_grade_item_update($checklist, 'reset');
     }
 
     return $status;
