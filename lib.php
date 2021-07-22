@@ -841,6 +841,8 @@ function checklist_reset_userdata($data) {
 function checklist_refresh_events($courseid = 0, $instance = null, $cm = null) {
     global $DB;
 
+    $course = null;
+
     if ($instance) {
         if (!is_object($instance)) {
             $instance = $DB->get_record('checklist', ['id' => $instance], '*', MUST_EXIST);
@@ -851,7 +853,6 @@ function checklist_refresh_events($courseid = 0, $instance = null, $cm = null) {
         $course = $DB->get_record('course', array('id' => $courseid));
     } else {
         $checklists = $DB->get_records('checklist');
-        $course = null;
     }
 
     foreach ($checklists as $checklist) {
