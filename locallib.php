@@ -24,6 +24,7 @@
 
 use mod_checklist\local\checklist_check;
 use mod_checklist\local\checklist_comment;
+use mod_checklist\local\checklist_comment_student;
 use mod_checklist\local\checklist_item;
 use mod_checklist\local\output_status;
 
@@ -513,6 +514,14 @@ class checklist_class {
     }
 
     /**
+     * Can the current user add comments to this checklist?
+     * @return bool
+     */
+    protected function canaddstudentcomments(): bool {
+        return $this->checklist->usercommentsallowed;
+    }
+
+    /**
      * Can the current user preview this checklist?
      * @return bool
      */
@@ -889,6 +898,7 @@ class checklist_class {
         $status->set_viewother($viewother);
         $status->set_userreport($userreport);
         $status->set_teachercomments($this->checklist->teachercomments);
+        $status->set_studentcomments($this->checklist->usercommentsallowed);
         $status->set_canupdateown($this->canupdateown());
         $status->set_canaddown($this->canaddown());
 
@@ -899,6 +909,10 @@ class checklist_class {
             $comments = checklist_comment::fetch_by_userid_itemids($this->userid, array_keys($this->items));
             checklist_comment::add_commentby_names($comments);
             checklist_item::add_comments($this->items, $comments);
+        }
+        if ($status->is_studentcomments()) {
+            $studentcomments = checklist_comment_student::fetch_by_userid_itemids($this->userid, array_keys($this->items));
+            checklist_item::add_student_comments($this->items, $studentcomments);
         }
         if ($status->is_canupdateown() || $status->is_viewother() || $status->is_userreport()) {
             $status->set_showprogressbar(true);
@@ -960,7 +974,7 @@ class checklist_class {
             // Progress bars should be updated on 'student only' checklists.
             $updateprogress = $status->is_showteachermark() ? 0 : 1;
             $PAGE->requires->js_init_call('M.mod_checklist.init', array(
-                $updatechecksurl->out(), sesskey(), $this->cm->id, $updateprogress
+                $updatechecksurl->out(), sesskey(), $this->cm->id, $updateprogress, $this->canaddstudentcomments()
             ), true, $jsmodule);
         }
 
@@ -3088,5 +3102,32 @@ class checklist_class {
             $allgroupings[$courseid] = $ret;
         }
         return $allgroupings[$courseid];
+    }
+
+    /** Update or create a comment for a student on the given checklist item.
+     * @param $checklistitemid
+     * @param $commenttext
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function update_student_comment($checklistitemid, $commenttext, $userid): bool
+    {
+        global $DB;
+
+        // TODO change to using persistent class instead of direct queries.
+        $existingcomment = $DB->get_record('checklist_comment_student',array('itemid' => $checklistitemid, 'userid' => $userid));
+
+        if (!$existingcomment) {
+            $updatedcomment = new stdClass();
+            $updatedcomment->timemodified = time();
+            $updatedcomment->itemid = $checklistitemid;
+            $updatedcomment->userid = $userid;
+            $updatedcomment->text = $commenttext;
+            return $DB->insert_record('checklist_comment_student', $updatedcomment, false);
+        } else {
+            $existingcomment->timemodified = time();
+            $existingcomment->text = $commenttext;
+            return $DB->update_record('checklist_comment_student', $existingcomment);
+        }
     }
 }

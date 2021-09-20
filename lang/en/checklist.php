@@ -216,6 +216,9 @@ $string['showprogressbars'] = 'Show progress bars';
 $string['showcolorchooser'] = 'Display color chooser';
 $string['showcolorchooserdesc'] = 'Displays the color chooser of the list elements in edit.php';
 
+$string['student_comment_updated'] = 'Student comment updated';
+$string['student_comment_updated_desc'] = 'The user with id {$a->userid} has updated their checks for the checklist with the course module id {$a->cmid}';
+
 $string['teachercomments'] = 'Teachers can add comments';
 $string['teacherdate'] = 'Date a teacher last updated this item';
 
@@ -235,10 +238,12 @@ $string['toggledates'] = 'Toggle names & dates';
 $string['togglerow'] = 'Toggle Row';
 $string['theme'] = 'Checklist display theme';
 
+$string['update_student_comment_failed'] = 'Failed to update student comment';
 $string['updatecompletescore'] = 'Save completion grades';
 $string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';
 $string['userdate'] = 'Date the user last updated this item';
+$string['usercommentsallowed'] = 'User can add their own comments to checklist items';
 $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 

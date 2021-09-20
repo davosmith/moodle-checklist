@@ -177,6 +177,7 @@ function checklist_update_instance($checklist) {
  * @return boolean Success/Failure
  */
 function checklist_delete_instance($id) {
+    // TODO must delete the associated user comments here too.
     global $DB;
 
     if (!$checklist = $DB->get_record('checklist', array('id' => $id))) {

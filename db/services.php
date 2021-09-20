@@ -1,0 +1,34 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Web service for mod checklist
+ * @package    mod_checklist
+ * @subpackage db
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+$functions = array(
+    'mod_checklist_update_student_comment' => array(
+        'classname'     => 'mod_checklist_external',
+        'methodname'    => 'update_student_comment',
+        'classpath'     => 'mod/checklist/externallib.php',
+        'description'   => 'Update a student comment',
+        'ajax'          => true,
+        'type'          => 'write',
+        'capabilities'  => 'mod/checklist:view, mod/checklist:updateown'
+    ),
+);
