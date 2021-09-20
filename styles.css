@@ -78,6 +78,15 @@ ol.checklist .teachercomment {
     margin: 0 0 0 20px;
 }
 
+ol.checklist .studentcomment {
+    color: black;
+    background-color: #dbffb0;
+    border: solid black 1px;
+    margin: 0 0 0 20px;
+    padding: 3px;
+    border-radius: 7px;
+}
+
 ol.checklist .itemauto.itemdisabled {
     text-decoration: line-through;
     background-color: #bcc4c4;
@@ -254,6 +263,15 @@ p.checklistwarning {
     position: absolute;
     top: 5px;
     left: 5px;
+    width: 16px;
+    height: 16px;
+    background-image: url([[pix:i/loading_small]]);
+}
+
+.checklistspinnerstudent {
+    display: none;
+    top: 5px;
+    margin-left: 5px;
     width: 16px;
     height: 16px;
     background-image: url([[pix:i/loading_small]]);

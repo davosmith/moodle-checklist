@@ -24,6 +24,7 @@
 
 use mod_checklist\local\checklist_check;
 use mod_checklist\local\checklist_comment;
+use mod_checklist\local\checklist_comment_student;
 use mod_checklist\local\checklist_item;
 use mod_checklist\local\output_status;
 
@@ -513,6 +514,20 @@ class checklist_class {
     }
 
     /**
+     * Can the current user add student comments to this checklist?
+     * - Checklist must have student comments enabled
+     * - Must have capability mod/checklist:updateown
+     * - Must be viewing your own checklist, no for teachers viewing a student's checklist (unless previewing).
+     * @return bool
+     */
+    public function canaddstudentcomments(): bool {
+        global $USER;
+        return $this->checklist->studentcomments &&
+            (!$this->userid || ($this->userid == $USER->id)) &&
+            has_capability('mod/checklist:updateown', $this->context);
+    }
+
+    /**
      * Can the current user preview this checklist?
      * @return bool
      */
@@ -889,8 +904,10 @@ class checklist_class {
         $status->set_viewother($viewother);
         $status->set_userreport($userreport);
         $status->set_teachercomments($this->checklist->teachercomments);
+        $status->set_studentcomments($this->checklist->studentcomments);
         $status->set_canupdateown($this->canupdateown());
         $status->set_canaddown($this->canaddown());
+        $status->set_courseid($this->course->id);
 
         if ($status->is_teachercomments()) {
             if ($status->is_viewother()) {
@@ -899,6 +916,11 @@ class checklist_class {
             $comments = checklist_comment::fetch_by_userid_itemids($this->userid, array_keys($this->items));
             checklist_comment::add_commentby_names($comments);
             checklist_item::add_comments($this->items, $comments);
+        }
+        if ($status->is_studentcomments()) {
+            $studentcomments = checklist_comment_student::get_student_comments_indexed($this->userid, array_keys($this->items));
+            checklist_comment_student::add_student_names($studentcomments);
+            checklist_item::add_student_comments($this->items, $studentcomments);
         }
         if ($status->is_canupdateown() || $status->is_viewother() || $status->is_userreport()) {
             $status->set_showprogressbar(true);
@@ -945,8 +967,11 @@ class checklist_class {
             $progress = $this->get_progress();
         }
         $student = null;
+        $currentuser = null;
         if ($status->is_viewother()) {
             $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
+        } else if ($this->userid) {
+            $currentuser = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
         }
 
         // Add the javascript, if needed.
@@ -960,11 +985,12 @@ class checklist_class {
             // Progress bars should be updated on 'student only' checklists.
             $updateprogress = $status->is_showteachermark() ? 0 : 1;
             $PAGE->requires->js_init_call('M.mod_checklist.init', array(
-                $updatechecksurl->out(), sesskey(), $this->cm->id, $updateprogress
+                $updatechecksurl->out(), sesskey(), $this->cm->id, $updateprogress, $this->canaddstudentcomments()
             ), true, $jsmodule);
         }
 
-        $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress, $student);
+        $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress,
+            $student, $currentuser);
     }
 
     /**

@@ -91,6 +91,8 @@ class checklist_item extends data_object {
     protected $teachername = null;
     /** @var checklist_comment|null */
     protected $comment = null;
+    /** @var checklist_comment_student|null */
+    protected $studentcomment = null;
     /** @var bool */
     protected $editme = false;
     /** @var moodle_url|null */
@@ -432,6 +434,14 @@ class checklist_item extends data_object {
     }
 
     /**
+     * Get the comment made by the teacher on this item
+     * @return checklist_comment_student|null
+     */
+    public function get_student_comment() {
+        return $this->studentcomment;
+    }
+
+    /**
      * Mark the item being edited at the moment
      * @param bool $editme
      */
@@ -518,6 +528,19 @@ class checklist_item extends data_object {
         foreach ($items as $item) {
             if (isset($comments[$item->id])) {
                 $item->comment = $comments[$item->id];
+            }
+        }
+    }
+
+    /**
+     * Add links from the checklist items to the student comments on them (for a particular user).
+     * @param checklist_item[] $items checklist items.
+     * @param checklist_comment_student[] $studentcomments student comments indexed by item id.
+     */
+    public static function add_student_comments(array $items, array $studentcomments) {
+        foreach ($items as $item) {
+            if (isset($studentcomments[$item->id])) {
+                $item->studentcomment = $studentcomments[$item->id];
             }
         }
     }

@@ -43,6 +43,8 @@ class output_status {
     /** @var bool */
     protected $teachercomments = false;
     /** @var bool */
+    protected $studentcomments = false;
+    /** @var bool */
     protected $editcomments = false;
     /** @var bool */
     protected $teachermarklocked = false;
@@ -126,11 +128,27 @@ class output_status {
     }
 
     /**
+     * Are student comments enabled for this instance?
+     * @return boolean
+     */
+    public function is_studentcomments() {
+        return $this->studentcomments;
+    }
+
+    /**
      * Set as teacher comments enabled
      * @param boolean $teachercomments
      */
     public function set_teachercomments($teachercomments) {
         $this->teachercomments = $teachercomments;
+    }
+
+    /**
+     * Set as student comments enabled.
+     * @param bool $studentcomments
+     */
+    public function set_studentcomments(bool $studentcomments) {
+        $this->studentcomments = $studentcomments;
     }
 
     /**

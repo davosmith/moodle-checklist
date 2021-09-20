@@ -117,6 +117,7 @@ View the checklist here:';
 $string['emailoncompletebodyown'] = 'You have completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\'
 View the checklist here:';
 $string['enterurl'] = 'Enter url ...';
+$string['errorchecklistitemnotvalid'] = 'Checklist item id does not belong to this course module!';
 $string['eventchecklistcomplete'] = 'Checklist complete';
 $string['eventeditpageviewed'] = 'Edit page viewed';
 $string['eventreportviewed'] = 'Report viewed';
@@ -189,6 +190,10 @@ $string['privacy:metadata:checklist_comment:commentby'] = 'The ID of the user (t
 $string['privacy:metadata:checklist_comment:itemid'] = 'The ID of the checklist item that the comment relates to';
 $string['privacy:metadata:checklist_comment:text'] = 'The text of the comment';
 $string['privacy:metadata:checklist_comment:userid'] = 'The ID of the user (student) that this comment relates to';
+$string['privacy:metadata:checklist_comment_student'] = 'Comments that have been made by a student on a given checklist';
+$string['privacy:metadata:checklist_comment_student:usermodified'] = 'The ID of the user (student) that made this comment';
+$string['privacy:metadata:checklist_comment_student:itemid'] = 'The ID of the checklist item that the comment relates to';
+$string['privacy:metadata:checklist_comment_student:text'] = 'The text of the comment';
 $string['privacy:metadata:checklist_item'] = 'Information about private items the user has added to the given checklist';
 $string['privacy:metadata:checklist_item:checklist'] = 'The ID of the checklist this private item was added to';
 $string['privacy:metadata:checklist_item:displaytext'] = 'The text of the private checklist item';
@@ -216,6 +221,11 @@ $string['showprogressbars'] = 'Show progress bars';
 $string['showcolorchooser'] = 'Display color chooser';
 $string['showcolorchooserdesc'] = 'Displays the color chooser of the list elements in edit.php';
 
+$string['studentcomments'] = 'User can add their own comments to checklist items';
+$string['student_comment_updated'] = 'Student comment updated';
+$string['student_comment_updated_desc'] = 'The user with id {$a->userid} has updated a comment in the checklist with course module id {$a->cmid} to have text \'{$a->commenttext}\'';
+$string['student_comment_created'] = 'Student comment created';
+
 $string['teachercomments'] = 'Teachers can add comments';
 $string['teacherdate'] = 'Date a teacher last updated this item';
 
@@ -235,6 +245,7 @@ $string['toggledates'] = 'Toggle names & dates';
 $string['togglerow'] = 'Toggle Row';
 $string['theme'] = 'Checklist display theme';
 
+$string['update_student_comment_failed'] = 'Failed to update student comment';
 $string['updatecompletescore'] = 'Save completion grades';
 $string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';

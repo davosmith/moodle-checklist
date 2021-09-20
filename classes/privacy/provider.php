@@ -80,6 +80,15 @@ class provider implements \core_privacy\local\metadata\provider,
             ],
             'privacy:metadata:checklist_comment'
         );
+        $collection->add_database_table(
+            'checklist_comment_student',
+            [
+                'itemid' => 'privacy:metadata:checklist_comment_student:itemid',
+                'usermodified' => 'privacy:metadata:checklist_comment_student:usermodified',
+                'text' => 'privacy:metadata:checklist_comment_student:text',
+            ],
+            'privacy:metadata:checklist_comment_student'
+        );
         return $collection;
     }
 
@@ -328,6 +337,7 @@ class provider implements \core_privacy\local\metadata\provider,
             $DB->delete_records_list('checklist_check', 'item', $itemids);
             $DB->delete_records_list('checklist_comment', 'itemid', $itemids);
             $DB->delete_records_select('checklist_item', 'checklist = ? AND userid <> 0', [$cm->instance]);
+            $DB->delete_records_list('checklist_comment_student', 'itemid', $itemids);
         }
     }
 
@@ -357,6 +367,7 @@ class provider implements \core_privacy\local\metadata\provider,
                 $params['userid'] = $userid;
                 $DB->delete_records_select('checklist_check', "item $isql AND userid = :userid", $params);
                 $DB->delete_records_select('checklist_comment', "itemid $isql AND userid = :userid", $params);
+                $DB->delete_records_select('checklist_comment_student', "itemid $isql AND usermodified = :userid", $params);
                 $params = ['instanceid' => $cm->instance, 'userid' => $userid];
                 $DB->delete_records_select('checklist_item', 'checklist = :instanceid AND userid = :userid', $params);
             }

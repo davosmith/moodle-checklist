@@ -14,6 +14,7 @@
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="useritemsallowed" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Whether or not users are allowed to add their own items to the checklist"/>
+        <FIELD NAME="studentcomments" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not users are allowed to add their own comments to the checklist items"/>
         <FIELD NAME="teacheredit" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the marking will be done by: 0 - students only (default), 1 - teacher only; 2 - both teacher and student"/>
         <FIELD NAME="theme" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="default" SEQUENCE="false" COMMENT="The theme chosen to display the checklist to the users"/>
         <FIELD NAME="duedatesoncalendar" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Add due dates to the course calendar"/>
@@ -93,6 +94,22 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="checklist_item_user" UNIQUE="true" FIELDS="itemid, userid" COMMENT="Will usually want to find the comment by both itemid and userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="checklist_comment_student" COMMENT="A comment, added by a student, to an item on a checklist">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the item this comment is attached to"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the student who has added the comment. Automatically set in persistent class"/>
+        <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The text of the comment, as added by the student"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="checklist_item_student" UNIQUE="true" FIELDS="itemid, usermodified" COMMENT="Will usually want to find the comment by both itemid and student"/>
       </INDEXES>
     </TABLE>
   </TABLES>

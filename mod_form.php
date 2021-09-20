@@ -61,6 +61,7 @@ class mod_checklist_mod_form extends moodleform_mod {
 
         $ynoptions = array(0 => get_string('no'), 1 => get_string('yes'));
         $mform->addElement('select', 'useritemsallowed', get_string('useritemsallowed', 'checklist'), $ynoptions);
+        $mform->addElement('select', 'studentcomments', get_string('studentcomments', 'checklist'), $ynoptions);
 
         $teditoptions = array(
             CHECKLIST_MARKING_STUDENT => get_string('teachernoteditcheck', 'checklist'),

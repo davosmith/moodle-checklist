@@ -356,5 +356,37 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         upgrade_mod_savepoint(true, 2020061500, 'checklist');
     }
 
+    if ($oldversion < 2021091804) {
+
+        // Add config field to checklist.
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('studentcomments', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'useritemsallowed');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add table.
+        $table = new xmldb_table('checklist_comment_student');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('text', XMLDB_TYPE_TEXT);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+
+        // Adding keys to table checklist_comment_student.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Adding indexes to table checklist_comment_student.
+        $table->add_index('checklist_item_student', XMLDB_INDEX_UNIQUE, array('itemid', 'usermodified'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Checklist savepoint reached.
+        upgrade_mod_savepoint(true, 2021091804, 'checklist');
+    }
+
     return $result;
 }

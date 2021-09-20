@@ -120,8 +120,17 @@ class mod_checklist_renderer extends plugin_renderer_base {
      * @param output_status $status
      * @param progress_info|null $progress
      * @param object $student (optional) the student whose checklist is being viewed (if not viewing own checklist)
+     * @param object $currentuser (optional) the user whose checklist is being viewed.
      */
-    public function checklist_items($items, $useritems, $groupings, $intro, output_status $status, $progress, $student = null) {
+    public function checklist_items(
+        $items,
+        $useritems,
+        $groupings,
+        $intro,
+        output_status $status,
+        $progress,
+        $student = null,
+        $currentuser = null) {
         echo $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox');
 
         echo html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner'));
@@ -371,6 +380,23 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     } else if ($status->is_editcomments()) {
                         echo '&nbsp;<input type="text" class="form-control form-text-inline"' .
                             ' name="teachercomment['.$item->id.']" />';
+                    }
+                }
+
+                $student = $currentuser ?? $student;
+                if ($student && $status->is_studentcomments()) {
+                    $comment = $item->get_student_comment();
+                    $isstudent = !$status->is_viewother();
+                    if ($isstudent || ($comment && $comment->get('text'))) {
+                        $context = (object)[
+                            'itemid' => $item->id,
+                            'commenttext' => $comment ? $comment->get('text') : null,
+                            'itemdisplaytext' => $item->displaytext,
+                            'isstudent' => $isstudent,
+                            'studenturl' => $this->get_user_url($student->id, $status->get_courseid()),
+                            'studentname' => fullname($student),
+                        ];
+                        echo $this->render_from_template('mod_checklist/student_comment', $context);
                     }
                 }
 
@@ -1101,4 +1127,15 @@ ENDSCRIPT;
         }
         return $out;
     }
+
+    /**
+     * Get the user profile URL for the commenting user
+     * @param int $userid id of the user.
+     * @param int $courseid id of the course to make the link point towards.
+     * @return moodle_url the user profile url.
+     */
+    public function get_user_url($userid, $courseid) {
+        return new moodle_url('/user/view.php', ['id' => $userid, 'course' => $courseid]);
+    }
+
 }
