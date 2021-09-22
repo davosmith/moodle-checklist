@@ -374,17 +374,15 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     }
                 }
 
-                if ($status->is_studentcomments()) {
-                    echo ' <span class="test">&nbsp;';
-                    if ($comment = $item->get_student_comment()) {
-                        if ($comment->userid) {
-                            // TODO this should only be a link on the teacher side.
-                            echo '<a href="'.$comment->get_commentby_url().'">'.$comment->get_commentby_name().'</a>: ';
-                        }
-                    }
-                    echo '<input type="text" class="studentcommentid' . $item->id . ' studentcomment form-control form-text-inline"' .
-                        ' name="studentcomment['.$item->id.']" value="'.s($comment->text ?? ''). '"/>';
-                    echo '</span>';
+                if ($status->is_studentcomments() && ($comment = $item->get_student_comment())) {
+                    $context = (object)[
+                        'itemid' => $item->id,
+                        'commenttext' => $comment->get('text'),
+                        'caneditstudentcomments' => !$status->is_viewother(),
+                        'studenturl' => $comment->get_commentby_url(),
+                        'studentname' => $comment->get_commentby_name(),
+                    ];
+                    echo $this->render_from_template('mod_checklist/student_comment', $context);
                 }
 
                 echo '</li>';

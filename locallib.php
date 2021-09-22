@@ -911,7 +911,8 @@ class checklist_class {
             checklist_item::add_comments($this->items, $comments);
         }
         if ($status->is_studentcomments()) {
-            $studentcomments = checklist_comment_student::fetch_by_userid_itemids($this->userid, array_keys($this->items));
+            $studentcomments = checklist_comment_student::get_student_comments_indexed($this->userid, array_keys($this->items));
+            checklist_comment_student::add_student_names($studentcomments);
             checklist_item::add_student_comments($this->items, $studentcomments);
         }
         if ($status->is_canupdateown() || $status->is_viewother() || $status->is_userreport()) {
@@ -3102,32 +3103,5 @@ class checklist_class {
             $allgroupings[$courseid] = $ret;
         }
         return $allgroupings[$courseid];
-    }
-
-    /** Update or create a comment for a student on the given checklist item.
-     * @param $checklistitemid
-     * @param $commenttext
-     * @return bool
-     * @throws dml_exception
-     */
-    public static function update_student_comment($checklistitemid, $commenttext, $userid): bool
-    {
-        global $DB;
-
-        // TODO change to using persistent class instead of direct queries.
-        $existingcomment = $DB->get_record('checklist_comment_student',array('itemid' => $checklistitemid, 'userid' => $userid));
-
-        if (!$existingcomment) {
-            $updatedcomment = new stdClass();
-            $updatedcomment->timemodified = time();
-            $updatedcomment->itemid = $checklistitemid;
-            $updatedcomment->userid = $userid;
-            $updatedcomment->text = $commenttext;
-            return $DB->insert_record('checklist_comment_student', $updatedcomment, false);
-        } else {
-            $existingcomment->timemodified = time();
-            $existingcomment->text = $commenttext;
-            return $DB->update_record('checklist_comment_student', $existingcomment);
-        }
     }
 }

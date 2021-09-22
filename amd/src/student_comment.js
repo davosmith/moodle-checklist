@@ -23,7 +23,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
     return {
         init: function(cmid) {
             const classPrefix = 'studentcommentid';
-            let comments = $('.studentcomment');
+            let comments = $('.studentcommentinput');
 
             Y.log('cmid: ' + cmid);
             // Store the initial state of each comment. Only want to update server if comment changed on blur.
@@ -34,14 +34,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 comment.addEventListener('blur', function(e) {
                     // Update it IF it changed with the external function Ajax call.
                     if (currentComments[i] === e.target.value) {
-                        Y.log('not going to update server, nothing changed.');
+                        Y.log('not going to update server, nothing changed. Current comment value: ' + e.target.value);
                     } else {
                         Y.log('Sending this student comment to server');
                         let classString = e.target.classList[0]; // studentcommentid13
                         // Get the item id from the end of the first class name, eg. studentcommentid13
                         let checklistitemid = classString.substr(classString.lastIndexOf(classPrefix) + classPrefix.length);
 
-                        $('#checklistspinner').css('display', 'block');
+                        let spinner = '#checklistspinnerstudentcomment' + checklistitemid;
+                        $(spinner).css('display', 'inline-block');
 
                         let args = {
                               'comment': {
@@ -56,7 +57,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                             args: args,
                         };
                         Ajax.call([request])[0].done(function(data) {
-                            $('#checklistspinner').css('display', 'none');
+                            $(spinner).css('display', 'none');
                             if (data === true) {
                                 Y.log('updated comment successfully.');
                                 currentComments[i] = e.target.value;

@@ -21,6 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_checklist\local\checklist_comment_student;
+
 defined('MOODLE_INTERNAL') || die;
 
 require_once("$CFG->libdir/externallib.php");
@@ -57,16 +59,16 @@ class mod_checklist_external extends external_api {
     public static function update_student_comment($params): string {
         global $USER;
         $params = self::validate_parameters(self::update_student_comment_parameters(), array('comment'=>$params));
-        $commentData = $params['comment'];
-        $cm = get_coursemodule_from_id('checklist', $commentData['cmid'], 0, false, MUST_EXIST);
+        $commentdata = $params['comment'];
+        $cm = get_coursemodule_from_id('checklist', $commentdata['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         $userid = $USER->id;
         require_capability('mod/checklist:updateown', $context);
         require_sesskey();
-        $commentData['context'] = $context;
-        $event = \mod_checklist\event\student_comment_updated::create($commentData);
+        $commentdata['context'] = $context;
+        $event = \mod_checklist\event\student_comment_updated::create($commentdata);
         $event->trigger();
-        return checklist_class::update_student_comment($commentData['checklistitemid'], $commentData['commenttext'], $userid);
+        return checklist_comment_student::update_student_comment($commentdata['checklistitemid'], $commentdata['commenttext'], $userid);
     }
 
     public function update_student_comment_returns()

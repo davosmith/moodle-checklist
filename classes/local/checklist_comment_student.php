@@ -18,91 +18,54 @@
  * A comment added, by a student, to a checklist item
  *
  * @package   mod_checklist
- * @copyright 2016 Davo Smith, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_checklist\local;
 
-use data_object;
+use core\persistent;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
-require_once($CFG->dirroot.'/completion/data_object.php');
-
 /**
- * Class checklist_comment
+ * Class checklist_comment_student
  * @package mod_checklist
  */
-class checklist_comment_student extends data_object {
-    /** @var string */
-    public $table = 'checklist_comment_student';
-    /** @var string[] */
-    public $requiredfields = [
-        'id', 'itemid', 'userid', 'text', 'timemodified'
-    ];
-
-    // DB fields.
+class checklist_comment_student extends persistent {
+    /** Table name for the persistent. */
+    const TABLE = 'checklist_comment_student';
     /** @var int */
-    public $itemid;
-    /** @var int */
-    public $userid;
-    /** @var string */
-    public $text;
-    /** @var int */
-    public $timemodified;
-
-    // Extra data.
-    /** @var string|null */
-    protected $studentname = null;
-
-    /** @var int|null */
-    protected static $courseid = null;
+    private static $courseid;
+    private $studentname;
 
     /**
-     * checklist_comment constructor.
-     * @param array|null $params
-     * @param bool $fetch
-     * @throws \coding_exception
+     * Return the definition of the properties of this model.
+     *
+     * @return array
      */
-    public function __construct(array $params = null, $fetch = true) {
-        // Really ugly hack to stop travis complaining about $required_fields.
-        $this->{'required_fields'} = $this->requiredfields;
-        parent::__construct($params, $fetch);
-    }
-
-    /**
-     * Get a single matching record.
-     * @param array $params
-     * @return data_object|false|object
-     */
-    public static function fetch($params) {
-        return self::fetch_helper('checklist_comment_student', __CLASS__, $params);
-    }
-
-    /**
-     * Get all matching records.
-     * @param array $params
-     * @param false $sort
-     * @return array|false|mixed
-     */
-    public static function fetch_all($params, $sort = false) {
-        $ret = self::fetch_all_helper('checklist_comment_student', __CLASS__, $params);
-        if (!$ret) {
-            $ret = [];
-        }
-        return $ret;
+    protected static function define_properties() {
+        return array(
+            'userid' => array(
+                'type' => PARAM_INT,
+            ),
+            'itemid' => array(
+                'type' => PARAM_INT,
+            ),
+            'text' => array(
+                'type' => PARAM_TEXT,
+            ),
+        );
     }
 
     /**
      * Get all matching comments by user id and item ids
      * @param int $userid
      * @param int[] $itemids
-     * @return checklist_comment[] $itemid => $check
+     * @return checklist_comment_student[] $itemid => $check
      */
-    public static function fetch_by_userid_itemids($userid, $itemids) {
+    public static function get_student_comments_indexed($userid, $itemids): array
+    {
         global $DB;
 
         $ret = [];
@@ -112,10 +75,10 @@ class checklist_comment_student extends data_object {
 
         list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
         $params['userid'] = $userid;
-        $comments = $DB->get_records_select('checklist_comment_student', "userid = :userid AND itemid $isql", $params);
-        foreach ($comments as $comment) {
-            $ret[$comment->itemid] = new checklist_comment_student();
-            self::set_properties($ret[$comment->itemid], $comment);
+        $studentcomments = self::get_records_select("userid = :userid AND itemid $isql", $params);
+
+        foreach ($studentcomments as $comment) {
+            $ret[$comment->get('itemid')] = $comment;
         }
         return $ret;
     }
@@ -133,20 +96,20 @@ class checklist_comment_student extends data_object {
      * @return moodle_url
      */
     public function get_commentby_url() {
-        return new moodle_url('/user/view.php', ['id' => $this->userid, 'course' => self::$courseid]);
+        return new moodle_url('/user/view.php', ['id' => $this->get('userid'), 'course' => self::$courseid]);
     }
 
     /**
      * Add the name of the commenter to the given comments.
-     * @param checklist_comment_student[] $comments
+     * @param checklist_comment_student[] $studentcomments
      */
-    public static function add_commentby_names($comments) {
+    public static function add_student_names($studentcomments) {
         global $DB;
 
         $userids = [];
-        foreach ($comments as $comment) {
-            if ($comment->userid) {
-                $userids[] = $comment->userid;
+        foreach ($studentcomments as $studentcomment) {
+            if ($studentcomment->get('userid')) {
+                $userids[] = $studentcomment->get('userid');
             }
         }
         if (!$userids) {
@@ -163,11 +126,11 @@ class checklist_comment_student extends data_object {
                 'mappings' => [],
             ];
         }
-        $commentusers = $DB->get_records_list('user', 'id', $userids, '', 'id'.$namesql->selects);
-        foreach ($comments as $comment) {
-            if ($comment->userid) {
-                if (isset($commentusers[$comment->userid])) {
-                    $comment->studentname = fullname($commentusers[$comment->userid]);
+        $studentcommentusers = $DB->get_records_list('user', 'id', $userids, '', 'id'.$namesql->selects);
+        foreach ($studentcomments as $studentcomment) {
+            if ($studentcomment->get('userid')) {
+                if (isset($studentcommentusers[$studentcomment->get('userid')])) {
+                    $studentcomment->studentname = fullname($studentcommentusers[$studentcomment->get('userid')]);
                 }
             }
         }
@@ -180,4 +143,26 @@ class checklist_comment_student extends data_object {
     public static function set_courseid($courseid) {
         self::$courseid = $courseid;
     }
+
+    /** Update or create a comment for a student on the given checklist item.
+     * @param $checklistitemid
+     * @param $commenttext
+     * @return bool
+     */
+    public static function update_student_comment($checklistitemid, $commenttext, $userid): bool
+    {
+        $existingcomment = checklist_comment_student::get_record(['itemid' => $checklistitemid, 'userid' => $userid]);
+        if (!$existingcomment) {
+            $newcomment = new checklist_comment_student();
+            $newcomment->set('itemid', $checklistitemid);
+            $newcomment->set('userid', $userid);
+            $newcomment->set('text', $commenttext);
+            $newcomment->create();
+            return true;
+        } else {
+            $existingcomment->set('text', $commenttext);
+            return $existingcomment->update();
+        }
+    }
+
 }
