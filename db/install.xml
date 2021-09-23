@@ -99,16 +99,17 @@
     <TABLE NAME="checklist_comment_student" COMMENT="A comment, added by a student, to an item on a checklist">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The id of the item this comment is attached to"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="The userid of the student who has added the comment"/>
+        <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the item this comment is attached to"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the student who has added the comment. Automatically set in persistent class"/>
         <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The text of the comment, as added by the student"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="checklist_item_student" UNIQUE="true" FIELDS="itemid, userid" COMMENT="Will usually want to find the comment by both itemid and student"/>
+        <INDEX NAME="checklist_item_student" UNIQUE="true" FIELDS="itemid, usermodified" COMMENT="Will usually want to find the comment by both itemid and student"/>
       </INDEXES>
     </TABLE>
   </TABLES>
