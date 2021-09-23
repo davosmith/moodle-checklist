@@ -46,9 +46,6 @@ class checklist_comment_student extends persistent {
      */
     protected static function define_properties() {
         return array(
-            'userid' => array(
-                'type' => PARAM_INT,
-            ),
             'itemid' => array(
                 'type' => PARAM_INT,
             ),
@@ -74,8 +71,8 @@ class checklist_comment_student extends persistent {
         }
 
         list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
-        $params['userid'] = $userid;
-        $studentcomments = self::get_records_select("userid = :userid AND itemid $isql", $params);
+        $params['usermodified'] = $userid;
+        $studentcomments = self::get_records_select("usermodified = :usermodified AND itemid $isql", $params);
 
         foreach ($studentcomments as $comment) {
             $ret[$comment->get('itemid')] = $comment;
@@ -92,14 +89,6 @@ class checklist_comment_student extends persistent {
     }
 
     /**
-     * Get the user profile URL for the commenting user
-     * @return moodle_url
-     */
-    public function get_commentby_url() {
-        return new moodle_url('/user/view.php', ['id' => $this->get('userid'), 'course' => self::$courseid]);
-    }
-
-    /**
      * Add the name of the commenter to the given comments.
      * @param checklist_comment_student[] $studentcomments
      */
@@ -108,8 +97,8 @@ class checklist_comment_student extends persistent {
 
         $userids = [];
         foreach ($studentcomments as $studentcomment) {
-            if ($studentcomment->get('userid')) {
-                $userids[] = $studentcomment->get('userid');
+            if ($studentcomment->get('usermodified')) {
+                $userids[] = $studentcomment->get('usermodified');
             }
         }
         if (!$userids) {
@@ -128,9 +117,9 @@ class checklist_comment_student extends persistent {
         }
         $studentcommentusers = $DB->get_records_list('user', 'id', $userids, '', 'id'.$namesql->selects);
         foreach ($studentcomments as $studentcomment) {
-            if ($studentcomment->get('userid')) {
-                if (isset($studentcommentusers[$studentcomment->get('userid')])) {
-                    $studentcomment->studentname = fullname($studentcommentusers[$studentcomment->get('userid')]);
+            if ($studentcomment->get('usermodified')) {
+                if (isset($studentcommentusers[$studentcomment->get('usermodified')])) {
+                    $studentcomment->studentname = fullname($studentcommentusers[$studentcomment->get('usermodified')]);
                 }
             }
         }
@@ -151,11 +140,10 @@ class checklist_comment_student extends persistent {
      */
     public static function update_student_comment($checklistitemid, $commenttext, $userid): bool
     {
-        $existingcomment = checklist_comment_student::get_record(['itemid' => $checklistitemid, 'userid' => $userid]);
+        $existingcomment = checklist_comment_student::get_record(['itemid' => $checklistitemid, 'usermodified' => $userid]);
         if (!$existingcomment) {
             $newcomment = new checklist_comment_student();
             $newcomment->set('itemid', $checklistitemid);
-            $newcomment->set('userid', $userid);
             $newcomment->set('text', $commenttext);
             $newcomment->create();
             return true;

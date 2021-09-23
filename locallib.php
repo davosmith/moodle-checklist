@@ -901,6 +901,7 @@ class checklist_class {
         $status->set_studentcomments($this->checklist->usercommentsallowed);
         $status->set_canupdateown($this->canupdateown());
         $status->set_canaddown($this->canaddown());
+        $status->set_courseid($this->course->id);
 
         if ($status->is_teachercomments()) {
             if ($status->is_viewother()) {
@@ -959,10 +960,7 @@ class checklist_class {
         if ($status->is_showprogressbar()) {
             $progress = $this->get_progress();
         }
-        $student = null;
-        if ($status->is_viewother()) {
-            $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
-        }
+        $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
 
         // Add the javascript, if needed.
         if (!$status->is_viewother()) {

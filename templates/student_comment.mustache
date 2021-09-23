@@ -21,12 +21,12 @@
 }}
 <span class="studentcomment">
     <a href="{{studenturl}}">{{studentname}}</a>:
-    {{#caneditstudentcomments}}
+    {{#isstudent}}
         <input type="text" class="studentcommentid{{itemid}} studentcommentinput form-control form-text-inline"
                name="studentcomment[{{itemid}}]" value="{{commenttext}}"/>
         <div id="checklistspinnerstudentcomment{{itemid}}" class="checklistspinnerstudent"> </div>
-    {{/caneditstudentcomments}}
-    {{^caneditstudentcomments}}
+    {{/isstudent}}
+    {{^isstudent}}
         {{commenttext}}
-    {{/caneditstudentcomments}}
+    {{/isstudent}}
 </span>

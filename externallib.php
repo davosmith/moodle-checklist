@@ -62,13 +62,12 @@ class mod_checklist_external extends external_api {
         $commentdata = $params['comment'];
         $cm = get_coursemodule_from_id('checklist', $commentdata['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
-        $userid = $USER->id;
         require_capability('mod/checklist:updateown', $context);
         require_sesskey();
         $commentdata['context'] = $context;
         $event = \mod_checklist\event\student_comment_updated::create($commentdata);
         $event->trigger();
-        return checklist_comment_student::update_student_comment($commentdata['checklistitemid'], $commentdata['commenttext'], $userid);
+        return checklist_comment_student::update_student_comment($commentdata['checklistitemid'], $commentdata['commenttext'], $USER->id);
     }
 
     public function update_student_comment_returns()
