@@ -136,11 +136,12 @@ class checklist_comment_student extends persistent {
     /** Update or create a comment for a student on the given checklist item.
      * @param $checklistitemid
      * @param $commenttext
+     * @param $userid
+     * @param checklist_comment_student|bool $existingcomment the comment to update or false to create a new comment record.
      * @return bool
      */
-    public static function update_student_comment($checklistitemid, $commenttext, $userid): bool
+    public static function update_or_create_student_comment($checklistitemid, $commenttext, $existingcomment): bool
     {
-        $existingcomment = checklist_comment_student::get_record(['itemid' => $checklistitemid, 'usermodified' => $userid]);
         if (!$existingcomment) {
             $newcomment = new checklist_comment_student();
             $newcomment->set('itemid', $checklistitemid);

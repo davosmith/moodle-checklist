@@ -32,9 +32,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 let comment = comments[i];
                 currentComments[i] = comment.value;
                 comment.addEventListener('blur', function(e) {
+                    const newComment = e.target.value.trim();
                     // Update it IF it changed with the external function Ajax call.
-                    if (currentComments[i] === e.target.value) {
-                        Y.log('not going to update server, nothing changed. Current comment value: ' + e.target.value);
+                    if (currentComments[i] === newComment) {
+                        Y.log('not going to update server, nothing changed. Current comment value: ' + newComment);
                     } else {
                         Y.log('Sending this student comment to server');
                         let classString = e.target.classList[0]; // studentcommentid13
@@ -46,7 +47,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
                         let args = {
                               'comment': {
-                                  'commenttext': e.target.value,
+                                  'commenttext': newComment,
                                   'checklistitemid': checklistitemid,
                                   'cmid': cmid,
                               }
@@ -60,7 +61,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                             $(spinner).css('display', 'none');
                             if (data === true) {
                                 Y.log('updated comment successfully.');
-                                currentComments[i] = e.target.value;
+                                currentComments[i] = newComment;
                             } else {
                                 Notification.addNotification({
                                     message: String.get_string('update_student_comment_failed', 'mod_checklist'),

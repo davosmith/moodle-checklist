@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_checklist student comment updated event.
+ * The mod_checklist student comment created event.
  *
  * @package    mod_checklist
  * @copyright  2014 Davo Smith <moodle@davosmith.co.uk>
@@ -27,12 +27,12 @@ namespace mod_checklist\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_checklist student comment updated class.
+ * The mod_checklist student comment created class.
  *
  * @package    mod_checklist
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class student_comment_updated extends \core\event\base {
+class student_comment_created extends \core\event\base {
 
     /**
      * Init method.
@@ -40,7 +40,7 @@ class student_comment_updated extends \core\event\base {
      * @return void
      */
     protected function init() {
-        $this->data['crud'] = 'u';
+        $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'checklist_comment_student';
     }
@@ -51,7 +51,7 @@ class student_comment_updated extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('student_comment_updated', 'mod_checklist');
+        return get_string('student_comment_created', 'mod_checklist');
     }
 
     /**
@@ -60,7 +60,7 @@ class student_comment_updated extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return get_string('student_comment_updated_desc', 'mod_checklist', ['userid' => $this->userid, 'cmid' => $this->contextinstanceid, 'commenttext' => $this->other['commenttext'] ?? '']);
+        return get_string('student_comment_created_desc', 'mod_checklist', ['userid' => $this->userid, 'cmid' => $this->contextinstanceid, 'commenttext' => $this->other['commenttext'] ?? '']);
     }
 
     /**

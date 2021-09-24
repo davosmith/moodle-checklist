@@ -65,9 +65,17 @@ class mod_checklist_external extends external_api {
         require_capability('mod/checklist:updateown', $context);
         require_sesskey();
         $commentdata['context'] = $context;
-        $event = \mod_checklist\event\student_comment_updated::create($commentdata);
-        $event->trigger();
-        return checklist_comment_student::update_student_comment($commentdata['checklistitemid'], $commentdata['commenttext'], $USER->id);
+        $commentdata['other'] = ['commenttext' => $commentdata['commenttext']];
+        $existingcomment = checklist_comment_student::get_record(['itemid' => $commentdata['checklistitemid'], 'usermodified' => $USER->id]);
+        if ($existingcomment) {
+            $event = \mod_checklist\event\student_comment_updated::create($commentdata);
+            $event->trigger();
+        } else {
+            $event = \mod_checklist\event\student_comment_created::create($commentdata);
+            $event->trigger();
+        }
+
+        return checklist_comment_student::update_or_create_student_comment($commentdata['checklistitemid'], $commentdata['commenttext'], $existingcomment);
     }
 
     public function update_student_comment_returns()
