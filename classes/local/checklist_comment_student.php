@@ -24,7 +24,6 @@
 namespace mod_checklist\local;
 
 use core\persistent;
-use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,8 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 class checklist_comment_student extends persistent {
     /** Table name for the persistent. */
     const TABLE = 'checklist_comment_student';
-    /** @var int */
-    private static $courseid;
+
     private $studentname;
 
     /**
@@ -61,8 +59,7 @@ class checklist_comment_student extends persistent {
      * @param int[] $itemids
      * @return checklist_comment_student[] $itemid => $check
      */
-    public static function get_student_comments_indexed($userid, $itemids): array
-    {
+    public static function get_student_comments_indexed($userid, $itemids): array {
         global $DB;
 
         $ret = [];
@@ -125,14 +122,6 @@ class checklist_comment_student extends persistent {
         }
     }
 
-    /**
-     * Store the current course id
-     * @param int $courseid
-     */
-    public static function set_courseid($courseid) {
-        self::$courseid = $courseid;
-    }
-
     /** Update or create a comment for a student on the given checklist item.
      * @param $checklistitemid
      * @param $commenttext
@@ -140,8 +129,7 @@ class checklist_comment_student extends persistent {
      * @param checklist_comment_student|bool $existingcomment the comment to update or false to create a new comment record.
      * @return bool
      */
-    public static function update_or_create_student_comment($checklistitemid, $commenttext, $existingcomment): bool
-    {
+    public static function update_or_create_student_comment($checklistitemid, $commenttext, $existingcomment): bool {
         if (!$existingcomment) {
             $newcomment = new checklist_comment_student();
             $newcomment->set('itemid', $checklistitemid);
@@ -154,5 +142,4 @@ class checklist_comment_student extends persistent {
             return true;
         }
     }
-
 }

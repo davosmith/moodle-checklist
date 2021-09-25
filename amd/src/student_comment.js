@@ -33,24 +33,24 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 currentComments[i] = comment.value;
                 comment.addEventListener('blur', function(e) {
                     const newComment = e.target.value.trim();
-                    // Update it IF it changed with the external function Ajax call.
+                    // Update only if it changed, using the external function Ajax call.
                     if (currentComments[i] === newComment) {
                         Y.log('not going to update server, nothing changed. Current comment value: ' + newComment);
                     } else {
                         Y.log('Sending this student comment to server');
-                        let classString = e.target.classList[0]; // studentcommentid13
-                        // Get the item id from the end of the first class name, eg. studentcommentid13
+                        let classString = e.target.classList[0];
+                        // Get the item id from the end of the first class name, eg. studentcommentid13.
                         let checklistitemid = classString.substr(classString.lastIndexOf(classPrefix) + classPrefix.length);
 
                         let spinner = '#checklistspinnerstudentcomment' + checklistitemid;
                         $(spinner).css('display', 'inline-block');
 
                         let args = {
-                              'comment': {
-                                  'commenttext': newComment,
-                                  'checklistitemid': checklistitemid,
-                                  'cmid': cmid,
-                              }
+                            'comment': {
+                                'commenttext': newComment,
+                                'checklistitemid': checklistitemid,
+                                'cmid': cmid,
+                            }
                         };
 
                         let request = {

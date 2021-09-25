@@ -518,7 +518,7 @@ class checklist_class {
      * @return bool
      */
     protected function canaddstudentcomments(): bool {
-        return $this->checklist->usercommentsallowed;
+        return $this->checklist->studentcomments;
     }
 
     /**
@@ -898,7 +898,7 @@ class checklist_class {
         $status->set_viewother($viewother);
         $status->set_userreport($userreport);
         $status->set_teachercomments($this->checklist->teachercomments);
-        $status->set_studentcomments($this->checklist->usercommentsallowed);
+        $status->set_studentcomments($this->checklist->studentcomments);
         $status->set_canupdateown($this->canupdateown());
         $status->set_canaddown($this->canaddown());
         $status->set_courseid($this->course->id);

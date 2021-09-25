@@ -14,7 +14,7 @@
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="useritemsallowed" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Whether or not users are allowed to add their own items to the checklist"/>
-        <FIELD NAME="usercommentsallowed" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not users are allowed to add their own comments to the checklist items"/>
+        <FIELD NAME="studentcomments" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether or not users are allowed to add their own comments to the checklist items"/>
         <FIELD NAME="teacheredit" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the marking will be done by: 0 - students only (default), 1 - teacher only; 2 - both teacher and student"/>
         <FIELD NAME="theme" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="default" SEQUENCE="false" COMMENT="The theme chosen to display the checklist to the users"/>
         <FIELD NAME="duedatesoncalendar" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Add due dates to the course calendar"/>

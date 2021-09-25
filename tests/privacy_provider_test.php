@@ -367,11 +367,12 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->assertEquals(2, $DB->count_records('checklist_comment_student', []));
         // Confirm the remaining checked-off item is for the second student.
         $this->assertEquals($student->id, $DB->get_field('checklist_check', 'userid', []));
-        // Confirm the remaining student comments are for the second student and for the first student but in another other checklist.
-        $this->assertEquals($student->id, $DB->get_field('checklist_comment_student', 'usermodified', ['itemid' =>  $items[1]->id]));
+        // Confirm remaining student comments are for the second student and for the first student but in another other checklist.
+        $this->assertEquals($student->id, $DB->get_field('checklist_comment_student', 'usermodified', ['itemid' => $items[1]->id]));
         $items = \mod_checklist\local\checklist_item::fetch_all(['checklist' => $this->checklists[2]->id], true);
         $item = array_slice($items, 1, 1);  // Second item is where our other student comment is.
-        $this->assertEquals($this->student->id, $DB->get_field('checklist_comment_student', 'usermodified', ['itemid' =>  $item[0]->id]));
+        $this->assertEquals($this->student->id, $DB->get_field('checklist_comment_student', 'usermodified',
+            ['itemid' => $item[0]->id]));
 
         // Delete the data for the first student, for all checklists.
         $contextids = [$ctxs[0]->id, $ctxs[1]->id, $ctxs[2]->id, $ctxs[3]->id];

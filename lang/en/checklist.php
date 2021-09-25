@@ -249,7 +249,7 @@ $string['updatecompletescore'] = 'Save completion grades';
 $string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';
 $string['userdate'] = 'Date the user last updated this item';
-$string['usercommentsallowed'] = 'User can add their own comments to checklist items';
+$string['studentcomments'] = 'User can add their own comments to checklist items';
 $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 

@@ -60,7 +60,12 @@ class student_comment_updated extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return get_string('student_comment_updated_desc', 'mod_checklist', ['userid' => $this->userid, 'cmid' => $this->contextinstanceid, 'commenttext' => $this->other['commenttext'] ?? '']);
+        return get_string('student_comment_updated_desc', 'mod_checklist',
+            [
+                'userid' => $this->userid,
+                'cmid' => $this->contextinstanceid,
+                'commenttext' => $this->other['commenttext'] ?? ''
+            ]);
     }
 
     /**

@@ -53,8 +53,7 @@ class student_comment_test extends \advanced_testcase
     /**
      * Set up steps
      */
-    public function setUp(): void
-    {
+    public function setUp(): void {
         global $CFG, $USER, $DB;
         $this->resetAfterTest();
         // Create test checklist with a couple items.
@@ -110,8 +109,7 @@ class student_comment_test extends \advanced_testcase
         $USER->ignoresesskey = true;
     }
 
-    public function test_create_student_comment()
-    {
+    public function test_create_student_comment() {
         $data = (object)[
             'text' => 'this is my comment',
             'itemid' => 1,
@@ -121,17 +119,18 @@ class student_comment_test extends \advanced_testcase
         $this->assertIsNumeric($result->get('id'));
     }
 
-    public function test_update_student_comment_new()
-    {
+    public function test_update_student_comment_new() {
         $result = checklist_comment_student::update_or_create_student_comment(1, 'some comment', null);
         $this->assertEquals(true, $result);
     }
 
-    public function test_external_function_create()
-    {
+    public function test_external_function_create() {
         // Delete one of the comments we made in set up so we can create now.
-        $student_comment = checklist_comment_student::get_record(['itemid' => $this->items[1]->id, 'usermodified' => $this->student->id]);
-        $student_comment->delete();
+        $studentcomment = checklist_comment_student::get_record([
+            'itemid' => $this->items[1]->id,
+            'usermodified' => $this->student->id
+        ]);
+        $studentcomment->delete();
 
         // Create a student comment in this checklist on the second item.
         $params = [
@@ -143,12 +142,12 @@ class student_comment_test extends \advanced_testcase
         $this->assertEquals('1', $result);
 
         // Assert comment inserted properly with the right data.
-        $student_comment = checklist_comment_student::get_record([
+        $studentcomment = checklist_comment_student::get_record([
             'itemid' => $params['checklistitemid'],
             'usermodified' => $this->student->id
         ]);
-        $this->assertEquals($this->student->id, $student_comment->get('usermodified'));
-        $this->assertEquals('test new comment', $student_comment->get('text'));
+        $this->assertEquals($this->student->id, $studentcomment->get('usermodified'));
+        $this->assertEquals('test new comment', $studentcomment->get('text'));
 
         // Assert that 'create' event was created.
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
@@ -158,14 +157,15 @@ class student_comment_test extends \advanced_testcase
         $event = array_shift($events);
         $eventdata = $event->get_data();
         $this->assertEquals('c', $eventdata['crud']);
-        $this->assertEquals($student_comment->get('itemid'), $eventdata['objectid']);
+        $this->assertEquals($studentcomment->get('itemid'), $eventdata['objectid']);
         $this->assertEquals($this->cm->id, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test new comment'], $eventdata['other']);
-        $this->assertEquals('The user with id ' . $this->student->id . ' has created a comment in the checklist with course module id ' . $this->cm->id . ' with text \'test new comment\'', $event->get_description());
+        $eventtext = 'The user with id ' . $this->student->id . ' has created a comment in ';
+        $eventtext .= 'the checklist with course module id ' . $this->cm->id . ' with text \'test new comment\'';
+        $this->assertEquals($eventtext, $event->get_description());
     }
 
-    public function test_external_function_update()
-    {
+    public function test_external_function_update() {
         global $CFG;
         // Create test checklist with a couple items.
         require_once("$CFG->dirroot/mod/checklist/externallib.php");
@@ -179,9 +179,12 @@ class student_comment_test extends \advanced_testcase
         $this->assertEquals('1', $result);
 
         // Assert comment inserted properly with the right data.
-        $student_comment = checklist_comment_student::get_record(['itemid' => $params['checklistitemid'], 'usermodified' => $this->student->id]);
-        $this->assertEquals($this->student->id, $student_comment->get('usermodified'));
-        $this->assertEquals('test update comment', $student_comment->get('text'));
+        $studentcomment = checklist_comment_student::get_record([
+            'itemid' => $params['checklistitemid'],
+            'usermodified' => $this->student->id
+        ]);
+        $this->assertEquals($this->student->id, $studentcomment->get('usermodified'));
+        $this->assertEquals('test update comment', $studentcomment->get('text'));
 
         // Assert that 'update' event was created.
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
@@ -191,9 +194,12 @@ class student_comment_test extends \advanced_testcase
         $event = array_shift($events);
         $eventdata = $event->get_data();
         $this->assertEquals('u', $eventdata['crud']);
-        $this->assertEquals($student_comment->get('itemid'), $eventdata['objectid']);
+        $this->assertEquals($studentcomment->get('itemid'), $eventdata['objectid']);
         $this->assertEquals($this->cm->id, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test update comment'], $eventdata['other']);
-        $this->assertEquals('The user with id ' . $this->student->id .' has updated a comment in the checklist with course module id ' . $this->cm->id .' to have text \'test update comment\'', $event->get_description());
+
+        $eventtext = 'The user with id ' . $this->student->id . ' has updated a comment in ';
+        $eventtext .= 'the checklist with course module id ' . $this->cm->id . ' to have text \'test update comment\'';
+        $this->assertEquals($eventtext, $event->get_description());
     }
 }

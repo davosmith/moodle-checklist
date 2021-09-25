@@ -21,6 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $functions = array(
     'mod_checklist_update_student_comment' => array(
         'classname'     => 'mod_checklist_external',

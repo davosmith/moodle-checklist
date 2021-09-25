@@ -58,31 +58,34 @@ class mod_checklist_external extends external_api {
      */
     public static function update_student_comment($params): string {
         global $USER;
-        $params = self::validate_parameters(self::update_student_comment_parameters(), array('comment'=>$params));
+        $params = self::validate_parameters(self::update_student_comment_parameters(), array('comment' => $params));
         $commentdata = $params['comment'];
         $cm = get_coursemodule_from_id('checklist', $commentdata['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         require_capability('mod/checklist:updateown', $context);
         require_sesskey();
-        $eventData = [];
-        $eventData['context'] = $context;
-        $eventData['userid'] = $USER->id;
-        $eventData['objectid'] = $commentdata['checklistitemid'];
-        $eventData['other'] = ['commenttext' => $commentdata['commenttext']];
-        $existingcomment = checklist_comment_student::get_record(['itemid' => $commentdata['checklistitemid'], 'usermodified' => $USER->id]);
+        $eventdata = [];
+        $eventdata['context'] = $context;
+        $eventdata['userid'] = $USER->id;
+        $eventdata['objectid'] = $commentdata['checklistitemid'];
+        $eventdata['other'] = ['commenttext' => $commentdata['commenttext']];
+        $existingcomment = checklist_comment_student::get_record([
+            'itemid' => $commentdata['checklistitemid'],
+            'usermodified' => $USER->id
+        ]);
         if ($existingcomment) {
-            $event = \mod_checklist\event\student_comment_updated::create($eventData);
+            $event = \mod_checklist\event\student_comment_updated::create($eventdata);
             $event->trigger();
         } else {
-            $event = \mod_checklist\event\student_comment_created::create($eventData);
+            $event = \mod_checklist\event\student_comment_created::create($eventdata);
             $event->trigger();
         }
 
-        return checklist_comment_student::update_or_create_student_comment($commentdata['checklistitemid'], $commentdata['commenttext'], $existingcomment);
+        return checklist_comment_student::update_or_create_student_comment($commentdata['checklistitemid'],
+            $commentdata['commenttext'], $existingcomment);
     }
 
-    public function update_student_comment_returns()
-    {
+    public function update_student_comment_returns() {
         return new external_value(PARAM_BOOL, 'True if the comment was successfully updated.');
     }
 }

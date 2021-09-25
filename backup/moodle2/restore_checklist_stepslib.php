@@ -43,6 +43,10 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
         if ($userinfo) {
             $paths[] = new restore_path_element('checklist_check', '/activity/checklist/items/item/checks/check');
             $paths[] = new restore_path_element('checklist_comment', '/activity/checklist/items/item/comments/comment');
+            $paths[] = new restore_path_element(
+                'checklist_comment_student',
+                '/activity/checklist/items/item/studentcomments/studentcomment'
+            );
         }
 
         // Return the paths wrapped into standard activity structure.
@@ -157,6 +161,25 @@ class restore_checklist_activity_structure_step extends restore_activity_structu
 
         $newid = $DB->insert_record('checklist_comment', $data);
         $this->set_mapping('checklist_comment', $oldid, $newid);
+    }
+
+    /**
+     * Restore a student comment record.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
+    protected function process_checklist_comment_student($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+
+        $data->itemid = $this->get_new_parentid('checklist_item');
+        $data->usermodified = $this->get_mappingid('user', $data->usermodified);
+
+        $newid = $DB->insert_record('checklist_comment_student', $data);
+        $this->set_mapping('checklist_comment_student', $oldid, $newid);
     }
 
     /**

@@ -100,6 +100,7 @@ class restore_checklist_activity_task extends restore_activity_task {
                 // Does not match up to a restored activity module => delete the item + associated user data.
                 $DB->delete_records('checklist_check', array('item' => $item->id));
                 $DB->delete_records('checklist_comment', array('itemid' => $item->id));
+                $DB->delete_records('checklist_comment_student', array('itemid' => $item->id));
                 $DB->delete_records('checklist_item', array('id' => $item->id));
             }
         }

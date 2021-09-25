@@ -360,7 +360,7 @@ function xmldb_checklist_upgrade($oldversion = 0) {
 
         // Add config field to checklist.
         $table = new xmldb_table('checklist');
-        $field = new xmldb_field('usercommentsallowed', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'useritemsallowed');
+        $field = new xmldb_field('studentcomments', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'useritemsallowed');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
