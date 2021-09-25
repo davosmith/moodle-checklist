@@ -82,7 +82,6 @@ class student_comment_created extends \core\event\base {
         '&studentid='.$this->relateduserid, $this->objectid, $this->contextinstanceid);
     }
 
-    // todo look into backup and restore...
     /**
      * Get the mapping to use when restoring logs from backup
      * @return string[]

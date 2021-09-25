@@ -177,7 +177,6 @@ function checklist_update_instance($checklist) {
  * @return boolean Success/Failure
  */
 function checklist_delete_instance($id) {
-    // TODO must delete the associated user comments here too.
     global $DB;
 
     if (!$checklist = $DB->get_record('checklist', array('id' => $id))) {
@@ -200,6 +199,7 @@ function checklist_delete_instance($id) {
         $items = array_keys($items);
         $DB->delete_records_list('checklist_check', 'item', $items);
         $DB->delete_records_list('checklist_comment', 'itemid', $items);
+        $DB->delete_records_list('checklist_comment_student', 'itemid', $items);
         $DB->delete_records('checklist_item', array('checklist' => $checklist->id));
     }
     $DB->delete_records('checklist', array('id' => $checklist->id));

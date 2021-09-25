@@ -146,11 +146,12 @@ class checklist_comment_student extends persistent {
             $newcomment = new checklist_comment_student();
             $newcomment->set('itemid', $checklistitemid);
             $newcomment->set('text', $commenttext);
-            $newcomment->create();
+            $newcomment->save();
             return true;
         } else {
             $existingcomment->set('text', $commenttext);
-            return $existingcomment->update();
+            $existingcomment->save();
+            return true;
         }
     }
 

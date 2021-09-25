@@ -23,8 +23,13 @@
 
 namespace mod_checklist;
 
+use context_module;
+use core\log\manager;
+use logstore_standard\log\store;
 use mod_checklist\local\checklist_comment_student;
+use mod_checklist\local\checklist_item;
 use mod_checklist_external;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -34,17 +39,79 @@ defined('MOODLE_INTERNAL') || die();
  */
 class student_comment_test extends \advanced_testcase
 {
+    /** @var stdClass The student object. */
+    protected $student;
+
+    /** @var stdClass The course module object. */
+    protected $cm;
+
+    /** @var store The log manager object. */
+    protected $store;
+
+    /** @var checklist_item[] checklist items */
+    protected $items;
     /**
      * Set up steps
      */
     public function setUp(): void
     {
+        global $CFG, $USER, $DB;
         $this->resetAfterTest();
+        // Create test checklist with a couple items.
+        require_once("$CFG->dirroot/mod/checklist/externallib.php");
+        $gen = self::getDataGenerator();
+        /** @var \mod_checklist_generator $cgen */
+        $cgen = $gen->get_plugin_generator('mod_checklist');
+
+        $c1 = $gen->create_course(['startdate' => strtotime('2019-04-10T12:00:00Z')]);
+        $chk = $cgen->create_instance(['course' => $c1->id]);
+
+        // Create a student who will add data to these checklists.
+        $this->student = $gen->create_user();
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $gen->enrol_user($this->student->id, $c1->id, $studentrole->id);
+        $this->setUser($this->student);
+
+        $iteminfos = [
+            (object)[
+                'displaytext' => 'Item 1',
+                'duetime' => strtotime('2019-05-14T12:00:00Z'),
+            ],
+            (object)[
+                'displaytext' => 'Item 2',
+            ],
+        ];
+        $position = 1;
+        foreach ($iteminfos as $iteminfo) {
+            $item = new \mod_checklist\local\checklist_item();
+            $item->checklist = $chk->id;
+            $item->userid = 0;
+            $item->displaytext = $iteminfo->displaytext;
+            $item->position = $position++;
+            $item->duetime = $iteminfo->duetime ?? null;
+            $checklistitemid = $item->insert();
+            $this->items[] = $item;
+            // Create student comments alongside the other items.
+            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment' . $position, false);
+        }
+
+        $this->cm = get_coursemodule_from_instance('checklist', $chk->id, $c1->id);
+        $context = context_module::instance($this->cm->id);
+        $this->assertTrue(has_capability('mod/checklist:updateown', $context));
+
+        // Want to test events were written to logstore.
+        $this->preventResetByRollback();
+        set_config('enabled_stores', 'logstore_standard', 'tool_log');
+        set_config('buffersize', 0, 'logstore_standard');
+        $manager = get_log_manager(true);
+        $stores = $manager->get_readers();
+        $this->store = $stores['logstore_standard'];
+
+        $USER->ignoresesskey = true;
     }
 
     public function test_create_student_comment()
     {
-        $this->setAdminUser();
         $data = (object)[
             'text' => 'this is my comment',
             'itemid' => 1,
@@ -62,50 +129,15 @@ class student_comment_test extends \advanced_testcase
 
     public function test_external_function_create()
     {
-        global $CFG, $USER;
-        $this->setAdminUser();
-        $USER->ignoresesskey = true;
-        // Create test checklist with a couple items.
-        require_once("$CFG->dirroot/mod/checklist/externallib.php");
-        $gen = self::getDataGenerator();
-        /** @var \mod_checklist_generator $cgen */
-        $cgen = $gen->get_plugin_generator('mod_checklist');
-
-        $c1 = $gen->create_course(['startdate' => strtotime('2019-04-10T12:00:00Z')]);
-        $chk = $cgen->create_instance(['course' => $c1->id]);
-        $iteminfos = [
-            (object)[
-                'displaytext' => 'Item 1',
-                'duetime' => strtotime('2019-05-14T12:00:00Z'),
-            ],
-            (object)[
-                'displaytext' => 'Item 2',
-            ],
-        ];
-        $position = 1;
-        foreach ($iteminfos as $iteminfo) {
-            $item = new \mod_checklist\local\checklist_item();
-            $item->checklist = $chk->id;
-            $item->userid = 0;
-            $item->displaytext = $iteminfo->displaytext;
-            $item->position = $position++;
-            $item->duetime = $iteminfo->duetime ?? null;
-            $checklistitemid = $item->insert();
-        }
-
-        $cm = get_coursemodule_from_instance('checklist', $chk->id, $c1->id);
-
-        // Want to test events were written to logstore.
-        $this->preventResetByRollback();
-        set_config('enabled_stores', 'logstore_standard', 'tool_log');
-        set_config('buffersize', 0, 'logstore_standard');
-        $manager = get_log_manager(true);
+        // Delete one of the comments we made in set up so we can create now.
+        $student_comment = checklist_comment_student::get_record(['itemid' => $this->items[1]->id, 'usermodified' => $this->student->id]);
+        $student_comment->delete();
 
         // Create a student comment in this checklist on the second item.
         $params = [
-            'cmid' => $cm->id,
+            'cmid' => $this->cm->id,
             'commenttext' => 'test new comment',
-            'checklistitemid' => $checklistitemid,
+            'checklistitemid' => $this->items[1]->id,
         ];
         $result = mod_checklist_external::update_student_comment($params);
         $this->assertEquals('1', $result);
@@ -113,106 +145,55 @@ class student_comment_test extends \advanced_testcase
         // Assert comment inserted properly with the right data.
         $student_comment = checklist_comment_student::get_record([
             'itemid' => $params['checklistitemid'],
-            'usermodified' => $USER->id
+            'usermodified' => $this->student->id
         ]);
-        $this->assertEquals($USER->id, $student_comment->get('usermodified'));
+        $this->assertEquals($this->student->id, $student_comment->get('usermodified'));
         $this->assertEquals('test new comment', $student_comment->get('text'));
 
         // Assert that 'create' event was created.
-        $stores = $manager->get_readers();
-        /** @var \logstore_standard\log\store $store */
-        $store = $stores['logstore_standard'];
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
-        $params = array('userid' => $USER->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $cm->id);
-        $events = $store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
+        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->id);
+        $events = $this->store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
         $this->assertCount(1, $events);
         $event = array_shift($events);
         $eventdata = $event->get_data();
         $this->assertEquals('c', $eventdata['crud']);
         $this->assertEquals($student_comment->get('itemid'), $eventdata['objectid']);
-        $this->assertEquals($cm->id, $eventdata['contextinstanceid']);
+        $this->assertEquals($this->cm->id, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test new comment'], $eventdata['other']);
-        $this->assertEquals('The user with id 2 has created a comment in the checklist with course module id 192000 with text \'test new comment\'',
-            $event->get_description());
+        $this->assertEquals('The user with id ' . $this->student->id . ' has created a comment in the checklist with course module id ' . $this->cm->id . ' with text \'test new comment\'', $event->get_description());
     }
 
     public function test_external_function_update()
     {
-        global $CFG, $USER;
-        $this->setAdminUser();
-        $USER->ignoresesskey = true;
-
+        global $CFG;
         // Create test checklist with a couple items.
         require_once("$CFG->dirroot/mod/checklist/externallib.php");
-        $gen = self::getDataGenerator();
-        /** @var \mod_checklist_generator $cgen */
-        $cgen = $gen->get_plugin_generator('mod_checklist');
-
-        $c1 = $gen->create_course(['startdate' => strtotime('2019-04-10T12:00:00Z')]);
-        $chk = $cgen->create_instance(['course' => $c1->id]);
-        $iteminfos = [
-            (object)[
-                'displaytext' => 'Item 1',
-                'duetime' => strtotime('2019-05-14T12:00:00Z'),
-            ],
-            (object)[
-                'displaytext' => 'Item 2',
-            ],
-        ];
-        $position = 1;
-        foreach ($iteminfos as $iteminfo) {
-            $item = new \mod_checklist\local\checklist_item();
-            $item->checklist = $chk->id;
-            $item->userid = 0;
-            $item->displaytext = $iteminfo->displaytext;
-            $item->position = $position++;
-            $item->duetime = $iteminfo->duetime ?? null;
-            $checklistitemid = $item->insert();
-            // Create student comments alongside the other items.
-            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment' . $position,
-                false);
-        }
-
-        $cm = get_coursemodule_from_instance('checklist', $chk->id, $c1->id);
-
-        // Want to test events were written to logstore.
-        $this->preventResetByRollback();
-        set_config('enabled_stores', 'logstore_standard', 'tool_log');
-        set_config('buffersize', 0, 'logstore_standard');
-        $manager = get_log_manager(true);
-
         // Create a student comment in this checklist on the second item.
         $params = [
-            'cmid' => $cm->id,
+            'cmid' => $this->cm->id,
             'commenttext' => 'test update comment',
-            'checklistitemid' => $checklistitemid,
+            'checklistitemid' => $this->items[1]->id,
         ];
         $result = mod_checklist_external::update_student_comment($params);
         $this->assertEquals('1', $result);
 
         // Assert comment inserted properly with the right data.
-        $student_comment = checklist_comment_student::get_record([
-            'itemid' => $params['checklistitemid'],
-            'usermodified' => $USER->id
-        ]);
-        $this->assertEquals($USER->id, $student_comment->get('usermodified'));
+        $student_comment = checklist_comment_student::get_record(['itemid' => $params['checklistitemid'], 'usermodified' => $this->student->id]);
+        $this->assertEquals($this->student->id, $student_comment->get('usermodified'));
         $this->assertEquals('test update comment', $student_comment->get('text'));
 
         // Assert that 'update' event was created.
-        $stores = $manager->get_readers();
-        /** @var \logstore_standard\log\store $store */
-        $store = $stores['logstore_standard'];
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
-        $params = array('userid' => $USER->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $cm->id);
-        $events = $store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
+        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->id);
+        $events = $this->store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
         $this->assertCount(1, $events);
         $event = array_shift($events);
         $eventdata = $event->get_data();
         $this->assertEquals('u', $eventdata['crud']);
         $this->assertEquals($student_comment->get('itemid'), $eventdata['objectid']);
-        $this->assertEquals($cm->id, $eventdata['contextinstanceid']);
+        $this->assertEquals($this->cm->id, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test update comment'], $eventdata['other']);
-        $this->assertEquals('The user with id 2 has updated a comment in the checklist with course module id 192000 to have text \'test update comment\'',
-            $event->get_description());
+        $this->assertEquals('The user with id ' . $this->student->id .' has updated a comment in the checklist with course module id ' . $this->cm->id .' to have text \'test update comment\'', $event->get_description());
     }
 }
