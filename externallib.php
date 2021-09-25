@@ -64,14 +64,17 @@ class mod_checklist_external extends external_api {
         $context = context_module::instance($cm->id);
         require_capability('mod/checklist:updateown', $context);
         require_sesskey();
-        $commentdata['context'] = $context;
-        $commentdata['other'] = ['commenttext' => $commentdata['commenttext']];
+        $eventData = [];
+        $eventData['context'] = $context;
+        $eventData['userid'] = $USER->id;
+        $eventData['objectid'] = $commentdata['checklistitemid'];
+        $eventData['other'] = ['commenttext' => $commentdata['commenttext']];
         $existingcomment = checklist_comment_student::get_record(['itemid' => $commentdata['checklistitemid'], 'usermodified' => $USER->id]);
         if ($existingcomment) {
-            $event = \mod_checklist\event\student_comment_updated::create($commentdata);
+            $event = \mod_checklist\event\student_comment_updated::create($eventData);
             $event->trigger();
         } else {
-            $event = \mod_checklist\event\student_comment_created::create($commentdata);
+            $event = \mod_checklist\event\student_comment_created::create($eventData);
             $event->trigger();
         }
 
