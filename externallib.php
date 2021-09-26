@@ -17,6 +17,7 @@
 /**
  * External checklist API
  *
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package    mod_checklist
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,6 +55,7 @@ class mod_checklist_external extends external_api {
 
     /**
      * Update or create a student comment for a checklist item.
+     * @param array $params array with comment data.
      * @return string welcome message
      */
     public static function update_student_comment($params): string {
@@ -85,6 +87,9 @@ class mod_checklist_external extends external_api {
             $commentdata['commenttext'], $existingcomment);
     }
 
+    /** Returns description of method result value.
+     * @return external_value
+     */
     public function update_student_comment_returns() {
         return new external_value(PARAM_BOOL, 'True if the comment was successfully updated.');
     }

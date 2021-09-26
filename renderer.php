@@ -1119,7 +1119,9 @@ ENDSCRIPT;
 
     /**
      * Get the user profile URL for the commenting user
-     * @return moodle_url
+     * @param int $userid id of the user.
+     * @param int $courseid id of the course to make the link point towards.
+     * @return moodle_url the user profile url.
      */
     public function get_user_url($userid, $courseid) {
         return new moodle_url('/user/view.php', ['id' => $userid, 'course' => $courseid]);

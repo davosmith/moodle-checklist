@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Web service for mod checklist
+ * Web service for mod checklist.
+ * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package    mod_checklist
  * @subpackage db
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

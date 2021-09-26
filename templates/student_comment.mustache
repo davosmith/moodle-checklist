@@ -18,6 +18,18 @@
     @template mod_checklist/student_comment
 
     Display a student comment
+
+    Context variables required for this template:
+    * studenturl, studentname, isstudent, commenttext
+
+    Example context (json):
+    {
+        "studenturl": "https://example.com/moodle/user/profile.php?id=2",
+        "studentname": "John Smith"
+        "isstudent": true,
+        "commenttext": "My comment"
+        "itemid": "1",
+    }
 }}
 <span class="studentcomment">
     <a href="{{studenturl}}">{{studentname}}</a>:

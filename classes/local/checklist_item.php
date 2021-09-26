@@ -534,8 +534,8 @@ class checklist_item extends data_object {
 
     /**
      * Add links from the checklist items to the student comments on them (for a particular user).
-     * @param checklist_item[] $items (indexed by id)
-     * @param checklist_comment_student[] $comments (indexed by itemid)
+     * @param checklist_item[] $items checklist items.
+     * @param checklist_comment_student[] $studentcomments student comments indexed by item id.
      */
     public static function add_student_comments($items, $studentcomments) {
         foreach ($items as $item) {
