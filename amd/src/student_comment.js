@@ -17,6 +17,7 @@
  * Push student comments to checklist plugin via ajax.
  *
  * @module     mod_checklist/student_comments
+ * @copyright  2021 Kristian Ringer <kristian.ringer@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Ajax, Notification, String) {
@@ -25,7 +26,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
             const classPrefix = 'studentcommentid';
             let comments = $('.studentcommentinput');
 
-            Y.log('cmid: ' + cmid);
             // Store the initial state of each comment. Only want to update server if comment changed on blur.
             let currentComments = [];
             for (let i = 0; i < comments.length; i += 1) {
@@ -34,10 +34,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 comment.addEventListener('blur', function(e) {
                     const newComment = e.target.value.trim();
                     // Update only if it changed, using the external function Ajax call.
-                    if (currentComments[i] === newComment) {
-                        Y.log('not going to update server, nothing changed. Current comment value: ' + newComment);
-                    } else {
-                        Y.log('Sending this student comment to server');
+                    if (currentComments[i] !== newComment) {
                         let classString = e.target.classList[0];
                         // Get the item id from the end of the first class name, eg. studentcommentid13.
                         let checklistitemid = classString.substr(classString.lastIndexOf(classPrefix) + classPrefix.length);
@@ -60,7 +57,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                         Ajax.call([request])[0].done(function(data) {
                             $(spinner).css('display', 'none');
                             if (data === true) {
-                                Y.log('updated comment successfully.');
                                 currentComments[i] = newComment;
                             } else {
                                 Notification.addNotification({
