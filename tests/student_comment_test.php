@@ -92,12 +92,7 @@ class student_comment_test extends \advanced_testcase
             // Create student comments alongside the other items.
             checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment' . $position);
         }
-
-        $this->cm = get_coursemodule_from_instance('checklist', $chk->id, $c1->id);
-        $context = context_module::instance($this->cm->id);
-        $this->assertTrue(has_capability('mod/checklist:updateown', $context));
-
-        // Want to test events were written to logstore.
+        // Test events were written to logstore.
         $this->preventResetByRollback();
         set_config('enabled_stores', 'logstore_standard', 'tool_log');
         set_config('buffersize', 0, 'logstore_standard');
