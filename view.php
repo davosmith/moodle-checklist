@@ -51,13 +51,11 @@ if ($id) {
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
-// Could pass in more params here.. maybe the student id?
-$PAGE->requires->js_call_amd('mod_checklist/student_comment', 'init', [$cm->id]);
-
 $context = context_module::instance($cm->id);
 $userid = 0;
 if (has_capability('mod/checklist:updateown', $context)) {
     $userid = $USER->id;
+    $PAGE->requires->js_call_amd('mod_checklist/student_comment', 'init', [$cm->id]);
 }
 
 $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
