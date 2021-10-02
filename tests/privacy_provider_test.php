@@ -89,8 +89,8 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $items[2]->set_checked_student($this->student->id, true);
         // Add 2 student comments to first checklist.
         $this->setUser($this->student);
-        checklist_comment_student::update_or_create_student_comment($items[0]->id, 'comment 1', false);
-        checklist_comment_student::update_or_create_student_comment($items[2]->id, 'comment 2', false);
+        checklist_comment_student::update_or_create_student_comment($items[0]->id, 'comment 1');
+        checklist_comment_student::update_or_create_student_comment($items[2]->id, 'comment 2');
 
         // The second checklist includes custom items created by the student.
         $item = new \mod_checklist\local\checklist_item([], false);
@@ -110,7 +110,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $comment->insert();
 
         // It also contains another student comment.
-        checklist_comment_student::update_or_create_student_comment($items[1]->id, 'A comment added from a student', false);
+        checklist_comment_student::update_or_create_student_comment($items[1]->id, 'A comment added from a student');
 
         // The fourth checklist does not include any user data for the given student.
     }
@@ -259,7 +259,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $items = array_values($items);
         $items[1]->set_checked_student($student->id, true);
         // Add one student comment to second checklist.
-        checklist_comment_student::update_or_create_student_comment($items[1]->id, 'comment by another student', false);
+        checklist_comment_student::update_or_create_student_comment($items[1]->id, 'comment by another student');
 
         // Before deletion, we should have 3 checked off items, 1 custom item, 1 comment, 3 student comments and 13 total items.
         $this->assertEquals(3, $DB->count_records_select('checklist_check', 'usertimestamp > 0'));
@@ -332,7 +332,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
 
         // Use the student id in persistent 'usermodified' key instead of the auto assigned 0 id.
         $this->setUser($student);
-        checklist_comment_student::update_or_create_student_comment($items[1]->id, 'another comment by student', false);
+        checklist_comment_student::update_or_create_student_comment($items[1]->id, 'another comment by student');
 
         $item = new \mod_checklist\local\checklist_item([], false);
         $item->checklist = $this->checklists[1]->id;

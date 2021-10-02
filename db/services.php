@@ -16,7 +16,7 @@
 
 /**
  * Web service for mod checklist.
- * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @copyright  2021 Kristian Ringer <kristian.ringer@gmail.com>
  * @package    mod_checklist
  * @subpackage db
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,9 +26,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $functions = array(
     'mod_checklist_update_student_comment' => array(
-        'classname'     => 'mod_checklist_external',
-        'methodname'    => 'update_student_comment',
-        'classpath'     => 'mod/checklist/externallib.php',
+        'classname'     => 'mod_checklist\external\update_student_comment',
+        'methodname'    => 'execute',
+        'classpath'     => '',
         'description'   => 'Update a student comment',
         'ajax'          => true,
         'type'          => 'write',

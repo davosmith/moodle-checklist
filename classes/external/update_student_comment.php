@@ -17,29 +17,37 @@
 /**
  * External checklist API
  *
- * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @copyright  2021 Kristian Ringer <kristian.ringer@gmail.com>
  * @package    mod_checklist
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_checklist\local\checklist_comment_student;
+namespace mod_checklist\external;
 
 defined('MOODLE_INTERNAL') || die;
 
+global $CFG;
 require_once("$CFG->libdir/externallib.php");
 require_once("$CFG->dirroot/mod/checklist/locallib.php");
+
+use external_api;
+use mod_checklist\local\checklist_comment_student;
+use external_function_parameters;
+use external_single_structure;
+use external_value;
+use context_module;
 
 /**
  * Checklist functions
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_checklist_external extends external_api {
+class update_student_comment extends external_api {
 
     /**
      * Returns description of method parameters
      * @return external_function_parameters
      */
-    public static function update_student_comment_parameters() {
+    public static function execute_parameters() {
         return new external_function_parameters(
             [
                 'comment' => new external_single_structure(
@@ -58,17 +66,15 @@ class mod_checklist_external extends external_api {
      * @param array $params array with comment data.
      * @return string welcome message
      */
-    public static function update_student_comment($params): string {
+    public static function execute($params): string {
         global $USER;
-        $params = self::validate_parameters(self::update_student_comment_parameters(), array('comment' => $params));
+        $params = self::validate_parameters(self::execute_parameters(), array('comment' => $params));
         $commentdata = $params['comment'];
         $cm = get_coursemodule_from_id('checklist', $commentdata['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         require_capability('mod/checklist:updateown', $context);
-        require_sesskey();
         $eventdata = [];
         $eventdata['context'] = $context;
-        $eventdata['userid'] = $USER->id;
         $eventdata['objectid'] = $commentdata['checklistitemid'];
         $eventdata['other'] = ['commenttext' => $commentdata['commenttext']];
         $existingcomment = checklist_comment_student::get_record([
@@ -90,7 +96,7 @@ class mod_checklist_external extends external_api {
     /** Returns description of method result value.
      * @return external_value
      */
-    public function update_student_comment_returns() {
+    public function execute_returns() {
         return new external_value(PARAM_BOOL, 'True if the comment was successfully updated.');
     }
 }

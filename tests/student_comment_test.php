@@ -17,7 +17,7 @@
 /**
  * Test student comments
  *
- * @copyright Davo Smith <moodle@davosmith.co.uk>
+ * @copyright  2021 Kristian Ringer <kristian.ringer@gmail.com>
  * @package   mod_checklist
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,11 +25,9 @@
 namespace mod_checklist;
 
 use context_module;
-use core\log\manager;
 use logstore_standard\log\store;
 use mod_checklist\local\checklist_comment_student;
 use mod_checklist\local\checklist_item;
-use mod_checklist_external;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -92,7 +90,7 @@ class student_comment_test extends \advanced_testcase
             $checklistitemid = $item->insert();
             $this->items[] = $item;
             // Create student comments alongside the other items.
-            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment' . $position, false);
+            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment' . $position);
         }
 
         $this->cm = get_coursemodule_from_instance('checklist', $chk->id, $c1->id);
@@ -121,7 +119,7 @@ class student_comment_test extends \advanced_testcase
     }
 
     public function test_update_student_comment_new() {
-        $result = checklist_comment_student::update_or_create_student_comment(1, 'some comment', null);
+        $result = checklist_comment_student::update_or_create_student_comment(1, 'some comment');
         $this->assertEquals(true, $result);
     }
 

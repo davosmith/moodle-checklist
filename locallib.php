@@ -521,6 +521,12 @@ class checklist_class {
         return $this->checklist->studentcomments;
     }
 
+    // Please can you confirm this is always correct - because I'd not expect this to return true if:
+    //
+    //The user did not have the capability 'updateown'
+    //The user was a teacher viewing someone else's checklist
+    //The user was a teacher previewing a checklist (but without the ability to check-off items) - which is possibly a repeat of the first item in this bullet list, but I'd have to re-read the code to confirm.
+
     /**
      * Can the current user preview this checklist?
      * @return bool
@@ -960,6 +966,7 @@ class checklist_class {
         if ($status->is_showprogressbar()) {
             $progress = $this->get_progress();
         }
+        // This causes the teacher 'preview' to fail, as that has a userid of 0
         $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
 
         // Add the javascript, if needed.

@@ -17,8 +17,8 @@
 /**
  * A comment added, by a student, to a checklist item
  *
- * @copyright Davo Smith <moodle@davosmith.co.uk>
  * @package   mod_checklist
+ * @copyright  2021 Kristian Ringer <kristian.ringer@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -127,10 +127,14 @@ class checklist_comment_student extends persistent {
     /** Update or create a comment for a student on the given checklist item.
      * @param int $checklistitemid id of the item in the checklist.
      * @param string $commenttext text of the comment made by the student.
-     * @param checklist_comment_student|bool $existingcomment the comment to update or false to create a new comment record.
+     * @param checklist_comment_student|null $existingcomment the comment to update or false to create a new comment record.
      * @return bool true if successful.
      */
-    public static function update_or_create_student_comment($checklistitemid, $commenttext, $existingcomment): bool {
+    public static function update_or_create_student_comment(
+        int $checklistitemid,
+        string $commenttext,
+        checklist_comment_student $existingcomment = null
+    ): bool {
         if (!$existingcomment) {
             $newcomment = new checklist_comment_student();
             $newcomment->set('itemid', $checklistitemid);
