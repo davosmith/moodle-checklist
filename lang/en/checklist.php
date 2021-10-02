@@ -117,6 +117,7 @@ View the checklist here:';
 $string['emailoncompletebodyown'] = 'You have completed checklist \'{$a->checklist}\' in the course \'{$a->coursename}\'
 View the checklist here:';
 $string['enterurl'] = 'Enter url ...';
+$string['errorchecklistitemnotvalid'] = 'Checklist item id does not belong to this course module!';
 $string['eventchecklistcomplete'] = 'Checklist complete';
 $string['eventeditpageviewed'] = 'Edit page viewed';
 $string['eventreportviewed'] = 'Report viewed';

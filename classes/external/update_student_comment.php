@@ -36,6 +36,8 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use context_module;
+use mod_checklist\local\checklist_item;
+use moodle_exception;
 
 /**
  * Checklist functions
@@ -73,6 +75,12 @@ class update_student_comment extends external_api {
         $cm = get_coursemodule_from_id('checklist', $commentdata['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         require_capability('mod/checklist:updateown', $context);
+        // Validate that this checklist item exists and belongs to the checklist with the given 'cmid'.
+        $checklistitem = checklist_item::fetch(['checklist' => $cm->instance, 'id' => $commentdata['checklistitemid']]);
+        if (!$checklistitem) {
+            throw new moodle_exception(get_string('errorchecklistitemnotvalid', 'mod_checklist'));
+        }
+
         $eventdata = [];
         $eventdata['context'] = $context;
         $eventdata['objectid'] = $commentdata['checklistitemid'];
