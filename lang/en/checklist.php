@@ -220,10 +220,10 @@ $string['showprogressbars'] = 'Show progress bars';
 $string['showcolorchooser'] = 'Display color chooser';
 $string['showcolorchooserdesc'] = 'Displays the color chooser of the list elements in edit.php';
 
+$string['studentcomments'] = 'User can add their own comments to checklist items';
 $string['student_comment_updated'] = 'Student comment updated';
 $string['student_comment_updated_desc'] = 'The user with id {$a->userid} has updated a comment in the checklist with course module id {$a->cmid} to have text \'{$a->commenttext}\'';
 $string['student_comment_created'] = 'Student comment created';
-$string['student_comment_created_desc'] = 'The user with id {$a->userid} has created a comment in the checklist with course module id {$a->cmid} with text \'{$a->commenttext}\'';
 
 $string['teachercomments'] = 'Teachers can add comments';
 $string['teacherdate'] = 'Date a teacher last updated this item';
@@ -249,7 +249,6 @@ $string['updatecompletescore'] = 'Save completion grades';
 $string['unindentitem'] = 'Unindent item';
 $string['updateitem'] = 'Update';
 $string['userdate'] = 'Date the user last updated this item';
-$string['studentcomments'] = 'User can add their own comments to checklist items';
 $string['useritemsallowed'] = 'User can add their own items';
 $string['useritemsdeleted'] = 'User items deleted';
 

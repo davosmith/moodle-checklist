@@ -18,7 +18,7 @@
  * The mod_checklist student comment created event.
  *
  * @package    mod_checklist
- * @copyright  2014 Davo Smith <moodle@davosmith.co.uk>
+ * @copyright  2021 Kristian Ringer <kristian.ringer@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -60,11 +60,9 @@ class student_comment_created extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return get_string('student_comment_created_desc', 'mod_checklist', [
-            'userid' => $this->userid,
-            'cmid' => $this->contextinstanceid,
-            'commenttext' => $this->other['commenttext'] ?? ''
-        ]);
+        $commenttext = $this->other['commenttext'];
+        return "The user with id $this->userid has created a comment in the checklist with course module id" .
+            " $this->contextinstanceid with text '$commenttext'";
     }
 
     /**
@@ -73,17 +71,7 @@ class student_comment_created extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/checklist/view.php', array('id' => $this->contextinstanceid));
-    }
-
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return array($this->courseid, 'checklist', 'update checks', 'report.php?id='.$this->contextinstanceid.
-        '&studentid='.$this->relateduserid, $this->objectid, $this->contextinstanceid);
+        return new \moodle_url('/mod/checklist/report.php', array('id' => $this->contextinstanceid, 'studentid' => $this->userid));
     }
 
     /**
