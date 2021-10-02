@@ -24,8 +24,8 @@
 
 namespace mod_checklist;
 
-use context_module;
 use logstore_standard\log\store;
+use mod_checklist\external\update_student_comment;
 use mod_checklist\local\checklist_comment_student;
 use mod_checklist\local\checklist_item;
 use stdClass;
@@ -53,16 +53,15 @@ class student_comment_test extends \advanced_testcase
      * Set up steps
      */
     public function setUp(): void {
-        global $CFG, $USER, $DB;
+        global $USER, $DB;
         $this->resetAfterTest();
         // Create test checklist with a couple items.
-        require_once("$CFG->dirroot/mod/checklist/externallib.php");
         $gen = self::getDataGenerator();
         /** @var \mod_checklist_generator $cgen */
         $cgen = $gen->get_plugin_generator('mod_checklist');
 
         $c1 = $gen->create_course(['startdate' => strtotime('2019-04-10T12:00:00Z')]);
-        $chk = $cgen->create_instance(['course' => $c1->id]);
+        $this->cm = $cgen->create_instance(['course' => $c1->id]);
 
         // Create a student who will add data to these checklists.
         $this->student = $gen->create_user();
@@ -81,8 +80,8 @@ class student_comment_test extends \advanced_testcase
         ];
         $position = 1;
         foreach ($iteminfos as $iteminfo) {
-            $item = new \mod_checklist\local\checklist_item();
-            $item->checklist = $chk->id;
+            $item = new checklist_item();
+            $item->checklist = $this->cm->id;
             $item->userid = 0;
             $item->displaytext = $iteminfo->displaytext;
             $item->position = $position++;
@@ -128,11 +127,11 @@ class student_comment_test extends \advanced_testcase
 
         // Create a student comment in this checklist on the second item.
         $params = [
-            'cmid' => $this->cm->id,
+            'cmid' => $this->cm->cmid,
             'commenttext' => 'test new comment',
             'checklistitemid' => $this->items[1]->id,
         ];
-        $result = mod_checklist_external::update_student_comment($params);
+        $result = update_student_comment::execute($params);
         $this->assertEquals('1', $result);
 
         // Assert comment inserted properly with the right data.
@@ -145,31 +144,28 @@ class student_comment_test extends \advanced_testcase
 
         // Assert that 'create' event was created.
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
-        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->id);
+        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->cmid);
         $events = $this->store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
         $this->assertCount(1, $events);
         $event = array_shift($events);
         $eventdata = $event->get_data();
         $this->assertEquals('c', $eventdata['crud']);
         $this->assertEquals($studentcomment->get('itemid'), $eventdata['objectid']);
-        $this->assertEquals($this->cm->id, $eventdata['contextinstanceid']);
+        $this->assertEquals($this->cm->cmid, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test new comment'], $eventdata['other']);
         $eventtext = 'The user with id ' . $this->student->id . ' has created a comment in ';
-        $eventtext .= 'the checklist with course module id ' . $this->cm->id . ' with text \'test new comment\'';
+        $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' with text \'test new comment\'';
         $this->assertEquals($eventtext, $event->get_description());
     }
 
     public function test_external_function_update() {
-        global $CFG;
-        // Create test checklist with a couple items.
-        require_once("$CFG->dirroot/mod/checklist/externallib.php");
         // Create a student comment in this checklist on the second item.
         $params = [
-            'cmid' => $this->cm->id,
+            'cmid' => $this->cm->cmid,
             'commenttext' => 'test update comment',
             'checklistitemid' => $this->items[1]->id,
         ];
-        $result = mod_checklist_external::update_student_comment($params);
+        $result = update_student_comment::execute($params);
         $this->assertEquals('1', $result);
 
         // Assert comment inserted properly with the right data.
@@ -182,18 +178,18 @@ class student_comment_test extends \advanced_testcase
 
         // Assert that 'update' event was created.
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
-        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->id);
+        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->cmid);
         $events = $this->store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
         $this->assertCount(1, $events);
         $event = array_shift($events);
         $eventdata = $event->get_data();
         $this->assertEquals('u', $eventdata['crud']);
         $this->assertEquals($studentcomment->get('itemid'), $eventdata['objectid']);
-        $this->assertEquals($this->cm->id, $eventdata['contextinstanceid']);
+        $this->assertEquals($this->cm->cmid, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test update comment'], $eventdata['other']);
 
         $eventtext = 'The user with id ' . $this->student->id . ' has updated a comment in ';
-        $eventtext .= 'the checklist with course module id ' . $this->cm->id . ' to have text \'test update comment\'';
+        $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' to have text \'test update comment\'';
         $this->assertEquals($eventtext, $event->get_description());
     }
 }

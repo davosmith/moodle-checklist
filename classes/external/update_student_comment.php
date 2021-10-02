@@ -95,6 +95,7 @@ class update_student_comment extends external_api {
         } else {
             $event = \mod_checklist\event\student_comment_created::create($eventdata);
             $event->trigger();
+            $existingcomment = null;
         }
 
         return checklist_comment_student::update_or_create_student_comment($commentdata['checklistitemid'],
