@@ -147,7 +147,7 @@ class output_status {
      * Set as student comments enabled
      * @param boolean $studentcomments
      */
-    public function set_studentcomments($studentcomments) {
+    public function set_studentcomments(bool $studentcomments) {
         $this->studentcomments = $studentcomments;
     }
 

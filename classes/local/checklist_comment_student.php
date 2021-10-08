@@ -61,7 +61,7 @@ class checklist_comment_student extends persistent {
      * @param int[] $itemids
      * @return checklist_comment_student[] $itemid => $check
      */
-    public static function get_student_comments_indexed($userid, $itemids): array {
+    public static function get_student_comments_indexed(int $userid, array $itemids): array {
         global $DB;
 
         $ret = [];
@@ -91,7 +91,7 @@ class checklist_comment_student extends persistent {
      * Add the name of the commenter to the given comments.
      * @param checklist_comment_student[] $studentcomments
      */
-    public static function add_student_names($studentcomments) {
+    public static function add_student_names(array $studentcomments) {
         global $DB;
 
         $userids = [];

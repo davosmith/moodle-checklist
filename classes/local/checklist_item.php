@@ -537,7 +537,7 @@ class checklist_item extends data_object {
      * @param checklist_item[] $items checklist items.
      * @param checklist_comment_student[] $studentcomments student comments indexed by item id.
      */
-    public static function add_student_comments($items, $studentcomments) {
+    public static function add_student_comments(array $items, array $studentcomments) {
         foreach ($items as $item) {
             if (isset($studentcomments[$item->id])) {
                 $item->studentcomment = $studentcomments[$item->id];

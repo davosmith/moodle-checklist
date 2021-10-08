@@ -68,7 +68,7 @@ class update_student_comment extends external_api {
      * @param array $params array with comment data.
      * @return string welcome message
      */
-    public static function execute($params): string {
+    public static function execute(array $params): string {
         global $USER;
         $params = self::validate_parameters(self::execute_parameters(), array('comment' => $params));
         $commentdata = $params['comment'];
