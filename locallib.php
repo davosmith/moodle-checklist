@@ -966,8 +966,11 @@ class checklist_class {
         if ($status->is_showprogressbar()) {
             $progress = $this->get_progress();
         }
-        // This causes the teacher 'preview' to fail, as that has a userid of 0
-        $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
+        // This causes the teacher 'preview' to fail, as that has a userid of 0.
+        $student = null;
+        if ($status->is_viewother()) {
+            $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
+        }
 
         // Add the javascript, if needed.
         if (!$status->is_viewother()) {

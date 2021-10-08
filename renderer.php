@@ -119,15 +119,15 @@ class mod_checklist_renderer extends plugin_renderer_base {
      * @param string $intro
      * @param output_status $status
      * @param progress_info|null $progress
-     * @param object $student the student whose checklist is being viewed
+     * @param object $student (optional) the student whose checklist is being viewed (if not viewing own checklist)
      */
-    public function checklist_items($items, $useritems, $groupings, $intro, output_status $status, $progress, $student) {
+    public function checklist_items($items, $useritems, $groupings, $intro, output_status $status, $progress, $student = null) {
         echo $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox');
 
         echo html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner'));
 
         $thispageurl = new moodle_url($this->page->url);
-        if ($status->is_viewother()) {
+        if ($student) {
             $thispageurl->param('studentid', $student->id);
         }
 
@@ -374,13 +374,14 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     }
                 }
 
-                if ($status->is_studentcomments()) {
+                if ($student && $status->is_studentcomments()) {
                     $comment = $item->get_student_comment();
                     $isstudent = !$status->is_viewother();
                     if ($isstudent || ($comment && $comment->get('text'))) {
                         $context = (object)[
                             'itemid' => $item->id,
                             'commenttext' => $comment ? $comment->get('text') : null,
+                            'itemdisplaytext' => $item->displaytext,
                             'isstudent' => $isstudent,
                             'studenturl' => $this->get_user_url($student->id, $status->get_courseid()),
                             'studentname' => fullname($student),
