@@ -514,18 +514,18 @@ class checklist_class {
     }
 
     /**
-     * Can the current user add comments to this checklist?
+     * Can the current user add student comments to this checklist?
+     * - Checklist must have student comments enabled
+     * - Must have capability mod/checklist:updateown
+     * - Must be viewing your own checklist, no for teachers viewing a student's checklist (unless previewing).
      * @return bool
      */
-    protected function canaddstudentcomments(): bool {
-        return $this->checklist->studentcomments;
+    public function canaddstudentcomments(): bool {
+        global $USER;
+        return $this->checklist->studentcomments &&
+            (!$this->userid || ($this->userid == $USER->id)) &&
+            has_capability('mod/checklist:updateown', $this->context);
     }
-
-    // Please can you confirm this is always correct - because I'd not expect this to return true if:
-    //
-    //The user did not have the capability 'updateown'
-    //The user was a teacher viewing someone else's checklist
-    //The user was a teacher previewing a checklist (but without the ability to check-off items) - which is possibly a repeat of the first item in this bullet list, but I'd have to re-read the code to confirm.
 
     /**
      * Can the current user preview this checklist?
@@ -966,7 +966,6 @@ class checklist_class {
         if ($status->is_showprogressbar()) {
             $progress = $this->get_progress();
         }
-        // This causes the teacher 'preview' to fail, as that has a userid of 0.
         $student = null;
         if ($status->is_viewother()) {
             $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);

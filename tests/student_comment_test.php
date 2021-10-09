@@ -24,6 +24,8 @@
 
 namespace mod_checklist;
 
+use checklist_class;
+use context_module;
 use logstore_standard\log\store;
 use mod_checklist\external\update_student_comment;
 use mod_checklist\local\checklist_comment_student;
@@ -40,6 +42,9 @@ class student_comment_test extends \advanced_testcase
 {
     /** @var stdClass The student object. */
     protected $student;
+
+    /** @var stdClass The teacher object. */
+    protected $teacher;
 
     /** @var stdClass The course module object. */
     protected $cm;
@@ -61,12 +66,15 @@ class student_comment_test extends \advanced_testcase
         $cgen = $gen->get_plugin_generator('mod_checklist');
 
         $c1 = $gen->create_course(['startdate' => strtotime('2019-04-10T12:00:00Z')]);
-        $this->cm = $cgen->create_instance(['course' => $c1->id]);
+        $this->cm = $cgen->create_instance(['course' => $c1->id, 'studentcomments' => 1]);
 
         // Create a student who will add data to these checklists.
         $this->student = $gen->create_user();
+        $this->teacher = $gen->create_user();
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $teacherrole = $DB->get_record('role', ['shortname' => 'teacher']);
         $gen->enrol_user($this->student->id, $c1->id, $studentrole->id);
+        $gen->enrol_user($this->teacher->id, $c1->id, $teacherrole->id);
         $this->setUser($this->student);
 
         $iteminfos = [
@@ -191,5 +199,32 @@ class student_comment_test extends \advanced_testcase
         $eventtext = 'The user with id ' . $this->student->id . ' has updated a comment in ';
         $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' to have text \'test update comment\'';
         $this->assertEquals($eventtext, $event->get_description());
+    }
+
+    public function test_can_add_student_comments() {
+        global $DB;
+        $checklistclass = new checklist_class($this->cm->cmid, $this->student->id);
+        $this->assertTrue($checklistclass->canaddstudentcomments());
+
+        // Remove the capability 'updateown'.
+        $role = $DB->get_record('role', ['shortname' => 'student']);
+        unassign_capability('mod/checklist:updateown', $role->id);
+        $this->assertFalse($checklistclass->canaddstudentcomments());
+
+        // Should not be able to add student comments if user is a teacher viewing someone else's checklist.
+        $this->setUser($this->teacher);
+        $context = context_module::instance($this->cm->cmid);
+        $role = $DB->get_record('role', ['shortname' => 'teacher']);
+        assign_capability('mod/checklist:updateown', CAP_ALLOW, $role->id, $context->id);
+        $this->assertFalse($checklistclass->canaddstudentcomments());
+
+        // When previewing, we have a user id of 0, and we should be able to preview the student comment fields.
+        $checklistclass = new checklist_class($this->cm->cmid, 0);
+        $this->assertTrue($checklistclass->canaddstudentcomments());
+
+        // Teacher must still have the updateown capability when previewing to see student comments.
+        $role = $DB->get_record('role', ['shortname' => 'teacher']);
+        unassign_capability('mod/checklist:updateown', $role->id);
+        $this->assertFalse($checklistclass->canaddstudentcomments());
     }
 }
