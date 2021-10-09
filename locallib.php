@@ -967,8 +967,11 @@ class checklist_class {
             $progress = $this->get_progress();
         }
         $student = null;
+        $currentuser = null;
         if ($status->is_viewother()) {
             $student = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
+        } else if ($this->userid) {
+            $currentuser = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
         }
 
         // Add the javascript, if needed.
@@ -986,7 +989,8 @@ class checklist_class {
             ), true, $jsmodule);
         }
 
-        $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress, $student);
+        $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress,
+            $student, $currentuser);
     }
 
     /**
