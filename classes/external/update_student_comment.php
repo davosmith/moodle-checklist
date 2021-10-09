@@ -105,7 +105,7 @@ class update_student_comment extends external_api {
     /** Returns description of method result value.
      * @return external_value
      */
-    public function execute_returns() {
+    public static function execute_returns() {
         return new external_value(PARAM_BOOL, 'True if the comment was successfully updated.');
     }
 }

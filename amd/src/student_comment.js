@@ -31,7 +31,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
             for (let i = 0; i < comments.length; i += 1) {
                 let comment = comments[i];
                 currentComments[i] = comment.value;
-                comment.addEventListener('blur', function(e) {
+                comment.addEventListener('change', function(e) {
                     const newComment = e.target.value.trim();
                     // Update only if it changed, using the external function Ajax call.
                     if (currentComments[i] !== newComment) {
@@ -58,6 +58,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                             $(spinner).css('display', 'none');
                             if (data === true) {
                                 currentComments[i] = newComment;
+                                comment.defaultValue = newComment;
                             } else {
                                 Notification.addNotification({
                                     message: String.get_string('update_student_comment_failed', 'mod_checklist'),

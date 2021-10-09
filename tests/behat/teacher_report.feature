@@ -6,8 +6,8 @@ Feature: Teachers can view student's progress
       | fullname | shortname |
       | Course 1 | C1        |
     And the following "activities" exist:
-      | activity  | name           | intro               | course | section | idnumber | teacheredit |
-      | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 0           |
+      | activity  | name           | intro               | course | section | idnumber | teacheredit | studentcomments |
+      | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 0           | 1               |
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
@@ -117,3 +117,19 @@ Feature: Teachers can view student's progress
     When I log out
     And I am on the "Test checklist" "checklist activity" page logged in as "student1"
     Then I should see "Teacher 1: This is a comment" in the "Checklist required item 2" "list_item"
+
+  @javascript
+  Scenario: A student can add a comment to a checklist that a teacher can then view
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Test checklist"
+    # Add a comment to item 2 in the checklist.
+    And I set the field with xpath "(//span[@class='studentcomment']/input[@type='text'])[2]" to "This is a comment"
+    When I log out
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test checklist"
+    And I follow "View progress"
+    And I click on "View progress for this user" "link"
+    Then I should see "Student 1" in the "(//span[@class='studentcomment']/a)[1]" "xpath_element"
+    Then I should see "This is a comment" in the ".studentcomment" "css_element"
