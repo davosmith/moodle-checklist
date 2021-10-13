@@ -64,10 +64,9 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     And I should not see "Third list item"
 
   Scenario: When I disable the 'add due dates to calendar' feature, dates should not appear in the calendar.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
+    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
+    And I navigate to "ettings" in current page administration
     And I set the field "Add due dates to calendar" to "No"
     And I press "Save and return to course"
     And I log out

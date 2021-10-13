@@ -30,9 +30,7 @@ Feature: Teachers can view student's progress
       | Checklist optional item 5 | yes         |
 
   Scenario: A teacher can view a student's progress in a report
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     When I follow "View progress"
     Then ".level0-checked.c1" "css_element" should exist in the "Student 1" "table_row"
     And ".level0-checked.c2" "css_element" should exist in the "Student 1" "table_row"
@@ -42,9 +40,7 @@ Feature: Teachers can view student's progress
 
   @javascript
   Scenario: A teacher can show/hide optional items in a report
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     When I click on "Hide optional items" "link_or_button"
     Then I should see "Checklist required item 1"
@@ -72,9 +68,7 @@ Feature: Teachers can view student's progress
 
   @javascript
   Scenario: A teacher can switch to progress bars and back again
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     When I press "Show progress bars"
     Then I should not see "Checklist required item 1"
@@ -88,9 +82,7 @@ Feature: Teachers can view student's progress
 
   @javascript
   Scenario: A teacher can view the full details for a student's checklist
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     And I click on "View progress for this user" "link"
     Then I should see "Checklist for Student 1"
@@ -112,9 +104,7 @@ Feature: Teachers can view student's progress
 
   @javascript
   Scenario: A teacher can add a comment to a checklist that a student can then view
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     And I click on "View progress for this user" "link"
     When I press "Add comments"
@@ -125,7 +115,5 @@ Feature: Teachers can view student's progress
     Then I should see "Teacher 1: This is a comment" in the "Checklist required item 2" "list_item"
     # Check the student can also see it.
     When I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page logged in as "student1"
     Then I should see "Teacher 1: This is a comment" in the "Checklist required item 2" "list_item"

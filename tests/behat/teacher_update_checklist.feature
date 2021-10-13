@@ -26,9 +26,7 @@ Feature: Teacher update checklist works as expected
 
   @javascript
   Scenario: A teacher updates a checklist from the report overview and the student can see it
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     When I press "Edit checks"
     # Row 3 = first row with a student in it, Item 3 = checklist item 1.
@@ -44,9 +42,7 @@ Feature: Teacher update checklist works as expected
     And ".level0-checked.c4" "css_element" should not exist in the "Student 1" "table_row"
     And ".level0-checked.c5" "css_element" should exist in the "Student 1" "table_row"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page logged in as "student1"
     Then ".teachermarkyes" "css_element" should exist in the "Checklist required item 1" "list_item"
     And ".teachermarkno" "css_element" should exist in the "Checklist required item 2" "list_item"
     And ".teachermarkundecided" "css_element" should exist in the "Checklist required item 3" "list_item"
@@ -57,9 +53,7 @@ Feature: Teacher update checklist works as expected
 
   @javascript
   Scenario: A teacher clicks 'Toggle Row' and all items are updated
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     When I press "Edit checks"
     And I click on "Toggle Row" "button" in the "Student 1" "table_row"
@@ -72,9 +66,7 @@ Feature: Teacher update checklist works as expected
 
   @javascript
   Scenario: A teacher can update a student's checkmarks individually.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     When I click on "View progress for this user" "link" in the "Student 1" "table_row"
     And I set the following fields to these values:
@@ -113,9 +105,7 @@ Feature: Teacher update checklist works as expected
       | Checklist required item 2 | yes         |
       | Checklist required item 3 | yes         |
       | Checklist optional item 4 | yes         |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     And I click on "View progress for this user" "link" in the "Student 1" "table_row"
     And I should see "Checklist for Student 1"

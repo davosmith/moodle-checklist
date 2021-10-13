@@ -16,11 +16,9 @@ Feature: A teacher can attach a link to an external URL to a checklist item
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
 
   Scenario: A teacher links to an external website and then follows that link
-    Given I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And "linkcourseid" "select" should not exist
     When I set the following fields to these values:
       | displaytext | Item with link   |

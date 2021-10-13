@@ -21,9 +21,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
       | checklist | C1     | 1       | checklist2 | Test auto-pop checklist | This is an auto-populated checklist | 1            |
 
   Scenario: When viewing an auto-populated checklist, a student should see items corresponding to the course modules
-    When I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test auto-pop checklist"
+    When I am on the "Test auto-pop checklist" "checklist activity" page logged in as "student1"
     Then I should see "Test auto-pop checklist"
     And I should see "This is an auto-populated checklist"
     And I should see "Test assignment" in the "ol.checklist" "css_element"
@@ -31,9 +29,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
     And I should see "Test checklist" in the "ol.checklist" "css_element"
 
   Scenario: When I select multiple items and click the 'Show/hide' button, the items' visibility should toggle
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test auto-pop checklist"
+    Given I am on the "Test auto-pop checklist" "checklist activity" page logged in as "teacher1"
     And I follow "Edit checklist"
     And I set the field with xpath "//input[@type='checkbox' and @title='Test assignment']" to "1"
     And I set the field with xpath "//input[@type='checkbox' and @title='Test database']" to "1"
@@ -42,9 +38,7 @@ Feature: Multiple autopopulate items can be shown/hidden at once
     And I set the field with xpath "//input[@type='checkbox' and @title='Test checklist']" to "1"
     And I press "Show/hide selected items"
     And I log out
-    When I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test auto-pop checklist"
+    When I am on the "Test auto-pop checklist" "checklist activity" page logged in as "student1"
     Then I should not see "Test assignment" in the "ol.checklist" "css_element"
     And I should see "Test database" in the "ol.checklist" "css_element"
     And I should not see "Test checklist" in the "ol.checklist" "css_element"

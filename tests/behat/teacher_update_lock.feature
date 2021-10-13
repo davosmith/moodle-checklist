@@ -27,9 +27,7 @@ Feature: Teacher marks can be set to locked once updated
       | Checklist optional item 5 | optional |
 
   Scenario: A non-editing teacher can set 'Yes' marks, but cannot change them afterwards
-    Given I log in as "teacher2"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher2"
     And I follow "View progress"
     And I click on "View progress for this user" "link" in the "Student 1" "table_row"
     And I should see "Once you have saved these marks, you will be unable to change any 'Yes' marks"
@@ -47,9 +45,7 @@ Feature: Teacher marks can be set to locked once updated
       | Checklist optional item 5 | No  |
 
   Scenario: An editing teacher can change 'Yes' marks.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     And I click on "View progress for this user" "link" in the "Student 1" "table_row"
     And I should not see "Once you have saved these marks, you will be unable to change any 'Yes' marks"
@@ -66,7 +62,5 @@ Feature: Teacher marks can be set to locked once updated
       | Checklist optional item 5 | No  |
 
   Scenario: A student does not see the warning message about being unable to change the marks
-    Given I log in as "student1"
-    And I am on "Course 1" course homepage
-    When I follow "Test checklist"
+    When I am on the "Test checklist" "checklist activity" page logged in as "student1"
     Then I should not see "Once you have saved these marks, you will be unable to change any 'Yes' marks"

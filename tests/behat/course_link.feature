@@ -31,7 +31,7 @@ Feature: A teacher can link a checklist item to a course
 
   @javascript
   Scenario: A teacher can link to a course or a URL, but not both
-    Given I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page
     When I set the following fields to these values:
       | displaytext | Item with course link |
       | linkurl     | moodle.org            |
@@ -57,7 +57,7 @@ Feature: A teacher can link a checklist item to a course
   Scenario: Students cannot check-off items linked to courses, when autocomplete (no override) is on
   Course 2, has completion enabled (should not be able to check-off manually)
   Course 3, does not have completion enabled (should be able to check-off manually)
-    Given I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page
     And I set the following fields to these values:
       | displaytext  | Item with course link |
       | linkcourseid | Course 2              |
@@ -68,9 +68,7 @@ Feature: A teacher can link a checklist item to a course
     And I press "Add"
     And I log out
 
-    When I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    When I am on the "Test checklist" "checklist activity" page logged in as "student1"
 # The first item (linked to Course 2) should be disabled
     Then the "//ol[@class='checklist']/li[1]/input" "xpath_element" should be disabled
     And the field "Item with course link" matches value "0"
@@ -78,14 +76,14 @@ Feature: A teacher can link a checklist item to a course
 
     When I set the field "Another item with course link" to "1"
     And I wait "2" seconds
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page
     Then the "//ol[@class='checklist']/li[1]/input" "xpath_element" should be disabled
     And the field "Item with course link" matches value "0"
     And the field "Another item with course link" matches value "1"
 
   @javascript
   Scenario: An item linked to a course is automatically checked-off when that course is completed
-    Given I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page
     And I set the following fields to these values:
       | displaytext  | Item with course link |
       | linkcourseid | Course 2              |
@@ -102,9 +100,7 @@ Feature: A teacher can link a checklist item to a course
     And I add the "Self completion" block
     And I log out
 
-    When I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    When I am on the "Test checklist" "checklist activity" page logged in as "student1"
     Then I should see "0%" in the "#checklistprogressall" "css_element"
     And the field "Item with course link" matches value "0"
 
@@ -114,8 +110,7 @@ Feature: A teacher can link a checklist item to a course
     And I wait "2" seconds
     And I trigger cron
     And I wait "5" seconds
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page
     Then I should see "50%" in the "#checklistprogressall" "css_element"
     And the field "Item with course link" matches value "1"
 
@@ -139,9 +134,7 @@ Feature: A teacher can link a checklist item to a course
     And I am on site homepage
     And I log out
 
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I set the following fields to these values:
       | displaytext  | Item with course link |
       | linkcourseid | Course 2              |
