@@ -20,7 +20,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
       | Checklist                 | Test checklist      |
       | Introduction              | This is a checklist |
       | Add due dates to calendar | Yes                 |
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page
     And I press "Edit dates"
     # A date in the future (should be easy to fix in 10 years time when it fails).
     And I set the following fields to these values:
@@ -46,9 +46,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     And I log out
 
   Scenario: When I add dates to items, they appear to the student.
-    When I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    When I am on the "Test checklist" "checklist activity" page logged in as "student1"
     Then I should see "25 March 2025" in the "The first list item" "list_item"
     And ".checklist-itemdue" "css_element" should exist in the "The first list item" "list_item"
     And I should see "18 June 2018" in the "Another list item" "list_item"
