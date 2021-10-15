@@ -124,12 +124,12 @@ Feature: Teachers can view student's progress
     And I am on "Course 1" course homepage
     And I follow "Test checklist"
     # Add a comment to item 2 in the checklist.
-    And I set the field with xpath "(//span[@class='studentcomment']/input[@type='text'])[2]" to "This is a comment"
+    And I set the field with xpath "(//div[@class='studentcomment']/input[@type='text'])[2]" to "This is a comment"
     When I log out
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "Test checklist"
     And I follow "View progress"
     And I click on "View progress for this user" "link"
-    Then I should see "Student 1" in the "(//span[@class='studentcomment']/a)[1]" "xpath_element"
+    Then I should see "Student 1" in the "(//div[@class='studentcomment']/a)[1]" "xpath_element"
     Then I should see "This is a comment" in the ".studentcomment" "css_element"
