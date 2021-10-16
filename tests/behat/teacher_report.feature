@@ -120,15 +120,11 @@ Feature: Teachers can view student's progress
 
   @javascript
   Scenario: A student can add a comment to a checklist that a teacher can then view
-    Given I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    Given I am on the "Test checklist" "checklist activity" page logged in as "student1"
     # Add a comment to item 2 in the checklist.
     And I set the field with xpath "(//div[@class='studentcomment']/input[@type='text'])[2]" to "This is a comment"
     When I log out
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test checklist"
+    And I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I follow "View progress"
     And I click on "View progress for this user" "link"
     Then I should see "Student 1" in the "(//div[@class='studentcomment']/a)[1]" "xpath_element"
