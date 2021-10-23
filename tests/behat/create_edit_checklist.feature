@@ -182,7 +182,7 @@ Feature: I can create and update a checklist
     And I am on "Course 1" course homepage
     And I navigate to "View > Grader report" in the course gradebook
     # Student1 now has 2 required items (of 3) checked - 66%.
-    Then I should see "66.00" in the "Student 1" "table_row"
+    Then I should see "66" in the "Student 1" "table_row"
 
   Scenario: When a checklist has an extra item added, existing grades are updated
     Given the following items exist in checklist "Test checklist":
@@ -203,7 +203,7 @@ Feature: I can create and update a checklist
     And I am on "Course 1" course homepage
     And I navigate to "View > Grader report" in the course gradebook
     # Student1 now has 1 required items (of 3) checked - 33%.
-    Then I should see "33.00" in the "Student 1" "table_row"
+    Then I should see "33" in the "Student 1" "table_row"
 
   Scenario: When a checklist has an item deleted, existing grades are updated
     Given the following items exist in checklist "Test checklist":
@@ -223,4 +223,4 @@ Feature: I can create and update a checklist
     And I am on "Course 1" course homepage
     And I navigate to "View > Grader report" in the course gradebook
     # Student1 now has 1 required items (of 1) checked - 100%.
-    Then I should see "100.00" in the "Student 1" "table_row"
+    Then I should see "100" in the "Student 1" "table_row"
