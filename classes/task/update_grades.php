@@ -26,7 +26,13 @@ namespace mod_checklist\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Update grades as an adhoc task.
+ */
 class update_grades extends \core\task\adhoc_task {
+    /**
+     * Update the grades for the specified checklist.
+     */
     public function execute(): void {
         global $CFG, $DB;
         require_once($CFG->dirroot.'/mod/checklist/lib.php');
@@ -37,6 +43,10 @@ class update_grades extends \core\task\adhoc_task {
         }
     }
 
+    /**
+     * Request a grade update for the specified checklist.
+     * @param int $checklistid
+     */
     public static function queue(int $checklistid): void {
         // Create an adhoc task to update the grades.
         $task = new self();
