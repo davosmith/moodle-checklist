@@ -4,13 +4,15 @@ Checklist module
 ==Introduction==
 This is a Moodle plugin that allows a teacher to create a checklist for their students to work through.
 The teacher can monitor all the student's progress, as they tick off each of the items in the list.
-Note: This is the Moodle 3.4+ version (other versions are available for Moodle 1.9 & 2.0-2.6, 2.7-3.3).
+Note: This is the Moodle 3.9+ version (other versions are available for Moodle 1.9 and above).
 
 Items can be indented and marked as optional or turned into headings; a range of different colours can be used for the items.
 Students are presented with a simple chart showing how far they have progressed through the required/optional items and can add their own, private, items to the list.
 
 ==Changes==
 
+* 2021-10-23 - 3.9.1.0 - New feature from Kristian to allow students to add comments to items which are visible to the teacher
+* 2021-10-13 - Fix Behat tests in M4.0
 * 2021-06-30 - 3.9.0.2 - Fix completion debugging error when no checklist items in M3.11
 * 2021-06-12 - 3.9.0.1 - Fix completion sort order error in M3.11
 * 2021-05-15 - Further M3.11 compatibility fixes, new setting to disable colour picker (from Peter Mayer)

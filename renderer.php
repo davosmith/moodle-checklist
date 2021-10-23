@@ -122,15 +122,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
      * @param object $student (optional) the student whose checklist is being viewed (if not viewing own checklist)
      * @param object $currentuser (optional) the user whose checklist is being viewed.
      */
-    public function checklist_items(
-        $items,
-        $useritems,
-        $groupings,
-        $intro,
-        output_status $status,
-        $progress,
-        $student = null,
-        $currentuser = null) {
+    public function checklist_items($items, $useritems, $groupings, $intro, output_status $status, $progress, $student = null,
+                                    $currentuser = null) {
         echo $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox');
 
         echo html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner'));
