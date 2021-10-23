@@ -162,3 +162,65 @@ Feature: I can create and update a checklist
     And I should see "Required items"
     And "label.itemheading" "css_element" should appear before "You must tick this" "text"
     And "You must tick this" "text" should appear before "label.itemoptional" "css_element"
+
+  Scenario: When a checklist with existing grades has an item switched to required, the grades are updated
+    Given the following items exist in checklist "Test checklist":
+      | text   | required |
+      | Item 1 | required |
+      | Item 2 | required |
+      | Item 3 | optional |
+    # Student1 has 1 required item (of 2) checked - 50%.
+    And the following items are checked off in checklist "Test checklist" for user "student1":
+      | itemtext | studentmark |
+      | Item 1   | yes         |
+      | Item 3   | yes         |
+    When I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
+    And I follow "Edit checklist"
+    And I click on "This item is optional" "link" in the "Item 3" "list_item"
+    And I click on "This item is a heading" "link" in the "Item 3" "list_item"
+    And I run all adhoc tasks
+    And I am on "Course 1" course homepage
+    And I navigate to "View > Grader report" in the course gradebook
+    # Student1 now has 2 required items (of 3) checked - 66%.
+    Then I should see "66.00" in the "Student 1" "table_row"
+
+  Scenario: When a checklist has an extra item added, existing grades are updated
+    Given the following items exist in checklist "Test checklist":
+      | text   | required |
+      | Item 1 | required |
+      | Item 2 | required |
+      | Item 3 | optional |
+    # Student1 has 1 required item (of 2) checked - 50%.
+    And the following items are checked off in checklist "Test checklist" for user "student1":
+      | itemtext | studentmark |
+      | Item 1   | yes         |
+      | Item 3   | yes         |
+    When I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
+    And I follow "Edit checklist"
+    And I set the field "displaytext" to "Extra item"
+    And I press "Add"
+    And I run all adhoc tasks
+    And I am on "Course 1" course homepage
+    And I navigate to "View > Grader report" in the course gradebook
+    # Student1 now has 1 required items (of 3) checked - 33%.
+    Then I should see "33.00" in the "Student 1" "table_row"
+
+  Scenario: When a checklist has an item deleted, existing grades are updated
+    Given the following items exist in checklist "Test checklist":
+      | text   | required |
+      | Item 1 | required |
+      | Item 2 | required |
+      | Item 3 | optional |
+    # Student1 has 1 required item (of 2) checked - 50%.
+    And the following items are checked off in checklist "Test checklist" for user "student1":
+      | itemtext | studentmark |
+      | Item 1   | yes         |
+      | Item 3   | yes         |
+    When I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
+    And I follow "Edit checklist"
+    And I click on "Delete this item" "link" in the "Item 2" "list_item"
+    And I run all adhoc tasks
+    And I am on "Course 1" course homepage
+    And I navigate to "View > Grader report" in the course gradebook
+    # Student1 now has 1 required items (of 1) checked - 100%.
+    Then I should see "100.00" in the "Student 1" "table_row"

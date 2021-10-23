@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2021-10-23 - 3.9.1.1 - If a checklist is edited (add/delete item, mark item as required/optional) then grades will be recalculated (as a background task, to avoid slowing down the editing)
 * 2021-10-23 - 3.9.1.0 - New feature from Kristian to allow students to add comments to items which are visible to the teacher
 * 2021-10-13 - Fix Behat tests in M4.0
 * 2021-06-30 - 3.9.0.2 - Fix completion debugging error when no checklist items in M3.11

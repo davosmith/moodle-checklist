@@ -1965,6 +1965,9 @@ class checklist_class {
                 if ($this->checklist->duedatesoncalendar) {
                     $this->setevent($item, true);
                 }
+
+                // May affect existing grades, so we will request an adhoc task to update them.
+                \mod_checklist\task\update_grades::queue($this->checklist->id);
             }
 
             if ($item->linkcourseid) {
@@ -2155,7 +2158,9 @@ class checklist_class {
                     }
                 }
             }
-            checklist_update_grades($this->checklist);
+
+            // May affect existing grades, so we will request an adhoc task to update them.
+            \mod_checklist\task\update_grades::queue($this->checklist->id);
         }
     }
 
@@ -2190,6 +2195,9 @@ class checklist_class {
         $DB->delete_records('checklist_check', array('item' => $itemid));
 
         $this->update_item_positions();
+
+        // May affect existing grades, so we will request an adhoc task to update them.
+        \mod_checklist\task\update_grades::queue($this->checklist->id);
     }
 
     /**
@@ -2369,6 +2377,9 @@ class checklist_class {
 
         $item->itemoptional = $optional;
         $item->update();
+
+        // May affect existing grades, so we will request an adhoc task to update them.
+        \mod_checklist\task\update_grades::queue($this->checklist->id);
     }
 
     /**
