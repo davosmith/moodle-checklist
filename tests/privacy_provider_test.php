@@ -22,23 +22,23 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_checklist;
+
 use core_privacy\local\metadata\collection;
 use mod_checklist\local\checklist_comment_student;
 use mod_checklist\privacy\provider;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class mod_checklist_privacy_provider_testcase
  */
-class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provider_testcase {
-    /** @var stdClass The student object. */
+class privacy_provider_testcase extends \core_privacy\tests\provider_testcase {
+    /** @var \stdClass The student object. */
     protected $student;
 
-    /** @var stdClass[] The checklist objects. */
+    /** @var \stdClass[] The checklist objects. */
     protected $checklists = [];
 
-    /** @var stdClass The course object. */
+    /** @var \stdClass The course object. */
     protected $course;
 
     /**
@@ -52,7 +52,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         $this->course = $gen->create_course();
 
         // Create 4 checklists.
-        /** @var mod_checklist_generator $plugingen */
+        /** @var \mod_checklist_generator $plugingen */
         $plugingen = $gen->get_plugin_generator('mod_checklist');
         $params = [
             'course' => $this->course->id,
@@ -188,9 +188,9 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
             get_coursemodule_from_instance('checklist', $this->checklists[3]->id),
         ];
         $expectedctxs = [
-            context_module::instance($cms[0]->id),
-            context_module::instance($cms[1]->id),
-            context_module::instance($cms[2]->id),
+            \context_module::instance($cms[0]->id),
+            \context_module::instance($cms[1]->id),
+            \context_module::instance($cms[2]->id),
         ];
         $expectedctxids = [];
         foreach ($expectedctxs as $ctx) {
@@ -217,10 +217,10 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
             get_coursemodule_from_instance('checklist', $this->checklists[3]->id),
         ];
         $ctxs = [
-            context_module::instance($cms[0]->id),
-            context_module::instance($cms[1]->id),
-            context_module::instance($cms[2]->id),
-            context_module::instance($cms[3]->id),
+            \context_module::instance($cms[0]->id),
+            \context_module::instance($cms[1]->id),
+            \context_module::instance($cms[2]->id),
+            \context_module::instance($cms[3]->id),
         ];
 
         // Export all of the data for the context.
@@ -270,7 +270,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
 
         // Delete data from the first checklist.
         $cm = get_coursemodule_from_instance('checklist', $this->checklists[0]->id);
-        $cmcontext = context_module::instance($cm->id);
+        $cmcontext = \context_module::instance($cm->id);
         provider::delete_data_for_all_users_in_context($cmcontext);
         // After deletion, there should be 1 item checked-off, 1 custom item, 1 comment, 1 student comment and 13 total items.
         $this->assertEquals(1, $DB->count_records_select('checklist_check', 'usertimestamp > 0'));
@@ -281,7 +281,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
 
         // Delete data from the second checklist.
         $cm = get_coursemodule_from_instance('checklist', $this->checklists[1]->id);
-        $cmcontext = context_module::instance($cm->id);
+        $cmcontext = \context_module::instance($cm->id);
         provider::delete_data_for_all_users_in_context($cmcontext);
         // After deletion, there should be 0 items checked-off, 0 custom items, 1 comment, 0 student comments and 12 total items.
         $this->assertEquals(0, $DB->count_records_select('checklist_check', 'usertimestamp > 0'));
@@ -292,7 +292,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
 
         // Delete data from the third checklist.
         $cm = get_coursemodule_from_instance('checklist', $this->checklists[2]->id);
-        $cmcontext = context_module::instance($cm->id);
+        $cmcontext = \context_module::instance($cm->id);
         provider::delete_data_for_all_users_in_context($cmcontext);
         // After deletion, there should be 0 items checked-off, 0 custom items, 0 comment and 12 total items.
         $this->assertEquals(0, $DB->count_records_select('checklist_check', 'usertimestamp > 0'));
@@ -317,7 +317,7 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
         ];
         $ctxs = [];
         foreach ($cms as $cm) {
-            $ctxs[] = context_module::instance($cm->id);
+            $ctxs[] = \context_module::instance($cm->id);
         }
 
         // Create a second student who will gain some check-off, custom item + comment data in the first checklist.
@@ -395,8 +395,6 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Extra setup stuff.
      * @return array
-     * @throws coding_exception
-     * @throws dml_exception
      */
     private function do_some_setup_in_another_function_so_travis_stops_complaining_about_it(): array {
         global $DB;
@@ -408,10 +406,10 @@ class mod_checklist_privacy_provider_testcase extends \core_privacy\tests\provid
             get_coursemodule_from_instance('checklist', $this->checklists[3]->id),
         ];
         $ctxs = [
-            context_module::instance($cms[0]->id),
-            context_module::instance($cms[1]->id),
-            context_module::instance($cms[2]->id),
-            context_module::instance($cms[3]->id),
+            \context_module::instance($cms[0]->id),
+            \context_module::instance($cms[1]->id),
+            \context_module::instance($cms[2]->id),
+            \context_module::instance($cms[3]->id),
         ];
 
         // Create another student who will check-off some items in the second checklist.

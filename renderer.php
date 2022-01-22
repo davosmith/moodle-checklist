@@ -26,8 +26,6 @@ use mod_checklist\local\checklist_item;
 use mod_checklist\local\output_status;
 use mod_checklist\local\progress_info;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class mod_checklist_renderer
  */

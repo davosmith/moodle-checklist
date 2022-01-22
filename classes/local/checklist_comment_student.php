@@ -26,8 +26,6 @@ namespace mod_checklist\local;
 
 use core\persistent;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class checklist_comment_student
  * @package mod_checklist

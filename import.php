@@ -23,9 +23,9 @@
 
 use mod_checklist\local\checklist_item;
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/importexportfields.php');
+require_once(__DIR__.'/../../config.php');
 global $CFG, $PAGE, $OUTPUT, $DB;
+require_once($CFG->dirroot.'/mod/checklist/importexportfields.php');
 require_once($CFG->libdir.'/formslib.php');
 require_once($CFG->libdir.'/csvlib.class.php');
 

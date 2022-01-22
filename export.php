@@ -22,9 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/importexportfields.php');
+require_once(__DIR__.'/../../config.php');
 global $DB, $PAGE, $CFG;
+require_once($CFG->dirroot.'/mod/checklist/importexportfields.php');
 require_once($CFG->libdir.'/csvlib.class.php');
 $id = required_param('id', PARAM_INT); // Course module id.
 

@@ -24,8 +24,6 @@
 
 namespace mod_checklist\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The mod_checklist report viewed event class.
  *

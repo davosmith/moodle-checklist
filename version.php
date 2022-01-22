@@ -22,7 +22,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
 $plugin->version = 2022012200;  // The current module version (Date: YYYYMMDDXX).
 $plugin->maturity = MATURITY_STABLE;

@@ -24,8 +24,6 @@
 
 namespace mod_checklist\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class progress_info
  * @package mod_checklist

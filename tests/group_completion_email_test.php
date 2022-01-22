@@ -24,8 +24,6 @@
 
 namespace mod_checklist;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class group_completion_email_test
  * @package mod_checklist

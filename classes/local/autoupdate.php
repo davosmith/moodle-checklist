@@ -24,8 +24,6 @@
 
 namespace mod_checklist\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class autoupdate
  * @package mod_checklist

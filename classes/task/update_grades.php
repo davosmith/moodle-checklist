@@ -24,8 +24,6 @@
 
 namespace mod_checklist\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Update grades as an adhoc task.
  */
