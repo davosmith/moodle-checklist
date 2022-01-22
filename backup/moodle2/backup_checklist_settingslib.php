@@ -24,3 +24,6 @@
  * @package mod_checklist
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG; // To keep codechecker happy - otherwise it will complain about MOODLE_INTERNAL being present OR being absent.
