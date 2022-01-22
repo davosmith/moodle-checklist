@@ -97,6 +97,7 @@ Feature: A teacher can link a checklist item to a course
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"
+    And I enable selfcompletion block plugin for use by mod_checklist
     And I add the "Self completion" block
     And I log out
 
@@ -121,6 +122,7 @@ Feature: A teacher can link a checklist item to a course
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"
+    And I enable selfcompletion block plugin for use by mod_checklist
     And I add the "Self completion" block
     And I log out
 
