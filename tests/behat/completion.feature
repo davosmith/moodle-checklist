@@ -36,6 +36,20 @@ Feature: Student checklist can track completion of other activities
     Then "Topic 1" "text" should appear before "Test page 1" "text"
     And "Test page 1" "text" should appear before "Updated name to page 5" "text"
 
+  Scenario: Checklist names should update even when viewed by a student (without editing permission).
+    When I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
+    # Check that changes to the course are tracked.
+    When I follow "Course 1"
+    And I follow "Test page 2"
+    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
+    And I navigate to "ettings" in current page administration
+    And I set the field "Name" to "Updated name to page 5"
+    And I press "Save and return to course"
+    And I log out
+    And I am on the "Test checklist" "checklist activity" page logged in as "student1"
+    Then "Topic 1" "text" should appear before "Test page 1" "text"
+    And "Test page 1" "text" should appear before "Updated name to page 5" "text"
+
   @javascript
   Scenario: The checklist state should update to reflect the completion of imported activities.
     Given I am on the "Test checklist" "checklist activity" page logged in as "student1"

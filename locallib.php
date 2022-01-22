@@ -294,7 +294,7 @@ class checklist_class {
                 reset($this->items);
             } else {
                 if ($this->items[$sectionheading]->displaytext != $sectionname) {
-                    $this->updateitem($sectionheading, $sectionname);
+                    $this->updateitem($sectionheading, $sectionname, false, null, null, null, false, true);
                 }
             }
 
@@ -350,7 +350,7 @@ class checklist_class {
                         reset($this->items);
                     }
                     if ($item->displaytext != $modname) {
-                        $this->updateitem($item->id, $modname);
+                        $this->updateitem($item->id, $modname, false, null, null, null, false, true);
                     }
                     if (($item->hidden == CHECKLIST_HIDDEN_BYMODULE) && $mods->get_cm($cmid)->visible) {
                         // Course module was hidden and now is not.
@@ -2081,14 +2081,14 @@ class checklist_class {
      * @throws coding_exception
      */
     protected function updateitem($itemid, $displaytext, $duetime = false, $linkcourseid = null, $linkurl = null,
-                                  $groupingid = null, $openlinkinnewwindow = false) {
+                                  $groupingid = null, $openlinkinnewwindow = false, $bypasscapcheck = false) {
         $displaytext = trim($displaytext);
         if ($displaytext == '') {
             return;
         }
 
         if (isset($this->items[$itemid])) {
-            if ($this->canedit()) {
+            if ($bypasscapcheck || $this->canedit()) {
                 $this->validate_links($linkcourseid, $linkurl, $groupingid);
 
                 $item = $this->items[$itemid];
