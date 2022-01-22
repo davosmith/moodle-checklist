@@ -32,14 +32,11 @@ use mod_checklist\local\checklist_comment_student;
 use mod_checklist\local\checklist_item;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class student_comment_test
  * @package mod_checklist
  */
-class student_comment_test extends \advanced_testcase
-{
+class student_comment_test extends \advanced_testcase {
     /** @var stdClass The student object. */
     protected $student;
 

@@ -2078,6 +2078,7 @@ class checklist_class {
      * @param string|null $linkurl
      * @param int|null $groupingid
      * @param bool $openlinkinnewwindow
+     * @param bool $bypasscapcheck - set to true to not check current user capabilities for this update
      * @throws coding_exception
      */
     protected function updateitem($itemid, $displaytext, $duetime = false, $linkcourseid = null, $linkurl = null,
