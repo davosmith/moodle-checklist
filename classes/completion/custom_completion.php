@@ -26,8 +26,6 @@ namespace mod_checklist\completion;
 
 use checklist_class;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class custom_completion
  * @package mod_checklist

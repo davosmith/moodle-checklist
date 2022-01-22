@@ -31,7 +31,7 @@ use mod_checklist\privacy\provider;
 /**
  * Class mod_checklist_privacy_provider_testcase
  */
-class privacy_provider_testcase extends \core_privacy\tests\provider_testcase {
+class privacy_provider_test extends \core_privacy\tests\provider_testcase {
     /** @var \stdClass The student object. */
     protected $student;
 
