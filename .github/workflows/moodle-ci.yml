@@ -106,7 +106,7 @@ jobs:
         run: moodle-plugin-ci mustache
 
       - name: Grunt
-        if: ${{ !contains(['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE'], matrix.moodle-branch)  }}
+        if: ${{ !contains(fromJSON('["MOODLE_39_STABLE", "MOODLE_310_STABLE", "MOODLE_311_STABLE"]'), matrix.moodle-branch)  }}
         run: moodle-plugin-ci grunt --max-lint-warnings 0
 
       - name: PHPUnit tests
