@@ -32,6 +32,9 @@ jobs:
             moodle-branch: 'master'
             database: 'pgsql'
           - php: '7.4'
+            moodle-branch: 'MOODLE_400_STABLE'
+            database: 'mariadb'
+          - php: '7.4'
             moodle-branch: 'MOODLE_311_STABLE'
             database: 'mariadb'
           - php: '7.3'
@@ -103,7 +106,7 @@ jobs:
         run: moodle-plugin-ci mustache
 
       - name: Grunt
-        if: ${{ always() }}
+        if: ${{ !contains(['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE'], matrix.moodle-branch)  }}
         run: moodle-plugin-ci grunt --max-lint-warnings 0
 
       - name: PHPUnit tests
