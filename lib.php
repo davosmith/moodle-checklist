@@ -882,6 +882,12 @@ function checklist_supports($feature) {
         // For backwards compatibility.
         define('FEATURE_SHOW_DESCRIPTION', 'showdescription');
     }
+    if (defined('FEATURE_MOD_PURPOSE')) {
+        // Only defined in M4.0+.
+        if ($feature === FEATURE_MOD_PURPOSE) {
+            return MOD_PURPOSE_ASSESSMENT;
+        }
+    }
 
     if ((int)$CFG->branch < 28) {
         if ($feature === FEATURE_GROUPMEMBERSONLY) {
