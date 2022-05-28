@@ -29,6 +29,7 @@ namespace mod_checklist\task;
  */
 class update_all_grades extends \core\task\adhoc_task {
     /**
+     * Update all grades for all users on all checklists on the site.
      * @return void
      */
     public function execute(): void {
