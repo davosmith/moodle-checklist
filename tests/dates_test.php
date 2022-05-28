@@ -27,6 +27,7 @@ namespace mod_checklist;
 /**
  * Class dates_test
  * @package mod_checklist
+ * @coversNothing
  */
 class dates_test extends \advanced_testcase {
     /**

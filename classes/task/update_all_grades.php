@@ -1,5 +1,5 @@
 <?php
-// This file is part of the Checklist plugin for Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,18 +13,27 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Version information
+ * Task to update grades for all checklists on the site
  *
- * @copyright Davo Smith <moodle@davosmith.co.uk>
- * @package mod_checklist
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_checklist
+ * @copyright 2022 Davo Smith, Synergy Learning
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_checklist\task;
 
-$plugin->version = 2022052801;  // The current module version (Date: YYYYMMDDXX).
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.9.2.0';
-$plugin->requires = 2020061500; // Moodle 3.9.0.
-$plugin->component = 'mod_checklist';
+/**
+ * Update all grades
+ */
+class update_all_grades extends \core\task\adhoc_task {
+    /**
+     * @return void
+     */
+    public function execute(): void {
+        global $CFG;
+        require_once($CFG->dirroot.'/mod/checklist/lib.php');
+        checklist_update_all_grades();
+    }
+}

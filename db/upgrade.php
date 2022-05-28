@@ -386,5 +386,39 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         upgrade_mod_savepoint(true, 2021091804, 'checklist');
     }
 
+    if ($oldversion < 2022052800) {
+
+        // Define table checklist_comp_notification to be created.
+        $table = new xmldb_table('checklist_comp_notification');
+
+        // Adding fields to table checklist_comp_notification.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('checklistid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('iscomplete', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timenotified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table checklist_comp_notification.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('checklistid', XMLDB_KEY_FOREIGN, ['checklistid'], 'checklist', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Adding indexes to table checklist_comp_notification.
+        $table->add_index('checklistid_userid', XMLDB_INDEX_UNIQUE, ['checklistid', 'userid']);
+
+        // Conditionally launch create table for checklist_comp_notification.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Checklist savepoint reached.
+        upgrade_mod_savepoint(true, 2022052800, 'checklist');
+    }
+
+    if ($oldversion < 2022052801) {
+        \core\task\manager::queue_adhoc_task(new \mod_checklist\task\update_all_grades());
+        upgrade_mod_savepoint(true, 2022052801, 'checklist');
+    }
+
     return $result;
 }

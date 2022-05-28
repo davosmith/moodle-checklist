@@ -24,19 +24,25 @@
 
 namespace mod_checklist;
 
+use mod_checklist\local\previous_completions;
+
 /**
  * Class group_completion_email_test
  * @package mod_checklist
+ * @covers \mod_checklist\local\previous_completions
  */
 class group_completion_email_test extends \advanced_testcase {
 
     /**
-     * @var \phpunit_mailer_sink
+     * @var phpunit_mailer_sink
      */
     protected $mailsink;
 
     /** @var \stdClass The student object. */
     protected $student;
+
+    /** @var \stdClass The other student object. */
+    protected $student2;
 
     /** @var \stdClass The teacher object. */
     protected $teacher;
@@ -64,6 +70,7 @@ class group_completion_email_test extends \advanced_testcase {
         $this->resetAfterTest();
         unset_config('noemailever');
         $this->mailsink = $this->redirectEmails();
+        previous_completions::override_time(null);
 
         $courserecord = new \stdClass();
         $courserecord->groupmode = SEPARATEGROUPS;
@@ -76,7 +83,7 @@ class group_completion_email_test extends \advanced_testcase {
         $plugingen = $this->getDataGenerator()->get_plugin_generator('mod_checklist');
         $params = [
             'course' => $this->course->id,
-            'emailoncomplete' => 2, // 2 is teacher only.
+            'emailoncomplete' => 3, // 3 is teacher and student.
             'completionpercent' => 100,
             'completionpercenttype' => 'percent',
             'completion' => 2, // 2 is complete when completionpercent is reached.
@@ -99,6 +106,10 @@ class group_completion_email_test extends \advanced_testcase {
         $this->student = $this->getDataGenerator()->create_user();
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($this->student->id, $this->course->id, $studentrole->id);
+
+        // Create a second student who will also add data to these checklists.
+        $this->student2 = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($this->student2->id, $this->course->id, $studentrole->id);
 
         // Create a teacher who should receive email for these checklists.
         $this->teacher = $this->getDataGenerator()->create_user(array('email' => 'ingroupteacher@testing.com'));
@@ -127,6 +138,7 @@ class group_completion_email_test extends \advanced_testcase {
         $this->mailsink->clear();
         $this->mailsink->close();
         unset($this->mailsink);
+        previous_completions::override_time(null);
     }
 
     /**
@@ -138,7 +150,7 @@ class group_completion_email_test extends \advanced_testcase {
         global $CFG;
         require_once($CFG->dirroot.'/mod/checklist/lib.php');
 
-        // The checklist includes checkmarks from the student for all of the items.
+        // The checklist includes checkmarks from the student for all the items.
         /** @var \mod_checklist\local\checklist_item[] $items */
         $items = \mod_checklist\local\checklist_item::fetch_all(['checklist' => $this->checklist->id], true);
         $items = array_values($items);
@@ -158,5 +170,65 @@ class group_completion_email_test extends \advanced_testcase {
         $this->assertNotContains('notingroupteacher@testing.com', $recipients,
                                  'The teacher NOT in the same group as the student received the completion email');
 
+        // Test updating the grades again does not send any more emails.
+        $this->mailsink->clear();
+        checklist_update_grades($this->checklist);
+        $this->assertEquals(0, $this->mailsink->count());
+
+        // Test updating the grades for a second student causes them to be emailed.
+        $items = \mod_checklist\local\checklist_item::fetch_all(['checklist' => $this->checklist->id], true);
+        $items = array_values($items);
+        $items[0]->set_checked_student($this->student2->id, true);
+        $items[1]->set_checked_student($this->student2->id, true);
+        $items[2]->set_checked_student($this->student2->id, true);
+        checklist_update_grades($this->checklist);
+
+        $this->assertEquals(1, $this->mailsink->count()); // Email sent to student.
+    }
+
+    public function test_repeat_emails(): void {
+        global $CFG;
+        require_once($CFG->dirroot.'/mod/checklist/lib.php');
+
+        // The checklist includes checkmarks from the student for all the items.
+        /** @var \mod_checklist\local\checklist_item[] $items */
+        $items = \mod_checklist\local\checklist_item::fetch_all(['checklist' => $this->checklist->id], true);
+        $items = array_values($items);
+        $items[0]->set_checked_student($this->student->id, true);
+        $items[1]->set_checked_student($this->student->id, true);
+        $items[2]->set_checked_student($this->student->id, true);
+
+        // Check emails sent out.
+        checklist_update_grades($this->checklist, $this->student->id);
+        $this->assertEquals(2, $this->mailsink->count());
+        $this->mailsink->clear();
+
+        // Update the checklist to incomplete.
+        $items[2]->set_checked_student($this->student->id, false);
+        checklist_update_grades($this->checklist, $this->student->id);
+        $this->assertEquals(0, $this->mailsink->count(), "No emails expected as checklist not completed");
+
+        // Move forward 10 minutes, then mark the checklist as complete again.
+        previous_completions::override_time(time() + 10 * MINSECS);
+        $items[2]->set_checked_student($this->student->id, true);
+        checklist_update_grades($this->checklist, $this->student->id);
+        $this->assertEquals(0, $this->mailsink->count(), "No emails expected as checklist last emailed out within an hour");
+
+        // Update the checklist to incomplete.
+        $items[2]->set_checked_student($this->student->id, false);
+        checklist_update_grades($this->checklist, $this->student->id);
+        $this->assertEquals(0, $this->mailsink->count(), "No emails expected as checklist not completed");
+
+        // Move forward 2 hours, then mark the checklist as complete again.
+        previous_completions::override_time(time() + 2 * HOURSECS);
+        $items[2]->set_checked_student($this->student->id, true);
+        checklist_update_grades($this->checklist, $this->student->id);
+        $this->assertEquals(2, $this->mailsink->count(), "Emails expected as an hour has passed since the last email notification");
+        $this->mailsink->clear();
+
+        // Move forward another 2 hours - should not see any more emails, as checklist state has not changed.
+        previous_completions::override_time(time() + 4 * HOURSECS);
+        checklist_update_grades($this->checklist, $this->student->id);
+        $this->assertEquals(0, $this->mailsink->count(), "No emails expected as not newly completed.");
     }
 }

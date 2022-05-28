@@ -194,6 +194,7 @@ function checklist_delete_instance($id) {
         }
     }
 
+    $DB->delete_records('checklist_comp_notification', ['checklistid' => $checklist->id]);
     $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id), '', 'id');
     if (!empty($items)) {
         $items = array_keys($items);
@@ -215,10 +216,12 @@ function checklist_delete_instance($id) {
 function checklist_update_all_grades() {
     global $DB;
 
-    $checklists = $DB->get_records('checklist');
+    \mod_checklist\local\previous_completions::set_bulk_update(true);
+    $checklists = $DB->get_recordset('checklist');
     foreach ($checklists as $checklist) {
         checklist_update_grades($checklist);
     }
+    \mod_checklist\local\previous_completions::set_bulk_update(false);
 }
 
 /**
@@ -306,12 +309,12 @@ function checklist_update_grades($checklist, $userid = 0) {
                 $ugrade->date = time();
 
             } else {
-                $sql = 'SELECT (SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) * ? / ? ) AS rawgrade'.$date;
+                $sql = 'SELECT SUM(CASE WHEN '.$where.' THEN 1 ELSE 0 END) AS checked, ? AS total '.$date;
                 $sql .= " FROM {checklist_check} c ";
                 $sql .= " WHERE c.item IN ($itemlist)";
                 $sql .= ' AND c.userid = ? ';
 
-                $ugrade = $DB->get_record_sql($sql, array($checklist->maxgrade, $total, $uid));
+                $ugrade = $DB->get_record_sql($sql, array($total, $uid));
                 if (!$ugrade) {
                     $ugrade = new stdClass;
                     $ugrade->rawgrade = 0;
@@ -360,7 +363,7 @@ function checklist_update_grades($checklist, $userid = 0) {
         }
 
         $sql = "
-             SELECT u.id AS userid, (SUM(CASE WHEN $where THEN 1 ELSE 0 END) * :maxgrade / :total ) AS rawgrade $date
+             SELECT u.id AS userid, SUM(CASE WHEN $where THEN 1 ELSE 0 END) AS checked, :total AS total $date
                     {$namesql->selects}
                FROM {user} u
           LEFT JOIN {checklist_check} c ON u.id = c.userid
@@ -370,16 +373,26 @@ function checklist_update_grades($checklist, $userid = 0) {
            GROUP BY u.id {$namesql->selects}
         ";
 
-        $params = array_merge(['maxgrade' => $checklist->maxgrade, 'total' => $total], $uparams, $iparams, $namesql->params);
+        $params = array_merge(['total' => $total], $uparams, $iparams, $namesql->params);
         $grades = $DB->get_records_sql($sql, $params);
     }
 
+    // Get details of whether each user had previously completed the checklist.
+    $previouscomp = new \mod_checklist\local\previous_completions($checklist->id, array_keys($grades));
+
     foreach ($grades as $grade) {
+        // Calculate the raw grade (done here, so that we can spot completion, even when the maxgrade is 0).
+        $grade->rawgrade = 0.0;
+        if ($grade->total && $checklist->maxgrade) {
+            $grade->rawgrade = (1.0 * $grade->checked / $grade->total) * $checklist->maxgrade;
+        }
         // Log completion of checklist.
-        if ($grade->rawgrade == $checklist->maxgrade) {
+        $iscomplete = $grade->total && ($grade->checked === $grade->total);
+        if ($iscomplete && !$previouscomp->was_complete($grade->userid) && !$previouscomp::is_bulk_update()) {
             if ($checklist->emailoncomplete) {
                 // Do not send another email if this checklist was already 'completed' in the last hour.
-                if (!checklist_sent_email_recently($cm->id)) {
+                if (!$previouscomp->notified_recently($grade->userid)) {
+                    $previouscomp->mark_notified($grade->userid);
                     if (!isset($context)) {
                         $context = context_module::instance($cm->id);
                     }
@@ -441,6 +454,7 @@ function checklist_update_grades($checklist, $userid = 0) {
             $event = \mod_checklist\event\checklist_completed::create($params);
             $event->trigger();
         }
+        $previouscomp->save_completion($grade->userid, $iscomplete);
         $ci = new completion_info($course);
         if ($cm->completion == COMPLETION_TRACKING_AUTOMATIC) {
             $ci->update_state($cm, COMPLETION_UNKNOWN, $grade->userid);
@@ -448,28 +462,6 @@ function checklist_update_grades($checklist, $userid = 0) {
     }
 
     checklist_grade_item_update($checklist, $grades);
-}
-
-/**
- * Make sure multiple completion emails are not sent from the same user within the last hour.
- * (Assuming they don't log out and log back in again).
- *
- * @param int $cmid
- * @return bool - true if an email has already been sent recently
- */
-function checklist_sent_email_recently($cmid) {
-    global $SESSION;
-    if (!isset($SESSION->checklist_recent_email)) {
-        $SESSION->checklist_recent_email = array();
-    }
-    if (!empty($SESSION->checklist_recent_email[$cmid])) {
-        $nexttime = $SESSION->checklist_recent_email[$cmid] + HOURSECS;
-        if (time() < $nexttime) {
-            return true;
-        }
-    }
-    $SESSION->checklist_recent_email[$cmid] = time();
-    return false;
 }
 
 /**
@@ -821,6 +813,7 @@ function checklist_reset_userdata($data) {
         return $status;
     }
 
+    $DB->delete_records_list('checklist_comp_notification', 'checklistid', array_keys($checklists));
     $itemids = array_keys($items);
     $DB->delete_records_list('checklist_check', 'item', $itemids);
     $DB->delete_records_list('checklist_comment', 'itemid', $itemids);
