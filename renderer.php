@@ -192,7 +192,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     $out .= '</form>';
                 }
 
-                $out .= '<form action="'.$thispageurl->out_omit_querystring().'" class="form-inline" method="post">';
+                $out .= '<form action="'.$thispageurl->out_omit_querystring().'" class="form-inline" method="post" autocomplete="off">';
                 $out .= html_writer::input_hidden_params($thispageurl);
                 $out .= '<input type="hidden" name="action" value="updatechecks" />';
                 $out .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
