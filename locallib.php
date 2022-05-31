@@ -647,9 +647,12 @@ class checklist_class {
             $currenttab = '';
         }
 
-        $output = $this->view_header();
-        $output .= $this->view_name_info();
-        $output .= $this->view_tabs($currenttab);
+        $output = '';
+        if (!$embedded) {
+            $output .= $this->view_header();
+            $output .= $this->view_name_info();
+            $output .= $this->view_tabs($currenttab);
+        }
 
         $params = array(
             'contextid' => $this->context->id,
@@ -664,7 +667,9 @@ class checklist_class {
 
         $output .= $this->view_items();
 
-        $output .= $this->view_footer();
+        if (!$embedded) {
+            $output .= $this->view_footer();
+        }
 
         return $output;
     }
