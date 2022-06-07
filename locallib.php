@@ -611,6 +611,8 @@ class checklist_class {
 
     /**
      * View the checklist items
+     *
+     * @param bool $embedded Hides header, tabs, footer
      */
     public function view($embedded = false) {
         global $OUTPUT, $CFG;
@@ -737,7 +739,7 @@ class checklist_class {
         $output .= $this->view_name_info();
         $output .= $this->view_tabs('report');
 
-       $this->process_report_actions();
+        $this->process_report_actions();
 
         $params = array(
             'contextid' => $this->context->id,
@@ -1250,7 +1252,8 @@ class checklist_class {
                     }
                     $userurl = new moodle_url('/user/view.php', array('id' => $auser->id, 'course' => $this->course->id));
                     $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
-                    $out .= '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
+                    $out .= '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'
+                        .$userlink.$vslink.'</div>';
 
                     $out .= '<div class="checklist_progress_outer">';
                     $out .= '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%;">&nbsp;</div>';

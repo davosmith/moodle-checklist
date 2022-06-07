@@ -139,7 +139,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
             $out .= '&nbsp;';
             $out .= '<form style="display: inline;" action="'.$thispageurl->out_omit_querystring().'" method="get">';
             $out .= html_writer::input_hidden_params($thispageurl, array('studentid'));
-            $out .= '<input type="submit" class="btn btn-secondary" name="viewall" value="'.get_string('viewall', 'checklist').'" />';
+            $out .= '<input type="submit" class="btn btn-secondary" name="viewall" value="'
+                .get_string('viewall', 'checklist').'" />';
             $out .= '</form>';
 
             if (!$status->is_editcomments()) {
@@ -192,7 +193,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     $out .= '</form>';
                 }
 
-                $out .= '<form action="'.$thispageurl->out_omit_querystring().'" class="form-inline" method="post" autocomplete="off">';
+                $out .= '<form action="'.$thispageurl->out_omit_querystring()
+                    .'" class="form-inline" method="post" autocomplete="off">';
                 $out .= html_writer::input_hidden_params($thispageurl);
                 $out .= '<input type="hidden" name="action" value="updatechecks" />';
                 $out .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
@@ -326,9 +328,11 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                 if ($item->duetime) {
                     if ($item->duetime > time()) {
-                        $out .= '<span class="checklist-itemdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
+                        $out .= '<span class="checklist-itemdue"> '
+                            .userdate($item->duetime, get_string('strftimedate')).'</span>';
                     } else {
-                        $out .= '<span class="checklist-itemoverdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
+                        $out .= '<span class="checklist-itemoverdue"> '
+                            .userdate($item->duetime, get_string('strftimedate')).'</span>';
                     }
                 }
 
@@ -546,12 +550,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 $out .= 'var url = links[i].href;';
                 $out .= 'links[i].href = "#";';
                 $out .= 'links[i].onclick = new Function( "confirmdelete(\'"+url+"\')" ) ';
-                $out .=  '}} ';
+                $out .= '}} ';
                 $out .= '</script>';
             }
         }
 
-        $out .=  $this->output->box_end();
+        $out .= $this->output->box_end();
 
         return $out;
     }
@@ -820,7 +824,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     // Due time.
                     if ($item->duetime) {
                         if ($item->duetime > time()) {
-                            $out .= '<span class="checklist-itemdue"> '.userdate($item->duetime, get_string('strftimedate')).'</span>';
+                            $out .= '<span class="checklist-itemdue"> '
+                                .userdate($item->duetime, get_string('strftimedate')).'</span>';
                         } else {
                             $out .= '<span class="checklist-itemoverdue"> '.
                                 userdate($item->duetime, get_string('strftimedate')).'</span>';
