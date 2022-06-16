@@ -45,4 +45,4 @@ $PAGE->set_url($url);
 require_login($course, true, $cm);
 
 $chk = new checklist_class($cm->id, $studentid, $checklist, $cm, $course);
-$chk->report();
+echo $chk->report();

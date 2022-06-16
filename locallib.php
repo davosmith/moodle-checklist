@@ -611,11 +611,16 @@ class checklist_class {
 
     /**
      * View the checklist items
+     *
+     * @param bool $embedded Hides header, tabs, footer
      */
-    public function view() {
+    public function view($embedded = false) {
         global $OUTPUT, $CFG;
 
         if ((!$this->items) && $this->canedit()) {
+            if ($embedded) {
+                return '';
+            }
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)));
         }
 
@@ -627,7 +632,7 @@ class checklist_class {
             if ($this->canviewreports()) { // No editing, but can view reports.
                 redirect(new moodle_url('/mod/checklist/report.php', array('id' => $this->cm->id)));
             } else {
-                $this->view_header();
+                $output = $this->view_header();
 
                 if ($CFG->branch >= 30) {
                     $ref = get_local_referer(false);
@@ -635,18 +640,21 @@ class checklist_class {
                     $ref = get_referer(false);
                 }
 
-                echo $OUTPUT->heading(format_string($this->checklist->name));
-                echo $OUTPUT->confirm('<p>'.get_string('guestsno', 'checklist')."</p>\n\n<p>".
+                $output .= $OUTPUT->heading(format_string($this->checklist->name));
+                $output .= $OUTPUT->confirm('<p>'.get_string('guestsno', 'checklist')."</p>\n\n<p>".
                                       get_string('liketologin')."</p>\n", get_login_url(), $ref);
-                echo $OUTPUT->footer();
-                die;
+                $output .= $OUTPUT->footer();
+                return $output;
             }
             $currenttab = '';
         }
 
-        $this->view_header();
-        $this->view_name_info();
-        $this->view_tabs($currenttab);
+        $output = '';
+        if (!$embedded) {
+            $output .= $this->view_header();
+            $output .= $this->view_name_info();
+            $output .= $this->view_tabs($currenttab);
+        }
 
         $params = array(
             'contextid' => $this->context->id,
@@ -659,17 +667,19 @@ class checklist_class {
             $this->process_view_actions();
         }
 
-        $this->view_items();
+        $output .= $this->view_items();
 
-        $this->view_footer();
+        if (!$embedded) {
+            $output .= $this->view_footer();
+        }
+
+        return $output;
     }
 
     /**
      * View the edit items interface.
      */
     public function edit() {
-        global $OUTPUT;
-
         if (!$this->canedit()) {
             redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)));
         }
@@ -681,9 +691,9 @@ class checklist_class {
         $event = \mod_checklist\event\edit_page_viewed::create($params);
         $event->trigger();
 
-        $this->view_header();
-        $this->view_name_info();
-        $this->view_tabs('edit');
+        $output = $this->view_header();
+        $output .= $this->view_name_info();
+        $output .= $this->view_tabs('edit');
 
         $this->process_edit_actions();
 
@@ -692,19 +702,19 @@ class checklist_class {
             $this->update_items_from_course();
         }
 
-        $this->view_import_export();
+        $output .= $this->view_import_export();
 
-        $this->view_edit_items();
+        $output .= $this->view_edit_items();
 
-        $this->view_footer();
+        $output .= $this->view_footer();
+
+        return $output;
     }
 
     /**
      * View the report on user's checkmarks.
      */
     public function report() {
-        global $OUTPUT;
-
         if ((!$this->items) && $this->canedit()) {
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)));
         }
@@ -725,9 +735,9 @@ class checklist_class {
 
         checklist_item::add_grouping_names($this->items, $this->course->id);
 
-        $this->view_header();
-        $this->view_name_info();
-        $this->view_tabs('report');
+        $output = $this->view_header();
+        $output .= $this->view_name_info();
+        $output .= $this->view_tabs('report');
 
         $this->process_report_actions();
 
@@ -742,40 +752,42 @@ class checklist_class {
         $event->trigger();
 
         if ($this->userid) {
-            $this->view_items(true);
+            $output .= $this->view_items(true);
         } else {
-            $this->view_report();
+            $output .= $this->view_report();
         }
 
-        $this->view_footer();
+        $output .= $this->view_footer();
+
+        return $output;
     }
 
     /**
      * Fill in the content of the user activity report.
      */
-    public function user_complete() {
-        $this->view_items(false, true);
+    public function user_complete(): string {
+        return $this->view_items(false, true);
     }
 
     /**
-     * Output the header for the page.
+     * Returns the output of the header for the page.
      */
-    protected function view_header() {
+    protected function view_header(): string {
         global $PAGE, $OUTPUT;
 
         $PAGE->set_title($this->pagetitle);
         $PAGE->set_heading($this->course->fullname);
 
-        echo $OUTPUT->header();
+        return $OUTPUT->header();
     }
 
     /**
-     * Ouptut the checklist name along with completion info.
+     * Returns the output of the checklist name along with completion info.
      */
-    protected function view_name_info() {
+    protected function view_name_info(): string {
         global $OUTPUT, $USER;
 
-        echo $OUTPUT->heading(format_string($this->checklist->name));
+        $output = $OUTPUT->heading(format_string($this->checklist->name));
 
         if (class_exists('\core_completion\activity_custom_completion')) {
             // Render the activity information.
@@ -783,15 +795,16 @@ class checklist_class {
             $cm = $modinfo->get_cm($this->cm->id);
             $completiondetails = \core_completion\cm_completion_details::get_instance($cm, $USER->id);
             $activitydates = \core\activity_dates::get_dates_for_module($cm, $USER->id);
-            echo $OUTPUT->activity_information($cm, $completiondetails, $activitydates);
+            $output .= $OUTPUT->activity_information($cm, $completiondetails, $activitydates);
         }
+        return $output;
     }
 
     /**
-     * Output the view/report/edit tabs.
+     * Returns the output of the view/report/edit tabs.
      * @param string $currenttab
      */
-    protected function view_tabs($currenttab) {
+    protected function view_tabs($currenttab): string {
         $tabs = array();
         $row = array();
         $inactive = array();
@@ -833,7 +846,7 @@ class checklist_class {
             $activated[] = 'preview';
         }
 
-        print_tabs($tabs, $currenttab, $inactive, $activated);
+        return print_tabs($tabs, $currenttab, $inactive, $activated, true);
     }
 
     /**
@@ -896,7 +909,7 @@ class checklist_class {
      * @param bool $viewother
      * @param bool $userreport
      */
-    protected function view_items($viewother = false, $userreport = false) {
+    protected function view_items($viewother = false, $userreport = false): string {
         global $DB, $PAGE;
 
         // Configure the status of the checklist output.
@@ -989,29 +1002,30 @@ class checklist_class {
             ), true, $jsmodule);
         }
 
-        $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress,
+        return $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress,
             $student, $currentuser);
     }
 
     /**
      * Output the import/export links.
      */
-    protected function view_import_export() {
+    protected function view_import_export(): string {
         $importurl = new moodle_url('/mod/checklist/import.php', array('id' => $this->cm->id));
         $exporturl = new moodle_url('/mod/checklist/export.php', array('id' => $this->cm->id));
 
         $importstr = get_string('import', 'checklist');
         $exportstr = get_string('export', 'checklist');
 
-        echo "<div class='checklistimportexport'>";
-        echo "<a href='$importurl'>$importstr</a>&nbsp;&nbsp;&nbsp;<a href='$exporturl'>$exportstr</a>";
-        echo "</div>";
+        $out = "<div class='checklistimportexport'>";
+        $out .= "<a href='$importurl'>$importstr</a>&nbsp;&nbsp;&nbsp;<a href='$exporturl'>$exportstr</a>";
+        $out .= "</div>";
+        return $out;
     }
 
     /**
      * Output the list of items, with the editing interface.
      */
-    protected function view_edit_items() {
+    protected function view_edit_items(): string {
         global $PAGE;
 
         $status = new output_status();
@@ -1033,13 +1047,13 @@ class checklist_class {
             $PAGE->requires->yui_module('moodle-mod_checklist-linkselect', 'M.modChecklist.linkselect.init');
         }
 
-        $this->output->checklist_edit_items($this->items, $status);
+        return $this->output->checklist_edit_items($this->items, $status);
     }
 
     /**
      * Output the main report page content
      */
-    protected function view_report() {
+    protected function view_report(): string {
         global $DB, $OUTPUT;
 
         $reportsettings = $this->get_report_settings();
@@ -1054,11 +1068,13 @@ class checklist_class {
             $thisurl->param('editchecks', 'on');
         }
 
+        $out = '';
+
         if ($this->checklist->autoupdate && $this->checklist->autopopulate) {
             if ($this->checklist->teacheredit == CHECKLIST_MARKING_TEACHER) {
-                echo '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
+                $out .= '<p>'.get_string('autoupdatewarning_teacher', 'checklist').'</p>';
             } else if ($this->checklist->teacheredit == CHECKLIST_MARKING_BOTH) {
-                echo '<p class="checklistwarning">'.get_string('autoupdatewarning_both', 'checklist').'</p>';
+                $out .= '<p class="checklistwarning">'.get_string('autoupdatewarning_both', 'checklist').'</p>';
             }
         }
 
@@ -1072,55 +1088,55 @@ class checklist_class {
             }
         }
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.
+        $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.
             $thisurl->out_omit_querystring().'" method="get" />';
-        echo html_writer::input_hidden_params($thisurl, array('action'));
+        $out .= html_writer::input_hidden_params($thisurl, array('action'));
         if ($reportsettings->showoptional) {
-            echo '<input type="hidden" name="action" value="hideoptional" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+            $out .= '<input type="hidden" name="action" value="hideoptional" />';
+            $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.
                 get_string('optionalhide', 'checklist').'" />';
         } else {
-            echo '<input type="hidden" name="action" value="showoptional" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+            $out .= '<input type="hidden" name="action" value="showoptional" />';
+            $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.
                 get_string('optionalshow', 'checklist').'" />';
         }
-        echo '</form>';
+        $out .= '</form>';
 
-        echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
+        $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
             '" method="get" />';
-        echo html_writer::input_hidden_params($thisurl);
+        $out .= html_writer::input_hidden_params($thisurl);
         if ($reportsettings->showprogressbars) {
             $editchecks = false;
-            echo '<input type="hidden" name="action" value="hideprogressbars" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+            $out .= '<input type="hidden" name="action" value="hideprogressbars" />';
+            $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.
                 get_string('showfulldetails', 'checklist').'" />';
         } else {
-            echo '<input type="hidden" name="action" value="showprogressbars" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+            $out .= '<input type="hidden" name="action" value="showprogressbars" />';
+            $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.
                 get_string('showprogressbars', 'checklist').'" />';
         }
-        echo '</form>';
+        $out .= '</form>';
 
         if ($editchecks) {
-            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
+            $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
                 '" method="post" />';
-            echo html_writer::input_hidden_params($thisurl);
-            echo '<input type="hidden" name="action" value="updateallchecks"/>';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks', 'checklist').
+            $out .= html_writer::input_hidden_params($thisurl);
+            $out .= '<input type="hidden" name="action" value="updateallchecks"/>';
+            $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks', 'checklist').
                 '" />';
         } else if (!$reportsettings->showprogressbars && $this->caneditother()
             && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT
         ) {
-            echo '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
+            $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
                 '" method="get" />';
-            echo html_writer::input_hidden_params($thisurl);
-            echo '<input type="hidden" name="editchecks" value="on" />';
-            echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+            $out .= html_writer::input_hidden_params($thisurl);
+            $out .= '<input type="hidden" name="editchecks" value="on" />';
+            $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.
                 get_string('editchecks', 'checklist').'" />';
-            echo '</form>';
+            $out .= '</form>';
         }
 
-        echo '<br style="clear:both"/>';
+        $out .= '<br style="clear:both"/>';
 
         switch ($reportsettings->sortby) {
             case 'firstdesc':
@@ -1163,7 +1179,7 @@ class checklist_class {
             if (count($users) < $page * $perpage) {
                 $page = 0;
             }
-            echo $OUTPUT->paging_bar(count($users), $page, $perpage, new moodle_url($thisurl, array('perpage' => $perpage)));
+            $out .= $OUTPUT->paging_bar(count($users), $page, $perpage, new moodle_url($thisurl, array('perpage' => $perpage)));
             $users = array_slice($users, $page * $perpage, $perpage);
 
             list($usql, $uparams) = $DB->get_in_or_equal($users, SQL_PARAMS_NAMED);
@@ -1215,7 +1231,7 @@ class checklist_class {
                         $sql = 'teachermark = '.CHECKLIST_TEACHERMARK_YES.' AND item '.$isql.' AND userid = :user ';
                     }
                 }
-                echo '<div>';
+                $out .= '<div>';
                 foreach ($ausers as $auser) {
                     if ($totalitems) {
                         $iparams['user'] = $auser->id;
@@ -1236,17 +1252,18 @@ class checklist_class {
                     }
                     $userurl = new moodle_url('/user/view.php', array('id' => $auser->id, 'course' => $this->course->id));
                     $userlink = '<a href="'.$userurl.'">'.fullname($auser).'</a>';
-                    echo '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'.$userlink.$vslink.'</div>';
+                    $out .= '<div style="float: left; width: 30%; text-align: right; margin-right: 8px; ">'
+                        .$userlink.$vslink.'</div>';
 
-                    echo '<div class="checklist_progress_outer">';
-                    echo '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%;">&nbsp;</div>';
-                    echo '</div>';
-                    echo '<div class="checklist_percentcomplete" style="float:left; width: 3em;">&nbsp;'.
+                    $out .= '<div class="checklist_progress_outer">';
+                    $out .= '<div class="checklist_progress_inner" style="width:'.$percentcomplete.'%;">&nbsp;</div>';
+                    $out .= '</div>';
+                    $out .= '<div class="checklist_percentcomplete" style="float:left; width: 3em;">&nbsp;'.
                         sprintf('%0d%%', $percentcomplete).'</div>';
-                    echo '<div style="float:left;">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
-                    echo '<br style="clear:both;" />';
+                    $out .= '<div style="float:left;">&nbsp;('.$tickeditems.'/'.$totalitems.')</div>';
+                    $out .= '<br style="clear:both;" />';
                 }
-                echo '</div>';
+                $out .= '</div>';
             }
 
         } else {
@@ -1329,21 +1346,23 @@ class checklist_class {
                     $table->data[] = $row;
 
                     if ($editchecks) {
-                        echo '<input type="hidden" name="userids[]" value="'.$auser->id.'" />';
+                        $out .= '<input type="hidden" name="userids[]" value="'.$auser->id.'" />';
                     }
                 }
             }
 
-            echo '<div style="overflow:auto">';
-            $this->print_report_table($table, $editchecks, $disableditems);
-            echo '</div>';
+            $out .= '<div style="overflow:auto">';
+            $out .= $this->print_report_table($table, $editchecks, $disableditems);
+            $out .= '</div>';
 
             if ($editchecks) {
-                echo '<input type="submit" class="btn btn-secondary" name="submit" value="'.
+                $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.
                     get_string('savechecks', 'checklist').'" />';
-                echo '</form>';
+                $out .= '</form>';
             }
         }
+
+        return $out;
     }
 
     /**
@@ -1398,7 +1417,7 @@ class checklist_class {
      * @param bool $editchecks
      * @param int[] $disableditems
      */
-    protected function print_report_table($table, $editchecks, $disableditems) {
+    protected function print_report_table($table, $editchecks, $disableditems): string {
         global $OUTPUT;
 
         $output = '';
@@ -1538,7 +1557,7 @@ class checklist_class {
 
         $output .= '</table>';
 
-        echo $output;
+        return $output;
     }
 
     /**
@@ -1562,9 +1581,9 @@ class checklist_class {
     /**
      * Output the the page footer.
      */
-    protected function view_footer() {
+    protected function view_footer(): string {
         global $OUTPUT;
-        echo $OUTPUT->footer();
+        return $OUTPUT->footer();
     }
 
     /**

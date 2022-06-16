@@ -60,4 +60,4 @@ if (has_capability('mod/checklist:updateown', $context)) {
 
 $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
 
-$chk->view();
+echo $chk->view();

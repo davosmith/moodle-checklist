@@ -582,7 +582,7 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
 function checklist_user_complete($course, $user, $mod, $checklist) {
     $chk = new checklist_class($mod->id, $user->id, $checklist, $mod, $course);
 
-    $chk->user_complete();
+    echo $chk->user_complete();
 
     return true;
 }
