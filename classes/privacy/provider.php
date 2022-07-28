@@ -87,6 +87,15 @@ class provider implements \core_privacy\local\metadata\provider,
             ],
             'privacy:metadata:checklist_comment_student'
         );
+        $collection->add_database_table(
+            'checklist_comp_notification',
+            [
+                'checklistid' => 'privacy:metadata:checklist_comp_notification:checklistid',
+                'userid' => 'privacy:metadata:checklist_comp_notification:userid',
+                'iscomplete' => 'privacy:metadata:checklist_comp_notification:iscomplete',
+            ],
+            'privacy:metadata:checklist_comp_notification'
+        );
         return $collection;
     }
 
@@ -220,6 +229,17 @@ class provider implements \core_privacy\local\metadata\provider,
              WHERE ctx.id = :contextid
         ";
         $userlist->add_from_sql('userid', $sql, $params);
+
+        // Checklist notifications.
+        $sql = "
+            SELECT ccn.userid
+              FROM {checklist_comp_notification} ccn
+              JOIN {checklist} ck ON ck.id = ccn.checklistid
+              JOIN {course_modules} cm ON cm.instance = ck.id AND cm.module = :modid
+              JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :contextlevel
+             WHERE ctx.id = :contextid
+        ";
+        $userlist->add_from_sql('userid', $sql, $params);
     }
 
     /**
@@ -336,6 +356,7 @@ class provider implements \core_privacy\local\metadata\provider,
             $DB->delete_records_list('checklist_comment', 'itemid', $itemids);
             $DB->delete_records_select('checklist_item', 'checklist = ? AND userid <> 0', [$cm->instance]);
             $DB->delete_records_list('checklist_comment_student', 'itemid', $itemids);
+            $DB->delete_records_select('checklist_comp_notification', 'checklistid = ? AND userid <> 0', [$cm->instance]);
         }
     }
 
@@ -368,6 +389,7 @@ class provider implements \core_privacy\local\metadata\provider,
                 $DB->delete_records_select('checklist_comment_student', "itemid $isql AND usermodified = :userid", $params);
                 $params = ['instanceid' => $cm->instance, 'userid' => $userid];
                 $DB->delete_records_select('checklist_item', 'checklist = :instanceid AND userid = :userid', $params);
+                $DB->delete_records_select('checklist_comp_notification', 'checklistid = :instanceid AND userid = :userid', $params);
             }
         }
     }
@@ -416,6 +438,13 @@ class provider implements \core_privacy\local\metadata\provider,
             'checklist_comment',
             "userid $insql AND itemid $itsql",
             array_merge($inparams, $itparams)
+        );
+
+        // Delete from notification.
+        $DB->delete_records_select(
+            'checklist_comp_notification',
+            "userid $insql AND checklistid = :checklistid",
+            array_merge($inparams, ['checklistid' => $cm->instance])
         );
     }
 }
