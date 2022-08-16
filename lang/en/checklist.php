@@ -195,6 +195,10 @@ $string['privacy:metadata:checklist_comment_student'] = 'Comments that have been
 $string['privacy:metadata:checklist_comment_student:usermodified'] = 'The ID of the user (student) that made this comment';
 $string['privacy:metadata:checklist_comment_student:itemid'] = 'The ID of the checklist item that the comment relates to';
 $string['privacy:metadata:checklist_comment_student:text'] = 'The text of the comment';
+$string['privacy:metadata:checklist_comp_notification'] = 'Track which users have already completed all the items on their checklist, so that emails are not sent out again';
+$string['privacy:metadata:checklist_comp_notification:checklistid'] = 'The ID of the checklist';
+$string['privacy:metadata:checklist_comp_notification:userid'] = 'The ID of the user who completed the checklist';
+$string['privacy:metadata:checklist_comp_notification:iscomplete'] = '1 completed and 0 not completed';
 $string['privacy:metadata:checklist_item'] = 'Information about private items the user has added to the given checklist';
 $string['privacy:metadata:checklist_item:checklist'] = 'The ID of the checklist this private item was added to';
 $string['privacy:metadata:checklist_item:displaytext'] = 'The text of the private checklist item';
@@ -264,8 +268,3 @@ $string['viewsingleupdate'] = 'Update progress for this user';
 
 $string['yesnooverride'] = 'Yes, cannot override';
 $string['yesoverride'] = 'Yes, can override';
-
-$string['privacy:metadata:checklist_comp_notification'] = 'Track which users have already completed all the items on their checklist, so that emails are not sent out again';
-$string['privacy:metadata:checklist_comp_notification:checklistid'] = 'The ID of the checklist';
-$string['privacy:metadata:checklist_comp_notification:userid'] = 'The ID of the user who completed the checklist';
-$string['privacy:metadata:checklist_comp_notification:iscomplete'] = '1 completed and 0 not completed';

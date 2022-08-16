@@ -389,7 +389,8 @@ class provider implements \core_privacy\local\metadata\provider,
                 $DB->delete_records_select('checklist_comment_student', "itemid $isql AND usermodified = :userid", $params);
                 $params = ['instanceid' => $cm->instance, 'userid' => $userid];
                 $DB->delete_records_select('checklist_item', 'checklist = :instanceid AND userid = :userid', $params);
-                $DB->delete_records_select('checklist_comp_notification', 'checklistid = :instanceid AND userid = :userid', $params);
+                $DB->delete_records_select('checklist_comp_notification', 'checklistid = :instanceid AND userid = :userid',
+                                           $params);
             }
         }
     }

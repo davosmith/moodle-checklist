@@ -96,7 +96,7 @@ foreach ($checklists as $checklist) {
         $link = '<a href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
     }
 
-    if ($course->format == 'weeks' or $course->format == 'topics') {
+    if ($course->format === 'weeks' || $course->format === 'topics') {
         $row = array($checklist->section, $link);
     } else {
         $row = array($link);
