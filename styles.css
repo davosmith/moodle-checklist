@@ -79,7 +79,7 @@ ol.checklist .teachercomment {
 }
 
 ol.checklist .studentcomment {
-    display: inline;
+    display: inline-block;
     color: black;
     background-color: #dbffb0;
     border: solid black 1px;
