@@ -652,6 +652,10 @@ class checklist_class {
         $output = '';
         if (!$embedded) {
             $output .= $this->view_header();
+            if ($CFG->branch < 400) {
+                $output .= $this->view_name_info();
+                $output .= $this->view_tabs($currenttab);
+            }
         }
 
         $params = array(
@@ -678,6 +682,8 @@ class checklist_class {
      * View the edit items interface.
      */
     public function edit() {
+        global $CFG;
+
         if (!$this->canedit()) {
             redirect(new moodle_url('/mod/checklist/view.php', array('id' => $this->cm->id)));
         }
@@ -690,6 +696,10 @@ class checklist_class {
         $event->trigger();
 
         $output = $this->view_header();
+        if ($CFG->branch < 400) {
+            $output .= $this->view_name_info();
+            $output .= $this->view_tabs('edit');
+        }
 
         $this->process_edit_actions();
 
@@ -711,6 +721,7 @@ class checklist_class {
      * View the report on user's checkmarks.
      */
     public function report() {
+        global $CFG;
         if ((!$this->items) && $this->canedit()) {
             redirect(new moodle_url('/mod/checklist/edit.php', array('id' => $this->cm->id)));
         }
@@ -732,6 +743,11 @@ class checklist_class {
         checklist_item::add_grouping_names($this->items, $this->course->id);
 
         $output = $this->view_header();
+        if ($CFG->branch < 400) {
+            $output .= $this->view_name_info();
+            $output .= $this->view_tabs('report');
+        }
+
         $this->process_report_actions();
 
         $params = array(
@@ -905,7 +921,7 @@ class checklist_class {
      * @param bool $userreport
      */
     protected function view_items($viewother = false, $userreport = false): string {
-        global $DB, $PAGE;
+        global $CFG, $DB, $PAGE;
 
         // Configure the status of the checklist output.
         $status = new output_status();
@@ -969,6 +985,9 @@ class checklist_class {
         }
 
         // Gather some extra details needed in the output.
+        if ($CFG->branch < 400) {
+            $intro = format_module_intro('checklist', $this->checklist, $this->cm->id);
+        }
         $progress = null;
         if ($status->is_showprogressbar()) {
             $progress = $this->get_progress();
