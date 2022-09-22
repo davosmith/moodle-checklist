@@ -652,8 +652,6 @@ class checklist_class {
         $output = '';
         if (!$embedded) {
             $output .= $this->view_header();
-            $output .= $this->view_name_info();
-            $output .= $this->view_tabs($currenttab);
         }
 
         $params = array(
@@ -692,8 +690,6 @@ class checklist_class {
         $event->trigger();
 
         $output = $this->view_header();
-        $output .= $this->view_name_info();
-        $output .= $this->view_tabs('edit');
 
         $this->process_edit_actions();
 
@@ -736,9 +732,6 @@ class checklist_class {
         checklist_item::add_grouping_names($this->items, $this->course->id);
 
         $output = $this->view_header();
-        $output .= $this->view_name_info();
-        $output .= $this->view_tabs('report');
-
         $this->process_report_actions();
 
         $params = array(
@@ -783,6 +776,7 @@ class checklist_class {
 
     /**
      * Returns the output of the checklist name along with completion info.
+     * @deprecated
      */
     protected function view_name_info(): string {
         global $OUTPUT, $USER;
@@ -802,6 +796,7 @@ class checklist_class {
 
     /**
      * Returns the output of the view/report/edit tabs.
+     * @deprecated
      * @param string $currenttab
      */
     protected function view_tabs($currenttab): string {
@@ -974,7 +969,6 @@ class checklist_class {
         }
 
         // Gather some extra details needed in the output.
-        $intro = format_module_intro('checklist', $this->checklist, $this->cm->id);
         $progress = null;
         if ($status->is_showprogressbar()) {
             $progress = $this->get_progress();

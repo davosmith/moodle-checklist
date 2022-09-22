@@ -974,3 +974,25 @@ function checklist_get_coursemodule_info($coursemodule) {
 
     return $result;
 }
+
+/**
+ * Adds module specific settings to the settings block
+ *
+ * @param settings_navigation $settings The settings navigation object
+ * @param navigation_node $checklistnode The node to add module settings to
+ */
+function checklist_extend_settings_navigation(settings_navigation $settings, navigation_node $checklistnode) {
+    $cm = $settings->get_page()->cm;
+    if (has_capability('mod/checklist:viewreports', $cm->context)
+        || has_capability('mod/checklist:viewmenteereports', $cm->context)) {
+        $checklistnode->add(get_string('report', 'mod_checklist'),
+            new moodle_url('/mod/checklist/report.php', array('id' => $cm->id)),
+            navigation_node::TYPE_SETTING, null, 'progress');
+    }
+
+    if (has_capability('mod/checklist:edit', $cm->context)) {
+        $checklistnode->add(get_string('edit', 'mod_checklist'),
+            new moodle_url('/mod/checklist/edit.php', array('id' => $cm->id)),
+            navigation_node::TYPE_SETTING, null, 'edit');
+    }
+}
