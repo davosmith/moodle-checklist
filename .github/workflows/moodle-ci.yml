@@ -54,6 +54,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: ${{ matrix.extensions }}
+          ini-values: max_input_vars=5000
           coverage: none
 
       - name: Initialise moodle-plugin-ci
