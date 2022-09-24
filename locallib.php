@@ -231,8 +231,8 @@ class checklist_class {
 
         $importsection = -1;
         if ($this->checklist->autopopulate == CHECKLIST_AUTOPOPULATE_SECTION) {
-            foreach ($mods->get_sections() as $num => $section) {
-                if (in_array($this->cm->id, $section)) {
+            foreach ($mods->get_sections() as $num => $sectioncms) {
+                if (in_array($this->cm->id, $sectioncms)) {
                     $importsection = $num;
                     $section = $importsection;
                     break;

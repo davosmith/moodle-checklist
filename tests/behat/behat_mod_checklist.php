@@ -200,10 +200,10 @@ class behat_mod_checklist extends behat_base {
                 }
                 $update[$fieldname] = $value;
             }
-            if (!in_array($update['studentmark'], $studentmarkmap)) {
+            if (!array_key_exists($update['studentmark'], $studentmarkmap)) {
                 throw new Exception('Invalid studentmark value \''.$update['studentmark'].'\' in checklist update');
             }
-            if (!in_array($update['teachermark'], $teachermarkmap)) {
+            if (!array_key_exists($update['teachermark'], $teachermarkmap)) {
                 throw new Exception('Invalid teachermark value \''.$update['teachermark'].'\' in checklist update');
             }
 
