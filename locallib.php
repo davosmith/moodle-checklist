@@ -985,6 +985,7 @@ class checklist_class {
         }
 
         // Gather some extra details needed in the output.
+        $intro = '';
         if ($CFG->branch < 400) {
             $intro = format_module_intro('checklist', $this->checklist, $this->cm->id);
         }

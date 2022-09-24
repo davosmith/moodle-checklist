@@ -47,7 +47,7 @@ Feature: A teacher can link a checklist item to a course
       | linkurl      |                       |
       | linkcourseid | Course 2              |
     And I press "Update"
-    And I follow "Preview"
+    And I am on the "Test checklist" "checklist activity" page
     Then I should see "Item with course link"
     And I follow "Course associated with this item"
     And I should see "Course 2"

@@ -33,7 +33,7 @@ Feature: A teacher can attach a link to an external URL to a checklist item
       | displaytext | Item with link (edited) |
       | linkurl     | moodle.org              |
     And I press "Update"
-    And I follow "Preview"
+    And I am on the "Test checklist" "checklist activity" page
     Then I should see "Item with link (edited)"
     And I click on "Link associated with this item" "link" in the "Item with link (edited)" "list_item"
     And I should see "The Moodle Project"
