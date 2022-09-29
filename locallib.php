@@ -1092,7 +1092,7 @@ class checklist_class {
             }
         }
 
-        groups_print_activity_menu($this->cm, $thisurl);
+        $out .= groups_print_activity_menu($this->cm, $thisurl, true);
         $activegroup = groups_get_activity_group($this->cm, true);
         if ($activegroup == 0) {
             if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS) {
