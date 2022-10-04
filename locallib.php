@@ -1003,21 +1003,13 @@ class checklist_class {
 
         // Add the javascript, if needed.
         if (!$status->is_viewother()) {
-            // Load the Javascript required to send changes back to the server (without clicking 'save').
-            $jsmodule = array(
-                'name' => 'mod_checklist',
-                'fullpath' => new moodle_url('/mod/checklist/updatechecks24.js')
-            );
-            $updatechecksurl = new moodle_url('/mod/checklist/updatechecks.php');
             // Progress bars should be updated on 'student only' checklists.
             $updateprogress = $status->is_showteachermark() ? 0 : 1;
-            $PAGE->requires->js_init_call('M.mod_checklist.init', array(
-                $updatechecksurl->out(), sesskey(), $this->cm->id, $updateprogress, $this->canaddstudentcomments()
-            ), true, $jsmodule);
+            $PAGE->requires->js_call_amd('mod_checklist/update_checklist', 'init', [$this->cm->id, sesskey(), $updateprogress]);
         }
 
         return $this->output->checklist_items($this->items, $this->useritems, $this->groupings, $intro, $status, $progress,
-            $student, $currentuser);
+            $student, $currentuser, $this->cm->id);
     }
 
     /**
