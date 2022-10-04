@@ -119,12 +119,13 @@ class mod_checklist_renderer extends plugin_renderer_base {
      * @param progress_info|null $progress
      * @param object $student (optional) the student whose checklist is being viewed (if not viewing own checklist)
      * @param object $currentuser (optional) the user whose checklist is being viewed.
+     * @param int|null $cmid Course module ID
      */
     public function checklist_items($items, $useritems, $groupings, $intro, output_status $status, $progress, $student = null,
-                                    $currentuser = null): string {
-        $out = $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox');
+                                    $currentuser = null, $cmid = null): string {
+        $out = $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox', null, array('data-cmid' => $cmid));
 
-        $out .= html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner'));
+        $out .= html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner', 'data-cmid' => $cmid));
 
         $thispageurl = new moodle_url($this->page->url);
         if ($student) {
@@ -308,7 +309,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         if ($status->is_viewother() && $status->is_showteachermark()) {
                             $id = '';
                         }
-                        $out .= '<input class="checklistitem'.$checkclass.'" type="checkbox"' .
+                        $out .= '<input class="checklistitem'.$checkclass.'" type="checkbox" data-cmid="' . $cmid . '"' .
                             ' class="checkbox-inline" name="items[]" '.$id.$checked.
                             ' value="'.$item->id.'" />';
                     }
