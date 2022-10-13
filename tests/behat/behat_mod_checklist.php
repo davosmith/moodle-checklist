@@ -240,4 +240,17 @@ class behat_mod_checklist extends behat_base {
         global $DB;
         $DB->set_field('block', 'visible', 1, ['name' => 'selfcompletion']);
     }
+
+    /**
+     *
+     * @Given /^I set the field "([^"]*)" to the view URL for activity "([^"]*)"$/
+     */
+    public function i_set_the_field_to_the_view_u_r_l_for_activity(string $fieldname, string $activityidnumber) {
+        global $DB;
+        $cmrec = $DB->get_record('course_modules', ['idnumber' => $activityidnumber], 'id, course', MUST_EXIST);
+        $modinfo = get_fast_modinfo($cmrec->course);
+        $cm = $modinfo->get_cm($cmrec->id);
+        $url = $cm->get_url()->out(false);
+        $this->execute('behat_forms::i_set_the_field_to', [$fieldname, $url]);
+    }
 }
