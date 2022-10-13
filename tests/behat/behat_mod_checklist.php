@@ -242,8 +242,10 @@ class behat_mod_checklist extends behat_base {
     }
 
     /**
-     *
+     * Set the given field to the view URL for the given activity
      * @Given /^I set the field "([^"]*)" to the view URL for activity "([^"]*)"$/
+     * @param string $fieldname the field to set
+     * @param string $activityidnumber the idnumber of the activity to link to
      */
     public function i_set_the_field_to_the_view_u_r_l_for_activity(string $fieldname, string $activityidnumber) {
         global $DB;
