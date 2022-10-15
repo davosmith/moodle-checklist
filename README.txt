@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2022-10-15 - 3.9.3.1 - Convert Javascript to AMD module + support multiple checklists on the page (thanks to alexmorrisnz); fix display of group selector (thanks to wiktorwandochowicz)
 * 2022-09-24 - 3.9.3.0 - Allow embedding checklists, styling of student comments, extend privacy coverage, fix layout in M4.0, fix PHP8.0 compatibility in Behat tests.
 * 2022-05-28 - 3.9.2.0 - Fix for bug that incorrectly emailed all previously-complete users when the checklist maxgrade was changed. This upgrade will create a one-off background task that will check the grades and completion states for all users/checklists on the site.
 * 2022-01-22 - 3.9.1.2 - Update checklist items to match renamed activities when being viewed by students (who do not have permission to edit checklist items themselves)
