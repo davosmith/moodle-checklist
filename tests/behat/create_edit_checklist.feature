@@ -163,6 +163,7 @@ Feature: I can create and update a checklist
     And "label.itemheading" "css_element" should appear before "You must tick this" "text"
     And "You must tick this" "text" should appear before "label.itemoptional" "css_element"
 
+  @javascript
   Scenario: When a checklist with existing grades has an item switched to required, the grades are updated
     Given the following items exist in checklist "Test checklist":
       | text   | required |
@@ -184,6 +185,7 @@ Feature: I can create and update a checklist
     # Student1 now has 2 required items (of 3) checked - 66%.
     Then I should see "66" in the "Student 1" "table_row"
 
+  @javascript
   Scenario: When a checklist has an extra item added, existing grades are updated
     Given the following items exist in checklist "Test checklist":
       | text   | required |
@@ -205,6 +207,7 @@ Feature: I can create and update a checklist
     # Student1 now has 1 required items (of 3) checked - 33%.
     Then I should see "33" in the "Student 1" "table_row"
 
+  @javascript
   Scenario: When a checklist has an item deleted, existing grades are updated
     Given the following items exist in checklist "Test checklist":
       | text   | required |
