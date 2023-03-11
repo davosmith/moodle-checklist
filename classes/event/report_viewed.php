@@ -78,19 +78,6 @@ class report_viewed extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array
-     */
-    protected function get_legacy_logdata() {
-        $url = 'report.php?id='.$this->contextinstanceid;
-        if ($this->relateduserid) {
-            $url .= '&studentid='.$this->relateduserid;
-        }
-        return array($this->courseid, 'checklist', 'report', $url, $this->objectid, $this->contextinstanceid);
-    }
-
-    /**
      * Get the mapping to use when restoring logs from backup
      * @return string[]
      */

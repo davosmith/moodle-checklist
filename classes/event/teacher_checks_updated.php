@@ -77,18 +77,6 @@ class teacher_checks_updated extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return array(
-            $this->courseid, 'checklist', 'update checks', 'report.php?id='.$this->contextinstanceid.
-            '&studentid='.$this->relateduserid, $this->objectid, $this->contextinstanceid
-        );
-    }
-
-    /**
      * Validate the event data
      */
     protected function validate_data() {

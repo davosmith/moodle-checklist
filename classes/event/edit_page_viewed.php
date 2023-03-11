@@ -72,18 +72,6 @@ class edit_page_viewed extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array
-     */
-    protected function get_legacy_logdata() {
-        return array(
-            $this->courseid, 'checklist', 'edit', 'view.php?id='.$this->contextinstanceid,
-            $this->objectid, $this->contextinstanceid
-        );
-    }
-
-    /**
      * Get the mapping to use when restoring logs from backup
      * @return string[]
      */

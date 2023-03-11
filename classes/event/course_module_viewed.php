@@ -55,18 +55,6 @@ class course_module_viewed extends \core\event\course_module_viewed {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return array(
-            $this->courseid, 'checklist', 'view', 'view.php?id='.$this->contextinstanceid,
-            $this->objectid, $this->contextinstanceid
-        );
-    }
-
-    /**
      * Get the mapping to use when restoring logs from backup
      * @return string[]
      */
