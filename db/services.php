@@ -26,12 +26,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $functions = array(
     'mod_checklist_update_student_comment' => array(
-        'classname'     => 'mod_checklist\external\update_student_comment',
-        'methodname'    => 'execute',
-        'classpath'     => '',
-        'description'   => 'Update a student comment',
-        'ajax'          => true,
-        'type'          => 'write',
-        'capabilities'  => 'mod/checklist:view, mod/checklist:updateown'
+        'classname' => 'mod_checklist\external\update_student_comment',
+        'methodname' => 'execute',
+        'classpath' => '',
+        'description' => 'Update a student comment',
+        'ajax' => true,
+        'type' => 'write',
+        'capabilities' => 'mod/checklist:view, mod/checklist:updateown',
     ),
 );

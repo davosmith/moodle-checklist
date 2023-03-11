@@ -46,7 +46,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param collection $collection
      * @return collection
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(
             'checklist_item',
             [
@@ -121,7 +121,7 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return contextlist
      * @throws \dml_exception
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         $contextlist = new contextlist();
         $modid = self::get_modid();
         if (!$modid) {
@@ -178,7 +178,7 @@ class provider implements \core_privacy\local\metadata\provider,
     /**
      * Get the list of users who have data within a context.
      *
-     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
@@ -192,7 +192,7 @@ class provider implements \core_privacy\local\metadata\provider,
         $params = [
             'modid' => $modid,
             'contextlevel' => CONTEXT_MODULE,
-            'contextid'    => $context->id,
+            'contextid' => $context->id,
         ];
 
         // User-created personal checklist items.
@@ -398,7 +398,7 @@ class provider implements \core_privacy\local\metadata\provider,
     /**
      * Delete multiple users within a single context.
      *
-     * @param   approved_userlist       $userlist The approved context and user information to delete information for.
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
