@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2023-04-14 - 3.9.3.4 - Minor M4.2 compatibility fixes
 * 2023-03-11 - 3.9.3.3 - Fix 'open link in new window' inclusion in backup + restore
 * 2022-11-19 - 3.9.3.2 - Minor M4.1 compatibility fixes
 * 2022-10-15 - 3.9.3.1 - Convert Javascript to AMD module + support multiple checklists on the page (thanks to alexmorrisnz); fix display of group selector (thanks to wiktorwandochowicz)
