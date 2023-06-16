@@ -36,6 +36,7 @@ use stdClass;
  * Class student_comment_test
  * @package mod_checklist
  * @covers \mod_checklist\local\checklist_comment_student
+ * @runTestsInSeparateProcesses
  */
 class student_comment_test extends \advanced_testcase {
     /** @var stdClass The student object. */
