@@ -123,6 +123,12 @@ class student_comment_test extends \advanced_testcase {
         $this->assertEquals(true, $result);
     }
 
+    /**
+     * Test the creation of comments via external function.
+     *
+     * @return void
+     * @runInSeparateProcess
+     */
     public function test_external_function_create() {
         // Delete one of the comments we made in set up so we can create now.
         $studentcomment = checklist_comment_student::get_record([
@@ -164,6 +170,12 @@ class student_comment_test extends \advanced_testcase {
         $this->assertEquals($eventtext, $event->get_description());
     }
 
+    /**
+     * Test the update of comments via external function.
+     *
+     * @return void
+     * @runInSeparateProcess
+     */
     public function test_external_function_update() {
         // Create a student comment in this checklist on the second item.
         $params = [
