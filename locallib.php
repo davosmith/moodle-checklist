@@ -218,6 +218,78 @@ class checklist_class {
     }
 
     /**
+     * Get the items to output in a template.
+     * @return object
+     */
+    public function get_items_for_template() {
+        $checklist = clone($this->checklist);
+        $checklist->name = format_string($checklist->name);
+        [$checklist->intro, $checklist->introformat] = \core_external\util::format_text($checklist->intro,
+                                                                                        $checklist->introformat,
+                                                                                        $this->context,
+                                                                                        'mod_checklist',
+                                                                                        'intro');
+        $progressinfo = $this->get_progress();
+        $progress = 0.0;
+        $progressall = 0.0;
+        $showrequired = false;
+        if ($progressinfo) {
+            if ($progressinfo->totalitems !== $progressinfo->requireditems) {
+                $showrequired = true;
+                if ($progressinfo->requireditems) {
+                    $progress = 100.0 * $progressinfo->requiredcompleteitems / $progressinfo->requireditems;
+                }
+            }
+            if ($progressinfo->totalitems) {
+                $progressall = 100.0 * $progressinfo->allcompleteitems / $progressinfo->totalitems;
+            }
+        }
+        $isoverrideauto = ($this->checklist->autoupdate != CHECKLIST_AUTOUPDATE_YES);
+
+        // TODO davo - handle colours, linking items, dates, teacher items, comments.
+
+        $data = (object)[
+            'checklist' => $checklist,
+            'cmid' => $this->cm->id,
+            'courseid' => $checklist->course,
+            'items' => [],
+            'showteachermark' => in_array($this->checklist->teacheredit,
+                                          [CHECKLIST_MARKING_TEACHER, CHECKLIST_MARKING_BOTH]),
+            'showcheckbox' => in_array($this->checklist->teacheredit,
+                                       [CHECKLIST_MARKING_STUDENT, CHECKLIST_MARKING_BOTH]),
+            'progress' => $progress,
+            'progressall' => $progressall,
+            'showrequired' => $showrequired,
+        ];
+        $format = get_string('strftimedatetime', 'langconfig');
+        foreach ($this->items as $item) {
+            if ($item->hidden) {
+                continue;
+            }
+            $disabled = false;
+            if (!$isoverrideauto && $item->is_auto_item()) {
+                $disabled = true;
+            }
+            $data->items[] = (object)[
+                'itemid' => $item->id,
+                'text' => $item->displaytext,
+                'indent' => $item->indent,
+                'colour' => $item->colour,
+                'duetime' => $item->duetime ? userdate($item->duetime, $format) : false,
+                'isheading' => $item->is_heading(),
+                'isoptional' => $item->is_optional(),
+                'checkedstudent' => $item->is_checked_student(),
+                'teachermarktext' => $item->get_teachermark_text(),
+                'teachermarkimage' => $item->get_teachermark_image_url()->out(),
+                'comment' => $item->get_comment(),
+                'url' => $item->get_link_url(),
+                'disabled' => $disabled,
+            ];
+        }
+        return $data;
+    }
+
+    /**
      * Loop through all activities / resources in course and check they
      * are in the current checklist (in the right order)
      */
