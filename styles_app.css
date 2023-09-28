@@ -1,0 +1,33 @@
+.indent-0 {
+    --padding-start: 8px;
+}
+.indent-1 {
+    --padding-start: 18px;
+}
+.indent-2 {
+    --padding-start: 28px;
+}
+.indent-3 {
+    --padding-start: 38px;
+}
+.indent-4 {
+    --padding-start: 48px;
+}
+.indent-5 {
+    --padding-start: 58px;
+}
+.indent-6 {
+    --padding-start: 68px;
+}
+.indent-7 {
+    --padding-start: 78px;
+}
+.indent-8 {
+    --padding-start: 88px;
+}
+.indent-9 {
+    --padding-start: 98px;
+}
+.indent-10 {
+    --padding-start: 108px;
+}

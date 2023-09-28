@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-    'mod_checklist_update_student_comment' => array(
+$functions = [
+    'mod_checklist_update_student_comment' => [
         'classname' => 'mod_checklist\external\update_student_comment',
         'methodname' => 'execute',
         'classpath' => '',
@@ -33,5 +33,13 @@ $functions = array(
         'ajax' => true,
         'type' => 'write',
         'capabilities' => 'mod/checklist:view, mod/checklist:updateown',
-    ),
-);
+    ],
+    'mod_checklist_update_item_state' => [
+        'classname' => \mod_checklist\external\update_item_state::class,
+        'methodname' => 'execute',
+        'ajax' => true,
+        'type' => 'write',
+        'capabilities' => 'mod/checklist:updateown',
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
+];
