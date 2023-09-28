@@ -1,0 +1,41 @@
+{{=<% %>=}}
+<div class="list-item-limited-width">
+    <core-course-module-description description="<% checklist.intro %>" component="mod_checklist" componentId="<% cmid %>"></core-course-module-description>
+
+    <%#showrequired%>
+        <ion-item>
+            <ion-label>
+                <p class="item-heading">{{'plugin.mod_checklist.percentcomplete'|translate}}:</p>
+                <core-progress-bar progress="<% progress %>"></core-progress-bar>
+            </ion-label>
+        </ion-item>
+    <%/showrequired%>
+    <ion-item>
+        <ion-label>
+            <p class="item-heading">{{'plugin.mod_checklist.percentcompleteall'|translate}}:</p>
+            <core-progress-bar progress="<% progressall %>"></core-progress-bar>
+         </ion-label>
+    </ion-item>
+
+
+    <ion-list>
+        <%#items%>
+            <ion-item class="indent-<% indent %>">
+                <ion-label>
+                    <p
+                        <%#isheading%>class="item-heading"<%/isheading%>
+                        <%#isoptional%>class="item-dimmed"<%/isoptional%>
+                    >
+                        <% text %>
+                    </p>
+                </ion-label>
+                <%^isheading%>
+                <ion-checkbox checked="<%#checkedstudent%>true<%/checkedstudent%><%^checkedstudent%>false<%/checkedstudent%>"
+                    disabled="<%#disabled%>true<%/disabled%><%^disabled%>false<%/disabled%>"
+                     (ionChange)="saveChanges(<% cmid %>, <% itemid %>, $event)"></ion-checkbox>
+                <%/isheading%>
+            </ion-item>
+        <%/items%>
+    </ion-list>
+
+</div>
