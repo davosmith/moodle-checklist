@@ -257,6 +257,7 @@ class behat_mod_checklist extends behat_base {
     }
 
     /**
+     * Workaround the different UI for selecting 'automatic completion tracking' in Moodle 4.3.
      * @Given /^I enable automatic completion tracking for the checklist$/
      */
     public function i_enable_automatic_completion_tracking_for_the_checklist() {
