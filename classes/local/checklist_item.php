@@ -101,6 +101,9 @@ class checklist_item extends data_object {
     /** @var string|null Name of the grouping (set by add_grouping_names) */
     public $groupingname = null;
 
+    /** @var bool a bit of a hack, used by {@see \checklist_class::update_items_from_course()} */
+    public $stillexists = false;
+
     /** Link to activity */
     const LINK_MODULE = 'module';
     /** Link to course */

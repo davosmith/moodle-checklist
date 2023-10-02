@@ -413,7 +413,7 @@ class checklist_class {
         // Delete any items that are related to activities / resources that have been deleted.
         if ($this->items) {
             foreach ($this->items as $item) {
-                if ($item->moduleid && !isset($item->stillexists)) {
+                if ($item->moduleid && !$item->stillexists) {
                     $this->deleteitem($item->id, true);
                     $changes = true;
                 }

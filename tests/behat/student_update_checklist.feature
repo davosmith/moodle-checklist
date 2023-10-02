@@ -111,7 +111,7 @@ Feature: A student can update their progress in a checklist
     # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
     And I navigate to "ettings" in current page administration
     And I expand all fieldsets
-    And I set the field "Completion tracking" to "Show activity as complete when conditions are met"
+    And I enable automatic completion tracking for the checklist
     And I set the field "completionusegrade" to "1"
     And I set the field "completionpercentenabled" to "1"
     And I set the field "completionpercent" to "100"

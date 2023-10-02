@@ -255,4 +255,19 @@ class behat_mod_checklist extends behat_base {
         $url = $cm->get_url()->out(false);
         $this->execute('behat_forms::i_set_the_field_to', [$fieldname, $url]);
     }
+
+    /**
+     * @Given /^I enable automatic completion tracking for the checklist$/
+     */
+    public function i_enable_automatic_completion_tracking_for_the_checklist() {
+        global $CFG;
+        // This changed in Moodle 4.3, this is a workaround (which I should drop if I ever stop supporting
+        // Moodle 4.2 and below).
+        if ($CFG->branch < 403) {
+            $this->execute('behat_forms::i_set_the_field_to', ['Completion tracking',
+                                                               'Show activity as complete when conditions are met']);
+        } else {
+            $this->execute('behat_forms::i_set_the_field_to', ['Add requirements', 1]);
+        }
+    }
 }
