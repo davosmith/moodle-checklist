@@ -61,6 +61,8 @@ class checklist_class {
     /** @var string */
     protected $strchecklists;
     /** @var string */
+    protected $pagetitle;
+    /** @var string */
     protected $strchecklist;
     /** @var context_module */
     protected $context;
