@@ -28,4 +28,4 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->release = '3.9.3.5';
 $plugin->requires = 2020061500; // Moodle 3.9.0.
 $plugin->component = 'mod_checklist';
-$plugin->supported = [39, 403]
+$plugin->supported = [39, 403];
