@@ -155,25 +155,34 @@ class mod_checklist_mod_form extends moodleform_mod {
      * @throws coding_exception
      */
     public function add_completion_rules() {
+        global $CFG;
+
         $mform = $this->_form;
 
+        // Changes for Moodle 4.3 - MDL-78516.
+        if ($CFG->branch < 403) {
+            $suffix = '';
+        } else {
+            $suffix = $this->get_suffix();
+        }
+
         $group = array();
-        $group[] = $mform->createElement('checkbox', 'completionpercentenabled', '',
+        $group[] = $mform->createElement('checkbox', 'completionpercentenabled' . $suffix, '',
                                          get_string('completionpercent', 'checklist'), array('class' => 'checkbox-inline'));
-        $group[] = $mform->createElement('text', 'completionpercent', '', array('size' => 3));
-        $mform->setType('completionpercent', PARAM_INT);
+        $group[] = $mform->createElement('text', 'completionpercent' . $suffix, '', array('size' => 3));
+        $mform->setType('completionpercent' . $suffix, PARAM_INT);
         $opts = [
             'percent' => get_string('percent', 'mod_checklist'),
             'items' => get_string('itemstype', 'mod_checklist'),
         ];
-        $group[] = $mform->createElement('select', 'completionpercenttype', '', $opts);
+        $group[] = $mform->createElement('select', 'completionpercenttype' . $suffix, '', $opts);
 
-        $mform->addGroup($group, 'completionpercentgroup', get_string('completionpercentgroup', 'checklist'), array(' '), false);
-        $mform->disabledIf('completionpercent', 'completionpercentenabled', 'notchecked');
-        $mform->disabledIf('completionpercenttype', 'completionpercentenabled', 'notchecked');
-        $mform->addHelpButton('completionpercentgroup', 'completionpercentgroup', 'mod_checklist');
+        $mform->addGroup($group, 'completionpercentgroup' . $suffix, get_string('completionpercentgroup', 'checklist'), array(' '), false);
+        $mform->disabledIf('completionpercent' . $suffix, 'completionpercentenabled', 'notchecked');
+        $mform->disabledIf('completionpercenttype' . $suffix, 'completionpercentenabled', 'notchecked');
+        $mform->addHelpButton('completionpercentgroup' . $suffix, 'completionpercentgroup', 'mod_checklist');
 
-        return array('completionpercentgroup');
+        return ['completionpercentgroup' . $suffix];
     }
 
     /**
