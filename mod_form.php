@@ -177,7 +177,8 @@ class mod_checklist_mod_form extends moodleform_mod {
         ];
         $group[] = $mform->createElement('select', 'completionpercenttype' . $suffix, '', $opts);
 
-        $mform->addGroup($group, 'completionpercentgroup' . $suffix, get_string('completionpercentgroup', 'checklist'), array(' '), false);
+        $mform->addGroup($group, 'completionpercentgroup' . $suffix, get_string('completionpercentgroup',
+                                                                                'checklist'), array(' '), false);
         $mform->disabledIf('completionpercent' . $suffix, 'completionpercentenabled', 'notchecked');
         $mform->disabledIf('completionpercenttype' . $suffix, 'completionpercentenabled', 'notchecked');
         $mform->addHelpButton('completionpercentgroup' . $suffix, 'completionpercentgroup', 'mod_checklist');
