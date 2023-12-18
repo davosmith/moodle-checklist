@@ -8,8 +8,8 @@ this.saveChanges = (cmId, itemId, state) => {
             itemid: itemId,
             state: state.detail.checked,
         }).then(() => {
-            // Ideally refresh on page load. This is causing a flicker.
-            this.refreshContent();
+            // updateCachedContent was introduced in the 4.4 version of the app, use refreshContent if not available.
+            this.updateCachedContent ? this.updateCachedContent() : this.refreshContent();
         }).catch(error => {
             this.CoreDomUtilsProvider.showErrorModal(error);
         }).finally(() => {

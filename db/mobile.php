@@ -32,7 +32,7 @@ $addons = [
                 'displaydata' => [
                     'title' => 'pluginname',
                     'icon' => $CFG->wwwroot.'/mod/checklist/pix/monologo.svg',
-                    'class' => '', // Probably 'assessment'
+                    'class' => '',
                 ],
                 'delegate' => 'CoreCourseModuleDelegate',
                 'method' => 'mobile_course_view',
@@ -47,6 +47,7 @@ $addons = [
             ['pluginname', 'checklist'],
             ['percentcomplete', 'checklist'],
             ['percentcompleteall', 'checklist'],
+            ['linktourl', 'checklist'],
         ],
     ]
 ];
