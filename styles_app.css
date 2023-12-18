@@ -1,33 +1,76 @@
-.indent-0 {
+.checklist-indent-0 {
     --padding-start: 8px;
 }
-.indent-1 {
+.checklist-indent-1 {
     --padding-start: 18px;
 }
-.indent-2 {
+.checklist-indent-2 {
     --padding-start: 28px;
 }
-.indent-3 {
+.checklist-indent-3 {
     --padding-start: 38px;
 }
-.indent-4 {
+.checklist-indent-4 {
     --padding-start: 48px;
 }
-.indent-5 {
+.checklist-indent-5 {
     --padding-start: 58px;
 }
-.indent-6 {
+.checklist-indent-6 {
     --padding-start: 68px;
 }
-.indent-7 {
+.checklist-indent-7 {
     --padding-start: 78px;
 }
-.indent-8 {
+.checklist-indent-8 {
     --padding-start: 88px;
 }
-.indent-9 {
+.checklist-indent-9 {
     --padding-start: 98px;
 }
-.indent-10 {
+.checklist-indent-10 {
     --padding-start: 108px;
+}
+.checklist-colour-red ion-label .checklist-item-label {
+    --color: #ca3120;
+}
+html.dark .checklist-colour-red ion-label .checklist-item-label {
+    --color: #d55a4d;
+}
+.checklist-colour-orange ion-label .checklist-item-label {
+    --color: #f98012;
+}
+.checklist-colour-green ion-label .checklist-item-label {
+    --color: #357a32;
+}
+html.dark .checklist-colour-green ion-label .checklist-item-label {
+    --color: #5d955b;
+}
+.checklist-colour-purple ion-label .checklist-item-label {
+    --color: #c400f0;
+}
+html.dark .checklist-colour-purple ion-label .checklist-item-label {
+    --color: #d61fff;
+}
+.checklist-item ion-label .checklist-item-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 16px;
+}
+.checklist-url-button {
+    min-width: unset;
+    min-height: unset;
+}
+.checklist-url-button ion-icon {
+    height: 18px;
+}
+.checklist-teachermark {
+    margin-right: 4px;
+}
+.checklist-item .checklist-comment {
+    margin: 8px 12px 0px 12px;
+    padding: 4px;
+    background-color: #ffffb0;
+    border: solid black 1px;
 }

@@ -222,6 +222,8 @@ class checklist_class {
      * @return object
      */
     public function get_items_for_template() {
+        global $DB;
+
         $checklist = clone($this->checklist);
         $checklist->name = format_string($checklist->name);
         [$checklist->intro, $checklist->introformat] = \core_external\util::format_text($checklist->intro,
@@ -229,6 +231,17 @@ class checklist_class {
                                                                                         $this->context,
                                                                                         'mod_checklist',
                                                                                         'intro');
+
+        // Configure the status of the checklist output.
+        $status = new output_status();
+        $status->set_viewother(false);
+        $status->set_userreport(false);
+        $status->set_teachercomments($checklist->teachercomments);
+        $status->set_studentcomments($checklist->studentcomments);
+        $status->set_canupdateown($this->canupdateown());
+        $status->set_canaddown($this->canaddown());
+        $status->set_courseid($this->course->id);
+
         $progressinfo = $this->get_progress();
         $progress = 0.0;
         $progressall = 0.0;
@@ -246,10 +259,10 @@ class checklist_class {
         }
         $isoverrideauto = ($this->checklist->autoupdate != CHECKLIST_AUTOUPDATE_YES);
 
-        // TODO davo - handle colours, linking items, dates, teacher items, comments.
+        // TODO Allow adding/editing items, adding/editing comments.
 
         $data = (object)[
-            'checklist' => $checklist,
+            'intro' => $checklist->intro,
             'cmid' => $this->cm->id,
             'courseid' => $checklist->course,
             'items' => [],
@@ -261,7 +274,19 @@ class checklist_class {
             'progressall' => $progressall,
             'showrequired' => $showrequired,
         ];
-        $format = get_string('strftimedatetime', 'langconfig');
+
+        // Load comments.
+        if ($status->is_teachercomments()) {
+            $comments = checklist_comment::fetch_by_userid_itemids($this->userid, array_keys($this->items));
+            checklist_comment::add_commentby_names($comments);
+            checklist_item::add_comments($this->items, $comments);
+        }
+        if ($status->is_studentcomments()) {
+            $studentcomments = checklist_comment_student::get_student_comments_indexed($this->userid, array_keys($this->items));
+            checklist_comment_student::add_student_names($studentcomments);
+            checklist_item::add_student_comments($this->items, $studentcomments);
+        }
+
         foreach ($this->items as $item) {
             if ($item->hidden) {
                 continue;
@@ -270,21 +295,52 @@ class checklist_class {
             if (!$isoverrideauto && $item->is_auto_item()) {
                 $disabled = true;
             }
-            $data->items[] = (object)[
+
+            $itemfortemplate = (object)[
                 'itemid' => $item->id,
                 'text' => $item->displaytext,
                 'indent' => $item->indent,
                 'colour' => $item->colour,
-                'duetime' => $item->duetime ? userdate($item->duetime, $format) : false,
+                'duetime' => $item->duetime ? $item->duetime : false,
+                'isoverdue' => $item->duetime && $item->duetime <= time(),
                 'isheading' => $item->is_heading(),
                 'isoptional' => $item->is_optional(),
                 'checkedstudent' => $item->is_checked_student(),
                 'teachermarktext' => $item->get_teachermark_text(),
                 'teachermarkimage' => $item->get_teachermark_image_url()->out(),
-                'comment' => $item->get_comment(),
                 'url' => $item->get_link_url(),
                 'disabled' => $disabled,
             ];
+
+            if ($status->is_teachercomments()) {
+                $comment = $item->get_comment();
+                if ($comment) {
+                    $itemfortemplate->comment = (object)[
+                        'commentby' => $comment->commentby,
+                        'text' => s($comment->text),
+                    ];
+                    if ($comment->commentby) {
+                        $itemfortemplate->comment->commentbyurl = $comment->get_commentby_url();
+                        $itemfortemplate->comment->commentbyname = $comment->get_commentby_name();
+                    }
+                }
+            }
+
+            if ($status->is_studentcomments()) {
+                // Right now you can only see your own list in the app, not other people's lists.
+                $studentcomment = $item->get_student_comment();
+                if ($this->userid && $studentcomment) {
+                    $currentuser = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
+                    $itemfortemplate->studentcomment = (object)[
+                        'text' => s($studentcomment->get('text')),
+                        'studentid' => $this->userid,
+                        'studenturl' => new moodle_url('/user/view.php', ['id' => $this->userid, 'course' => $this->course->id]),
+                        'studentname' => fullname($currentuser),
+                    ];
+                }
+            }
+
+            $data->items[] = $itemfortemplate;
         }
         return $data;
     }
