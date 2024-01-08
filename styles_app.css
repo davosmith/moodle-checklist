@@ -58,6 +58,9 @@ html.dark .checklist-colour-purple ion-label .checklist-item-label {
     align-items: center;
     font-size: 16px;
 }
+.checklist-item ion-label .checklist-item-label.item-heading {
+    font-weight: bold;
+}
 .checklist-url-button {
     min-width: unset;
     min-height: unset;
