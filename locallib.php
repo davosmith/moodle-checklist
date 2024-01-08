@@ -302,6 +302,8 @@ class checklist_class {
                 'indent' => $item->indent,
                 'colour' => $item->colour,
                 'duetime' => $item->duetime ? $item->duetime : false,
+                'showitemmark' => $data->showteachermark && !$item->is_heading(),
+                'showitemcheckbox' => $data->showcheckbox && !$item->is_heading(),
                 'isoverdue' => $item->duetime && $item->duetime <= time(),
                 'isheading' => $item->is_heading(),
                 'isoptional' => $item->is_optional(),

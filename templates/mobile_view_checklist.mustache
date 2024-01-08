@@ -90,7 +90,9 @@
             <ion-item class="ion-text-wrap checklist-item checklist-indent-<% indent %> checklist-colour-<% colour %>">
                 <ion-label>
                     <p class="checklist-item-label <%#isheading%>item-heading<%/isheading%> <%#isoptional%>item-dimmed<%/isoptional%>">
+                        <%#showitemmark%>
                         <img class="checklist-teachermark" src="<% teachermarkimage %>" alt="<% teachermarktext %>" core-external-content>
+                        <%/showitemmark%>
                         <span><% text %></span>
                         <%#url%>
                         <ion-button fill="clear" href="<% url %>" core-link class="checklist-url-button" [showBrowserWarning]="false"
@@ -119,11 +121,11 @@
                     </p>
                     <%/studentcomment%>
                 </ion-label>
-                <%^isheading%>
+                <%#showitemcheckbox%>
                 <ion-checkbox checked="<%#checkedstudent%>true<%/checkedstudent%><%^checkedstudent%>false<%/checkedstudent%>"
                     disabled="<%#disabled%>true<%/disabled%><%^disabled%>false<%/disabled%>"
                      (ionChange)="saveChanges(<% cmid %>, <% itemid %>, $event)"></ion-checkbox>
-                <%/isheading%>
+                <%/showitemcheckbox%>
             </ion-item>
         <%/items%>
     </ion-list>
