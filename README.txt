@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2024-01-20 - 3.9.4.0 - now works with Moodle Mobile App, thanks to Dani & Pau from Moodle HQ your help with this at the Global Moodle Moot and Dani for finishing this work off afterwards!
 * 2023-11-27 - 3.9.3.6 - fix completion rule handling for M4.3. Thanks to opitz for the fix.
 * 2023-10-02 - 3.9.3.5 - update GitHub actions ready for 4.3 release, fix PHP8.2 compatibility issue and M4.3 compatibility issue
 * 2023-04-14 - 3.9.3.4 - Minor M4.2 compatibility fixes
