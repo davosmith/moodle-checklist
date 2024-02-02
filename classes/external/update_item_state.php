@@ -21,11 +21,6 @@ defined('MOODLE_INTERNAL') || die;
 global $CFG;
 require_once("$CFG->libdir/externallib.php");
 
-use core_external\external_api;
-use core_external\external_value;
-use core_external\external_function_parameters;
-use core_external\external_single_structure;
-
 /**
  * External function to update the state of an item in a checklist
  *
@@ -33,15 +28,15 @@ use core_external\external_single_structure;
  * @package    mod_checklist
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class update_item_state extends external_api {
+class update_item_state extends \external_api {
 
     /**
      * Describes the parameters for update_item_state.
      *
-     * @return external_function_parameters
+     * @return \external_function_parameters
      */
-    public static function execute_parameters(): external_function_parameters {
-        return new external_function_parameters(
+    public static function execute_parameters(): \external_function_parameters {
+        return new \external_function_parameters(
             [
                 'cmid' => new \external_value(PARAM_INT),
                 'itemid' => new \external_value(PARAM_INT),
@@ -56,7 +51,7 @@ class update_item_state extends external_api {
      * @param int $cmid Checklist course module ID.
      * @param int $itemid Item ID.
      * @param bool $state State to set.
-     * @return stdClass
+     * @return \stdClass
      */
     public static function execute(int $cmid, int $itemid, bool $state): \stdClass {
         global $DB, $PAGE, $USER;
@@ -78,11 +73,11 @@ class update_item_state extends external_api {
     /**
      * Describes the update_item_state return value.
      *
-     * @return external_single_structure
+     * @return \external_single_structure
      */
-    public static function execute_returns(): external_single_structure {
-        return new external_single_structure([
-            'status' => new external_value(PARAM_BOOL),
+    public static function execute_returns(): \external_single_structure {
+        return new \external_single_structure([
+            'status' => new \external_value(PARAM_BOOL),
             'warnings' => new \external_warnings(),
         ]);
     }
