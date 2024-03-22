@@ -1789,6 +1789,8 @@ class checklist_class {
      * Process the actions that can take place on the edit page
      */
     protected function process_edit_actions() {
+        global $USER;
+
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
         $removeauto = optional_param('removeauto', false, PARAM_TEXT);
@@ -1821,6 +1823,7 @@ class checklist_class {
         require_sesskey();
 
         $itemid = optional_param('itemid', 0, PARAM_INT);
+        $triggerupdate = false;
 
         switch ($action) {
             case 'additem':
@@ -1841,6 +1844,7 @@ class checklist_class {
                 if ($position) {
                     $additemafter = false;
                 }
+                $triggerupdate = true;
                 break;
             case 'startadditem':
                 $additemafter = $itemid;
@@ -1863,6 +1867,7 @@ class checklist_class {
                 }
                 $openlinkinnewwindow = optional_param('openlinkinnewwindow', false, PARAM_BOOL);
                 $this->updateitem($itemid, $displaytext, $duetime, $linkcourseid, $linkurl, $groupingid, $openlinkinnewwindow);
+                $triggerupdate = true;
                 break;
             case 'deleteitem':
                 if (($this->checklist->autopopulate) && (isset($this->items[$itemid])) && ($this->items[$itemid]->moduleid)) {
@@ -1870,30 +1875,39 @@ class checklist_class {
                 } else {
                     $this->deleteitem($itemid);
                 }
+                $triggerupdate = true;
                 break;
             case 'moveitemup':
                 $this->moveitemup($itemid);
+                $triggerupdate = true;
                 break;
             case 'moveitemdown':
                 $this->moveitemdown($itemid);
+                $triggerupdate = true;
                 break;
             case 'indentitem':
                 $this->indentitem($itemid);
+                $triggerupdate = true;
                 break;
             case 'unindentitem':
                 $this->unindentitem($itemid);
+                $triggerupdate = true;
                 break;
             case 'makeoptional':
                 $this->makeoptional($itemid, true);
+                $triggerupdate = true;
                 break;
             case 'makerequired':
                 $this->makeoptional($itemid, false);
+                $triggerupdate = true;
                 break;
             case 'makeheading':
                 $this->makeoptional($itemid, true, true);
+                $triggerupdate = true;
                 break;
             case 'nextcolour':
                 $this->nextcolour($itemid);
+                $triggerupdate = true;
                 break;
 
             case 'showhideitems':
@@ -1901,10 +1915,21 @@ class checklist_class {
                 foreach ($itemids as $itemid) {
                     $this->toggledisableitem($itemid);
                 }
+                $triggerupdate = true;
                 break;
 
             default:
                 throw new moodle_exception('invalidaction', 'mod_checklist', '', $action);
+        }
+
+        if ($triggerupdate) {
+            $params = array(
+                'contextid' => $this->context->id,
+                'objectid' => $this->checklist->id,
+                'userid' => $USER->id,
+            );
+            $event = \mod_checklist\event\checklist_updated::create($params);
+            $event->trigger();
         }
 
         if ($additemafter) {
