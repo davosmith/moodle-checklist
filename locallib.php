@@ -1789,8 +1789,6 @@ class checklist_class {
      * Process the actions that can take place on the edit page
      */
     protected function process_edit_actions() {
-        global $USER;
-
         $this->editdates = optional_param('editdates', false, PARAM_BOOL);
         $additemafter = optional_param('additemafter', false, PARAM_INT);
         $removeauto = optional_param('removeauto', false, PARAM_TEXT);
@@ -1926,7 +1924,6 @@ class checklist_class {
             $params = array(
                 'contextid' => $this->context->id,
                 'objectid' => $this->checklist->id,
-                'userid' => $USER->id,
             );
             $event = \mod_checklist\event\checklist_updated::create($params);
             $event->trigger();
