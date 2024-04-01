@@ -56,8 +56,8 @@ class update_item_state extends \external_api {
     public static function execute(int $cmid, int $itemid, bool $state): \stdClass {
         global $DB, $PAGE, $USER;
         $cm = get_coursemodule_from_id('checklist', $cmid, 0, false, MUST_EXIST);
-        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-        $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+        $checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
         require_login($course, true, $cm);
         require_capability('mod/checklist:updateown', $PAGE->context);
 
@@ -77,9 +77,9 @@ class update_item_state extends \external_api {
      */
     public static function execute_returns(): \external_single_structure {
         return new \external_single_structure([
-            'status' => new \external_value(PARAM_BOOL),
-            'warnings' => new \external_warnings(),
-        ]);
+                                                  'status' => new \external_value(PARAM_BOOL),
+                                                  'warnings' => new \external_warnings(),
+                                              ]);
     }
 
 }

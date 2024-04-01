@@ -34,13 +34,13 @@ $checklistid = optional_param('checklist', 0, PARAM_INT);  // Checklist instance
 $url = new moodle_url('/mod/checklist/view.php');
 if ($id) {
     $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
     $url->param('id', $id);
 
 } else if ($checklistid) {
-    $checklist = $DB->get_record('checklist', array('id' => $checklistid), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $checklist->course), '*', MUST_EXIST);
+    $checklist = $DB->get_record('checklist', ['id' => $checklistid], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $checklist->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id, false, MUST_EXIST);
     $url->param('checklist', $checklistid);
 

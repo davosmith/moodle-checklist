@@ -65,7 +65,7 @@ class report_viewed extends \core\event\base {
             $userdesc = "user '$this->relateduserid' in ";
         }
         return "The user with id '$this->userid' viewed the report for {$userdesc}the checklist with ".
-        "the course module id '$this->contextinstanceid'.";
+            "the course module id '$this->contextinstanceid'.";
     }
 
     /**
@@ -74,7 +74,7 @@ class report_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/checklist/report.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/checklist/report.php', ['id' => $this->contextinstanceid]);
     }
 
     /**

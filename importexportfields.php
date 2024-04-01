@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 $separator = ',';
 
 // Fieldname => output string.
-$fields = array(
+$fields = [
     'displaytext' => 'Item text',
     'indent' => 'Indent',
     'itemoptional' => 'Type (0 - normal; 1 - optional; 2 - heading)',
@@ -34,5 +34,5 @@ $fields = array(
     'colour' => 'Colour (red; orange; green; purple; black)',
     'linkcourseid' => 'Courseid (optional - link to this course)',
     'linkurl' => 'URL (optional - link to this URL)',
-    'openlinkinnewwindow' => 'Open link in new window (optional - 0 - no; 1 - yes)'
-);
+    'openlinkinnewwindow' => 'Open link in new window (optional - 0 - no; 1 - yes)',
+];

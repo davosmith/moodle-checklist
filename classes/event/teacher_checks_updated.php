@@ -61,7 +61,7 @@ class teacher_checks_updated extends \core\event\base {
      */
     public function get_description() {
         return "The user with id '$this->userid' has updated the teacher checks for user '$this->relateduserid' on the ".
-        "checklist with the course module id '$this->contextinstanceid'";
+            "checklist with the course module id '$this->contextinstanceid'";
     }
 
     /**
@@ -70,10 +70,10 @@ class teacher_checks_updated extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/checklist/report.php', array(
+        return new \moodle_url('/mod/checklist/report.php', [
             'id' => $this->contextinstanceid,
-            'studentid' => $this->relateduserid
-        ));
+            'studentid' => $this->relateduserid,
+        ]);
     }
 
     /**

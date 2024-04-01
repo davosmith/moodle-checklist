@@ -71,7 +71,7 @@ jobs:
 
       - name: Initialise moodle-plugin-ci
         run: |
-          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
           echo $(cd ci/bin; pwd) >> $GITHUB_PATH
           echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
           sudo locale-gen en_AU.UTF-8
@@ -88,11 +88,6 @@ jobs:
       - name: PHP Lint
         if: ${{ always() }}
         run: moodle-plugin-ci phplint
-
-      - name: PHP Copy/Paste Detector
-        continue-on-error: true # This step will show errors but will not fail
-        if: ${{ always() }}
-        run: moodle-plugin-ci phpcpd
 
       - name: PHP Mess Detector
         continue-on-error: true # This step will show errors but will not fail

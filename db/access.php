@@ -26,101 +26,101 @@ defined('MOODLE_INTERNAL') || die();
 
 // Capability definitions for the checklist module.
 
-$capabilities = array(
+$capabilities = [
     // Check if user is able to add a checklist module (M2.3+ only).
-    'mod/checklist:addinstance' => array(
+    'mod/checklist:addinstance' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ),
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/course:manageactivities',
+    ],
 
     // Ability to view and update own checklist.
-    'mod/checklist:updateown' => array(
+    'mod/checklist:updateown' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
-            'student' => CAP_ALLOW
-        )
-    ),
+        'legacy' => [
+            'student' => CAP_ALLOW,
+        ],
+    ],
 
     // Ability to alter the marks on another person's checklist.
-    'mod/checklist:updateother' => array(
+    'mod/checklist:updateother' => [
         'riskbitmask' => RISK_PERSONAL | RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 
     // Ability to preview a checklist (to check it is OK).
-    'mod/checklist:preview' => array(
+    'mod/checklist:preview' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 
     // Ability to check up on the progress of all users through
     // their checklists.
-    'mod/checklist:viewreports' => array(
+    'mod/checklist:viewreports' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 
     // Ability to view reports related to their 'mentees' only.
-    'mod/checklist:viewmenteereports' => array(
+    'mod/checklist:viewmenteereports' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array()  // Not assigned by default.
-    ),
+        'legacy' => [],  // Not assigned by default.
+    ],
 
     // Ability to create and manage checklists.
-    'mod/checklist:edit' => array(
+    'mod/checklist:edit' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 
     // Will receive emails when checklists complete (if checklist is set to do so).
-    'mod/checklist:emailoncomplete' => array(
+    'mod/checklist:emailoncomplete' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW
-        )
-    ),
+            'teacher' => CAP_ALLOW,
+        ],
+    ],
 
     // Can update teacher checklist marks even if locked.
-    'mod/checklist:updatelocked' => array(
+    'mod/checklist:updatelocked' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    )
-);
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+];

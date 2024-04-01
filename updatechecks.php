@@ -31,11 +31,11 @@ require_once($CFG->dirroot.'/mod/checklist/locallib.php');
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $items = required_param_array('items', PARAM_INT);
 
-$url = new moodle_url('/mod/checklist/view.php', array('id' => $id));
+$url = new moodle_url('/mod/checklist/view.php', ['id' => $id]);
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
 
 $PAGE->set_url($url);
 require_login($course, true, $cm);

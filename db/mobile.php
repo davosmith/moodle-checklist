@@ -49,5 +49,5 @@ $addons = [
             ['percentcompleteall', 'checklist'],
             ['linktourl', 'checklist'],
         ],
-    ]
+    ],
 ];

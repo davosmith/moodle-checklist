@@ -42,7 +42,7 @@ class checklist_item extends data_object {
     /** @var string[] */
     public $requiredfields = [
         'id', 'checklist', 'userid', 'displaytext', 'position', 'indent', 'itemoptional', 'duetime',
-        'eventid', 'colour', 'moduleid', 'hidden', 'groupingid', 'linkcourseid', 'linkurl', 'openlinkinnewwindow'
+        'eventid', 'colour', 'moduleid', 'hidden', 'groupingid', 'linkcourseid', 'linkurl', 'openlinkinnewwindow',
     ];
 
     // DB fields.

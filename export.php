@@ -29,17 +29,17 @@ require_once($CFG->libdir.'/csvlib.class.php');
 $id = required_param('id', PARAM_INT); // Course module id.
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$url = new moodle_url('/mod/checklist/export.php', array('id' => $cm->id));
+$url = new moodle_url('/mod/checklist/export.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 require_capability('mod/checklist:edit', $context);
 
-$items = $DB->get_records_select('checklist_item', "checklist = ? AND userid = 0", array($checklist->id), 'position');
+$items = $DB->get_records_select('checklist_item', "checklist = ? AND userid = 0", [$checklist->id], 'position');
 if (!$items) {
     throw new moodle_exception('noitems', 'mod_checklist');
 }
@@ -52,7 +52,7 @@ $csv->filename = clean_filename("{$course->shortname} $strchecklist {$checklist-
 $csv->add_data($fields);
 
 foreach ($items as $item) {
-    $output = array();
+    $output = [];
     foreach ($fields as $field => $unused) {
         $output[] = $item->$field;
     }

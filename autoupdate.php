@@ -41,7 +41,7 @@ function checklist_completion_update_checks($userid, $itemchecks, $newstate) {
     global $DB;
 
     $updatecount = 0;
-    $updatechecklists = array();
+    $updatechecklists = [];
     foreach ($itemchecks as $itemcheck) {
         list(, $cm) = get_course_and_cm_from_instance($itemcheck->checklist, 'checklist', $itemcheck->course);
         $context = context_module::instance($cm->id);

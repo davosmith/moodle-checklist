@@ -32,17 +32,17 @@ require_once($CFG->libdir.'/csvlib.class.php');
 $id = required_param('id', PARAM_INT); // Course module id.
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$checklist = $DB->get_record('checklist', array('id' => $cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$url = new moodle_url('/mod/checklist/import.php', array('id' => $cm->id));
+$url = new moodle_url('/mod/checklist/import.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 require_capability('mod/checklist:edit', $context);
 
-$returl = new moodle_url('/mod/checklist/edit.php', array('id' => $cm->id));
+$returl = new moodle_url('/mod/checklist/edit.php', ['id' => $cm->id]);
 
 /**
  * Class checklist_import_form
@@ -61,7 +61,7 @@ class checklist_import_form extends moodleform {
         $mform->addElement('header', 'formheading', get_string('import', 'checklist'));
 
         $mform->addElement('filepicker', 'importfile', get_string('importfile', 'checklist'), null,
-                           array('accepted_types' => array('*.csv')));
+                           ['accepted_types' => ['*.csv']]);
 
         $this->add_action_buttons(true, get_string('import', 'checklist'));
     }
@@ -84,7 +84,7 @@ if ($data = $form->get_data()) {
     if (!$csv->load_csv_content($form->get_file_content('importfile'), 'utf-8', 'comma')) {
         die($csv->get_error());
     }
-    $position = $DB->count_records('checklist_item', array('checklist' => $checklist->id, 'userid' => 0)) + 1;
+    $position = $DB->count_records('checklist_item', ['checklist' => $checklist->id, 'userid' => 0]) + 1;
 
     $csv->init();
 

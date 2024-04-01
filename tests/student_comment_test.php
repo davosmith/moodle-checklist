@@ -52,6 +52,7 @@ class student_comment_test extends \advanced_testcase {
 
     /** @var checklist_item[] checklist items */
     protected $items;
+
     /**
      * Set up steps
      */
@@ -95,7 +96,7 @@ class student_comment_test extends \advanced_testcase {
             $checklistitemid = $item->insert();
             $this->items[] = $item;
             // Create student comments alongside the other items.
-            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment' . $position);
+            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment'.$position);
         }
         // Test events were written to logstore.
         $this->preventResetByRollback();
@@ -108,7 +109,7 @@ class student_comment_test extends \advanced_testcase {
         $USER->ignoresesskey = true;
     }
 
-    public function test_create_student_comment() {
+    public function test_create_student_comment(): void {
         $data = (object)[
             'text' => 'this is my comment',
             'itemid' => 1,
@@ -118,7 +119,7 @@ class student_comment_test extends \advanced_testcase {
         $this->assertIsNumeric($result->get('id'));
     }
 
-    public function test_update_student_comment_new() {
+    public function test_update_student_comment_new(): void {
         $result = checklist_comment_student::update_or_create_student_comment(1, 'some comment');
         $this->assertEquals(true, $result);
     }
@@ -129,12 +130,12 @@ class student_comment_test extends \advanced_testcase {
      * @return void
      * @runInSeparateProcess
      */
-    public function test_external_function_create() {
-        // Delete one of the comments we made in set up so we can create now.
+    public function test_external_function_create(): void {
+        // Delete one of the comments we made in set up, so we can create now.
         $studentcomment = checklist_comment_student::get_record([
-            'itemid' => $this->items[1]->id,
-            'usermodified' => $this->student->id
-        ]);
+                                                                    'itemid' => $this->items[1]->id,
+                                                                    'usermodified' => $this->student->id,
+                                                                ]);
         $studentcomment->delete();
 
         // Create a student comment in this checklist on the second item.
@@ -148,15 +149,15 @@ class student_comment_test extends \advanced_testcase {
 
         // Assert comment inserted properly with the right data.
         $studentcomment = checklist_comment_student::get_record([
-            'itemid' => $params['checklistitemid'],
-            'usermodified' => $this->student->id
-        ]);
+                                                                    'itemid' => $params['checklistitemid'],
+                                                                    'usermodified' => $this->student->id,
+                                                                ]);
         $this->assertEquals($this->student->id, $studentcomment->get('usermodified'));
         $this->assertEquals('test new comment', $studentcomment->get('text'));
 
         // Assert that 'create' event was created.
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
-        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->cmid);
+        $params = ['userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->cmid];
         $events = $this->store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
         $this->assertCount(1, $events);
         $event = array_shift($events);
@@ -165,8 +166,8 @@ class student_comment_test extends \advanced_testcase {
         $this->assertEquals($studentcomment->get('itemid'), $eventdata['objectid']);
         $this->assertEquals($this->cm->cmid, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test new comment'], $eventdata['other']);
-        $eventtext = 'The user with id ' . $this->student->id . ' has created a comment in ';
-        $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' with text \'test new comment\'';
+        $eventtext = 'The user with id '.$this->student->id.' has created a comment in ';
+        $eventtext .= 'the checklist with course module id '.$this->cm->cmid.' with text \'test new comment\'';
         $this->assertEquals($eventtext, $event->get_description());
     }
 
@@ -176,7 +177,7 @@ class student_comment_test extends \advanced_testcase {
      * @return void
      * @runInSeparateProcess
      */
-    public function test_external_function_update() {
+    public function test_external_function_update(): void {
         // Create a student comment in this checklist on the second item.
         $params = [
             'cmid' => $this->cm->cmid,
@@ -188,15 +189,15 @@ class student_comment_test extends \advanced_testcase {
 
         // Assert comment inserted properly with the right data.
         $studentcomment = checklist_comment_student::get_record([
-            'itemid' => $params['checklistitemid'],
-            'usermodified' => $this->student->id
-        ]);
+                                                                    'itemid' => $params['checklistitemid'],
+                                                                    'usermodified' => $this->student->id,
+                                                                ]);
         $this->assertEquals($this->student->id, $studentcomment->get('usermodified'));
         $this->assertEquals('test update comment', $studentcomment->get('text'));
 
         // Assert that 'update' event was created.
         $select = "userid = :userid AND contextlevel = :contextlevel AND contextinstanceid = :contextinstanceid";
-        $params = array('userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->cmid);
+        $params = ['userid' => $this->student->id, 'contextlevel' => CONTEXT_MODULE, 'contextinstanceid' => $this->cm->cmid];
         $events = $this->store->get_events_select($select, $params, 'timecreated ASC', 0, 1);
         $this->assertCount(1, $events);
         $event = array_shift($events);
@@ -206,12 +207,12 @@ class student_comment_test extends \advanced_testcase {
         $this->assertEquals($this->cm->cmid, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test update comment'], $eventdata['other']);
 
-        $eventtext = 'The user with id ' . $this->student->id . ' has updated a comment in ';
-        $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' to have text \'test update comment\'';
+        $eventtext = 'The user with id '.$this->student->id.' has updated a comment in ';
+        $eventtext .= 'the checklist with course module id '.$this->cm->cmid.' to have text \'test update comment\'';
         $this->assertEquals($eventtext, $event->get_description());
     }
 
-    public function test_can_add_student_comments() {
+    public function test_can_add_student_comments(): void {
         global $DB;
         $checklistclass = new checklist_class($this->cm->cmid, $this->student->id);
         $this->assertTrue($checklistclass->canaddstudentcomments());

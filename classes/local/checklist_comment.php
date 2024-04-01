@@ -41,7 +41,7 @@ class checklist_comment extends data_object {
     public $table = 'checklist_comment';
     /** @var string[] */
     public $requiredfields = [
-        'id', 'itemid', 'userid', 'commentby', 'text'
+        'id', 'itemid', 'userid', 'commentby', 'text',
     ];
 
     // DB fields.
@@ -110,7 +110,7 @@ class checklist_comment extends data_object {
             return $ret;
         }
 
-        list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+        [$isql, $params] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
         $params['userid'] = $userid;
         $comments = $DB->get_records_select('checklist_comment', "userid = :userid AND itemid $isql", $params);
         foreach ($comments as $comment) {

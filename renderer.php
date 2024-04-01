@@ -123,9 +123,10 @@ class mod_checklist_renderer extends plugin_renderer_base {
      */
     public function checklist_items($items, $useritems, $groupings, $intro, output_status $status, $progress, $student = null,
                                     $currentuser = null, $cmid = null): string {
-        $out = $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox', null, array('data-cmid' => $cmid));
+        $out = $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox', null,
+                                        ['data-cmid' => $cmid]);
 
-        $out .= html_writer::tag('div', '&nbsp;', array('id' => 'checklistspinner', 'data-cmid' => $cmid));
+        $out .= html_writer::tag('div', '&nbsp;', ['id' => 'checklistspinner', 'data-cmid' => $cmid]);
 
         $thispageurl = new moodle_url($this->page->url);
         if ($student) {
@@ -139,7 +140,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
             $out .= '<h2>'.get_string('checklistfor', 'checklist').' '.fullname($student, true).'</h2>';
             $out .= '&nbsp;';
             $out .= '<form style="display: inline;" action="'.$thispageurl->out_omit_querystring().'" method="get">';
-            $out .= html_writer::input_hidden_params($thispageurl, array('studentid'));
+            $out .= html_writer::input_hidden_params($thispageurl, ['studentid']);
             $out .= '<input type="submit" class="btn btn-secondary" name="viewall" value="'
                 .get_string('viewall', 'checklist').'" />';
             $out .= '</form>';
@@ -170,7 +171,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
         if ($status->is_showprogressbar() && $progress) {
             $out .= $this->progress_bars($progress->totalitems, $progress->requireditems,
-                                      $progress->allcompleteitems, $progress->requiredcompleteitems);
+                                         $progress->allcompleteitems, $progress->requiredcompleteitems);
         }
 
         if (!$items) {
@@ -309,7 +310,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         if ($status->is_viewother() && $status->is_showteachermark()) {
                             $id = '';
                         }
-                        $out .= '<input class="checklistitem'.$checkclass.'" type="checkbox" data-cmid="' . $cmid . '"' .
+                        $out .= '<input class="checklistitem'.$checkclass.'" type="checkbox" data-cmid="'.$cmid.'"'.
                             ' class="checkbox-inline" name="items[]" '.$id.$checked.
                             ' value="'.$item->id.'" />';
                     }
@@ -320,9 +321,9 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 $out .= $this->checklist_item_link($item);
 
                 if ($status->is_addown()) {
-                    $out .= '&nbsp;<a href="'.$thispageurl->out(true, array(
-                            'itemid' => $item->id, 'sesskey' => sesskey(), 'action' => 'startadditem'
-                        )).'">';
+                    $out .= '&nbsp;<a href="'.$thispageurl->out(true, [
+                            'itemid' => $item->id, 'sesskey' => sesskey(), 'action' => 'startadditem',
+                        ]).'">';
                     $title = get_string('additemalt', 'checklist');
                     $out .= $this->output->pix_icon('add', $title, 'mod_checklist', ['title' => $title]).'</a>';
                 }
@@ -366,7 +367,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $focusitem = 'firstcomment';
                                 $outid = ' id="firstcomment" ';
                             }
-                            $out .= '<input type="text" class="form-control form-text-inline"' .
+                            $out .= '<input type="text" class="form-control form-text-inline"'.
                                 ' name="teachercomment['.$item->id.']" value="'.s($comment->text).
                                 '" '.$outid.'/>';
                         } else {
@@ -374,7 +375,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         }
                         $out .= '&nbsp;</span>';
                     } else if ($status->is_editcomments()) {
-                        $out .= '&nbsp;<input type="text" class="form-control form-text-inline"' .
+                        $out .= '&nbsp;<input type="text" class="form-control form-text-inline"'.
                             ' name="teachercomment['.$item->id.']" />';
                     }
                 }
@@ -420,7 +421,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $out .= '<li>';
                                 $out .= '<div style="float: left;">';
                                 if ($status->is_showcheckbox()) {
-                                    $out .= '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"' .
+                                    $out .= '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"'.
                                         ' name="items[]" id='.
                                         $itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
@@ -452,7 +453,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                             } else {
                                 $out .= '<li>';
                                 if ($status->is_showcheckbox()) {
-                                    $out .= '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"' .
+                                    $out .= '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"'.
                                         ' name="items[]" id='.
                                         $itemname.$checked.' value="'.$useritem->id.'" />';
                                 }
@@ -466,11 +467,13 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                     $baseurl = $thispageurl.'&amp;itemid='.$useritem->id.'&amp;sesskey='.sesskey().'&amp;action=';
                                     $out .= '&nbsp;<a href="'.$baseurl.'edititem">';
                                     $title = get_string('edititem', 'checklist');
-                                    $out .= $this->output->pix_icon('t/edit', $title, 'moodle', ['title' => $title]).'</a>';
+                                    $out .= $this->output->pix_icon('t/edit', $title, 'moodle',
+                                                                    ['title' => $title]).'</a>';
 
                                     $out .= '&nbsp;<a href="'.$baseurl.'deleteitem" class="deleteicon">';
                                     $title = get_string('deleteitem', 'checklist');
-                                    $out .= $this->output->pix_icon('remove', $title, 'mod_checklist', ['title' => $title]).'</a>';
+                                    $out .= $this->output->pix_icon('remove', $title, 'mod_checklist',
+                                                                    ['title' => $title]).'</a>';
                                 }
                                 if ($note != '') {
                                     $out .= '<div class="note">'.$note.'</div>';
@@ -575,13 +578,15 @@ class mod_checklist_renderer extends plugin_renderer_base {
             $out .= '&nbsp;';
             switch ($item->get_link_type()) {
                 case checklist_item::LINK_MODULE:
-                    $icon = $this->output->pix_icon('follow_link', get_string('linktomodule', 'checklist'), 'mod_checklist');
+                    $icon = $this->output->pix_icon('follow_link', get_string('linktomodule', 'checklist'),
+                                                    'mod_checklist');
                     break;
                 case checklist_item::LINK_COURSE:
                     $icon = $this->output->pix_icon('i/course', get_string('linktocourse', 'checklist'));
                     break;
                 case checklist_item::LINK_URL:
-                    $icon = $this->output->pix_icon('follow_link', get_string('linktourl', 'checklist'), 'mod_checklist');
+                    $icon = $this->output->pix_icon('follow_link', get_string('linktourl', 'checklist'),
+                                                    'mod_checklist');
                     if ($item->openlinkinnewwindow) {
                         $attrs['target'] = '_blank';
                     }
@@ -642,15 +647,16 @@ class mod_checklist_renderer extends plugin_renderer_base {
             $lastitem = count($items);
             $lastindent = 0;
 
-            $out .= html_writer::start_tag('form', array('action' => $thispageurl->out_omit_querystring(), 'method' => 'post'));
+            $out .= html_writer::start_tag('form',
+                                           ['action' => $thispageurl->out_omit_querystring(), 'method' => 'post']);
             $out .= html_writer::input_hidden_params($thispageurl);
 
             if ($status->is_autopopulate()) {
-                $out .= html_writer::empty_tag('input', array(
+                $out .= html_writer::empty_tag('input', [
                     'type' => 'submit', 'name' => 'showhideitems',
                     'value' => get_string('showhidechecked', 'checklist'),
-                    'class' => 'btn btn-secondary'
-                ));
+                    'class' => 'btn btn-secondary',
+                ]);
             }
 
             foreach ($items as $item) {
@@ -703,28 +709,30 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     $out .= '<li>';
                 }
 
-                $out .= html_writer::start_span('', array('style' => 'display: inline-block; width: 16px;'));
+                $out .= html_writer::start_span('', ['style' => 'display: inline-block; width: 16px;']);
                 if ($autoitem && $item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
                     $out .= html_writer::checkbox('items['.$item->id.']', $item->id, false, '',
-                                               array('title' => $item->displaytext, 'class' => 'checkbox-inline'));
+                                                  ['title' => $item->displaytext, 'class' => 'checkbox-inline']);
                 }
                 $out .= html_writer::end_span();
 
                 // Item optional toggle.
                 if ($item->is_optional()) {
                     $title = get_string('optionalitem', 'checklist');
-                    $out .= '<a href="'.$itemurl->out(true, array('action' => 'makeheading')).'">';
-                    $out .= $this->output->pix_icon('empty_box', $title, 'mod_checklist', ['title' => $title]).'</a>&nbsp;';
+                    $out .= '<a href="'.$itemurl->out(true, ['action' => 'makeheading']).'">';
+                    $out .= $this->output->pix_icon('empty_box', $title, 'mod_checklist',
+                                                    ['title' => $title]).'</a>&nbsp;';
                     $optional = ' class="itemoptional '.$itemcolour.$autoclass.'" ';
                 } else if ($item->is_heading()) {
                     if ($item->hidden) {
                         $title = get_string('headingitem', 'checklist');
-                        $out .= $this->output->pix_icon('no_box', $title, 'mod_checklist', ['title' => $title]).'&nbsp;';
+                        $out .= $this->output->pix_icon('no_box', $title, 'mod_checklist',
+                                                        ['title' => $title]).'&nbsp;';
                         $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
                     } else {
                         $title = get_string('headingitem', 'checklist');
                         if (!$autoitem) {
-                            $out .= '<a href="'.$itemurl->out(true, array('action' => 'makerequired')).'">';
+                            $out .= '<a href="'.$itemurl->out(true, ['action' => 'makerequired']).'">';
                         }
                         $out .= $this->output->pix_icon('no_box', $title, 'mod_checklist', ['title' => $title]);
                         if (!$autoitem) {
@@ -739,8 +747,9 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     $optional = ' class="'.$itemcolour.$autoclass.' itemdisabled"';
                 } else {
                     $title = get_string('requireditem', 'checklist');
-                    $out .= '<a href="'.$itemurl->out(true, array('action' => 'makeoptional')).'">';
-                    $out .= $this->output->pix_icon('tick_box', $title, 'mod_checklist', ['title' => $title]).'</a>&nbsp;';
+                    $out .= '<a href="'.$itemurl->out(true, ['action' => 'makeoptional']).'">';
+                    $out .= $this->output->pix_icon('tick_box', $title, 'mod_checklist',
+                                                    ['title' => $title]).'</a>&nbsp;';
                     $optional = ' class="'.$itemcolour.$autoclass.'"';
                 }
 
@@ -759,9 +768,9 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                     // Item colour.
                     if (!empty(get_config('mod_checklist', 'showcolorchooser'))) {
-                        $out .= '<a href="' . $itemurl->out(true, array('action' => 'nextcolour')) . '">';
+                        $out .= '<a href="'.$itemurl->out(true, ['action' => 'nextcolour']).'">';
                         $title = get_string('changetextcolour', 'checklist');
-                        $out .= $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]) . '</a>';
+                        $out .= $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]).'</a>';
                     }
 
                     // Edit item.
@@ -775,12 +784,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                     // Change item indent.
                     if (!$autoitem && $item->indent > 0) {
-                        $out .= '<a href="'.$itemurl->out(true, array('action' => 'unindentitem')).'">';
+                        $out .= '<a href="'.$itemurl->out(true, ['action' => 'unindentitem']).'">';
                         $title = get_string('unindentitem', 'checklist');
                         $out .= $this->output->pix_icon('t/left', $title, 'moodle', ['title' => $title]).'</a>';
                     }
                     if (!$autoitem && ($item->indent < CHECKLIST_MAX_INDENT) && (($lastindent + 1) > $currindent)) {
-                        $out .= '<a href="'.$itemurl->out(true, array('action' => 'indentitem')).'">';
+                        $out .= '<a href="'.$itemurl->out(true, ['action' => 'indentitem']).'">';
                         $title = get_string('indentitem', 'checklist');
                         $out .= $this->output->pix_icon('t/right', $title, 'moodle', ['title' => $title]).'</a>';
                     }
@@ -789,12 +798,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                     // Move item up/down.
                     if (!$autoitem && $item->position > 1) {
-                        $out .= '<a href="'.$itemurl->out(true, array('action' => 'moveitemup')).'">';
+                        $out .= '<a href="'.$itemurl->out(true, ['action' => 'moveitemup']).'">';
                         $title = get_string('moveitemup', 'checklist');
                         $out .= $this->output->pix_icon('t/up', $title, 'moodle', ['title' => $title]).'</a>';
                     }
                     if (!$autoitem && $item->position < $lastitem) {
-                        $out .= '<a href="'.$itemurl->out(true, array('action' => 'moveitemdown')).'">';
+                        $out .= '<a href="'.$itemurl->out(true, ['action' => 'moveitemdown']).'">';
                         $title = get_string('moveitemdown', 'checklist');
                         $out .= $this->output->pix_icon('t/down', $title, 'moodle', ['title' => $title]).'</a>';
                     }
@@ -802,7 +811,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     // Hide/delete item.
                     if ($autoitem) {
                         if ($item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
-                            $out .= '&nbsp;<a href="'.$itemurl->out(true, array('action' => 'deleteitem')).'">';
+                            $out .= '&nbsp;<a href="'.$itemurl->out(true, ['action' => 'deleteitem']).'">';
                             if ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
                                 $title = get_string('show');
                                 $out .= $this->output->pix_icon('t/show', $title, 'moodle', ['title' => $title]).'</a>';
@@ -812,13 +821,13 @@ class mod_checklist_renderer extends plugin_renderer_base {
                             }
                         }
                     } else {
-                        $out .= '&nbsp;<a href="'.$itemurl->out(true, array('action' => 'deleteitem')).'">';
+                        $out .= '&nbsp;<a href="'.$itemurl->out(true, ['action' => 'deleteitem']).'">';
                         $title = get_string('deleteitem', 'checklist');
                         $out .= $this->output->pix_icon('t/delete', $title, 'moodle', ['title' => $title]).'</a>';
                     }
 
                     // Add item icon.
-                    $out .= '&nbsp;&nbsp;&nbsp;<a href="'.$itemurl->out(true, array('action' => 'startadditem')).'">';
+                    $out .= '&nbsp;&nbsp;&nbsp;<a href="'.$itemurl->out(true, ['action' => 'startadditem']).'">';
                     $title = get_string('additemhere', 'checklist');
                     $out .= $this->output->pix_icon('add', $title, 'mod_checklist', ['title' => $title]).'</a>';
 
@@ -936,7 +945,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
         // Disabled checkbox.
         $attr = [
             'type' => 'checkbox', 'class' => 'checkbox-inline', 'name' => 'duetimedisable',
-            'id' => "timeduedisable{$id}", 'onclick' => "toggledate{$id}()"
+            'id' => "timeduedisable{$id}", 'onclick' => "toggledate{$id}()",
         ];
         if ($disabled) {
             $attr['checked'] = 'checked';
@@ -1006,7 +1015,7 @@ ENDSCRIPT;
         $out .= html_writer::checkbox(
             'openlinkinnewwindow',
             1,
-            $item ? (bool) $item->openlinkinnewwindow : false,
+            $item ? (bool)$item->openlinkinnewwindow : false,
             get_string('openlinkinnewwindow', 'mod_checklist'),
             $attr
         );
@@ -1028,7 +1037,8 @@ ENDSCRIPT;
         $out .= html_writer::label(get_string('grouping', 'mod_checklist'), 'id_grouping').' ';
         $selected = $item ? $item->groupingid : null;
         $groupings = checklist_class::get_course_groupings($status->get_courseid());
-        $out .= html_writer::select($groupings, 'groupingid', $selected, [0 => get_string('anygrouping', 'mod_checklist')],
+        $out .= html_writer::select($groupings, 'groupingid', $selected,
+                                    [0 => get_string('anygrouping', 'mod_checklist')],
                                     ['id' => 'id_grouping']);
 
         return html_writer::span($out, 'checklistformitem');

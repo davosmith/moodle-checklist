@@ -117,7 +117,8 @@ function xmldb_checklist_upgrade($oldversion = 0) {
 
         // Define field teachercomments to be added to checklist.
         $table = new xmldb_table('checklist');
-        $field = new xmldb_field('teachercomments', XMLDB_TYPE_INTEGER, '4', null, null, null, '1', 'duedatesoncalendar');
+        $field = new xmldb_field('teachercomments', XMLDB_TYPE_INTEGER, '4', null, null, null, '1',
+                                 'duedatesoncalendar');
 
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
@@ -134,10 +135,10 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         $table->add_field('text', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
 
         // Adding keys to table checklist_comment.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table checklist_comment.
-        $table->add_index('checklist_item_user', XMLDB_INDEX_UNIQUE, array('itemid', 'userid'));
+        $table->add_index('checklist_item_user', XMLDB_INDEX_UNIQUE, ['itemid', 'userid']);
 
         // Conditionally launch create table for checklist_comment.
         if (!$dbman->table_exists($table)) {
@@ -187,7 +188,7 @@ function xmldb_checklist_upgrade($oldversion = 0) {
             $dbman->add_field($table, $field);
         }
 
-        $table->add_index('item_module', XMLDB_INDEX_NOTUNIQUE, array('moduleid'));
+        $table->add_index('item_module', XMLDB_INDEX_NOTUNIQUE, ['moduleid']);
 
         upgrade_mod_savepoint($result, 2010112000, 'checklist');
     }
@@ -204,7 +205,7 @@ function xmldb_checklist_upgrade($oldversion = 0) {
 
     if ($result && $oldversion < 2011021600) {
         // I really should not have to update the 'cron' field manually.
-        $chkmod = $DB->get_record('modules', array('name' => 'checklist'));
+        $chkmod = $DB->get_record('modules', ['name' => 'checklist']);
         if ($chkmod) {
             $chkmodupd = new stdClass;
             $chkmodupd->id = $chkmod->id;
@@ -290,7 +291,7 @@ function xmldb_checklist_upgrade($oldversion = 0) {
             $dbman->add_field($table, $field);
 
             // Define key linkcourseid (foreign) to be added to checklist_item.
-            $key = new xmldb_key('linkcourseid', XMLDB_KEY_FOREIGN, array('linkcourseid'), 'course', array('id'));
+            $key = new xmldb_key('linkcourseid', XMLDB_KEY_FOREIGN, ['linkcourseid'], 'course', ['id']);
             $dbman->add_key($table, $key);
         }
 
@@ -330,7 +331,8 @@ function xmldb_checklist_upgrade($oldversion = 0) {
 
     if ($oldversion < 2020012900) {
         $table = new xmldb_table('checklist_item');
-        $field = new xmldb_field('openlinkinnewwindow', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, 0, 'linkurl');
+        $field = new xmldb_field('openlinkinnewwindow', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, 0,
+                                 'linkurl');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -373,10 +375,10 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
 
         // Adding keys to table checklist_comment_student.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table checklist_comment_student.
-        $table->add_index('checklist_item_student', XMLDB_INDEX_UNIQUE, array('itemid', 'usermodified'));
+        $table->add_index('checklist_item_student', XMLDB_INDEX_UNIQUE, ['itemid', 'usermodified']);
 
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);

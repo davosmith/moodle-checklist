@@ -59,7 +59,7 @@ class student_comment_created extends \core\event\base {
      */
     public function get_description() {
         $commenttext = $this->other['commenttext'];
-        return "The user with id $this->userid has created a comment in the checklist with course module id" .
+        return "The user with id $this->userid has created a comment in the checklist with course module id".
             " $this->contextinstanceid with text '$commenttext'";
     }
 
@@ -69,7 +69,8 @@ class student_comment_created extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/checklist/report.php', array('id' => $this->contextinstanceid, 'studentid' => $this->userid));
+        return new \moodle_url('/mod/checklist/report.php',
+                               ['id' => $this->contextinstanceid, 'studentid' => $this->userid]);
     }
 
     /**

@@ -45,7 +45,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('modulename', 'checklist'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('modulename', 'checklist'), ['size' => '64']);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -59,15 +59,15 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('header', 'checklistsettings', get_string('checklistsettings', 'checklist'));
         $mform->setExpanded('checklistsettings', true);
 
-        $ynoptions = array(0 => get_string('no'), 1 => get_string('yes'));
+        $ynoptions = [0 => get_string('no'), 1 => get_string('yes')];
         $mform->addElement('select', 'useritemsallowed', get_string('useritemsallowed', 'checklist'), $ynoptions);
         $mform->addElement('select', 'studentcomments', get_string('studentcomments', 'checklist'), $ynoptions);
 
-        $teditoptions = array(
+        $teditoptions = [
             CHECKLIST_MARKING_STUDENT => get_string('teachernoteditcheck', 'checklist'),
             CHECKLIST_MARKING_TEACHER => get_string('teacheroverwritecheck', 'checklist'),
-            CHECKLIST_MARKING_BOTH => get_string('teacheralongsidecheck', 'checklist')
-        );
+            CHECKLIST_MARKING_BOTH => get_string('teacheralongsidecheck', 'checklist'),
+        ];
         $mform->addElement('select', 'teacheredit', get_string('teacheredit', 'checklist'), $teditoptions);
 
         $mform->addElement('select', 'duedatesoncalendar', get_string('duedatesoncalendar', 'checklist'), $ynoptions);
@@ -76,25 +76,25 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addElement('select', 'teachercomments', get_string('teachercomments', 'checklist'), $ynoptions);
         $mform->setDefault('teachercomments', 1);
 
-        $mform->addElement('text', 'maxgrade', get_string('maximumgrade'), array('size' => '10'));
+        $mform->addElement('text', 'maxgrade', get_string('maximumgrade'), ['size' => '10']);
         $mform->setDefault('maxgrade', 100);
         $mform->setType('maxgrade', PARAM_INT);
 
-        $emailrecipients = array(
+        $emailrecipients = [
             CHECKLIST_EMAIL_NO => get_string('no'),
             CHECKLIST_EMAIL_STUDENT => get_string('teachernoteditcheck', 'checklist'),
             CHECKLIST_EMAIL_TEACHER => get_string('teacheroverwritecheck', 'checklist'),
-            CHECKLIST_EMAIL_BOTH => get_string('teacheralongsidecheck', 'checklist')
-        );
+            CHECKLIST_EMAIL_BOTH => get_string('teacheralongsidecheck', 'checklist'),
+        ];
         $mform->addElement('select', 'emailoncomplete', get_string('emailoncomplete', 'checklist'), $emailrecipients);
         $mform->setDefault('emailoncomplete', 0);
         $mform->addHelpButton('emailoncomplete', 'emailoncomplete', 'checklist');
 
-        $autopopulateoptions = array(
+        $autopopulateoptions = [
             CHECKLIST_AUTOPOPULATE_NO => get_string('no'),
             CHECKLIST_AUTOPOPULATE_SECTION => get_string('importfromsection', 'checklist'),
-            CHECKLIST_AUTOPOPULATE_COURSE => get_string('importfromcourse', 'checklist')
-        );
+            CHECKLIST_AUTOPOPULATE_COURSE => get_string('importfromcourse', 'checklist'),
+        ];
         $mform->addElement('select', 'autopopulate', get_string('autopopulate', 'checklist'), $autopopulateoptions);
         $mform->setDefault('autopopulate', 0);
         $mform->addHelpButton('autopopulate', 'autopopulate', 'checklist');
@@ -106,11 +106,11 @@ class mod_checklist_mod_form extends moodleform_mod {
             $checkdisable = false;
         }
 
-        $autoupdateoptions = array(
+        $autoupdateoptions = [
             CHECKLIST_AUTOUPDATE_NO => get_string('no'),
             CHECKLIST_AUTOUPDATE_YES => get_string('yesnooverride', 'checklist'),
-            CHECKLIST_AUTOUPDATE_YES_OVERRIDE => get_string('yesoverride', 'checklist')
-        );
+            CHECKLIST_AUTOUPDATE_YES_OVERRIDE => get_string('yesoverride', 'checklist'),
+        ];
         $mform->addElement('select', 'autoupdate', get_string($str, 'checklist'), $autoupdateoptions);
         $mform->setDefault('autoupdate', 1);
         $mform->addHelpButton('autoupdate', $str, 'checklist');

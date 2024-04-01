@@ -43,14 +43,14 @@ class checklist_comment_student extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-            'itemid' => array(
+        return [
+            'itemid' => [
                 'type' => PARAM_INT,
-            ),
-            'text' => array(
+            ],
+            'text' => [
                 'type' => PARAM_TEXT,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -67,7 +67,7 @@ class checklist_comment_student extends persistent {
             return $ret;
         }
 
-        list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+        [$isql, $params] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
         $params['usermodified'] = $userid;
         $studentcomments = self::get_records_select("usermodified = :usermodified AND itemid $isql", $params);
 
@@ -129,8 +129,8 @@ class checklist_comment_student extends persistent {
      * @return bool true if successful.
      */
     public static function update_or_create_student_comment(
-        int $checklistitemid,
-        string $commenttext,
+        int                       $checklistitemid,
+        string                    $commenttext,
         checklist_comment_student $existingcomment = null
     ): bool {
         if (!$existingcomment) {

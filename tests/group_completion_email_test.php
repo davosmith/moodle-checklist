@@ -112,22 +112,22 @@ class group_completion_email_test extends \advanced_testcase {
         $this->getDataGenerator()->enrol_user($this->student2->id, $this->course->id, $studentrole->id);
 
         // Create a teacher who should receive email for these checklists.
-        $this->teacher = $this->getDataGenerator()->create_user(array('email' => 'ingroupteacher@testing.com'));
+        $this->teacher = $this->getDataGenerator()->create_user(['email' => 'ingroupteacher@testing.com']);
         $teacherrole = $DB->get_record('role', ['shortname' => 'teacher']);
         $this->getDataGenerator()->enrol_user($this->teacher->id, $this->course->id, $teacherrole->id);
 
         // Create a teacher who should not receive email for these checklists.
-        $this->teacher2 = $this->getDataGenerator()->create_user(array('email' => 'notingroupteacher@testing.com'));
+        $this->teacher2 = $this->getDataGenerator()->create_user(['email' => 'notingroupteacher@testing.com']);
         $this->getDataGenerator()->enrol_user($this->teacher2->id, $this->course->id, $teacherrole->id);
 
         // Create a group.
-        $this->group = $this->getDataGenerator()->create_group(array('courseid' => $this->course->id));
+        $this->group = $this->getDataGenerator()->create_group(['courseid' => $this->course->id]);
 
         // Add the student to the group.
-        $this->getDataGenerator()->create_group_member(array('userid' => $this->student->id, 'groupid' => $this->group->id));
+        $this->getDataGenerator()->create_group_member(['userid' => $this->student->id, 'groupid' => $this->group->id]);
 
         // Add one teacher to the group.
-        $this->getDataGenerator()->create_group_member(array('userid' => $this->teacher->id, 'groupid' => $this->group->id));
+        $this->getDataGenerator()->create_group_member(['userid' => $this->teacher->id, 'groupid' => $this->group->id]);
 
     }
 
@@ -161,7 +161,7 @@ class group_completion_email_test extends \advanced_testcase {
         // Test the function.
         checklist_update_grades($this->checklist, $this->student->id);
 
-        $recipients = array_map(function($o) {
+        $recipients = array_map(function ($o) {
             return $o->to;
         }, $this->mailsink->get_messages());
 
@@ -212,7 +212,8 @@ class group_completion_email_test extends \advanced_testcase {
         previous_completions::override_time(time() + 10 * MINSECS);
         $items[2]->set_checked_student($this->student->id, true);
         checklist_update_grades($this->checklist, $this->student->id);
-        $this->assertEquals(0, $this->mailsink->count(), "No emails expected as checklist last emailed out within an hour");
+        $this->assertEquals(0, $this->mailsink->count(),
+                            "No emails expected as checklist last emailed out within an hour");
 
         // Update the checklist to incomplete.
         $items[2]->set_checked_student($this->student->id, false);
@@ -223,7 +224,8 @@ class group_completion_email_test extends \advanced_testcase {
         previous_completions::override_time(time() + 2 * HOURSECS);
         $items[2]->set_checked_student($this->student->id, true);
         checklist_update_grades($this->checklist, $this->student->id);
-        $this->assertEquals(2, $this->mailsink->count(), "Emails expected as an hour has passed since the last email notification");
+        $this->assertEquals(2, $this->mailsink->count(),
+                            "Emails expected as an hour has passed since the last email notification");
         $this->mailsink->clear();
 
         // Move forward another 2 hours - should not see any more emails, as checklist state has not changed.

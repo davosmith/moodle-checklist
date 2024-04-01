@@ -50,10 +50,10 @@ class restore_checklist_activity_task extends restore_activity_task {
      * processed by the link decoder
      */
     public static function define_decode_contents() {
-        $contents = array();
+        $contents = [];
 
-        $contents[] = new restore_decode_content('checklist', array('intro'), 'checklist');
-        $contents[] = new restore_decode_content('checklist_item', array('linkurl'),  'checklist_item');
+        $contents[] = new restore_decode_content('checklist', ['intro'], 'checklist');
+        $contents[] = new restore_decode_content('checklist_item', ['linkurl'], 'checklist_item');
 
         return $contents;
     }
@@ -63,19 +63,22 @@ class restore_checklist_activity_task extends restore_activity_task {
      * to the activity to be executed by the link decoder
      */
     public static function define_decode_rules() {
-        $rules = array();
+        $rules = [];
 
         // List of checklists in course.
         $rules[] = new restore_decode_rule('CHECKLISTINDEX', '/mod/checklist/index.php?id=$1', 'course');
         // Checklist by cm->id and forum->id.
         $rules[] = new restore_decode_rule('CHECKLISTVIEWBYID', '/mod/checklist/view.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('CHECKLISTVIEWBYCHECKLIST', '/mod/checklist/view.php?checklist=$1', 'checklist');
+        $rules[] = new restore_decode_rule('CHECKLISTVIEWBYCHECKLIST', '/mod/checklist/view.php?checklist=$1',
+                                           'checklist');
         // Checklist report by cm->id and forum->id.
         $rules[] = new restore_decode_rule('CHECKLISTREPORTBYID', '/mod/checklist/report.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('CHECKLISTREPORTBYCHECKLIST', '/mod/checklist/report.php?checklist=$1', 'checklist');
+        $rules[] = new restore_decode_rule('CHECKLISTREPORTBYCHECKLIST', '/mod/checklist/report.php?checklist=$1',
+                                           'checklist');
         // Checklist edit by cm->id and forum->id.
         $rules[] = new restore_decode_rule('CHECKLISTEDITBYID', '/mod/checklist/edit.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/edit.php?checklist=$1', 'checklist');
+        $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/edit.php?checklist=$1',
+                                           'checklist');
 
         return $rules;
     }
@@ -89,19 +92,19 @@ class restore_checklist_activity_task extends restore_activity_task {
 
         // Find all the items that have a 'moduleid' but are not headings and match them up to the newly-restored activities.
         $items = $DB->get_records_select('checklist_item', 'checklist = ? AND moduleid > 0 AND itemoptional <> 2',
-                                         array($this->get_activityid()));
+                                         [$this->get_activityid()]);
 
         foreach ($items as $item) {
             $moduleid = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $item->moduleid);
             if ($moduleid) {
                 // Match up the moduleid to the restored activity module.
-                $DB->set_field('checklist_item', 'moduleid', $moduleid->newitemid, array('id' => $item->id));
+                $DB->set_field('checklist_item', 'moduleid', $moduleid->newitemid, ['id' => $item->id]);
             } else {
                 // Does not match up to a restored activity module => delete the item + associated user data.
-                $DB->delete_records('checklist_check', array('item' => $item->id));
-                $DB->delete_records('checklist_comment', array('itemid' => $item->id));
-                $DB->delete_records('checklist_comment_student', array('itemid' => $item->id));
-                $DB->delete_records('checklist_item', array('id' => $item->id));
+                $DB->delete_records('checklist_check', ['item' => $item->id]);
+                $DB->delete_records('checklist_comment', ['itemid' => $item->id]);
+                $DB->delete_records('checklist_comment_student', ['itemid' => $item->id]);
+                $DB->delete_records('checklist_item', ['id' => $item->id]);
             }
         }
     }
@@ -118,7 +121,7 @@ class restore_checklist_activity_task extends restore_activity_task {
      * @return restore_log_rule[]
      */
     public static function define_restore_log_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('checklist', 'add', 'view.php?id={course_module}', '{folder}');
         $rules[] = new restore_log_rule('checklist', 'edit', 'edit.php?id={course_module}', '{folder}');
@@ -139,7 +142,7 @@ class restore_checklist_activity_task extends restore_activity_task {
      * @return restore_log_rule[]
      */
     public static function define_restore_log_rules_for_course() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('checklist', 'view all', 'index.php?id={course}', null);
 

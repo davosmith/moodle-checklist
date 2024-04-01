@@ -56,7 +56,7 @@ class update_student_comment extends external_api {
                     [
                         'commenttext' => new external_value(PARAM_TEXT, 'content of the comment'),
                         'checklistitemid' => new external_value(PARAM_INT, 'id of checklist item'),
-                        'cmid' => new external_value(PARAM_INT, 'cmid of checklist module')
+                        'cmid' => new external_value(PARAM_INT, 'cmid of checklist module'),
                     ]
                 ),
             ]
@@ -70,7 +70,7 @@ class update_student_comment extends external_api {
      */
     public static function execute(array $params): string {
         global $USER;
-        $params = self::validate_parameters(self::execute_parameters(), array('comment' => $params));
+        $params = self::validate_parameters(self::execute_parameters(), ['comment' => $params]);
         $commentdata = $params['comment'];
         $cm = get_coursemodule_from_id('checklist', $commentdata['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
@@ -86,9 +86,9 @@ class update_student_comment extends external_api {
         $eventdata['objectid'] = $commentdata['checklistitemid'];
         $eventdata['other'] = ['commenttext' => $commentdata['commenttext']];
         $existingcomment = checklist_comment_student::get_record([
-            'itemid' => $commentdata['checklistitemid'],
-            'usermodified' => $USER->id
-        ]);
+                                                                     'itemid' => $commentdata['checklistitemid'],
+                                                                     'usermodified' => $USER->id,
+                                                                 ]);
         if ($existingcomment) {
             $event = \mod_checklist\event\student_comment_updated::create($eventdata);
             $event->trigger();
@@ -99,7 +99,8 @@ class update_student_comment extends external_api {
         }
 
         return checklist_comment_student::update_or_create_student_comment($commentdata['checklistitemid'],
-            $commentdata['commenttext'], $existingcomment);
+                                                                           $commentdata['commenttext'],
+                                                                           $existingcomment);
     }
 
     /** Returns description of method result value.

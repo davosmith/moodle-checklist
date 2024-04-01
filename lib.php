@@ -125,7 +125,7 @@ function checklist_update_instance($checklist) {
     $DB->update_record('checklist', $checklist);
 
     // Add or remove all calendar events, as needed.
-    $course = $DB->get_record('course', array('id' => $checklist->course));
+    $course = $DB->get_record('course', ['id' => $checklist->course]);
     $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id);
     $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
     $chk->setallevents();
@@ -179,14 +179,14 @@ function checklist_update_instance($checklist) {
 function checklist_delete_instance($id) {
     global $DB;
 
-    if (!$checklist = $DB->get_record('checklist', array('id' => $id))) {
+    if (!$checklist = $DB->get_record('checklist', ['id' => $id])) {
         return false;
     }
 
     // Remove all calendar events.
     if ($checklist->duedatesoncalendar) {
         $checklist->duedatesoncalendar = false;
-        $course = $DB->get_record('course', array('id' => $checklist->course));
+        $course = $DB->get_record('course', ['id' => $checklist->course]);
         $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id);
         if ($cm) { // Should not be false, but check, just in case...
             $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
@@ -195,15 +195,15 @@ function checklist_delete_instance($id) {
     }
 
     $DB->delete_records('checklist_comp_notification', ['checklistid' => $checklist->id]);
-    $items = $DB->get_records('checklist_item', array('checklist' => $checklist->id), '', 'id');
+    $items = $DB->get_records('checklist_item', ['checklist' => $checklist->id], '', 'id');
     if (!empty($items)) {
         $items = array_keys($items);
         $DB->delete_records_list('checklist_check', 'item', $items);
         $DB->delete_records_list('checklist_comment', 'itemid', $items);
         $DB->delete_records_list('checklist_comment_student', 'itemid', $items);
-        $DB->delete_records('checklist_item', array('checklist' => $checklist->id));
+        $DB->delete_records('checklist_item', ['checklist' => $checklist->id]);
     }
-    $DB->delete_records('checklist', array('id' => $checklist->id));
+    $DB->delete_records('checklist', ['id' => $checklist->id]);
 
     checklist_grade_item_delete($checklist);
 
@@ -232,18 +232,18 @@ function checklist_update_all_grades() {
 function checklist_update_grades($checklist, $userid = 0) {
     global $DB;
 
-    $params = array(
+    $params = [
         'checklist' => $checklist->id,
         'userid' => 0,
         'itemoptional' => CHECKLIST_OPTIONAL_NO,
-        'hidden' => CHECKLIST_HIDDEN_NO
-    );
+        'hidden' => CHECKLIST_HIDDEN_NO,
+    ];
     $items = \mod_checklist\local\checklist_item::fetch_all($params);
 
     if (!$items) {
         return;
     }
-    if (!$course = $DB->get_record('course', array('id' => $checklist->course))) {
+    if (!$course = $DB->get_record('course', ['id' => $checklist->course])) {
         return;
     }
     if (!$cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id)) {
@@ -270,7 +270,7 @@ function checklist_update_grades($checklist, $userid = 0) {
 
     if ($checkgroupings) {
         if ($userid) {
-            $users = $DB->get_records('user', array('id' => $userid), null, 'id, firstname, lastname');
+            $users = $DB->get_records('user', ['id' => $userid], null, 'id, firstname, lastname');
         } else {
             if (get_config('mod_checklist', 'onlyenrolled')) {
                 $users = get_enrolled_users($context, 'mod/checklist:updateown', 0, 'u.id, u.firstname, u.lastname',
@@ -283,7 +283,7 @@ function checklist_update_grades($checklist, $userid = 0) {
             }
         }
 
-        $grades = array();
+        $grades = [];
 
         // With groupings, need to update each user individually (as each has different groupings).
         foreach ($users as $uid => $user) {
@@ -314,7 +314,7 @@ function checklist_update_grades($checklist, $userid = 0) {
                 $sql .= " WHERE c.item IN ($itemlist)";
                 $sql .= ' AND c.userid = ? ';
 
-                $ugrade = $DB->get_record_sql($sql, array($total, $uid));
+                $ugrade = $DB->get_record_sql($sql, [$total, $uid]);
                 if (!$ugrade) {
                     $ugrade = new stdClass;
                     $ugrade->rawgrade = 0;
@@ -338,7 +338,8 @@ function checklist_update_grades($checklist, $userid = 0) {
             if (get_config('mod_checklist', 'onlyenrolled')) {
                 $users = get_enrolled_users($context, 'mod/checklist:updateown', 0, 'u.id', null, 0, 0, true);
             } else {
-                $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '', false);
+                $users = get_users_by_capability($context, 'mod/checklist:updateown', 'u.id', '', '', '', '', '',
+                                                 false);
             }
             if (!$users) {
                 return;
@@ -409,7 +410,7 @@ function checklist_update_grades($checklist, $userid = 0) {
                         // Email will be sent to the all teachers who have capability.
                         $subj = get_string('emailoncompletesubject', 'checklist', $details);
                         $content = get_string('emailoncompletebody', 'checklist', $details);
-                        $content .= new moodle_url('/mod/checklist/view.php', array('id' => $cm->id));
+                        $content .= new moodle_url('/mod/checklist/view.php', ['id' => $cm->id]);
 
                         $groups = groups_get_all_groups($course->id, $grade->userid, $cm->groupingid);
 
@@ -439,18 +440,18 @@ function checklist_update_grades($checklist, $userid = 0) {
                         // Email will be sent to the student who completes this checklist.
                         $subj = get_string('emailoncompletesubjectown', 'checklist', $details);
                         $content = get_string('emailoncompletebodyown', 'checklist', $details);
-                        $content .= new moodle_url('/mod/checklist/view.php', array('id' => $cm->id));
+                        $content .= new moodle_url('/mod/checklist/view.php', ['id' => $cm->id]);
 
-                        $recipientstudent = $DB->get_record('user', array('id' => $grade->userid));
+                        $recipientstudent = $DB->get_record('user', ['id' => $grade->userid]);
                         email_to_user($recipientstudent, $grade, $subj, $content, '', '', '', false);
                     }
                 }
             }
-            $params = array(
+            $params = [
                 'contextid' => $context->id,
                 'objectid' => $checklist->id,
                 'userid' => $grade->userid,
-            );
+            ];
             $event = \mod_checklist\event\checklist_completed::create($params);
             $event->trigger();
         }
@@ -476,7 +477,8 @@ function checklist_grade_item_delete($checklist) {
         $checklist->courseid = $checklist->course;
     }
 
-    return grade_update('mod/checklist', $checklist->courseid, 'mod', 'checklist', $checklist->id, 0, null, array('deleted' => 1));
+    return grade_update('mod/checklist', $checklist->courseid, 'mod', 'checklist', $checklist->id, 0, null,
+                        ['deleted' => 1]);
 }
 
 /**
@@ -493,7 +495,7 @@ function checklist_grade_item_update($checklist, $grades = null) {
         $checklist->courseid = $checklist->course;
     }
 
-    $params = array('itemname' => $checklist->name);
+    $params = ['itemname' => $checklist->name];
     if ($checklist->maxgrade > 0) {
         $params['gradetype'] = GRADE_TYPE_VALUE;
         $params['grademax'] = $checklist->maxgrade;
@@ -531,7 +533,7 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
 
     $sel = 'checklist = ? AND userid = 0 AND itemoptional = '.CHECKLIST_OPTIONAL_NO;
     $sel .= ' AND hidden = '.CHECKLIST_HIDDEN_NO." AND $groupingsql";
-    $items = $DB->get_records_select('checklist_item', $sel, array($checklist->id), '', 'id');
+    $items = $DB->get_records_select('checklist_item', $sel, [$checklist->id], '', 'id');
     if (!$items) {
         return null;
     }
@@ -547,7 +549,7 @@ function checklist_user_outline($course, $user, $mod, $checklist) {
         $sql .= 'teachermark = '.CHECKLIST_TEACHERMARK_YES;
         $order = 'teachertimestamp DESC';
     }
-    $params = array_merge(array($user->id), $iparams);
+    $params = array_merge([$user->id], $iparams);
 
     $checks = $DB->get_records_select('checklist_check', $sql, $params, $order);
 
@@ -657,7 +659,7 @@ function checklist_print_overview($courses, &$htmlarray) {
             $groupingsql = checklist_class::get_grouping_sql($USER->id, $checklist->course);
             $dateitems = $DB->get_records_select('checklist_item',
                                                  "checklist = ? AND duetime > 0 AND $groupingsql",
-                                                 array($checklist->id),
+                                                 [$checklist->id],
                                                  'duetime');
         } else { // Show only items that have not been checked off.
             $groupingsql = checklist_class::get_grouping_sql($USER->id, $checklist->course, 'i.');
@@ -665,7 +667,7 @@ function checklist_print_overview($courses, &$htmlarray) {
                                                  JOIN {checklist_check} c ON c.item = i.id
                                                 WHERE i.checklist = ? AND i.duetime > 0 AND c.userid = ? AND usertimestamp = 0
                                                   AND $groupingsql
-                                                ORDER BY i.duetime", array($checklist->id, $USER->id));
+                                                ORDER BY i.duetime", [$checklist->id, $USER->id]);
         }
 
         $str = '<div class="checklist overview"><div class="name">'.$strchecklist.': '.
@@ -702,7 +704,7 @@ function checklist_print_overview($courses, &$htmlarray) {
 function checklist_get_participants($checklistid) {
     global $DB;
 
-    $params = array($checklistid);
+    $params = [$checklistid];
     $sql = 'SELECT DISTINCT u.id
               FROM {user} u
               JOIN {checklist_item} i ON i.userid = u.id
@@ -780,7 +782,7 @@ function checklist_reset_course_form_definition(&$mform) {
  * @return array
  */
 function checklist_reset_course_form_defaults($course) {
-    return array('reset_checklist_progress' => 1);
+    return ['reset_checklist_progress' => 1];
 }
 
 /**
@@ -793,16 +795,16 @@ function checklist_reset_userdata($data) {
 
     if (empty($data->reset_checklist_progress)) {
         // Nothing to do. User did not request to reset checklist data.
-        return array();
+        return [];
     }
 
     $component = get_string('modulenameplural', 'checklist');
     $typestr = get_string('resetchecklistprogress', 'checklist');
 
-    $status = array();
-    $status[] = array('component' => $component, 'item' => $typestr, 'error' => false);
+    $status = [];
+    $status[] = ['component' => $component, 'item' => $typestr, 'error' => false];
 
-    $checklists = $DB->get_records('checklist', array('course' => $data->courseid));
+    $checklists = $DB->get_records('checklist', ['course' => $data->courseid]);
     if (!$checklists) {
         return $status;
     }
@@ -847,8 +849,8 @@ function checklist_refresh_events($courseid = 0, $instance = null, $cm = null) {
         }
         $checklists = [$instance];
     } else if ($courseid) {
-        $checklists = $DB->get_records('checklist', array('course' => $courseid));
-        $course = $DB->get_record('course', array('id' => $courseid));
+        $checklists = $DB->get_records('checklist', ['course' => $courseid]);
+        $course = $DB->get_record('course', ['id' => $courseid]);
     } else {
         $checklists = $DB->get_records('checklist');
     }
@@ -921,14 +923,14 @@ function checklist_supports($feature) {
 function checklist_get_completion_state($course, $cm, $userid, $type) {
     global $DB;
 
-    if (!($checklist = $DB->get_record('checklist', array('id' => $cm->instance)))) {
+    if (!($checklist = $DB->get_record('checklist', ['id' => $cm->instance]))) {
         throw new Exception("Can't find checklist {$cm->instance}");
     }
 
     $result = $type; // Default return value.
 
     if ($checklist->completionpercent) {
-        list($ticked, $total) = checklist_class::get_user_progress($cm->instance, $userid);
+        [$ticked, $total] = checklist_class::get_user_progress($cm->instance, $userid);
         if ($checklist->completionpercenttype === 'items') {
             // Completionpercent is the actual number of items that need checking-off.
             $value = $checklist->completionpercent <= $ticked;
@@ -990,13 +992,13 @@ function checklist_extend_settings_navigation(settings_navigation $settings, nav
     if (has_capability('mod/checklist:viewreports', $cm->context)
         || has_capability('mod/checklist:viewmenteereports', $cm->context)) {
         $checklistnode->add(get_string('report', 'mod_checklist'),
-            new moodle_url('/mod/checklist/report.php', array('id' => $cm->id)),
-            navigation_node::TYPE_SETTING, null, 'progress');
+                            new moodle_url('/mod/checklist/report.php', ['id' => $cm->id]),
+                            navigation_node::TYPE_SETTING, null, 'progress');
     }
 
     if (has_capability('mod/checklist:edit', $cm->context)) {
         $checklistnode->add(get_string('edit', 'mod_checklist'),
-            new moodle_url('/mod/checklist/edit.php', array('id' => $cm->id)),
-            navigation_node::TYPE_SETTING, null, 'edit');
+                            new moodle_url('/mod/checklist/edit.php', ['id' => $cm->id]),
+                            navigation_node::TYPE_SETTING, null, 'edit');
     }
 }

@@ -40,7 +40,7 @@ class checklist_check extends data_object {
     public $table = 'checklist_check';
     /** @var string[] */
     public $requiredfields = [
-        'id', 'item', 'userid', 'usertimestamp', 'teachermark', 'teachertimestamp', 'teacherid'
+        'id', 'item', 'userid', 'usertimestamp', 'teachermark', 'teachertimestamp', 'teacherid',
     ];
 
     // DB fields.
@@ -106,7 +106,7 @@ class checklist_check extends data_object {
             return $ret;
         }
 
-        list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+        [$isql, $params] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
         $params['userid'] = $userid;
         $checks = $DB->get_records_select('checklist_check', "userid = :userid AND item $isql", $params);
         foreach ($checks as $check) {
@@ -122,7 +122,8 @@ class checklist_check extends data_object {
      * @return bool
      */
     public static function teachermark_valid($teachermark) {
-        return in_array($teachermark, [CHECKLIST_TEACHERMARK_YES, CHECKLIST_TEACHERMARK_NO, CHECKLIST_TEACHERMARK_UNDECIDED]);
+        return in_array($teachermark,
+                        [CHECKLIST_TEACHERMARK_YES, CHECKLIST_TEACHERMARK_NO, CHECKLIST_TEACHERMARK_UNDECIDED]);
     }
 
     /**

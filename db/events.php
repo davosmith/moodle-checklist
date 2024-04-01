@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$observers = array(
-    array(
+$observers = [
+    [
         'eventname' => '*',
-        'callback' => '\mod_checklist\local\autoupdate::update_from_event'
-    )
-);
+        'callback' => '\mod_checklist\local\autoupdate::update_from_event',
+    ],
+];

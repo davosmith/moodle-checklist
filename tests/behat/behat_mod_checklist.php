@@ -47,8 +47,8 @@ class behat_mod_checklist extends behat_base {
     public function i_visit_the_calendar_for_course_showing_date($coursename, $datestring) {
         global $DB;
 
-        if (!$courseid = $DB->get_field('course', 'id', array('shortname' => $coursename))) {
-            $courseid = $DB->get_field('course', 'id', array('fullname' => $coursename), MUST_EXIST);
+        if (!$courseid = $DB->get_field('course', 'id', ['shortname' => $coursename])) {
+            $courseid = $DB->get_field('course', 'id', ['fullname' => $coursename], MUST_EXIST);
         }
         $timestamp = strtotime($datestring);
 
@@ -67,20 +67,20 @@ class behat_mod_checklist extends behat_base {
         global $DB, $CFG;
         require_once($CFG->dirroot.'/mod/checklist/locallib.php');
 
-        $required = array(
-            'text'
-        );
-        $optional = array(
+        $required = [
+            'text',
+        ];
+        $optional = [
             'required' => CHECKLIST_OPTIONAL_NO,
             'duetime' => 0,
-        );
+        ];
 
         // Valid settings for field 'required'.
-        $requiredmap = array(
+        $requiredmap = [
             'required' => CHECKLIST_OPTIONAL_NO,
             'optional' => CHECKLIST_OPTIONAL_YES,
             'heading' => CHECKLIST_OPTIONAL_HEADING,
-        );
+        ];
 
         $data = $table->getHash();
         $firstrow = reset($data);
@@ -93,8 +93,8 @@ class behat_mod_checklist extends behat_base {
         }
 
         // Add each of the items to the checklist.
-        $checklist = $DB->get_record('checklist', array('name' => $checklistname), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($checklist, 'checklist');
+        $checklist = $DB->get_record('checklist', ['name' => $checklistname], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($checklist, 'checklist');
         $chk = new checklist_class($cm->id, 0, $checklist, $cm, $course);
 
         foreach ($data as $row) {
@@ -117,11 +117,11 @@ class behat_mod_checklist extends behat_base {
                         if ($value) {
                             $timestamp = strtotime($value);
                             $dateinfo = usergetdate($timestamp);
-                            $newitem['duetime'] = array(
+                            $newitem['duetime'] = [
                                 'year' => $dateinfo['year'],
                                 'month' => $dateinfo['mon'],
-                                'day' => $dateinfo['mday']
-                            );
+                                'day' => $dateinfo['mday'],
+                            ];
                             $chk->set_editing_dates(true);
                         }
                         break;
@@ -145,26 +145,26 @@ class behat_mod_checklist extends behat_base {
         global $DB, $CFG;
         require_once($CFG->dirroot.'/mod/checklist/locallib.php');
 
-        $required = array(
-            'itemtext'
-        );
-        $optional = array(
+        $required = [
+            'itemtext',
+        ];
+        $optional = [
             'studentmark' => 'yes',
             'teachermark' => 'none',
             'teachername' => 'admin',
-        );
+        ];
 
         // Valid settings for field 'studentmark'.
-        $studentmarkmap = array(
+        $studentmarkmap = [
             'yes' => 1,
             'no' => 0,
-        );
+        ];
         // Valid settings for field 'teachermark'.
-        $teachermarkmap = array(
+        $teachermarkmap = [
             'none' => CHECKLIST_TEACHERMARK_UNDECIDED,
             'yes' => CHECKLIST_TEACHERMARK_YES,
             'no' => CHECKLIST_TEACHERMARK_NO,
-        );
+        ];
 
         $data = $table->getHash();
         $firstrow = reset($data);
@@ -177,9 +177,9 @@ class behat_mod_checklist extends behat_base {
         }
 
         // Get the checklist data.
-        $checklist = $DB->get_record('checklist', array('name' => $checklistname), '*', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($checklist, 'checklist');
-        $userid = $DB->get_field('user', 'id', array('username' => $username), MUST_EXIST);
+        $checklist = $DB->get_record('checklist', ['name' => $checklistname], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($checklist, 'checklist');
+        $userid = $DB->get_field('user', 'id', ['username' => $username], MUST_EXIST);
         $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
 
         $updatestudent = ($checklist->teacheredit != CHECKLIST_MARKING_TEACHER) && isset($firstrow['studentmark']);
@@ -190,8 +190,8 @@ class behat_mod_checklist extends behat_base {
         }
 
         // Gather together all the updated marks.
-        $studentupdates = array();
-        $teacherupdates = array();
+        $studentupdates = [];
+        $teacherupdates = [];
         foreach ($data as $row) {
             $update = $optional;
             foreach ($row as $fieldname => $value) {
@@ -214,7 +214,7 @@ class behat_mod_checklist extends behat_base {
             }
             if ($updateteacher) {
                 if (!isset($teacherupdates[$update['teachername']])) {
-                    $teacherupdates[$update['teachername']] = array();
+                    $teacherupdates[$update['teachername']] = [];
                 }
                 $teacherupdates[$update['teachername']][$itemid] = $teachermarkmap[$update['teachermark']];
             }
@@ -226,7 +226,7 @@ class behat_mod_checklist extends behat_base {
         }
         if ($updateteacher) {
             foreach ($teacherupdates as $teachername => $checkmarks) {
-                $teacherid = $DB->get_field('user', 'id', array('username' => $teachername), MUST_EXIST);
+                $teacherid = $DB->get_field('user', 'id', ['username' => $teachername], MUST_EXIST);
                 $chk->update_teachermarks($checkmarks, $teacherid);
             }
         }

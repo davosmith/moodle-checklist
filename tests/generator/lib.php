@@ -40,7 +40,7 @@ class mod_checklist_generator extends testing_module_generator {
     public function create_instance($record = null, array $options = null) {
         $record = (object)(array)$record;
 
-        $defaultsettings = array(
+        $defaultsettings = [
             'timecreated' => time(),
             'timemodified' => time(),
             'useritemsallowed' => 1,
@@ -53,7 +53,7 @@ class mod_checklist_generator extends testing_module_generator {
             'completionpercent' => 0,
             'emailoncomplete' => 0,
             'lockteachermarks' => 0,
-        );
+        ];
 
         foreach ($defaultsettings as $name => $value) {
             if (!isset($record->{$name})) {

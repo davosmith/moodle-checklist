@@ -29,15 +29,15 @@ require_once($CFG->dirroot.'/mod/checklist/locallib.php');
 
 $id = required_param('id', PARAM_INT);   // Course.
 
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/checklist/index.php', array('id' => $course->id));
+$PAGE->set_url('/mod/checklist/index.php', ['id' => $course->id]);
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
 
-$params = array(
-    'context' => context_course::instance($course->id)
-);
+$params = [
+    'context' => context_course::instance($course->id),
+];
 $event = \mod_checklist\event\course_module_instance_list_viewed::create($params);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
@@ -71,14 +71,14 @@ $strprogress = get_string('progress', 'checklist');
 $table = new html_table();
 
 if ($course->format == 'weeks') {
-    $table->head = array($strweek, $strname);
-    $table->align = array('center', 'left', 'left');
+    $table->head = [$strweek, $strname];
+    $table->align = ['center', 'left', 'left'];
 } else if ($course->format == 'topics') {
-    $table->head = array($strtopic, $strname);
-    $table->align = array('center', 'left', 'left');
+    $table->head = [$strtopic, $strname];
+    $table->align = ['center', 'left', 'left'];
 } else {
-    $table->head = array($strname);
-    $table->align = array('left', 'left');
+    $table->head = [$strname];
+    $table->align = ['left', 'left'];
 }
 
 $context = context_course::instance($course->id);
@@ -97,9 +97,9 @@ foreach ($checklists as $checklist) {
     }
 
     if ($course->format === 'weeks' || $course->format === 'topics') {
-        $row = array($checklist->section, $link);
+        $row = [$checklist->section, $link];
     } else {
-        $row = array($link);
+        $row = [$link];
     }
 
     if ($canupdateown) {

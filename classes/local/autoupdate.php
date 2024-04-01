@@ -42,61 +42,61 @@ class autoupdate {
     public static function get_log_actions_legacy($modname) {
         switch ($modname) {
             case 'survey':
-                return array('submit');
+                return ['submit'];
                 break;
             case 'quiz':
-                return array('close attempt');
+                return ['close attempt'];
                 break;
             case 'forum':
-                return array('add post', 'add discussion');
+                return ['add post', 'add discussion'];
                 break;
             case 'resource':
-                return array('view');
+                return ['view'];
                 break;
             case 'hotpot':
-                return array('submit');
+                return ['submit'];
                 break;
             case 'wiki':
-                return array('edit');
+                return ['edit'];
                 break;
             case 'checklist':
-                return array('complete');
+                return ['complete'];
                 break;
             case 'choice':
-                return array('choose');
+                return ['choose'];
                 break;
             case 'lams':
-                return array('view');
+                return ['view'];
                 break;
             case 'scorm':
-                return array('view');
+                return ['view'];
                 break;
             case 'assignment':
-                return array('upload');
+                return ['upload'];
                 break;
             case 'journal':
-                return array('add entry');
+                return ['add entry'];
                 break;
             case 'lesson':
-                return array('end');
+                return ['end'];
                 break;
             case 'realtimequiz':
-                return array('submit');
+                return ['submit'];
                 break;
             case 'workshop':
-                return array('submit');
+                return ['submit'];
                 break;
             case 'glossary':
-                return array('add entry');
+                return ['add entry'];
                 break;
             case 'data':
-                return array('add');
+                return ['add'];
                 break;
             case 'chat':
-                return array('talk');
+                return ['talk'];
                 break;
             case 'feedback':
-                return array('submit');
+                return ['submit'];
                 break;
         }
         return null;
@@ -110,76 +110,76 @@ class autoupdate {
     public static function get_log_action_new($modname) {
         switch ($modname) {
             case 'assign':
-                return array('submission', 'created');
+                return ['submission', 'created'];
                 break;
             case 'book':
-                return array('course_module', 'viewed');
+                return ['course_module', 'viewed'];
                 break;
             case 'chat':
-                return array('message', 'sent');
+                return ['message', 'sent'];
                 break;
             case 'checklist':
-                return array('checklist', 'completed');
+                return ['checklist', 'completed'];
                 break;
             case 'choice':
-                return array('answer', 'submitted');
+                return ['answer', 'submitted'];
                 break;
             case 'choicegroup':
-                return array('choice', 'updated');
+                return ['choice', 'updated'];
                 break;
             case 'data':
-                return array('record', 'created');
+                return ['record', 'created'];
                 break;
             case 'feedback':
-                return array('response', 'submitted');
+                return ['response', 'submitted'];
                 break;
             case 'folder':
-                return array('course_module', 'viewed');
+                return ['course_module', 'viewed'];
                 break;
             case 'forum':
-                return array(
-                    array('post', 'created'),
-                    array('discussion', 'created'),
-                );
+                return [
+                    ['post', 'created'],
+                    ['discussion', 'created'],
+                ];
                 break;
             case 'glossary':
-                return array('entry', 'created');
+                return ['entry', 'created'];
                 break;
             case 'hotpot':
-                return array('attempt', 'submitted');
+                return ['attempt', 'submitted'];
                 break;
             case 'imscp':
-                return array('course_module', 'viewed');
+                return ['course_module', 'viewed'];
                 break;
             case 'lesson':
-                return array('lesson', 'ended');
+                return ['lesson', 'ended'];
                 break;
             case 'lti':
-                return array('course_module', 'viewed');
+                return ['course_module', 'viewed'];
                 break;
             case 'page':
-                return array('course_module', 'viewed');
+                return ['course_module', 'viewed'];
                 break;
             case 'quiz':
-                return array('attempt', 'submitted');
+                return ['attempt', 'submitted'];
                 break;
             case 'resource':
-                return array('course_module', 'viewed');
+                return ['course_module', 'viewed'];
                 break;
             case 'scorm':
-                return array('sco', 'launched');
+                return ['sco', 'launched'];
                 break;
             case 'survey':
-                return array('response', 'submitted');
+                return ['response', 'submitted'];
                 break;
             case 'url':
-                return array('course_module', 'viewed');
+                return ['course_module', 'viewed'];
                 break;
             case 'wiki':
-                return array('page', 'updated');
+                return ['page', 'updated'];
                 break;
             case 'workshop':
-                return array('submission', 'created');
+                return ['submission', 'created'];
                 break;
         }
         return null;
@@ -196,7 +196,7 @@ class autoupdate {
     public static function get_logged_userids($modname, $cmid, $checklistuserids) {
         self::init_log_status();
 
-        $userids = array();
+        $userids = [];
         if (self::$uselegacy) {
             $userids = array_merge($userids, self::get_logged_userids_legacy($modname, $cmid, $checklistuserids));
         }
@@ -247,10 +247,10 @@ class autoupdate {
 
         $logactions = self::get_log_actions_legacy($modname);
         if (!$logactions) {
-            return array();
+            return [];
         }
 
-        list($usql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$usql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         $params['cmid'] = $cmid;
         $params['action1'] = $logactions[0];
 
@@ -283,10 +283,10 @@ class autoupdate {
 
         $action = self::get_log_action_new($modname);
         if (!$action) {
-            return array();
+            return [];
         }
 
-        list($usql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$usql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         $params['contextinstanceid'] = $cmid;
         $params['contextlevel'] = CONTEXT_MODULE;
@@ -295,7 +295,7 @@ class autoupdate {
         $select = "contextinstanceid = :contextinstanceid AND contextlevel = :contextlevel
                    AND target = :target AND action = :action AND userid $usql";
 
-        $userids = array();
+        $userids = [];
         $entries = self::$reader->get_events_select($select, $params, '', 0, 0);
         foreach ($entries as $entry) {
             $userids[$entry->userid] = $entry->userid;
@@ -313,7 +313,7 @@ class autoupdate {
     public static function get_logs($courseids, $lastlogtime) {
         self::init_log_status();
 
-        $logs = array();
+        $logs = [];
         if (self::$uselegacy) {
             $logs = array_merge($logs, self::get_logs_legacy($courseids, $lastlogtime));
         }
@@ -334,10 +334,10 @@ class autoupdate {
     protected static function get_logs_legacy($courseids, $lastlogtime) {
         global $DB;
 
-        list($csql, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+        [$csql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
         $params['time'] = $lastlogtime;
         $logs = get_logs("l.time >= :time AND l.course $csql AND cmid > 0", $params, 'l.time ASC', '', '', $totalcount);
-        $ret = array();
+        $ret = [];
         foreach ($logs as $log) {
             $wantedactions = self::get_log_actions_legacy($log->module);
             if (in_array($log->action, $wantedactions)) {
@@ -353,7 +353,7 @@ class autoupdate {
      * @return mixed|string|null
      */
     protected static function get_module_from_component($component) {
-        list($type, $name) = \core_component::normalize_component($component);
+        [$type, $name] = \core_component::normalize_component($component);
         if ($type == 'mod') {
             return $name;
         }
@@ -374,11 +374,11 @@ class autoupdate {
     protected static function get_logs_new($courseids, $lastlogtime) {
         global $DB;
 
-        list($csql, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+        [$csql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
         $params['time'] = $lastlogtime;
         $select = "courseid $csql AND timecreated > :time";
         $entries = self::$reader->get_events_select($select, $params, 'timecreated ASC', 0, 0);
-        $ret = array();
+        $ret = [];
         foreach ($entries as $entry) {
             $info = self::get_entry_info($entry);
             if ($info) {
@@ -402,17 +402,17 @@ class autoupdate {
                 if (!is_array($wantedaction[0])) {
                     // Most activities only have a single 'complete' action, but to support those with more
                     // than one (forum!), wrap those with just one action in an array.
-                    $wantedaction = array($wantedaction);
+                    $wantedaction = [$wantedaction];
                 }
                 foreach ($wantedaction as $candidate) {
-                    list($target, $action) = $candidate;
+                    [$target, $action] = $candidate;
                     if ($entry->target == $target && $entry->action == $action) {
-                        return (object)array(
+                        return (object)[
                             'course' => $entry->courseid,
                             'module' => $module,
                             'cmid' => $entry->contextinstanceid,
                             'userid' => $entry->userid,
-                        );
+                        ];
                     }
                 }
             }
