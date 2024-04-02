@@ -281,12 +281,11 @@ class behat_mod_checklist extends behat_base {
     public function i_adjust_the_section_names_in_course_to_be_compatible_with_moodle(string $coursename): void {
         global $DB;
         $courseid = $DB->get_field('course', 'id', ['fullname' => $coursename], MUST_EXIST);
-        $sections = $DB->get_records('course_sections', ['course' => $courseid], 'section', 'id, section, name');
+        $sections = $DB->get_records_select('course_sections', "course = :course AND section > 0",
+                                            ['course' => $courseid], 'section', 'id, section, name');
         foreach ($sections as $section) {
-            if ($section->name !== null) {
-                $section->name = preg_replace('/Topic (\d+)/', 'Section $1', $section->name);
-                $DB->update_record('course_sections', $section);
-            }
+            $section->name = "Section $section->section";
+            $DB->update_record('course_sections', $section);
         }
         rebuild_course_cache($courseid);
     }

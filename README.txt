@@ -11,7 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
-* 2024-04-02 - 3.11.0.0 - M4.4 compatibility fixes + drop maintenance of versions compatible with M4.0 and below
+* 2024-04-02 - 4.1.0.0 - M4.4 compatibility fixes + drop maintenance of versions compatible with M4.0 and below
 * 2024-04-02 - 3.9.5.0 - adds new "checklist updated" event, for when a teacher has made changes - thanks to Andrew Hancox
 * 2024-02-02 - 3.9.4.1 - fix compatibility issue with M3.9 - M4.1 introduced in previous commit
 * 2024-01-20 - 3.9.4.0 - now works with Moodle Mobile App, thanks to Dani & Pau from Moodle HQ your help with this at the Global Moodle Moot and Dani for finishing this work off afterwards!
