@@ -23,7 +23,7 @@ Feature: A teacher can link a checklist item to a course
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
+    And I add a Checklist activity to course "Course 1" section 1 and I fill the form with:
       | Checklist                                  | Test checklist       |
       | Introduction                               | This is a checklist  |
       | Updates by                                 | Student only         |

@@ -3,9 +3,9 @@ Feature: Student checklist can track completion of other activities
 
   Background:
     Given the following "courses" exist:
-      | fullname | shortname | enablecompletion |
-      | Course 1 | C1        | 1                |
-    And the following "activities" exist:
+      | fullname | shortname | enablecompletion | initsections | numsections |
+      | Course 1 | C1        | 1                | 1            | 3           |
+     And the following "activities" exist:
       | activity  | name           | intro               | course | section | idnumber | teacheredit | autopopulate | autoupdate |
       | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 0           | 2            | 2          |
     And the following "activities" exist:
@@ -23,7 +23,7 @@ Feature: Student checklist can track completion of other activities
 
   Scenario: The checklist should always display the current items from the section, keeping up to date when they change.
     When I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
-    Then "Topic 1" "text" should appear before "Test page 1" "text"
+    Then "Section 1" "text" should appear before "Test page 1" "text"
     And "Test page 1" "text" should appear before "Test page 2" "text"
     # Check that changes to the course are tracked.
     When I follow "Course 1"
@@ -33,7 +33,7 @@ Feature: Student checklist can track completion of other activities
     And I set the field "Name" to "Updated name to page 5"
     And I press "Save and return to course"
     And I follow "Test checklist"
-    Then "Topic 1" "text" should appear before "Test page 1" "text"
+    Then "Section 1" "text" should appear before "Test page 1" "text"
     And "Test page 1" "text" should appear before "Updated name to page 5" "text"
 
   Scenario: Checklist names should update even when viewed by a student (without editing permission).
@@ -47,7 +47,7 @@ Feature: Student checklist can track completion of other activities
     And I press "Save and return to course"
     And I log out
     And I am on the "Test checklist" "checklist activity" page logged in as "student1"
-    Then "Topic 1" "text" should appear before "Test page 1" "text"
+    Then "Section 1" "text" should appear before "Test page 1" "text"
     And "Test page 1" "text" should appear before "Updated name to page 5" "text"
 
   @javascript

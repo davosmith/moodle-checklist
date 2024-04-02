@@ -16,7 +16,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "Checklist" to section "1" and I fill the form with:
+    And I add a Checklist activity to course "Course 1" section 1 and I fill the form with:
       | Checklist                 | Test checklist      |
       | Introduction              | This is a checklist |
       | Add due dates to calendar | Yes                 |
