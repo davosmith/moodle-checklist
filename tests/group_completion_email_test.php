@@ -31,7 +31,7 @@ use mod_checklist\local\previous_completions;
  * @package mod_checklist
  * @covers \mod_checklist\local\previous_completions
  */
-class group_completion_email_test extends \advanced_testcase {
+final class group_completion_email_test extends \advanced_testcase {
 
     /**
      * @var phpunit_mailer_sink

@@ -6,7 +6,7 @@ Feature: Student checklist can track completion of other activities
       | fullname | shortname | enablecompletion | initsections | numsections |
       | Course 1 | C1        | 1                | 1            | 3           |
     And I adjust the section names in course "Course 1" to be compatible with Moodle 4.4
-     And the following "activities" exist:
+    And the following "activities" exist:
       | activity  | name           | intro               | course | section | idnumber | teacheredit | autopopulate | autoupdate |
       | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 0           | 2            | 2          |
     And the following "activities" exist:

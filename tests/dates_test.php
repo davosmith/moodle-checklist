@@ -29,7 +29,7 @@ namespace mod_checklist;
  * @package mod_checklist
  * @coversNothing
  */
-class dates_test extends \advanced_testcase {
+final class dates_test extends \advanced_testcase {
     /**
      * Set up steps
      */
