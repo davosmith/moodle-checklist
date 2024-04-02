@@ -73,8 +73,7 @@ Feature: Check the item generator generates items as expected
 
   Scenario: I add some items to a student checklist and mark them as complete and the student sees them as complete
     Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
-    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
-    And I follow "ettings"
+    And I follow "Settings"
     And I set the field "Updates by" to "Teacher only"
     And I press "Save and return to course"
     And I log out

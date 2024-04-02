@@ -16,7 +16,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a Checklist activity to course "Course 1" section 1 and I fill the form with:
+    And I add a checklist activity to course "Course 1" section 1 and I fill the form with:
       | Checklist                 | Test checklist      |
       | Introduction              | This is a checklist |
       | Add due dates to calendar | Yes                 |
@@ -65,8 +65,7 @@ Feature: I can add dates to a checklist and they appear in the calendar.
 
   Scenario: When I disable the 'add due dates to calendar' feature, dates should not appear in the calendar.
     Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
-    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
-    And I navigate to "ettings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I set the field "Add due dates to calendar" to "No"
     And I press "Save and return to course"
     And I log out

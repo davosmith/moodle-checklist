@@ -271,4 +271,21 @@ class behat_mod_checklist extends behat_base {
             $this->execute('behat_forms::i_set_the_field_to', ['Add requirements', 1]);
         }
     }
+
+    /**
+     * Temporary hack, until I drop compatibility for versions before Moodle 4.4, that renames the sections
+     * from "Topic N" to "Section N"
+     * @Given /^I adjust the section names in course "([^"]*)" to be compatible with Moodle 4.4$/
+     */
+    public function i_adjust_the_section_names_in_course_to_be_compatible_with_moodle($coursename): void {
+        global $DB;
+        $courseid = $DB->get_field('course', 'id', ['fullname' => $coursename], MUST_EXIST);
+        $sections = $DB->get_records('course_sections', ['course' => $courseid], 'section', 'id, section, name');
+        foreach ($sections as $section) {
+            if ($section->name !== null) {
+                $section->name = preg_replace('/Topic (\d+)/', 'Section $1', $section->name);
+                $DB->update_record('course_sections', $section);
+            }
+        }
+    }
 }

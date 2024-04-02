@@ -5,6 +5,7 @@ Feature: Student checklist can track completion of other activities
     Given the following "courses" exist:
       | fullname | shortname | enablecompletion | initsections | numsections |
       | Course 1 | C1        | 1                | 1            | 3           |
+    And I adjust the section names in course "Course 1" to be compatible with Moodle 4.4
      And the following "activities" exist:
       | activity  | name           | intro               | course | section | idnumber | teacheredit | autopopulate | autoupdate |
       | checklist | Test checklist | This is a checklist | C1     | 1       | CHK001   | 0           | 2            | 2          |
@@ -28,8 +29,7 @@ Feature: Student checklist can track completion of other activities
     # Check that changes to the course are tracked.
     When I follow "Course 1"
     And I follow "Test page 2"
-    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
-    And I navigate to "ettings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I set the field "Name" to "Updated name to page 5"
     And I press "Save and return to course"
     And I follow "Test checklist"
@@ -41,8 +41,7 @@ Feature: Student checklist can track completion of other activities
     # Check that changes to the course are tracked.
     When I follow "Course 1"
     And I follow "Test page 2"
-    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
-    And I navigate to "ettings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I set the field "Name" to "Updated name to page 5"
     And I press "Save and return to course"
     And I log out
@@ -67,8 +66,7 @@ Feature: Student checklist can track completion of other activities
   Scenario: The checklist state should update based on logs, if completion is disabled.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
-    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
-    And I navigate to "ettings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "Enable completion tracking" to "No"
     And I press "Save and display"

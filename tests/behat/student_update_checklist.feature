@@ -16,7 +16,7 @@ Feature: A student can update their progress in a checklist
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a Checklist activity to course "Course 1" section 1 and I fill the form with:
+    And I add a checklist activity to course "Course 1" section 1 and I fill the form with:
       | Checklist    | Test checklist      |
       | Introduction | This is a checklist |
       | Updates by   | Student only        |
@@ -101,15 +101,12 @@ Feature: A student can update their progress in a checklist
     And I log out
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
-    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
-    And I navigate to "ettings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "Enable completion tracking" to "Yes"
-    # For Moodle 2.8 and below, this should read "Save changes"
     And I press "Save and display"
     And I am on the "Test checklist" "checklist activity" page
-    # Workaround for differences between M3.9 "Edit settings" and M4.0 "Settings".
-    And I navigate to "ettings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I enable automatic completion tracking for the checklist
     And I set the field "completionusegrade" to "1"

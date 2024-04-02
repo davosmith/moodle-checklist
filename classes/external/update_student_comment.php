@@ -103,7 +103,8 @@ class update_student_comment extends external_api {
                                                                            $existingcomment);
     }
 
-    /** Returns description of method result value.
+    /**
+     * Returns description of method result value.
      * @return external_value
      */
     public static function execute_returns() {
