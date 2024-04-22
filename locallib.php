@@ -1541,7 +1541,8 @@ class checklist_class {
         foreach ($passedrow[0] as $key => $item) {
             if ($key == 0) {
                 // Left align + colspan of 2 (overlapping the button column).
-                $output .= '<td colspan="2" style=" text-align: left; width: '.$table->size[0].';" class="cell c0"></td>';
+                $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0 headcol_checklist"></td>';
+                $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell level0"></td>';
             } else {
                 $size = $table->size[$key];
                 $cellclass = 'cell c'.$key.' level'.$table->level[$key];
@@ -1604,6 +1605,9 @@ class checklist_class {
             if ($key == 0 && $editchecks) {
                 $colspan = 'colspan="2"';
             }
+            if ($key == 0) {
+                $levelclass .= ' headcol_checklist';
+            }
             $output .= '<th '.$colspan.' style="vertical-align:top; text-align: center; width:'.$size.
                 '" class="header c'.$key.$levelclass.'" scope="col">';
             $output .= $heading.'</th>';
@@ -1644,7 +1648,8 @@ class checklist_class {
                 }
                 if ($colkey == 0) {
                     // First item is the name.
-                    $output .= '<td style=" text-align: left; width: '.$table->size[0].';" class="cell c0">'.$item.'</td>';
+                    $output .= '<td style=" text-align: left; width: '
+                        . $table->size[0] . ';" class="cell c0 headcol_checklist">' . $item . '</td>';
                 } else {
                     $size = $table->size[$colkey];
                     $img = '&nbsp;';
