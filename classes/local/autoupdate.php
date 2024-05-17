@@ -281,8 +281,8 @@ class autoupdate {
     protected static function get_logged_userids_new($modname, $cmid, $userids) {
         global $DB;
 
-        $action = self::get_log_action_new($modname);
-        if (!$action) {
+        $actions = self::get_log_action_new($modname);
+        if (!$actions) {
             return [];
         }
 
@@ -290,15 +290,23 @@ class autoupdate {
 
         $params['contextinstanceid'] = $cmid;
         $params['contextlevel'] = CONTEXT_MODULE;
-        $params['target'] = $action[0];
-        $params['action'] = $action[1];
         $select = "contextinstanceid = :contextinstanceid AND contextlevel = :contextlevel
                    AND target = :target AND action = :action AND userid $usql";
 
         $userids = [];
-        $entries = self::$reader->get_events_select($select, $params, '', 0, 0);
-        foreach ($entries as $entry) {
-            $userids[$entry->userid] = $entry->userid;
+
+        if (!is_array($actions[0])) {
+            // To cope with the few (one!) cases where there are multiple possible actions, wrap the other cases
+            // in an array (but with only a single item).
+            $actions = [$actions];
+        }
+        foreach ($actions as $action) {
+            $params['target'] = $action[0];
+            $params['action'] = $action[1];
+            $entries = self::$reader->get_events_select($select, $params, '', 0, 0);
+            foreach ($entries as $entry) {
+                $userids[$entry->userid] = $entry->userid;
+            }
         }
         return array_values($userids);
     }
