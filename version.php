@@ -23,9 +23,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024040200;  // The current module version (Date: YYYYMMDDXX).
+$plugin->version = 2024040201;  // The current module version (Date: YYYYMMDDXX).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.9.5.1';
+$plugin->release = '3.9.5.2';
 $plugin->requires = 2020061500; // Moodle 3.9.0.
 $plugin->component = 'mod_checklist';
 $plugin->supported = [39, 403];
