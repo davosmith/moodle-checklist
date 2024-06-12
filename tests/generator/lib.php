@@ -37,7 +37,7 @@ class mod_checklist_generator extends testing_module_generator {
      * @return stdClass
      * @throws coding_exception
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         $record = (object)(array)$record;
 
         $defaultsettings = [

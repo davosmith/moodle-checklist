@@ -58,6 +58,8 @@ final class student_comment_test extends \advanced_testcase {
      */
     public function setUp(): void {
         global $USER, $DB;
+        parent::setUp();
+
         $this->resetAfterTest();
         // Create test checklist with a couple items.
         $gen = self::getDataGenerator();
