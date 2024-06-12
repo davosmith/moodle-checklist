@@ -34,6 +34,7 @@ final class dates_test extends \advanced_testcase {
      * Set up steps
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
     }
 

@@ -63,7 +63,7 @@ class checklist_check extends data_object {
      * @param bool $fetch
      * @throws \coding_exception
      */
-    public function __construct(array $params = null, $fetch = true) {
+    public function __construct(?array $params = null, $fetch = true) {
         // Really ugly hack to stop travis complaining about $required_fields.
         $this->{'required_fields'} = $this->requiredfields;
         parent::__construct($params, $fetch);

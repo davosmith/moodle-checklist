@@ -66,6 +66,7 @@ final class group_completion_email_test extends \advanced_testcase {
      */
     public function setUp(): void {
         global $DB;
+        parent::setUp();
 
         $this->resetAfterTest();
         unset_config('noemailever');
@@ -139,6 +140,7 @@ final class group_completion_email_test extends \advanced_testcase {
         $this->mailsink->close();
         unset($this->mailsink);
         previous_completions::override_time(null);
+        parent::tearDown();
     }
 
     /**

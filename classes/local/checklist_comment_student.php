@@ -132,7 +132,7 @@ class checklist_comment_student extends persistent {
     public static function update_or_create_student_comment(
         int                       $checklistitemid,
         string                    $commenttext,
-        checklist_comment_student $existingcomment = null
+        ?checklist_comment_student $existingcomment = null
     ): bool {
         if (!$existingcomment) {
             $newcomment = new checklist_comment_student();
