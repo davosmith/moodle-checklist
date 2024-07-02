@@ -31,34 +31,43 @@
 .checklist-indent-10 {
     --padding-start: 108px;
 }
-.checklist-colour-red ion-label .checklist-item-label {
+.checklist-colour-red ion-label .checklist-item-label,
+.checklist-colour-red ion-checkbox .checklist-item-label {
     --color: #ca3120;
 }
-html.dark .checklist-colour-red ion-label .checklist-item-label {
+html.dark .checklist-colour-red ion-label .checklist-item-label,
+html.dark .checklist-colour-red ion-checkbox .checklist-item-label {
     --color: #d55a4d;
 }
-.checklist-colour-orange ion-label .checklist-item-label {
+.checklist-colour-orange ion-label .checklist-item-label,
+.checklist-colour-orange ion-checkbox .checklist-item-label {
     --color: #f98012;
 }
-.checklist-colour-green ion-label .checklist-item-label {
+.checklist-colour-green ion-label .checklist-item-label,
+.checklist-colour-green ion-checkbox .checklist-item-label {
     --color: #357a32;
 }
-html.dark .checklist-colour-green ion-label .checklist-item-label {
+html.dark .checklist-colour-green ion-label .checklist-item-label,
+html.dark .checklist-colour-green ion-checkbox .checklist-item-label {
     --color: #5d955b;
 }
-.checklist-colour-purple ion-label .checklist-item-label {
+.checklist-colour-purple ion-label .checklist-item-label,
+.checklist-colour-purple ion-checkbox .checklist-item-label {
     --color: #c400f0;
 }
-html.dark .checklist-colour-purple ion-label .checklist-item-label {
+html.dark .checklist-colour-purple ion-label .checklist-item-label,
+html.dark .checklist-colour-purple ion-checkbox .checklist-item-label {
     --color: #d61fff;
 }
-.checklist-item ion-label .checklist-item-label {
+.checklist-item ion-label .checklist-item-label,
+.checklist-item ion-checkbox .checklist-item-label {
     display: flex;
     flex-direction: row;
     align-items: center;
     font-size: 16px;
 }
-.checklist-item ion-label .checklist-item-label.item-heading {
+.checklist-item ion-label .checklist-item-label.item-heading,
+.checklist-item ion-checkbox .checklist-item-label.item-heading {
     font-weight: bold;
 }
 .checklist-url-button {

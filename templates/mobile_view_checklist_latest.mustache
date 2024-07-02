@@ -67,7 +67,9 @@
 }}
 {{=<% %>=}}
 <div class="list-item-limited-width">
-    <core-course-module-description description="<% intro %>" component="mod_checklist" componentId="<% cmid %>"></core-course-module-description>
+    <core-course-module-info [module]="module" description="<% intro %>" component="mod_checklist" componentId="<% cmid %>"
+        [courseId]="courseId">
+    </core-course-module-info>
 
     <%#showrequired%>
         <ion-item>
@@ -87,44 +89,55 @@
 
     <ion-list>
         <%#items%>
+            <!-- Template to render the content of an item. -->
+            <ng-template #itemTemplate<% itemid %>>
+                <p class="checklist-item-label <%#isheading%>item-heading<%/isheading%> <%#isoptional%>item-dimmed<%/isoptional%>">
+                    <%#showitemmark%>
+                    <img class="checklist-teachermark" src="<% teachermarkimage %>" alt="<% teachermarktext %>" core-external-content>
+                    <%/showitemmark%>
+                    <span><% text %></span>
+                    <%#url%>
+                    <ion-button fill="clear" href="<% url %>" core-link class="checklist-url-button" [showBrowserWarning]="false"
+                        [attr.aria-label]="'plugin.mod_checklist.linktourl' | translate" >
+                        <ion-icon name="fas-up-right-from-square" slot="icon-only" aria-hidden="true"></ion-icon>
+                    </ion-button>
+                    <%/url%>
+                </p>
+                <%#duetime%>
+                <p class="checklist-duetime text-<%^isoverdue%>success<%/isoverdue%><%#isoverdue%>danger<%/isoverdue%>">
+                    <em>{{ <% duetime %> * 1000 | coreFormatDate:"core.strftimedate" }}</em>
+                </p>
+                <%/duetime%>
+                <%#comment%>
+                <p class="checklist-comment checklist-teachercomment">
+                    <%#commentbyurl%>
+                    <a href="<% commentbyurl %>" core-link [capture]="true"><% commentbyname %></a>:
+                    <%/commentbyurl%>
+                    <% text %>
+                </p>
+                <%/comment%>
+                <%#studentcomment%>
+                <p class="checklist-comment checklist-studentcomment">
+                    <a href="<% studenturl %>" core-link [capture]="true"><% studentname %></a>:
+                    <% text %>
+                </p>
+                <%/studentcomment%>
+            </ng-template>
+
             <ion-item class="ion-text-wrap checklist-item checklist-indent-<% indent %> checklist-colour-<% colour %>">
+                <%^showitemcheckbox%>
                 <ion-label>
-                    <p class="checklist-item-label <%#isheading%>item-heading<%/isheading%> <%#isoptional%>item-dimmed<%/isoptional%>">
-                        <%#showitemmark%>
-                        <img class="checklist-teachermark" src="<% teachermarkimage %>" alt="<% teachermarktext %>" core-external-content>
-                        <%/showitemmark%>
-                        <span><% text %></span>
-                        <%#url%>
-                        <ion-button fill="clear" href="<% url %>" core-link class="checklist-url-button" [showBrowserWarning]="false"
-                            [attr.aria-label]="'plugin.mod_checklist.linktourl' | translate" >
-                            <ion-icon name="fas-up-right-from-square" slot="icon-only" aria-hidden="true"></ion-icon>
-                        </ion-button>
-                        <%/url%>
-                    </p>
-                    <%#duetime%>
-                    <p class="checklist-duetime text-<%^isoverdue%>success<%/isoverdue%><%#isoverdue%>danger<%/isoverdue%>">
-                        <em>{{ <% duetime %> * 1000 | coreFormatDate:"core.strftimedate" }}</em>
-                    </p>
-                    <%/duetime%>
-                    <%#comment%>
-                    <p class="checklist-comment checklist-teachercomment">
-                        <%#commentbyurl%>
-                        <a href="<% commentbyurl %>" core-link [capture]="true"><% commentbyname %></a>:
-                        <%/commentbyurl%>
-                        <% text %>
-                    </p>
-                    <%/comment%>
-                    <%#studentcomment%>
-                    <p class="checklist-comment checklist-studentcomment">
-                        <a href="<% studenturl %>" core-link [capture]="true"><% studentname %></a>:
-                        <% text %>
-                    </p>
-                    <%/studentcomment%>
+                    <ng-container *ngTemplateOutlet="itemTemplate<% itemid %>" />
                 </ion-label>
+                <%/showitemcheckbox%>
                 <%#showitemcheckbox%>
                 <ion-checkbox checked="<%#checkedstudent%>true<%/checkedstudent%><%^checkedstudent%>false<%/checkedstudent%>"
                     disabled="<%#disabled%>true<%/disabled%><%^disabled%>false<%/disabled%>"
-                     (ionChange)="saveChanges(<% cmid %>, <% itemid %>, $event)"></ion-checkbox>
+                    (ionChange)="saveChanges(<% cmid %>, <% itemid %>, $event)">
+
+                    <ng-container *ngTemplateOutlet="itemTemplate<% itemid %>" />
+
+                </ion-checkbox>
                 <%/showitemcheckbox%>
             </ion-item>
         <%/items%>
