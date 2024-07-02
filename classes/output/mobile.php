@@ -36,6 +36,7 @@ class mobile {
         require_once($CFG->dirroot.'/mod/checklist/locallib.php');
 
         $args = (object)$args;
+        $versionname = $args->appversioncode >= 44000 ? 'latest' : 'ionic5';
         $cm = get_coursemodule_from_id('checklist', $args->cmid);
 
         require_login($args->courseid, false, $cm, true, true);
@@ -51,7 +52,7 @@ class mobile {
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template('mod_checklist/mobile_view_checklist', $data),
+                    'html' => $OUTPUT->render_from_template("mod_checklist/mobile_view_checklist_$versionname", $data),
                 ],
             ],
             'javascript' => file_get_contents($CFG->dirroot.'/mod/checklist/mobileapp/mobile.js'),
