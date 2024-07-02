@@ -71,7 +71,7 @@ jobs:
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
-          MUSTACHE_IGNORE_NAMES: 'mobile_view_checklist.mustache'
+          MUSTACHE_IGNORE_NAMES: 'mobile_view_checklist_*.mustache'
 
       - name: PHP Lint
         if: ${{ always() }}

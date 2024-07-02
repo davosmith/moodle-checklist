@@ -1,0 +1,133 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_checklist/mobile_view_checklist
+
+    Display the checklist activity in the mobile app
+
+    Context variables required for this template:
+    * intro, cmid, courseid, items
+
+    Example context (json):
+    {
+        "intro": "Description",
+        "cmid": 1,
+        "courseid": 1,
+        "showteachermark": false,
+        "showcheckbox": false,
+        "progress": 50,
+        "progressall": 50,
+        "showrequired": true,
+        "items": [
+            {
+                "itemid": 1,
+                "text": "Item text",
+                "indent": 1,
+                "colour": "red",
+                "duetime": 1704788067,
+                "showitemmark": true,
+                "showitemcheckbox": true,
+                "isoverdue": false,
+                "isheading": false,
+                "isoptional": false,
+                "checkedstudent": true,
+                "teachermarktext": "Teacher states that you have completed this",
+                "teachermarkimage": "SITEURL/theme/image.php...",
+                "url": "https://moodle.org/",
+                "disabled": false,
+                "comment": {
+                    "commentby": 5,
+                    "text": "Comment text",
+                    "commentbyname": "Jeffery Sanders",
+                    "commentbyurl": "SITEURL/user\/view.php..."
+                },
+                "studentcomment": {
+                    "studentid": 6,
+                    "text": "Comment text",
+                    "studentname": "Barbara Gardner",
+                    "studenturl": "SITEURL/user\/view.php..."
+                }
+            }
+        ]
+    }
+}}
+{{=<% %>=}}
+<div class="list-item-limited-width">
+    <core-course-module-description description="<% intro %>" component="mod_checklist" componentId="<% cmid %>"></core-course-module-description>
+
+    <%#showrequired%>
+        <ion-item>
+            <ion-label>
+                <p class="item-heading">{{'plugin.mod_checklist.percentcomplete'|translate}}:</p>
+                <core-progress-bar progress="<% progress %>"></core-progress-bar>
+            </ion-label>
+        </ion-item>
+    <%/showrequired%>
+    <ion-item>
+        <ion-label>
+            <p class="item-heading">{{'plugin.mod_checklist.percentcompleteall'|translate}}:</p>
+            <core-progress-bar progress="<% progressall %>"></core-progress-bar>
+         </ion-label>
+    </ion-item>
+
+
+    <ion-list>
+        <%#items%>
+            <ion-item class="ion-text-wrap checklist-item checklist-indent-<% indent %> checklist-colour-<% colour %>">
+                <ion-label>
+                    <p class="checklist-item-label <%#isheading%>item-heading<%/isheading%> <%#isoptional%>item-dimmed<%/isoptional%>">
+                        <%#showitemmark%>
+                        <img class="checklist-teachermark" src="<% teachermarkimage %>" alt="<% teachermarktext %>" core-external-content>
+                        <%/showitemmark%>
+                        <span><% text %></span>
+                        <%#url%>
+                        <ion-button fill="clear" href="<% url %>" core-link class="checklist-url-button" [showBrowserWarning]="false"
+                            [attr.aria-label]="'plugin.mod_checklist.linktourl' | translate" >
+                            <ion-icon name="fas-up-right-from-square" slot="icon-only" aria-hidden="true"></ion-icon>
+                        </ion-button>
+                        <%/url%>
+                    </p>
+                    <%#duetime%>
+                    <p class="checklist-duetime text-<%^isoverdue%>success<%/isoverdue%><%#isoverdue%>danger<%/isoverdue%>">
+                        <em>{{ <% duetime %> * 1000 | coreFormatDate:"core.strftimedate" }}</em>
+                    </p>
+                    <%/duetime%>
+                    <%#comment%>
+                    <p class="checklist-comment checklist-teachercomment">
+                        <%#commentbyurl%>
+                        <a href="<% commentbyurl %>" core-link [capture]="true"><% commentbyname %></a>:
+                        <%/commentbyurl%>
+                        <% text %>
+                    </p>
+                    <%/comment%>
+                    <%#studentcomment%>
+                    <p class="checklist-comment checklist-studentcomment">
+                        <a href="<% studenturl %>" core-link [capture]="true"><% studentname %></a>:
+                        <% text %>
+                    </p>
+                    <%/studentcomment%>
+                </ion-label>
+                <%#showitemcheckbox%>
+                <ion-checkbox checked="<%#checkedstudent%>true<%/checkedstudent%><%^checkedstudent%>false<%/checkedstudent%>"
+                    disabled="<%#disabled%>true<%/disabled%><%^disabled%>false<%/disabled%>"
+                     (ionChange)="saveChanges(<% cmid %>, <% itemid %>, $event)"></ion-checkbox>
+                <%/showitemcheckbox%>
+            </ion-item>
+        <%/items%>
+    </ion-list>
+
+</div>
