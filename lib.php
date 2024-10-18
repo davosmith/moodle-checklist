@@ -884,12 +884,6 @@ function checklist_supports($feature) {
         }
     }
 
-    if ((int)$CFG->branch < 28) {
-        if ($feature === FEATURE_GROUPMEMBERSONLY) {
-            return true;
-        }
-    }
-
     switch ($feature) {
         case FEATURE_GROUPS:
             return true;
