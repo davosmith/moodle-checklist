@@ -50,11 +50,7 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        if ($CFG->branch < 29) {
-            $this->add_intro_editor(true, get_string('checklistintro', 'checklist'));
-        } else {
-            $this->standard_intro_elements(get_string('checklistintro', 'checklist'));
-        }
+        $this->standard_intro_elements(get_string('checklistintro', 'checklist'));
 
         $mform->addElement('header', 'checklistsettings', get_string('checklistsettings', 'checklist'));
         $mform->setExpanded('checklistsettings', true);

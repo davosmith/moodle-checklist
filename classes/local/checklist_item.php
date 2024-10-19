@@ -262,10 +262,7 @@ class checklist_item extends data_object {
      * @return moodle_url
      */
     private function image_url($imagename, $component) {
-        global $CFG, $OUTPUT;
-        if ($CFG->branch < 33) {
-            return $OUTPUT->pix_url($imagename, $component);
-        }
+        global $OUTPUT;
         return $OUTPUT->image_url($imagename, $component);
     }
 

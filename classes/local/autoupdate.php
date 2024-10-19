@@ -223,11 +223,7 @@ class autoupdate {
             self::$uselegacy = false;
         }
 
-        if ($CFG->branch < 29) {
-            $selectreaders = $manager->get_readers('\core\log\sql_select_reader');
-        } else {
-            $selectreaders = $manager->get_readers('\core\log\sql_reader');
-        }
+        $selectreaders = $manager->get_readers('\core\log\sql_reader');
         if ($selectreaders) {
             self::$reader = reset($selectreaders);
         }

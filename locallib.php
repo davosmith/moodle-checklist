@@ -375,7 +375,7 @@ class checklist_class {
             }
         }
 
-        $groupmembersonly = ((int)$CFG->branch < 28) && (!empty($CFG->enablegroupmembersonly));
+        $groupmembersonly = false;
 
         $numsections = 1;
         $courseformat = course_get_format($this->course);
@@ -507,25 +507,13 @@ class checklist_class {
                         $changes = true;
                     }
 
-                    $groupingid = $mods->get_cm($cmid)->groupingid;
-                    if ($groupmembersonly && $groupingid && $mods->get_cm($cmid)->groupmembersonly) {
-                        if ($item->groupingid != $groupingid) {
-                            $item->groupingid = $groupingid;
-                            $upd = new stdClass;
-                            $upd->id = $item->id;
-                            $upd->groupingid = $groupingid;
-                            $DB->update_record('checklist_item', $upd);
-                            $changes = true;
-                        }
-                    } else {
-                        if ($item->groupingid) {
-                            $item->groupingid = 0;
-                            $upd = new stdClass;
-                            $upd->id = $item->id;
-                            $upd->groupingid = 0;
-                            $DB->update_record('checklist_item', $upd);
-                            $changes = true;
-                        }
+                    if ($item->groupingid) {
+                        $item->groupingid = 0;
+                        $upd = new stdClass;
+                        $upd->id = $item->id;
+                        $upd->groupingid = 0;
+                        $DB->update_record('checklist_item', $upd);
+                        $changes = true;
                     }
                 } else {
                     $hidden = $mods->get_cm($cmid)->visible ? CHECKLIST_HIDDEN_NO : CHECKLIST_HIDDEN_BYMODULE;
@@ -773,11 +761,7 @@ class checklist_class {
             } else {
                 $output = $this->view_header();
 
-                if ($CFG->branch >= 30) {
-                    $ref = get_local_referer(false);
-                } else {
-                    $ref = get_referer(false);
-                }
+                $ref = get_local_referer(false);
 
                 $output .= $OUTPUT->heading(format_string($this->checklist->name));
                 $output .= $OUTPUT->confirm('<p>'.get_string('guestsno',
@@ -793,10 +777,6 @@ class checklist_class {
         $output = '';
         if (!$embedded) {
             $output .= $this->view_header();
-            if ($CFG->branch < 400) {
-                $output .= $this->view_name_info();
-                $output .= $this->view_tabs($currenttab);
-            }
         }
 
         $params = [
@@ -837,10 +817,6 @@ class checklist_class {
         $event->trigger();
 
         $output = $this->view_header();
-        if ($CFG->branch < 400) {
-            $output .= $this->view_name_info();
-            $output .= $this->view_tabs('edit');
-        }
 
         $this->process_edit_actions();
 
@@ -884,10 +860,6 @@ class checklist_class {
         checklist_item::add_grouping_names($this->items, $this->course->id);
 
         $output = $this->view_header();
-        if ($CFG->branch < 400) {
-            $output .= $this->view_name_info();
-            $output .= $this->view_tabs('report');
-        }
 
         $this->process_report_actions();
 
@@ -1130,9 +1102,6 @@ class checklist_class {
 
         // Gather some extra details needed in the output.
         $intro = '';
-        if ($CFG->branch < 400) {
-            $intro = format_module_intro('checklist', $this->checklist, $this->cm->id);
-        }
         $progress = null;
         if ($status->is_showprogressbar()) {
             $progress = $this->get_progress();
