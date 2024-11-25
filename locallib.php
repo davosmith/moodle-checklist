@@ -227,11 +227,23 @@ class checklist_class {
 
         $checklist = clone($this->checklist);
         $checklist->name = format_string($checklist->name);
-        [$checklist->intro, $checklist->introformat] = \core_external\util::format_text($checklist->intro,
+        if (class_exists(\core_external\util::class)) {
+            [$checklist->intro, $checklist->introformat] = \core_external\util::format_text($checklist->intro,
                                                                                         $checklist->introformat,
                                                                                         $this->context,
                                                                                         'mod_checklist',
                                                                                         'intro');
+        } else {
+            $formattedintro = external_format_text($checklist->intro,
+                                                $checklist->introformat,
+                                                $this->context,
+                                                'mod_checklist',
+                                                'intro'
+            );
+
+            $checklist->intro = $formattedintro['text'];
+            $checklist->introformat = $formattedintro['format'];
+        }
 
         // Configure the status of the checklist output.
         $status = new output_status();
