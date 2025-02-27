@@ -1998,9 +1998,7 @@ class checklist_class {
             return;
         }
 
-        if (!confirm_sesskey()) {
-            error('Invalid sesskey');
-        }
+        require_sesskey();
 
         switch ($action) {
             case 'showprogressbars':
@@ -2733,7 +2731,7 @@ class checklist_class {
 
         if ($this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT) {
             if (!$DB->record_exists('user', ['id' => $this->userid])) {
-                error('No such user!');
+                throw new moodle_exception('missinguser', 'mod_checklist');
             }
             $params = [
                 'contextid' => $this->context->id,
