@@ -71,7 +71,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
         // Heading.
         $heading .= ':&nbsp;';
-        $out .= html_writer::div($heading, 'checklist_progress_heading');
+        $heading = html_writer::div($heading, 'checklist_progress_heading');
 
         // Progress bar.
         $progress = '';
@@ -80,9 +80,11 @@ class mod_checklist_renderer extends plugin_renderer_base {
         $progress = html_writer::div($progress, 'checklist_progress_outer');
         $progress .= html_writer::span('&nbsp;'.sprintf('%0d%%', $percentcomplete), 'checklist_progress_percent');
 
-        // Wrap in span + add clearer br.
-        $out .= html_writer::span($progress, '', ['id' => $spanid]);
-        $out .= html_writer::empty_tag('br', ['class' => 'clearer']);
+        $out .= html_writer::span(
+            $heading . $progress,
+            'checklist_progress_bar',
+            ['id' => $spanid]
+        );
 
         return $out;
     }

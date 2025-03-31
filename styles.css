@@ -188,9 +188,12 @@ ol.checklist li .itemteachername {
     background-color: #bf0000;
 }
 
+.checklist_progress_bar {
+    display: flex;
+}
+
 .checklist_progress_heading {
     display: block;
-    float: left;
     width: 150px;
 }
 
@@ -201,7 +204,6 @@ ol.checklist li .itemteachername {
     width: 300px;
     background-color: transparent;
     height: 15px;
-    float: left;
     overflow: hidden;
     position: relative;
     box-shadow: 2px 2px 3px #ccc;
