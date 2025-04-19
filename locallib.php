@@ -1184,6 +1184,19 @@ class checklist_class {
     }
 
     /**
+     * Get the class to use for the inline form layout.
+     *
+     * @return string
+     */
+    private static function form_inline_class(): string {
+        global $CFG;
+        if ($CFG->branch >= 500) {
+            return 'd-flex flex-wrap align-items-center';
+        }
+        return 'form-inline';
+    }
+
+    /**
      * Output the main report page content
      */
     protected function view_report(): string {
@@ -1221,7 +1234,8 @@ class checklist_class {
             }
         }
 
-        $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.
+        $inline = self::form_inline_class();
+        $out .= '&nbsp;&nbsp;<form style="display: inline;" class="' . $inline . '" action="' .
             $thisurl->out_omit_querystring().'" method="get" />';
         $out .= html_writer::input_hidden_params($thisurl, ['action']);
         if ($reportsettings->showoptional) {
@@ -1235,8 +1249,8 @@ class checklist_class {
         }
         $out .= '</form>';
 
-        $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
-            '" method="get" />';
+        $out .= '&nbsp;&nbsp;<form style="display: inline;" class="' . $inline . '" action="' .
+            $thisurl->out_omit_querystring() . '" method="get" />';
         $out .= html_writer::input_hidden_params($thisurl);
         if ($reportsettings->showprogressbars) {
             $editchecks = false;
@@ -1251,8 +1265,8 @@ class checklist_class {
         $out .= '</form>';
 
         if ($editchecks) {
-            $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
-                '" method="post" />';
+            $out .= '&nbsp;&nbsp;<form style="display: inline;" class="'. $inline .'" action="'.
+                $thisurl->out_omit_querystring() . '" method="post" />';
             $out .= html_writer::input_hidden_params($thisurl);
             $out .= '<input type="hidden" name="action" value="updateallchecks"/>';
             $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.get_string('savechecks',
@@ -1261,8 +1275,8 @@ class checklist_class {
         } else if (!$reportsettings->showprogressbars && $this->caneditother()
             && $this->checklist->teacheredit != CHECKLIST_MARKING_STUDENT
         ) {
-            $out .= '&nbsp;&nbsp;<form style="display: inline;" class="form-inline" action="'.$thisurl->out_omit_querystring().
-                '" method="get" />';
+            $out .= '&nbsp;&nbsp;<form style="display: inline;" class="' . $inline . '" action="'.
+                $thisurl->out_omit_querystring(). '" method="get" />';
             $out .= html_writer::input_hidden_params($thisurl);
             $out .= '<input type="hidden" name="editchecks" value="on" />';
             $out .= '<input type="submit" class="btn btn-secondary" name="submit" value="'.

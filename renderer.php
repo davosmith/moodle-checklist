@@ -112,6 +112,32 @@ class mod_checklist_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Get the class to use for the inline form layout.
+     *
+     * @return string
+     */
+    private static function form_inline_class(): string {
+        global $CFG;
+        if ($CFG->branch >= 500) {
+            return 'd-flex flex-wrap align-items-center';
+        }
+        return 'form-inline';
+    }
+
+    /**
+     * Get the class to use for form elements.
+     *
+     * @return string
+     */
+    private static function form_control_class(): string {
+        global $CFG;
+        if ($CFG->branch >= 500) {
+            return 'mb-3';
+        }
+        return 'form-control';
+    }
+
+    /**
      * Output the checklist items
      * @param checklist_item[] $items
      * @param checklist_item[] $useritems
@@ -376,7 +402,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $focusitem = 'firstcomment';
                                 $outid = ' id="firstcomment" ';
                             }
-                            $out .= '<input type="text" class="form-control form-text-inline"'.
+                            $out .= '<input type="text" class="' . self::form_control_class() . ' form-text-inline"'.
                                 ' name="teachercomment['.$item->id.']" value="'.s($comment->text).
                                 '" '.$outid.'/>';
                         } else {
@@ -384,7 +410,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         }
                         $out .= '&nbsp;</span>';
                     } else if ($status->is_editcomments()) {
-                        $out .= '&nbsp;<input type="text" class="form-control form-text-inline"'.
+                        $out .= '&nbsp;<input type="text" class="' . self::form_control_class() . ' form-text-inline"'.
                             ' name="teachercomment['.$item->id.']" />';
                     }
                 }
@@ -407,6 +433,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 }
 
                 $out .= '</li>';
+
+                $inline = self::form_inline_class();
 
                 // Output any user-added items.
                 if ($useritems) {
@@ -434,11 +462,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                         ' name="items[]" id='.
                                         $itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
-                                $out .= '<form style="display:inline" class="form-inline" action="'.
+                                $out .= '<form style="display:inline" class="' . $inline . '" action="'.
                                     $thisitemurl->out_omit_querystring().
                                     '" method="post">';
                                 $out .= html_writer::input_hidden_params($thisitemurl);
-                                $out .= '<input type="text" class="form-control form-text-inline" size="'.
+                                $out .= '<input type="text" class="' . self::form_control_class() .
+                                    ' form-text-inline" size="'.
                                     CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.s($text).
                                     '" id="updateitembox" />';
                                 $out .= '<input type="submit" class="btn btn-secondary" name="updateitem" value="'.
@@ -448,7 +477,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $out .= '</form>';
                                 $out .= '</div>';
 
-                                $out .= '<form style="display:inline;" class="form-inline" action="'.
+                                $out .= '<form style="display:inline;" class="' . $inline . '" action="'.
                                     $thispageurl->out_omit_querystring().
                                     '" method="get">';
                                 $out .= html_writer::input_hidden_params($thispageurl);
@@ -504,12 +533,13 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                     $out .= '<ol class="checklist"><li>';
                     $out .= '<div style="float: left;">';
-                    $out .= '<form action="'.$thispageurl->out_omit_querystring().'" class="form-inline" method="post">';
+                    $out .= '<form action="' . $thispageurl->out_omit_querystring() . '" class="' . $inline .
+                        '" method="post">';
                     $out .= html_writer::input_hidden_params($thisitemurl);
                     if ($status->is_showcheckbox()) {
                         $out .= '<input type="checkbox" class="checkbox-inline" disabled="disabled" />';
                     }
-                    $out .= '<input type="text" class="form-control form-text-inline" size="'.
+                    $out .= '<input type="text" class="' . self::form_control_class() . ' form-text-inline" size="'.
                         CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
                     $out .= '<input type="submit" class="btn btn-secondary" name="additem" value="'.
                         get_string('additem', 'checklist').'" />';
@@ -651,6 +681,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
         }
         $out .= html_writer::start_tag('ol', $attr);
 
+        $inline = self::form_inline_class();
+
         // Output each item.
         if ($items) {
             $lastitem = count($items);
@@ -713,7 +745,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 $hasauto = $hasauto || ($item->moduleid != 0);
 
                 if ($item->is_editme()) {
-                    $out .= '<li class="checklist-edititem form-inline">';
+                    $out .= '<li class="checklist-edititem ' . $inline . '">';
                 } else {
                     $out .= '<li>';
                 }
@@ -994,6 +1026,7 @@ ENDSCRIPT;
      * @return string
      */
     protected function edit_link_form(output_status $status, $item = null) {
+        global $CFG;
         $out = '';
 
         $out .= '<br>';
@@ -1012,13 +1045,13 @@ ENDSCRIPT;
             'size' => 40,
             'value' => $item ? $item->linkurl : '',
             'placeholder' => get_string('enterurl', 'mod_checklist'),
-            'class' => 'form-control',
+            'class' => self::form_control_class(),
         ];
         $out .= html_writer::empty_tag('input', $attr);
 
         $attr = [
             'type' => 'checkbox',
-            'class' => 'form-control',
+            'class' => self::form_control_class(),
             'id' => 'id_openlinkinnewwindow',
         ];
         $out .= html_writer::checkbox(
@@ -1064,10 +1097,11 @@ ENDSCRIPT;
     protected function add_item_form(output_status $status, moodle_url $thispageurl, $currindent, $position = null) {
         $out = '';
         $addingatend = ($position === null);
+        $inline = self::form_inline_class();
 
-        $out .= '<li class="checklist-edititem form-inline">';
+        $out .= '<li class="checklist-edititem ' . $inline . '">';
         if ($addingatend) {
-            $out .= '<form action="'.$thispageurl->out_omit_querystring().'" class="form-inline" method="post">';
+            $out .= '<form action="'.$thispageurl->out_omit_querystring().'" class="' . $inline . '" method="post">';
             $out .= html_writer::input_hidden_params($thispageurl);
         }
 
@@ -1078,7 +1112,7 @@ ENDSCRIPT;
         }
         $out .= '<input type="hidden" name="indent" value="'.$currindent.'" />';
         $out .= $this->output->pix_icon('tick_box', '', 'mod_checklist');
-        $out .= '<input type="text" class="form-control form-text-inline" size="'.
+        $out .= '<input type="text" class="' . self::form_control_class() . ' form-text-inline" size="'.
             CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="" id="additembox" />';
         $out .= '<input type="submit" class="btn btn-secondary" name="additem" value="'.
             get_string('additem', 'checklist').'" />';
@@ -1113,7 +1147,7 @@ ENDSCRIPT;
     protected function edit_item_form(output_status $status, checklist_item $item) {
         $out = '';
 
-        $out .= '<input type="text" class="form-control form-text-inline" size="'.
+        $out .= '<input type="text" class="' . self::form_control_class() . ' form-text-inline" size="'.
             CHECKLIST_TEXT_INPUT_WIDTH.'" name="displaytext" value="'.
             s($item->displaytext).'" id="updateitembox" />';
         $out .= '<input type="submit" class="btn btn-secondary" name="updateitem" value="'.
