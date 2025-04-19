@@ -11,6 +11,8 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2025-04-19 - 4.1.0.4 - M5.0 compatibility fixes, CONTRIB-9548 iOS display issues (thanks to Aaron Wells), icon fix (thanks to Luca Bösch)
+* 2024-10-19 - 4.1.0.3 - M4.5 compatibility fixes
 * 2024-05-18 - 4.1.0.2 - fix error when showing a forum activity without completion enabled
 * 2024-04-02 - 4.1.0.0 - M4.4 compatibility fixes + drop maintenance of versions compatible with M4.0 and below
 * 2024-04-02 - 3.9.5.0 - adds new "checklist updated" event, for when a teacher has made changes - thanks to Andrew Hancox
