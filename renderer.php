@@ -125,6 +125,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
      */
     public function checklist_items($items, $useritems, $groupings, $intro, output_status $status, $progress, $student = null,
                                     $currentuser = null, $cmid = null): string {
+        global $CFG;
+
         $out = $this->output->box_start('generalbox boxwidthwide boxaligncenter checklistbox', null,
                                         ['data-cmid' => $cmid]);
 
@@ -198,7 +200,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 }
 
                 $out .= '<form action="'.$thispageurl->out_omit_querystring()
-                    .'" class="form-inline" method="post" autocomplete="off">';
+                    .'" class="" method="post" autocomplete="off">';
                 $out .= html_writer::input_hidden_params($thispageurl);
                 $out .= '<input type="hidden" name="action" value="updatechecks" />';
                 $out .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
@@ -266,13 +268,18 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         $itemcolour = 'itemblack';
                 }
 
+                $margin = 'ms-1';
+                if ($CFG->branch < 500) {
+                    $margin = 'ml-1';
+                }
+
                 $checkclass = '';
                 if ($item->is_heading()) {
-                    $optional = ' class="itemheading '.$itemcolour.' ml-1" ';
+                    $optional = ' class="itemheading '.$itemcolour.' ' . $margin . '" ';
                 } else if ($item->is_required()) {
-                    $optional = ' class="'.$itemcolour.' ml-1" ';
+                    $optional = ' class="'.$itemcolour.' ' . $margin . '" ';
                 } else {
-                    $optional = ' class="itemoptional '.$itemcolour.' ml-1" ';
+                    $optional = ' class="itemoptional '.$itemcolour.' ' . $margin . '" ';
                     $checkclass = ' itemoptional';
                 }
 

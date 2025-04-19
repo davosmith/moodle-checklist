@@ -93,6 +93,8 @@ const updateProgressBar = (cmid) => {
     let inner = $('.checklistbox[data-cmid="' + cmid + '"] #checklistprogressall .checklist_progress_inner')[0];
     let inneranim = $('.checklistbox[data-cmid="' + cmid + '"] #checklistprogressall .checklist_progress_anim')[0];
     let oldpercent = parseFloat(inner.style.width.replace('%', ''));
+    $(inner).stop(true, true);
+    $(inneranim).stop(true, true);
 
     if (allpercent > oldpercent) {
         inneranim.style.width = allpercent + '%';
@@ -113,6 +115,8 @@ const updateProgressBar = (cmid) => {
         inner = $('.checklistbox[data-cmid="' + cmid + '"] #checklistprogressrequired .checklist_progress_inner')[0];
         inneranim = $('.checklistbox[data-cmid="' + cmid + '"] #checklistprogressrequired .checklist_progress_anim')[0];
         oldpercent = parseFloat(inner.style.width.replace('%', ''));
+        $(inner).stop(true, true);
+        $(inneranim).stop(true, true);
 
         if (reqpercent > oldpercent) {
             inneranim.style.width = reqpercent + '%';
