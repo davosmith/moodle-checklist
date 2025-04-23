@@ -303,3 +303,11 @@ ol.checklist label {
 .checklist-groupingname {
     color: #ccc;
 }
+
+.headcol_checklist {
+    background-color: #e1e1df;
+    position: sticky;
+    left: 0;
+    min-width: 150px;
+    max-width: 150px;
+}
