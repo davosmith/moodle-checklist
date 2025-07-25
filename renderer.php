@@ -459,7 +459,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $out .= '<div style="float: left;">';
                                 if ($status->is_showcheckbox()) {
                                     $out .= '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"'.
-                                        ' name="items[]" id='.
+                                        ' name="items[]" data-cmid="'.$cmid.'" id='.
                                         $itemname.$checked.' disabled="disabled" value="'.$useritem->id.'" />';
                                 }
                                 $out .= '<form style="display:inline" class="' . $inline . '" action="'.
@@ -492,7 +492,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $out .= '<li>';
                                 if ($status->is_showcheckbox()) {
                                     $out .= '<input class="checklistitem itemoptional checkbox-inline" type="checkbox"'.
-                                        ' name="items[]" id='.
+                                        ' name="items[]" data-cmid="'.$cmid.'" id='.
                                         $itemname.$checked.' value="'.$useritem->id.'" />';
                                 }
                                 $splittext = explode("\n", s($useritem->displaytext), 2);
