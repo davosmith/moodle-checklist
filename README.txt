@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2025-07-25 - 4.1.0.6 - Fix for students updating their own checklist items
 * 2025-04-19 - 4.1.0.5 - Fix for animation bug when toggling checklist items quickly, CONTRIB-9880; fix deprecated styling warnings
 * 2025-04-19 - 4.1.0.4 - M5.0 compatibility fixes, CONTRIB-9548 iOS display issues (thanks to Aaron Wells), icon fix (thanks to Luca Bösch)
 * 2024-10-19 - 4.1.0.3 - M4.5 compatibility fixes
