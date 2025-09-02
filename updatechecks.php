@@ -22,32 +22,40 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('AJAX_SCRIPT', true);
+
 require_once(__DIR__.'/../../config.php');
 global $DB, $CFG, $PAGE, $USER;
 require_once($CFG->dirroot.'/mod/checklist/lib.php');
 require_once($CFG->dirroot.'/mod/checklist/locallib.php');
-
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $items = required_param_array('items', PARAM_INT);
 
 $url = new moodle_url('/mod/checklist/view.php', ['id' => $id]);
 
-$cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
-
 $PAGE->set_url($url);
-require_login($course, true, $cm);
 
-$context = context_module::instance($cm->id);
-$userid = $USER->id;
-require_capability('mod/checklist:updateown', $context);
-require_sesskey();
+header('Content-Type: text/plain; charset=utf-8');
 
-if ($items) {
-    $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
-    $chk->ajaxupdatechecks($items);
+try {
+    $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
+
+    require_login($course, true, $cm);
+
+    $context = context_module::instance($cm->id);
+    $userid = $USER->id;
+    require_capability('mod/checklist:updateown', $context);
+    require_sesskey();
+
+    if ($items) {
+        $chk = new checklist_class($cm->id, $userid, $checklist, $cm, $course);
+        $chk->ajaxupdatechecks($items);
+    }
+
+    echo 'OK';
+} catch (Throwable $e) {
+    echo $e->getMessage();
 }
-
-echo 'OK';
