@@ -303,3 +303,10 @@ ol.checklist label {
 .checklist-groupingname {
     color: #ccc;
 }
+
+#page-mod-checklist-edit img.icon,
+#page-mod-checklist-report img.icon,
+#page-mod-checklist-view img.icon {
+    width: 16px;
+    height: 16px;
+}
