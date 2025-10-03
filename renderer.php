@@ -1003,6 +1003,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
      * @throws coding_exception
      */
     protected function edit_date_form($ts = 0) {
+        global $CFG;
         $out = '';
 
         $out .= '<br>';
@@ -1070,7 +1071,10 @@ class mod_checklist_renderer extends plugin_renderer_base {
 </script>
 ENDSCRIPT;
 
-        return html_writer::span($out, 'checklistformitem');
+        if ($CFG->version > 2025041400) {
+            return html_writer::div($out, 'd-flex flex-row align-items-center flex-wrap mx-1 mb-3');
+        }
+        return html_writer::div($out, 'form-group mb-3');
     }
 
     /**
@@ -1119,8 +1123,10 @@ ENDSCRIPT;
             get_string('openlinkinnewwindow', 'mod_checklist'),
             $attr
         );
-
-        return html_writer::span($out, 'checklistformitem');
+        if ($CFG->version > 2025041400) {
+            return html_writer::div($out, 'd-flex flex-row align-items-center flex-wrap mt-3 mb-3');
+        }
+        return html_writer::div($out, 'form-group mt-3 mb-3');
     }
 
     /**
@@ -1131,6 +1137,7 @@ ENDSCRIPT;
      * @return string
      */
     protected function edit_grouping_form(output_status $status, $item = null) {
+        global $CFG;
         $out = '';
 
         $out .= '<br>';
@@ -1145,7 +1152,10 @@ ENDSCRIPT;
             ['id' => 'id_grouping']
         );
 
-        return html_writer::span($out, 'checklistformitem');
+        if ($CFG->version > 2025041400) {
+            return html_writer::div($out, 'd-flex flex-row align-items-center flex-wrap mx-1 mb-3');
+        }
+        return html_writer::div($out, 'form-group mb-3');
     }
 
     /**
@@ -1163,7 +1173,7 @@ ENDSCRIPT;
 
         $out .= '<li class="checklist-edititem ' . $inline . '">';
         if ($addingatend) {
-            $out .= '<form action="' . $thispageurl->out_omit_querystring() . '" class="' . $inline . '" method="post">';
+            $out .= '<form action="' . $thispageurl->out_omit_querystring() . '" class="form-horizontal" method="post">';
             $out .= html_writer::input_hidden_params($thispageurl);
         }
 
