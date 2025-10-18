@@ -8,7 +8,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:15
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -31,8 +31,11 @@ jobs:
       matrix:
         include:
           - php: '8.4'
+            moodle-branch: 'MOODLE_501_STABLE'
+            database: 'mariadb'
+          - php: '8.4'
             moodle-branch: 'MOODLE_500_STABLE'
-            database: 'pgsql'    
+            database: 'pgsql'
           - php: '8.3'
             moodle-branch: 'MOODLE_405_STABLE'
             database: 'mariadb'
@@ -118,7 +121,7 @@ jobs:
 
       - name: Behat features
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations
 
       - name: Upload Behat Faildump
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
