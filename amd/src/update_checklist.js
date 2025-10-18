@@ -151,7 +151,7 @@ const updateServer = (cmid, itemid, state) => {
     if (updateTimeout) {
         window.clearTimeout(updateTimeout);
     }
-    updateTimeout = window.setTimeout(function () {
+    updateTimeout = window.setTimeout(function() {
         sendBatchUpdate(cmid, false);
     }, 500);
     showSpinner(cmid);
