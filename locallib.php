@@ -371,7 +371,7 @@ class checklist_class {
                         ),
                         'studentname' => fullname($currentuser),
                         'label' => get_string('commenton', 'mod_checklist', s($item->displaytext)),
-                        'hideclass' => $CFG->branch > 500 ? 'visually-hidden' : 'sr-only',
+                        'hideclass' => $CFG->branch >= 500 ? 'visually-hidden' : 'sr-only',
                     ];
                 }
             }
