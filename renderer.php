@@ -441,6 +441,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                             'isstudent' => $isstudent,
                             'studenturl' => $this->get_user_url($student->id, $status->get_courseid()),
                             'studentname' => fullname($student),
+                            'label' => get_string('commenton', 'mod_checklist', s($item->displaytext)),
                         ];
                         $out .= $this->render_from_template('mod_checklist/student_comment', $context);
                     }

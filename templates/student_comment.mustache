@@ -28,14 +28,18 @@
         "studentname": "John Smith",
         "isstudent": true,
         "commenttext": "My comment",
-        "itemid": "1"
+        "itemid": "1",
+        "label": "Comment on Item 1"
     }
 }}
 <div class="studentcomment">
     <a href="{{studenturl}}">{{studentname}}</a>:
     {{#isstudent}}
+        <label for="studentcommentid{{itemid}}" class="sr-only">{{label}}</label>
         <input type="text" class="studentcommentid{{itemid}} studentcommentinput form-control form-text-inline"
-               name="studentcomment[{{itemid}}]" value="{{commenttext}}" >
+               name="studentcomment[{{itemid}}]" value="{{commenttext}}"
+               id="studentcommentid{{itemid}}"
+        >
         <div id="checklistspinnerstudentcomment{{itemid}}" class="checklistspinnerstudent"> </div>
     {{/isstudent}}
     {{^isstudent}}

@@ -370,6 +370,7 @@ class checklist_class {
                             ['id' => $this->userid, 'course' => $this->course->id]
                         ),
                         'studentname' => fullname($currentuser),
+                        'label' => get_string('commenton', 'mod_checklist', s($item->displaytext)),
                     ];
                 }
             }

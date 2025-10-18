@@ -69,6 +69,7 @@ $string['checklistintro'] = 'Introduction';
 $string['checklistsettings'] = 'Settings';
 $string['checks'] = 'Check marks';
 $string['choosecourse'] = 'Choose course...';
+$string['commenton'] = 'Comment on {$a}';
 $string['comments'] = 'Comments';
 $string['completiondetail:items'] = 'Check-off items: {$a}';
 $string['completiondetail:percent'] = 'Check-off items: {$a}%';
