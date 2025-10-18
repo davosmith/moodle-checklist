@@ -29,7 +29,6 @@
  * Define the complete checklist structure for backup, with file and id annotations
  */
 class backup_checklist_activity_structure_step extends backup_activity_structure_step {
-
     /**
      * Define the backup structure
      * @return backup_nested_element
@@ -51,12 +50,15 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
 
         $items = new backup_nested_element('items');
 
-        $item = new backup_nested_element('item', ['id'],
-                                          [
+        $item = new backup_nested_element(
+            'item',
+            ['id'],
+            [
                                               'userid', 'displaytext', 'position', 'indent',
                                               'itemoptional', 'duetime', 'colour', 'moduleid', 'hidden',
                                               'linkcourseid', 'linkurl', 'openlinkinnewwindow',
-                                          ]);
+            ]
+        );
 
         $checks = new backup_nested_element('checks');
 
@@ -97,8 +99,10 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
             $comment->set_source_table('checklist_comment', ['itemid' => backup::VAR_PARENTID]);
             $studentcomment->set_source_table('checklist_comment_student', ['itemid' => backup::VAR_PARENTID]);
         } else {
-            $item->set_source_sql('SELECT * FROM {checklist_item} WHERE userid = 0 AND checklist = ?',
-                                  [backup::VAR_PARENTID]);
+            $item->set_source_sql(
+                'SELECT * FROM {checklist_item} WHERE userid = 0 AND checklist = ?',
+                [backup::VAR_PARENTID]
+            );
         }
 
         // Define id annotations.
@@ -117,5 +121,4 @@ class backup_checklist_activity_structure_step extends backup_activity_structure
         // Return the root element (forum), wrapped into standard activity structure.
         return $this->prepare_activity_structure($checklist);
     }
-
 }

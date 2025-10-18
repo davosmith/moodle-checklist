@@ -30,7 +30,7 @@ use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot.'/completion/data_object.php');
+require_once($CFG->dirroot . '/completion/data_object.php');
 
 /**
  * Class checklist_comment
@@ -157,13 +157,13 @@ class checklist_comment extends data_object {
             $namesql = \core_user\fields::for_name()->get_sql('', true);
         } else {
             $namesql = (object)[
-                'selects' => ','.get_all_user_name_fields(true),
+                'selects' => ',' . get_all_user_name_fields(true),
                 'joins' => '',
                 'params' => [],
                 'mappings' => [],
             ];
         }
-        $commentusers = $DB->get_records_list('user', 'id', $userids, '', 'id'.$namesql->selects);
+        $commentusers = $DB->get_records_list('user', 'id', $userids, '', 'id' . $namesql->selects);
         foreach ($comments as $comment) {
             if ($comment->commentby) {
                 if (isset($commentusers[$comment->commentby])) {

@@ -106,13 +106,13 @@ class checklist_comment_student extends persistent {
             $namesql = \core_user\fields::for_name()->get_sql('', true);
         } else {
             $namesql = (object)[
-                'selects' => ','.get_all_user_name_fields(true),
+                'selects' => ',' . get_all_user_name_fields(true),
                 'joins' => '',
                 'params' => [],
                 'mappings' => [],
             ];
         }
-        $studentcommentusers = $DB->get_records_list('user', 'id', $userids, '', 'id'.$namesql->selects);
+        $studentcommentusers = $DB->get_records_list('user', 'id', $userids, '', 'id' . $namesql->selects);
         foreach ($studentcomments as $studentcomment) {
             if ($studentcomment->get('usermodified')) {
                 if (isset($studentcommentusers[$studentcomment->get('usermodified')])) {
@@ -130,8 +130,8 @@ class checklist_comment_student extends persistent {
      * @return bool true if successful.
      */
     public static function update_or_create_student_comment(
-        int                       $checklistitemid,
-        string                    $commenttext,
+        int $checklistitemid,
+        string $commenttext,
         ?checklist_comment_student $existingcomment = null
     ): bool {
         if (!$existingcomment) {

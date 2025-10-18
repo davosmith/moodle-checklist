@@ -22,10 +22,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
+require_once(__DIR__ . '/../../config.php');
 global $DB, $PAGE, $OUTPUT, $CFG, $USER;
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
-require_once($CFG->dirroot.'/mod/checklist/locallib.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
 $id = required_param('id', PARAM_INT);   // Course.
 
@@ -90,10 +90,10 @@ if ($canupdateown) {
 foreach ($checklists as $checklist) {
     if (!$checklist->visible) {
         // Show dimmed if the mod is hidden.
-        $link = '<a class="dimmed" href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
+        $link = '<a class="dimmed" href="view.php?id=' . $checklist->coursemodule . '">' . format_string($checklist->name) . '</a>';
     } else {
         // Show normal if the mod is visible.
-        $link = '<a href="view.php?id='.$checklist->coursemodule.'">'.format_string($checklist->name).'</a>';
+        $link = '<a href="view.php?id=' . $checklist->coursemodule . '">' . format_string($checklist->name) . '</a>';
     }
 
     if ($course->format === 'weeks' || $course->format === 'topics') {

@@ -357,8 +357,11 @@ final class privacy_provider_test extends \core_privacy\tests\provider_testcase 
         $this->assertEquals(4, $DB->count_records('checklist_comment_student', []));
 
         // Delete the data for the first student, but only for the first checklist.
-        $contextlist = new \core_privacy\local\request\approved_contextlist($this->student, 'checklist',
-                                                                            [$ctxs[0]->id]);
+        $contextlist = new \core_privacy\local\request\approved_contextlist(
+            $this->student,
+            'checklist',
+            [$ctxs[0]->id]
+        );
         provider::delete_data_for_user($contextlist);
 
         // After deletion, we should have 1 checked off item, 2 custom items, 2 comments, 2 student comments and 14 total items.
@@ -373,8 +376,11 @@ final class privacy_provider_test extends \core_privacy\tests\provider_testcase 
         $this->assertEquals($student->id, $DB->get_field('checklist_comment_student', 'usermodified', ['itemid' => $items[1]->id]));
         $items = \mod_checklist\local\checklist_item::fetch_all(['checklist' => $this->checklists[2]->id], true);
         $item = array_slice($items, 1, 1);  // Second item is where our other student comment is.
-        $this->assertEquals($this->student->id, $DB->get_field('checklist_comment_student', 'usermodified',
-            ['itemid' => $item[0]->id]));
+        $this->assertEquals($this->student->id, $DB->get_field(
+            'checklist_comment_student',
+            'usermodified',
+            ['itemid' => $item[0]->id]
+        ));
 
         // Delete the data for the first student, for all checklists.
         $contextids = [$ctxs[0]->id, $ctxs[1]->id, $ctxs[2]->id, $ctxs[3]->id];
@@ -506,6 +512,5 @@ final class privacy_provider_test extends \core_privacy\tests\provider_testcase 
         $userlist = new \core_privacy\local\request\userlist($ctxs[3], 'mod_checklist');
         provider::get_users_in_context($userlist);
         $this->assertCount(0, $userlist);
-
     }
 }

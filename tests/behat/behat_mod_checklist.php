@@ -26,7 +26,7 @@
 
 use Behat\Gherkin\Node\TableNode;
 
-require_once(__DIR__.'/../../../../lib/behat/behat_base.php');
+require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 /**
  * Steps definitions related with the checklist module.
@@ -36,7 +36,6 @@ require_once(__DIR__.'/../../../../lib/behat/behat_base.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_mod_checklist extends behat_base {
-
     /**
      * View the calendar for a specific course + date
      *
@@ -52,7 +51,7 @@ class behat_mod_checklist extends behat_base {
         }
         $timestamp = strtotime($datestring);
 
-        $url = '/calendar/view.php?view=month&course='.$courseid.'&time='.$timestamp;
+        $url = '/calendar/view.php?view=month&course=' . $courseid . '&time=' . $timestamp;
         $this->getSession()->visit($this->locate_path($url));
     }
 
@@ -65,7 +64,7 @@ class behat_mod_checklist extends behat_base {
      */
     public function the_following_items_exist_in_checklist($checklistname, TableNode $table) {
         global $DB, $CFG;
-        require_once($CFG->dirroot.'/mod/checklist/locallib.php');
+        require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
         $required = [
             'text',
@@ -88,7 +87,7 @@ class behat_mod_checklist extends behat_base {
         // Check required fields are present.
         foreach ($required as $reqname) {
             if (!isset($firstrow[$reqname])) {
-                throw new Exception('Checklist items require the field '.$reqname.' to be set');
+                throw new Exception('Checklist items require the field ' . $reqname . ' to be set');
             }
         }
 
@@ -109,7 +108,7 @@ class behat_mod_checklist extends behat_base {
                         break;
                     case 'required':
                         if (!isset($requiredmap[$value])) {
-                            throw new Exception('Invalid \'required\' value in checklist item: \''.$value.'\'');
+                            throw new Exception('Invalid \'required\' value in checklist item: \'' . $value . '\'');
                         }
                         $newitem['required'] = $requiredmap[$value];
                         break;
@@ -126,7 +125,7 @@ class behat_mod_checklist extends behat_base {
                         }
                         break;
                     default:
-                        throw new Exception('Unknown field \''.$fieldname.'\' in checklist item ');
+                        throw new Exception('Unknown field \'' . $fieldname . '\' in checklist item ');
                 }
             }
             $chk->additem($newitem['displaytext'], 0, 0, false, $newitem['duetime'], 0, $newitem['required']);
@@ -143,7 +142,7 @@ class behat_mod_checklist extends behat_base {
      */
     public function the_following_items_are_checked_off_in_checklist_for_user($checklistname, $username, TableNode $table) {
         global $DB, $CFG;
-        require_once($CFG->dirroot.'/mod/checklist/locallib.php');
+        require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
         $required = [
             'itemtext',
@@ -172,7 +171,7 @@ class behat_mod_checklist extends behat_base {
         // Check required fields are present.
         foreach ($required as $reqname) {
             if (!isset($firstrow[$reqname])) {
-                throw new Exception('Checklist item updates require the field '.$reqname.' to be set');
+                throw new Exception('Checklist item updates require the field ' . $reqname . ' to be set');
             }
         }
 
@@ -185,7 +184,7 @@ class behat_mod_checklist extends behat_base {
         $updatestudent = ($checklist->teacheredit != CHECKLIST_MARKING_TEACHER) && isset($firstrow['studentmark']);
         $updateteacher = ($checklist->teacheredit != CHECKLIST_MARKING_STUDENT) && isset($firstrow['teachermark']);
         if (!$updateteacher && !$updatestudent) {
-            throw new Exception('Checklist update must specify a teachermark (for teacher/both checklists) or a studentmark '.
+            throw new Exception('Checklist update must specify a teachermark (for teacher/both checklists) or a studentmark ' .
                                 '(for student/both checklists)');
         }
 
@@ -196,15 +195,15 @@ class behat_mod_checklist extends behat_base {
             $update = $optional;
             foreach ($row as $fieldname => $value) {
                 if (!in_array($fieldname, $required) && !isset($optional[$fieldname])) {
-                    throw new Exception('Unknown checklist item update field \'', $fieldname.'\'');
+                    throw new Exception('Unknown checklist item update field \'', $fieldname . '\'');
                 }
                 $update[$fieldname] = $value;
             }
             if (!array_key_exists($update['studentmark'], $studentmarkmap)) {
-                throw new Exception('Invalid studentmark value \''.$update['studentmark'].'\' in checklist update');
+                throw new Exception('Invalid studentmark value \'' . $update['studentmark'] . '\' in checklist update');
             }
             if (!array_key_exists($update['teachermark'], $teachermarkmap)) {
-                throw new Exception('Invalid teachermark value \''.$update['teachermark'].'\' in checklist update');
+                throw new Exception('Invalid teachermark value \'' . $update['teachermark'] . '\' in checklist update');
             }
 
             $itemid = $chk->get_itemid_by_name($update['itemtext']);
@@ -281,8 +280,13 @@ class behat_mod_checklist extends behat_base {
     public function i_adjust_the_section_names_in_course_to_be_compatible_with_moodle(string $coursename): void {
         global $DB;
         $courseid = $DB->get_field('course', 'id', ['fullname' => $coursename], MUST_EXIST);
-        $sections = $DB->get_records_select('course_sections', "course = :course AND section > 0",
-                                            ['course' => $courseid], 'section', 'id, section, name');
+        $sections = $DB->get_records_select(
+            'course_sections',
+            "course = :course AND section > 0",
+            ['course' => $courseid],
+            'section',
+            'id, section, name'
+        );
         foreach ($sections as $section) {
             $section->name = "Section $section->section";
             $DB->update_record('course_sections', $section);

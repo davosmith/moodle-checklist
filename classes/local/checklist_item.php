@@ -29,8 +29,8 @@ use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/completion/data_object.php');
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/completion/data_object.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
 
 /**
  * Class checklist_item
@@ -188,7 +188,7 @@ class checklist_item extends data_object {
         }
         if ($teachermark !== null) {
             if (!checklist_check::teachermark_valid($teachermark)) {
-                debugging('Unexpected teachermark value: '.$teachermark);
+                debugging('Unexpected teachermark value: ' . $teachermark);
                 $teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
             }
             $this->teachermark = $teachermark;
@@ -401,7 +401,7 @@ class checklist_item extends data_object {
         }
 
         if (!checklist_check::teachermark_valid($teachermark)) {
-            throw new \coding_exception('Invalid teachermark '.$teachermark);
+            throw new \coding_exception('Invalid teachermark ' . $teachermark);
         }
 
         // Update checkmark in the database.
@@ -566,13 +566,13 @@ class checklist_item extends data_object {
             $namesql = \core_user\fields::for_name()->get_sql('', true);
         } else {
             $namesql = (object)[
-                'selects' => ','.get_all_user_name_fields(true),
+                'selects' => ',' . get_all_user_name_fields(true),
                 'joins' => '',
                 'params' => [],
                 'mappings' => [],
             ];
         }
-        $teachers = $DB->get_records_list('user', 'id', $userids, '', 'id'.$namesql->selects);
+        $teachers = $DB->get_records_list('user', 'id', $userids, '', 'id' . $namesql->selects);
         foreach ($items as $item) {
             if ($item->teacherid) {
                 if (isset($teachers[$item->teacherid])) {

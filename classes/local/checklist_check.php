@@ -28,8 +28,8 @@ use data_object;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/completion/data_object.php');
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/completion/data_object.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
 
 /**
  * Class checklist_check
@@ -122,8 +122,10 @@ class checklist_check extends data_object {
      * @return bool
      */
     public static function teachermark_valid($teachermark) {
-        return in_array($teachermark,
-                        [CHECKLIST_TEACHERMARK_YES, CHECKLIST_TEACHERMARK_NO, CHECKLIST_TEACHERMARK_UNDECIDED]);
+        return in_array(
+            $teachermark,
+            [CHECKLIST_TEACHERMARK_YES, CHECKLIST_TEACHERMARK_NO, CHECKLIST_TEACHERMARK_UNDECIDED]
+        );
     }
 
     /**
@@ -131,7 +133,7 @@ class checklist_check extends data_object {
      */
     protected function check_fields_valid() {
         if (!self::teachermark_valid($this->teachermark)) {
-            debugging('Unexpected teachermark value: '.$this->teachermark);
+            debugging('Unexpected teachermark value: ' . $this->teachermark);
             $this->teachermark = CHECKLIST_TEACHERMARK_UNDECIDED;
         }
     }

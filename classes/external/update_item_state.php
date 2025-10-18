@@ -29,7 +29,6 @@ require_once("$CFG->libdir/externallib.php");
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_item_state extends \external_api {
-
     /**
      * Describes the parameters for update_item_state.
      *
@@ -81,5 +80,4 @@ class update_item_state extends \external_api {
                                                   'warnings' => new \external_warnings(),
                                               ]);
     }
-
 }

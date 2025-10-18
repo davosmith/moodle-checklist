@@ -98,7 +98,7 @@ final class student_comment_test extends \advanced_testcase {
             $checklistitemid = $item->insert();
             $this->items[] = $item;
             // Create student comments alongside the other items.
-            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment'.$position);
+            checklist_comment_student::update_or_create_student_comment($checklistitemid, 'testcomment' . $position);
         }
         // Test events were written to logstore.
         $this->preventResetByRollback();
@@ -168,8 +168,8 @@ final class student_comment_test extends \advanced_testcase {
         $this->assertEquals($studentcomment->get('itemid'), $eventdata['objectid']);
         $this->assertEquals($this->cm->cmid, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test new comment'], $eventdata['other']);
-        $eventtext = 'The user with id '.$this->student->id.' has created a comment in ';
-        $eventtext .= 'the checklist with course module id '.$this->cm->cmid.' with text \'test new comment\'';
+        $eventtext = 'The user with id ' . $this->student->id . ' has created a comment in ';
+        $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' with text \'test new comment\'';
         $this->assertEquals($eventtext, $event->get_description());
     }
 
@@ -209,8 +209,8 @@ final class student_comment_test extends \advanced_testcase {
         $this->assertEquals($this->cm->cmid, $eventdata['contextinstanceid']);
         $this->assertEquals(['commenttext' => 'test update comment'], $eventdata['other']);
 
-        $eventtext = 'The user with id '.$this->student->id.' has updated a comment in ';
-        $eventtext .= 'the checklist with course module id '.$this->cm->cmid.' to have text \'test update comment\'';
+        $eventtext = 'The user with id ' . $this->student->id . ' has updated a comment in ';
+        $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' to have text \'test update comment\'';
         $this->assertEquals($eventtext, $event->get_description());
     }
 

@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
 
 /**
  * Class mod_checklist_generator

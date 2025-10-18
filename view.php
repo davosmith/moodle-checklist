@@ -22,10 +22,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
+require_once(__DIR__ . '/../../config.php');
 global $DB, $PAGE, $CFG, $USER;
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
-require_once($CFG->dirroot.'/mod/checklist/locallib.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
@@ -37,13 +37,11 @@ if ($id) {
     $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
     $checklist = $DB->get_record('checklist', ['id' => $cm->instance], '*', MUST_EXIST);
     $url->param('id', $id);
-
 } else if ($checklistid) {
     $checklist = $DB->get_record('checklist', ['id' => $checklistid], '*', MUST_EXIST);
     $course = $DB->get_record('course', ['id' => $checklist->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('checklist', $checklist->id, $course->id, false, MUST_EXIST);
     $url->param('checklist', $checklistid);
-
 } else {
     throw new moodle_exception('You must specify a course_module ID or an instance ID');
 }

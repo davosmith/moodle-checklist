@@ -37,10 +37,10 @@ use core_privacy\local\request\writer;
  * Class provider
  * @package mod_checklist
  */
-class provider implements \core_privacy\local\metadata\provider,
-                          \core_privacy\local\request\plugin\provider,
-                          \core_privacy\local\request\core_userlist_provider {
-
+class provider implements
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Get a description of the data stored by this plugin.
      * @param collection $collection
@@ -256,7 +256,7 @@ class provider implements \core_privacy\local\metadata\provider,
         }
 
         $user = $contextlist->get_user();
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        [$contextsql, $contextparams] = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
         $sql = "SELECT cm.id AS cmid,
                        ci.displaytext,
@@ -382,15 +382,18 @@ class provider implements \core_privacy\local\metadata\provider,
             }
             $itemids = $DB->get_fieldset_select('checklist_item', 'id', 'checklist = ?', [$cm->instance]);
             if ($itemids) {
-                list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+                [$isql, $params] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
                 $params['userid'] = $userid;
                 $DB->delete_records_select('checklist_check', "item $isql AND userid = :userid", $params);
                 $DB->delete_records_select('checklist_comment', "itemid $isql AND userid = :userid", $params);
                 $DB->delete_records_select('checklist_comment_student', "itemid $isql AND usermodified = :userid", $params);
                 $params = ['instanceid' => $cm->instance, 'userid' => $userid];
                 $DB->delete_records_select('checklist_item', 'checklist = :instanceid AND userid = :userid', $params);
-                $DB->delete_records_select('checklist_comp_notification', 'checklistid = :instanceid AND userid = :userid',
-                                           $params);
+                $DB->delete_records_select(
+                    'checklist_comp_notification',
+                    'checklistid = :instanceid AND userid = :userid',
+                    $params
+                );
             }
         }
     }
@@ -416,9 +419,9 @@ class provider implements \core_privacy\local\metadata\provider,
 
         // Prepare SQL to gather all completed IDs.
         $itemids = $DB->get_fieldset_select('checklist_item', 'id', 'checklist = ?', [$cm->instance]);
-        list($itsql, $itparams) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+        [$itsql, $itparams] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
         $userids = $userlist->get_userids();
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         // Delete user-created personal checklist items.
         $DB->delete_records_select(

@@ -25,7 +25,6 @@
  * Class restore_checklist_activity_structure_step
  */
 class restore_checklist_activity_structure_step extends restore_activity_structure_step {
-
     /**
      * List of elements that can be restored
      * @return array

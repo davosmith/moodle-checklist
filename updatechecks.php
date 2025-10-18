@@ -24,10 +24,11 @@
 
 define('AJAX_SCRIPT', true);
 
-require_once(__DIR__.'/../../config.php');
+require_once(__DIR__ . '/../../config.php');
+
 global $DB, $CFG, $PAGE, $USER;
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
-require_once($CFG->dirroot.'/mod/checklist/locallib.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $items = required_param_array('items', PARAM_INT);

@@ -23,13 +23,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/mod/checklist/backup/moodle2/restore_checklist_stepslib.php'); // Because it exists (must).
+require_once($CFG->dirroot . '/mod/checklist/backup/moodle2/restore_checklist_stepslib.php'); // Because it exists (must).
 
 /**
  * checklist restore task that provides all the settings and steps to perform one complete restore of the activity
  */
 class restore_checklist_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -69,16 +68,25 @@ class restore_checklist_activity_task extends restore_activity_task {
         $rules[] = new restore_decode_rule('CHECKLISTINDEX', '/mod/checklist/index.php?id=$1', 'course');
         // Checklist by cm->id and forum->id.
         $rules[] = new restore_decode_rule('CHECKLISTVIEWBYID', '/mod/checklist/view.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('CHECKLISTVIEWBYCHECKLIST', '/mod/checklist/view.php?checklist=$1',
-                                           'checklist');
+        $rules[] = new restore_decode_rule(
+            'CHECKLISTVIEWBYCHECKLIST',
+            '/mod/checklist/view.php?checklist=$1',
+            'checklist'
+        );
         // Checklist report by cm->id and forum->id.
         $rules[] = new restore_decode_rule('CHECKLISTREPORTBYID', '/mod/checklist/report.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('CHECKLISTREPORTBYCHECKLIST', '/mod/checklist/report.php?checklist=$1',
-                                           'checklist');
+        $rules[] = new restore_decode_rule(
+            'CHECKLISTREPORTBYCHECKLIST',
+            '/mod/checklist/report.php?checklist=$1',
+            'checklist'
+        );
         // Checklist edit by cm->id and forum->id.
         $rules[] = new restore_decode_rule('CHECKLISTEDITBYID', '/mod/checklist/edit.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('CHECKLISTEDITBYCHECKLIST', '/mod/checklist/edit.php?checklist=$1',
-                                           'checklist');
+        $rules[] = new restore_decode_rule(
+            'CHECKLISTEDITBYCHECKLIST',
+            '/mod/checklist/edit.php?checklist=$1',
+            'checklist'
+        );
 
         return $rules;
     }
@@ -91,8 +99,11 @@ class restore_checklist_activity_task extends restore_activity_task {
         global $DB;
 
         // Find all the items that have a 'moduleid' but are not headings and match them up to the newly-restored activities.
-        $items = $DB->get_records_select('checklist_item', 'checklist = ? AND moduleid > 0 AND itemoptional <> 2',
-                                         [$this->get_activityid()]);
+        $items = $DB->get_records_select(
+            'checklist_item',
+            'checklist = ? AND moduleid > 0 AND itemoptional <> 2',
+            [$this->get_activityid()]
+        );
 
         foreach ($items as $item) {
             $moduleid = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $item->moduleid);
@@ -148,5 +159,4 @@ class restore_checklist_activity_task extends restore_activity_task {
 
         return $rules;
     }
-
 }

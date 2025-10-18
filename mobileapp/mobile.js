@@ -1,4 +1,3 @@
-
 this.saveChanges = (cmId, itemId, state) => {
     return this.CoreDomUtilsProvider.showModalLoading('core.sending', true).then((modal) => {
         const site = this.CoreSitesProvider.getCurrentSite();

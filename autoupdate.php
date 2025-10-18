@@ -25,7 +25,7 @@ use mod_checklist\local\checklist_check;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
 
 /**
  * Automatically update checklist
@@ -43,7 +43,7 @@ function checklist_completion_update_checks($userid, $itemchecks, $newstate) {
     $updatecount = 0;
     $updatechecklists = [];
     foreach ($itemchecks as $itemcheck) {
-        list(, $cm) = get_course_and_cm_from_instance($itemcheck->checklist, 'checklist', $itemcheck->course);
+        [, $cm] = get_course_and_cm_from_instance($itemcheck->checklist, 'checklist', $itemcheck->course);
         $context = context_module::instance($cm->id);
         if (!has_capability('mod/checklist:updateown', $context, $userid)) {
             continue; // User can't update checklist, so don't save the value.
@@ -71,8 +71,8 @@ function checklist_completion_update_checks($userid, $itemchecks, $newstate) {
     }
     if (!empty($updatechecklists)) {
         $updatechecklists = array_unique($updatechecklists);
-        list($csql, $cparams) = $DB->get_in_or_equal($updatechecklists);
-        $checklists = $DB->get_records_select('checklist', 'id '.$csql, $cparams);
+        [$csql, $cparams] = $DB->get_in_or_equal($updatechecklists);
+        $checklists = $DB->get_records_select('checklist', 'id ' . $csql, $cparams);
         foreach ($checklists as $checklist) {
             checklist_update_grades($checklist, $userid);
         }
@@ -97,7 +97,7 @@ function checklist_autoupdate_internal($courseid, $module, $cmid, $userid) {
     }
 
     if (defined("DEBUG_CHECKLIST_AUTOUPDATE")) {
-        mtrace("Possible update needed - courseid: $courseid, module: $module, ".
+        mtrace("Possible update needed - courseid: $courseid, module: $module, " .
                "cmid: $cmid, userid: $userid");
     }
 
