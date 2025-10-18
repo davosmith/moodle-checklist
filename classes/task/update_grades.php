@@ -33,7 +33,7 @@ class update_grades extends \core\task\adhoc_task {
      */
     public function execute(): void {
         global $CFG, $DB;
-        require_once($CFG->dirroot.'/mod/checklist/lib.php');
+        require_once($CFG->dirroot . '/mod/checklist/lib.php');
         $customdata = $this->get_custom_data();
         $checklist = $DB->get_record('checklist', ['id' => $customdata->checklistid]);
         if ($checklist) {

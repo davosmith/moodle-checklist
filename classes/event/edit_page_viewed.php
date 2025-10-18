@@ -33,7 +33,6 @@ namespace mod_checklist\event;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class edit_page_viewed extends \core\event\base {
-
     /**
      * Init method.
      */
@@ -58,7 +57,7 @@ class edit_page_viewed extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' viewed the edit page for the checklist with ".
+        return "The user with id '$this->userid' viewed the edit page for the checklist with " .
             "the course module id '$this->contextinstanceid'.";
     }
 

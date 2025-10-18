@@ -44,7 +44,6 @@ use moodle_exception;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_student_comment extends external_api {
-
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -98,9 +97,11 @@ class update_student_comment extends external_api {
             $existingcomment = null;
         }
 
-        return checklist_comment_student::update_or_create_student_comment($commentdata['checklistitemid'],
-                                                                           $commentdata['commenttext'],
-                                                                           $existingcomment);
+        return checklist_comment_student::update_or_create_student_comment(
+            $commentdata['checklistitemid'],
+            $commentdata['commenttext'],
+            $existingcomment
+        );
     }
 
     /**

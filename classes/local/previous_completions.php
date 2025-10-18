@@ -28,7 +28,6 @@ namespace mod_checklist\local;
  * previous_completions class.
  */
 class previous_completions {
-
     /** @var int minimum time that must elapse before sending out another completion email */
     private const MAX_EMAIL_FREQUENCY = HOURSECS;
 

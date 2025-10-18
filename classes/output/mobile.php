@@ -24,7 +24,6 @@ namespace mod_checklist\output;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
-
     /**
      * Returns the checklist template and JS for the mobile app.
      *
@@ -33,7 +32,7 @@ class mobile {
      */
     public static function mobile_course_view($args) {
         global $OUTPUT, $CFG, $USER;
-        require_once($CFG->dirroot.'/mod/checklist/locallib.php');
+        require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
         $args = (object)$args;
         $versionname = $args->appversioncode >= 44000 ? 'latest' : 'ionic5';
@@ -55,10 +54,9 @@ class mobile {
                     'html' => $OUTPUT->render_from_template("mod_checklist/mobile_view_checklist_$versionname", $data),
                 ],
             ],
-            'javascript' => file_get_contents($CFG->dirroot.'/mod/checklist/mobileapp/mobile.js'),
+            'javascript' => file_get_contents($CFG->dirroot . '/mod/checklist/mobileapp/mobile.js'),
             'otherdata' => [],
             'files' => [],
         ];
     }
-
 }

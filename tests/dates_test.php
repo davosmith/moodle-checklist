@@ -48,8 +48,8 @@ final class dates_test extends \advanced_testcase {
      */
     public function test_import(): void {
         global $DB, $CFG;
-        require_once($CFG->dirroot.'/backup/util/includes/backup_includes.php');
-        require_once($CFG->dirroot.'/backup/util/includes/restore_includes.php');
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
         $gen = self::getDataGenerator();
         /** @var \mod_checklist_generator $cgen */
@@ -86,14 +86,26 @@ final class dates_test extends \advanced_testcase {
         }
 
         // Import the checklist from c1 to c2.
-        $bc = new \backup_controller(\backup::TYPE_1COURSE, $c1->id, \backup::FORMAT_MOODLE, \backup::INTERACTIVE_NO,
-                                     \backup::MODE_IMPORT, get_admin()->id);
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $c1->id,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT,
+            get_admin()->id
+        );
         $backupid = $bc->get_backupid();
         $bc->execute_plan();
         $bc->destroy();
         make_backup_temp_directory($backupid, false);
-        $rc = new \restore_controller($backupid, $c2->id, \backup::INTERACTIVE_NO, \backup::MODE_IMPORT,
-                                      get_admin()->id, \backup::TARGET_EXISTING_ADDING);
+        $rc = new \restore_controller(
+            $backupid,
+            $c2->id,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT,
+            get_admin()->id,
+            \backup::TARGET_EXISTING_ADDING
+        );
         $setting = $rc->get_plan()->get_setting('course_startdate');
         $setting->set_value($c2->startdate);
         $rc->execute_precheck();
@@ -105,10 +117,10 @@ final class dates_test extends \advanced_testcase {
         $items = $DB->get_records('checklist_item', ['checklist' => $chk2->id], 'position');
 
         $this->assertCount(3, $items);
-        list($item1, $item2, $item3) = array_values($items);
+        [$item1, $item2, $item3] = array_values($items);
 
-        $this->assertEquals(strtotime('2019-05-15T12:00:00Z'), $item1->duetime, 'Actual date: '.date('c', $item1->duetime));
-        $this->assertEquals(strtotime('2019-05-16T12:30:00Z'), $item2->duetime, 'Actual date: '.date('c', $item2->duetime));
+        $this->assertEquals(strtotime('2019-05-15T12:00:00Z'), $item1->duetime, 'Actual date: ' . date('c', $item1->duetime));
+        $this->assertEquals(strtotime('2019-05-16T12:30:00Z'), $item2->duetime, 'Actual date: ' . date('c', $item2->duetime));
         $this->assertEquals(0, $item3->duetime);
     }
 }

@@ -23,11 +23,11 @@
 
 use mod_checklist\local\checklist_item;
 
-require_once(__DIR__.'/../../config.php');
+require_once(__DIR__ . '/../../config.php');
 global $CFG, $PAGE, $OUTPUT, $DB;
-require_once($CFG->dirroot.'/mod/checklist/importexportfields.php');
-require_once($CFG->libdir.'/formslib.php');
-require_once($CFG->libdir.'/csvlib.class.php');
+require_once($CFG->dirroot . '/mod/checklist/importexportfields.php');
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->libdir . '/csvlib.class.php');
 
 $id = required_param('id', PARAM_INT); // Course module id.
 
@@ -60,8 +60,13 @@ class checklist_import_form extends moodleform {
 
         $mform->addElement('header', 'formheading', get_string('import', 'checklist'));
 
-        $mform->addElement('filepicker', 'importfile', get_string('importfile', 'checklist'), null,
-                           ['accepted_types' => ['*.csv']]);
+        $mform->addElement(
+            'filepicker',
+            'importfile',
+            get_string('importfile', 'checklist'),
+            null,
+            ['accepted_types' => ['*.csv']]
+        );
 
         $this->add_action_buttons(true, get_string('import', 'checklist'));
     }
@@ -142,7 +147,7 @@ if ($data = $form->get_data()) {
 }
 
 $strchecklist = get_string('modulename', 'checklist');
-$pagetitle = strip_tags($course->shortname.': '.$strchecklist.': '.format_string($checklist->name, true));
+$pagetitle = strip_tags($course->shortname . ': ' . $strchecklist . ': ' . format_string($checklist->name, true));
 
 $PAGE->set_title($pagetitle);
 $PAGE->set_heading($course->fullname);
@@ -150,10 +155,9 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 if ($errormsg) {
-    echo '<p class="error">'.$errormsg.'</p>';
+    echo '<p class="error">' . $errormsg . '</p>';
 }
 
 $form->display();
 
 echo $OUTPUT->footer();
-

@@ -22,10 +22,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
+require_once(__DIR__ . '/../../config.php');
 global $DB, $PAGE, $CFG;
-require_once($CFG->dirroot.'/mod/checklist/importexportfields.php');
-require_once($CFG->libdir.'/csvlib.class.php');
+require_once($CFG->dirroot . '/mod/checklist/importexportfields.php');
+require_once($CFG->libdir . '/csvlib.class.php');
 $id = required_param('id', PARAM_INT); // Course module id.
 
 $cm = get_coursemodule_from_id('checklist', $id, 0, false, MUST_EXIST);
@@ -46,7 +46,7 @@ if (!$items) {
 
 $csv = new csv_export_writer();
 $strchecklist = get_string('checklist', 'checklist');
-$csv->filename = clean_filename("{$course->shortname} $strchecklist {$checklist->name}").'.csv';
+$csv->filename = clean_filename("{$course->shortname} $strchecklist {$checklist->name}") . '.csv';
 
 // Output the headings.
 $csv->add_data($fields);

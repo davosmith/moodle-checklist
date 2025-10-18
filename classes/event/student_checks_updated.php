@@ -33,7 +33,6 @@ namespace mod_checklist\event;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class student_checks_updated extends \core\event\base {
-
     /**
      * Init method.
      *
@@ -60,7 +59,7 @@ class student_checks_updated extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' has updated their checks for the ".
+        return "The user with id '$this->userid' has updated their checks for the " .
             "checklist with the course module id '$this->contextinstanceid'";
     }
 
@@ -82,4 +81,3 @@ class student_checks_updated extends \core\event\base {
         return ['db' => 'checklist', 'restore' => 'checklist'];
     }
 }
-

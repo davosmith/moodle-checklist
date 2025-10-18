@@ -32,7 +32,6 @@ use mod_checklist\local\previous_completions;
  * @covers \mod_checklist\local\previous_completions
  */
 final class group_completion_email_test extends \advanced_testcase {
-
     /**
      * @var phpunit_mailer_sink
      */
@@ -129,7 +128,6 @@ final class group_completion_email_test extends \advanced_testcase {
 
         // Add one teacher to the group.
         $this->getDataGenerator()->create_group_member(['userid' => $this->teacher->id, 'groupid' => $this->group->id]);
-
     }
 
     /**
@@ -150,7 +148,7 @@ final class group_completion_email_test extends \advanced_testcase {
      */
     public function test_group_completion_emails(): void {
         global $CFG;
-        require_once($CFG->dirroot.'/mod/checklist/lib.php');
+        require_once($CFG->dirroot . '/mod/checklist/lib.php');
 
         // The checklist includes checkmarks from the student for all the items.
         /** @var \mod_checklist\local\checklist_item[] $items */
@@ -167,10 +165,16 @@ final class group_completion_email_test extends \advanced_testcase {
             return $o->to;
         }, $this->mailsink->get_messages());
 
-        $this->assertContains('ingroupteacher@testing.com', $recipients,
-                              'The teacher in the same group as the student did not receive the completion email');
-        $this->assertNotContains('notingroupteacher@testing.com', $recipients,
-                                 'The teacher NOT in the same group as the student received the completion email');
+        $this->assertContains(
+            'ingroupteacher@testing.com',
+            $recipients,
+            'The teacher in the same group as the student did not receive the completion email'
+        );
+        $this->assertNotContains(
+            'notingroupteacher@testing.com',
+            $recipients,
+            'The teacher NOT in the same group as the student received the completion email'
+        );
 
         // Test updating the grades again does not send any more emails.
         $this->mailsink->clear();
@@ -190,7 +194,7 @@ final class group_completion_email_test extends \advanced_testcase {
 
     public function test_repeat_emails(): void {
         global $CFG;
-        require_once($CFG->dirroot.'/mod/checklist/lib.php');
+        require_once($CFG->dirroot . '/mod/checklist/lib.php');
 
         // The checklist includes checkmarks from the student for all the items.
         /** @var \mod_checklist\local\checklist_item[] $items */
@@ -214,8 +218,11 @@ final class group_completion_email_test extends \advanced_testcase {
         previous_completions::override_time(time() + 10 * MINSECS);
         $items[2]->set_checked_student($this->student->id, true);
         checklist_update_grades($this->checklist, $this->student->id);
-        $this->assertEquals(0, $this->mailsink->count(),
-                            "No emails expected as checklist last emailed out within an hour");
+        $this->assertEquals(
+            0,
+            $this->mailsink->count(),
+            "No emails expected as checklist last emailed out within an hour"
+        );
 
         // Update the checklist to incomplete.
         $items[2]->set_checked_student($this->student->id, false);
@@ -226,8 +233,11 @@ final class group_completion_email_test extends \advanced_testcase {
         previous_completions::override_time(time() + 2 * HOURSECS);
         $items[2]->set_checked_student($this->student->id, true);
         checklist_update_grades($this->checklist, $this->student->id);
-        $this->assertEquals(2, $this->mailsink->count(),
-                            "Emails expected as an hour has passed since the last email notification");
+        $this->assertEquals(
+            2,
+            $this->mailsink->count(),
+            "Emails expected as an hour has passed since the last email notification"
+        );
         $this->mailsink->clear();
 
         // Move forward another 2 hours - should not see any more emails, as checklist state has not changed.

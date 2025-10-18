@@ -22,10 +22,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
+require_once(__DIR__ . '/../../config.php');
 global $CFG, $DB, $PAGE;
-require_once($CFG->dirroot.'/mod/checklist/lib.php');
-require_once($CFG->dirroot.'/mod/checklist/locallib.php');
+require_once($CFG->dirroot . '/mod/checklist/lib.php');
+require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
 
 $id = required_param('id', PARAM_INT); // Course_module ID.

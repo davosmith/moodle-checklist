@@ -31,14 +31,14 @@ $addons = [
             'checklist' => [
                 'displaydata' => [
                     'title' => 'pluginname',
-                    'icon' => $CFG->wwwroot.'/mod/checklist/pix/monologo.svg',
+                    'icon' => $CFG->wwwroot . '/mod/checklist/pix/monologo.svg',
                     'class' => '',
                 ],
                 'delegate' => 'CoreCourseModuleDelegate',
                 'method' => 'mobile_course_view',
                 'offlinefunctions' => [],
                 'styles' => [
-                    'url' => $CFG->wwwroot.'/mod/checklist/styles_app.css',
+                    'url' => $CFG->wwwroot . '/mod/checklist/styles_app.css',
                     'version' => '0.1',
                 ],
             ],

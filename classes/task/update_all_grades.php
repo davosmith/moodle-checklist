@@ -34,7 +34,7 @@ class update_all_grades extends \core\task\adhoc_task {
      */
     public function execute(): void {
         global $CFG;
-        require_once($CFG->dirroot.'/mod/checklist/lib.php');
+        require_once($CFG->dirroot . '/mod/checklist/lib.php');
         checklist_update_all_grades();
     }
 }

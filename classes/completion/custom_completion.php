@@ -83,7 +83,7 @@ class custom_completion extends \core_completion\activity_custom_completion {
             $type = 'items';
         }
         return [
-            'completionpercent' => get_string('completiondetail:'.$type, 'mod_checklist', $amount),
+            'completionpercent' => get_string('completiondetail:' . $type, 'mod_checklist', $amount),
         ];
     }
 

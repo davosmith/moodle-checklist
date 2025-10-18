@@ -431,17 +431,15 @@ class autoupdate {
      */
     public static function update_from_event(\core\event\base $event) {
         global $CFG;
-        require_once($CFG->dirroot.'/mod/checklist/autoupdate.php');
+        require_once($CFG->dirroot . '/mod/checklist/autoupdate.php');
         if ($event->target == 'course_module_completion' && $event->action == 'updated') {
             // Update from a completion change event.
             $comp = $event->get_record_snapshot('course_modules_completion', $event->objectid);
             // Update any relevant checklists.
             checklist_completion_autoupdate($comp->coursemoduleid, $comp->userid, $comp->completionstate);
         } else if ($event->target == 'course' && $event->action == 'completed') {
-
             // Update from a course completion event.
             checklist_course_completion_autoupdate($event->courseid, $event->relateduserid);
-
         } else {
             // Check if this is an action that counts as 'completing' an activity (when completion is off).
             $info = self::get_entry_info($event);

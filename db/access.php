@@ -89,7 +89,7 @@ $capabilities = [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => [],  // Not assigned by default.
+        'legacy' => [], // Not assigned by default.
     ],
 
     // Ability to create and manage checklists.

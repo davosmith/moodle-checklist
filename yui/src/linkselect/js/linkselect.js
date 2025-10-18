@@ -9,7 +9,7 @@ M.modChecklist.linkselect = {
     courselink: null,
     urllink: null,
 
-    init: function() {
+    init: function () {
         this.courselink = Y.one(SELECTOR.COURSELINK);
         this.urllink = Y.one(SELECTOR.URLLINK);
         this.openurlinnewwindow = Y.one(SELECTOR.OPENLINKINNEWWINDOW);
@@ -23,7 +23,7 @@ M.modChecklist.linkselect = {
         this.fieldChanged();
     },
 
-    fieldChanged: function() {
+    fieldChanged: function () {
         var courseVal, urlVal;
 
         courseVal = this.courselink.get('value');
