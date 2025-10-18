@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('AJAX_SCRIPT', true);
+
 require_once(__DIR__ . '/../../config.php');
 global $DB, $CFG, $PAGE, $USER;
 require_once($CFG->dirroot . '/mod/checklist/lib.php');
