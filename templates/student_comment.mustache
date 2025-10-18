@@ -29,13 +29,14 @@
         "isstudent": true,
         "commenttext": "My comment",
         "itemid": "1",
-        "label": "Comment on Item 1"
+        "label": "Comment on Item 1",
+        "hideclass": "visually-hidden"
     }
 }}
 <div class="studentcomment">
     <a href="{{studenturl}}">{{studentname}}</a>:
     {{#isstudent}}
-        <label for="studentcommentid{{itemid}}" class="sr-only">{{label}}</label>
+        <label for="studentcommentid{{itemid}}" class="{{hideclass}}">{{label}}</label>
         <input type="text" class="studentcommentid{{itemid}} studentcommentinput form-control form-text-inline"
                name="studentcomment[{{itemid}}]" value="{{commenttext}}"
                id="studentcommentid{{itemid}}"

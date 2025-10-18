@@ -229,7 +229,7 @@ class checklist_class {
      * @return object
      */
     public function get_items_for_template() {
-        global $DB;
+        global $DB, $CFG;
 
         $checklist = clone($this->checklist);
         $checklist->name = format_string($checklist->name);
@@ -371,6 +371,7 @@ class checklist_class {
                         ),
                         'studentname' => fullname($currentuser),
                         'label' => get_string('commenton', 'mod_checklist', s($item->displaytext)),
+                        'hideclass' => $CFG->branch > 500 ? 'visually-hidden' : 'sr-only',
                     ];
                 }
             }
