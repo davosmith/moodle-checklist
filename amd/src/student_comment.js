@@ -20,9 +20,9 @@
  * @copyright  2021 Kristian Ringer <kristian.ringer@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function ($, Ajax, Notification, String) {
+define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Ajax, Notification, String) {
     return {
-        init: function (cmid) {
+        init: function(cmid) {
             const classPrefix = 'studentcommentid';
             let comments = $('.studentcommentinput');
 
@@ -31,7 +31,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function ($, Aj
             for (let i = 0; i < comments.length; i += 1) {
                 let comment = comments[i];
                 currentComments[i] = comment.value;
-                comment.addEventListener('change', function (e) {
+                comment.addEventListener('change', function(e) {
                     const newComment = e.target.value.trim();
                     // Update only if it changed, using the external function Ajax call.
                     if (currentComments[i] !== newComment) {
@@ -54,7 +54,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function ($, Aj
                             methodname: 'mod_checklist_update_student_comment',
                             args: args,
                         };
-                        Ajax.call([request])[0].done(function (data) {
+                        Ajax.call([request])[0].done(function(data) {
                             $(spinner).css('display', 'none');
                             if (data === true) {
                                 currentComments[i] = newComment;

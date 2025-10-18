@@ -1784,8 +1784,10 @@ class checklist_class {
 
                                 $img = '<select name="items_' . $userid . '[' . $checkid . ']" ' . $disabled . '>';
                                 $img .= '<option value="' . CHECKLIST_TEACHERMARK_UNDECIDED . '" ' . $selu . '></option>';
-                                $img .= '<option value="' . CHECKLIST_TEACHERMARK_YES . '" ' . $sely . '>' . get_string('yes') . '</option>';
-                                $img .= '<option value="' . CHECKLIST_TEACHERMARK_NO . '" ' . $seln . '>' . get_string('no') . '</option>';
+                                $img .= '<option value="' . CHECKLIST_TEACHERMARK_YES . '" ' . $sely . '>' .
+                                    get_string('yes') . '</option>';
+                                $img .= '<option value="' . CHECKLIST_TEACHERMARK_NO . '" ' . $seln . '>' .
+                                    get_string('no') . '</option>';
                                 $img .= '</select>';
                             }
                         }
@@ -1804,7 +1806,8 @@ class checklist_class {
                             $cellclass .= ' lastcol';
                         }
 
-                        $output .= '<td style=" text-align: center; width: ' . $size . ';" class="' . $cellclass . '">' . $img . '</td>';
+                        $output .= '<td style=" text-align: center; width: ' . $size . ';" class="' .
+                            $cellclass . '">' . $img . '</td>';
                     }
                 }
             }

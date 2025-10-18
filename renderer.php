@@ -516,7 +516,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $out .= '<label class="useritem" for=' . $itemname . '>' . $text . '</label>';
 
                                 if ($status->is_addown()) {
-                                    $baseurl = $thispageurl . '&amp;itemid=' . $useritem->id . '&amp;sesskey=' . sesskey() . '&amp;action=';
+                                    $baseurl = $thispageurl . '&amp;itemid=' . $useritem->id . '&amp;sesskey=' .
+                                        sesskey() . '&amp;action=';
                                     $out .= '&nbsp;<a href="' . $baseurl . 'edititem">';
                                     $title = get_string('edititem', 'checklist');
                                     $out .= $this->output->pix_icon(

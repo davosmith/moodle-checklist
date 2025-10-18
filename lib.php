@@ -720,7 +720,8 @@ function checklist_print_overview($courses, &$htmlarray) {
         }
 
         $str = '<div class="checklist overview"><div class="name">' . $strchecklist . ': ' .
-            '<a title="' . $strchecklist . '" href="' . $CFG->wwwroot . '/mod/checklist/view.php?id=' . $checklist->coursemodule . '">' .
+            '<a title="' . $strchecklist . '" href="' . $CFG->wwwroot . '/mod/checklist/view.php?id=' .
+            $checklist->coursemodule . '">' .
             $checklist->name . '</a></div>';
         $str .= '<div class="info">' . $progressbar . '</div>';
         foreach ($dateitems as $item) {
