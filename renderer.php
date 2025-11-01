@@ -78,7 +78,10 @@ class mod_checklist_renderer extends plugin_renderer_base {
         $progress .= html_writer::div('&nbsp;', 'checklist_progress_inner', ['style' => "width: {$percentcomplete}%;"]);
         $progress .= html_writer::div('&nbsp;', 'checklist_progress_anim', ['style' => "width: {$percentcomplete}%;"]);
         $progress = html_writer::div($progress, 'checklist_progress_outer');
-        $progress .= html_writer::span('&nbsp;' . sprintf('%0d%%', $percentcomplete), 'checklist_progress_percent');
+        $progress .= html_writer::span(
+            '&nbsp;' . sprintf('%0d%%', round($percentcomplete)),
+            'checklist_progress_percent'
+        );
 
         $out .= html_writer::span(
             $heading . $progress,
@@ -105,7 +108,10 @@ class mod_checklist_renderer extends plugin_renderer_base {
         $out .= html_writer::div('&nbsp;', 'checklist_progress_inner', ['style' => "width: {$percentcomplete}%;"]);
         $out = html_writer::div($out, 'checklist_progress_outer', ['style' => "width: $width;"]);
         if ($showpercent) {
-            $out .= html_writer::span('&nbsp;' . sprintf('%0d%%', $percentcomplete), 'checklist_progress_percent');
+            $out .= html_writer::span(
+                '&nbsp;' . sprintf('%0d%%', round($percentcomplete)),
+                'checklist_progress_percent'
+            );
         }
         $out .= html_writer::empty_tag('br', ['class' => 'clearer']);
         return $out;

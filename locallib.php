@@ -1476,7 +1476,7 @@ class checklist_class {
                     if ($totalitems) {
                         $iparams['user'] = $auser->id;
                         $tickeditems = $DB->count_records_select('checklist_check', $sql, $iparams);
-                        $percentcomplete = ($tickeditems * 100) / $totalitems;
+                        $percentcomplete = ($tickeditems * 100.0) / $totalitems;
                     } else {
                         $percentcomplete = 0;
                         $tickeditems = 0;
@@ -1499,7 +1499,7 @@ class checklist_class {
                     $out .= '<div class="checklist_progress_inner" style="width:' . $percentcomplete . '%;">&nbsp;</div>';
                     $out .= '</div>';
                     $out .= '<div class="checklist_percentcomplete" style="float:left; width: 3em;">&nbsp;' .
-                        sprintf('%0d%%', $percentcomplete) . '</div>';
+                        sprintf('%0d%%', round($percentcomplete)) . '</div>';
                     $out .= '<div style="float:left;">&nbsp;(' . $tickeditems . '/' . $totalitems . ')</div>';
                     $out .= '<br style="clear:both;" />';
                 }
