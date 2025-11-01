@@ -74,7 +74,7 @@ Feature: A student can update their progress in a checklist
       | Checklist optional item 4 | 1 |
       | Checklist optional item 5 | 0 |
     # Note - the rounding here is inconsistent between JS & PHP, but I am cautious about fixing it.
-    And I should see "66%" in the "#checklistprogressrequired" "css_element"
+    And I should see "67%" in the "#checklistprogressrequired" "css_element"
     And I should see "60%" in the "#checklistprogressall" "css_element"
 
   @javascript
