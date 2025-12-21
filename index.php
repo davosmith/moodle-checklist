@@ -29,6 +29,10 @@ require_once($CFG->dirroot . '/mod/checklist/locallib.php');
 
 $id = required_param('id', PARAM_INT);   // Course.
 
+if ($CFG->version > 2025041400) {
+    \core_courseformat\activityoverviewbase::redirect_to_overview_page($id, 'checklist');
+}
+
 $course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/checklist/index.php', ['id' => $course->id]);
