@@ -131,8 +131,22 @@ $string['lockteachermarks_help'] = 'When this setting is enabled, once a teacher
 $string['lockteachermarkswarning'] = 'Note: Once you have saved these marks, you will be unable to change any \'Yes\' marks';
 $string['missinguser'] = 'User does not exist';
 $string['modulename'] = 'Checklist';
-$string['modulename_help'] = 'The checklist module allows a teacher to create a checklist / todo list / task list for their students to work through.';
+$string['modulename_help'] = '###### Key features
+- Create checklists, to-do lists, or task lists for students
+- Monitor student progress as they tick off items
+- Indent items and mark them as optional
+- Students can add private items and notes to their checklist
+- Display progress visually with a progress bar and export to gradebook
+
+###### Ways to use it
+- Organize course tasks and track completion
+- Help students manage assignments and deadlines
+- Add optional tasks for extra credit or enrichment
+- Import course activities and auto-check as completed
+- Use comments and notes for personalized feedback
+';
 $string['modulename_link'] = 'mod/checklist/view';
+$string['modulename_summary'] = 'A checklist / todo list / task list activity for students to work through';
 $string['modulenameplural'] = 'Checklists';
 $string['moveitemdown'] = 'Move item down';
 $string['moveitemup'] = 'Move item up';

@@ -933,6 +933,10 @@ function checklist_supports($feature) {
             return MOD_PURPOSE_ASSESSMENT;
         }
     }
+    // For versions of Moodle prior to 5.1, we need to define that constant here.
+    if (!defined('FEATURE_MOD_OTHERPURPOSE')) {
+        define('FEATURE_MOD_OTHERPURPOSE', 'mod_otherpurpose');
+    }
 
     switch ($feature) {
         case FEATURE_GROUPS:
@@ -949,6 +953,8 @@ function checklist_supports($feature) {
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return true;
+        case FEATURE_MOD_OTHERPURPOSE:
+            return MOD_PURPOSE_ADMINISTRATION;
 
         default:
             return null;
