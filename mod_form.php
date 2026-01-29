@@ -94,6 +94,9 @@ class mod_checklist_mod_form extends moodleform_mod {
         $mform->setDefault('autopopulate', 0);
         $mform->addHelpButton('autopopulate', 'autopopulate', 'checklist');
 
+        $mform->addElement('select', 'supportlabel', get_string('supportlabel', 'checklist'), $ynoptions);
+        $mform->setDefault('supportlabel', 0);
+
         $checkdisable = true;
         $str = 'autoupdate';
         if (get_config('mod_checklist', 'linkcourses')) {

@@ -193,6 +193,7 @@ $string['student_comment_created'] = 'Student comment created';
 $string['student_comment_updated'] = 'Student comment updated';
 $string['student_comment_updated_desc'] = 'The user with id {$a->userid} has updated a comment in the checklist with course module id {$a->cmid} to have text \'{$a->commenttext}\'';
 $string['studentcomments'] = 'User can add their own comments to checklist items';
+$string['supportlabel'] = 'Should label be supported';
 $string['teacheralongsidecheck'] = 'Student and teacher';
 $string['teachercomments'] = 'Teachers can add comments';
 $string['teacherdate'] = 'Date a teacher last updated this item';

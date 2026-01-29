@@ -482,12 +482,13 @@ class checklist_class {
                 $nextpos = $this->items[$sectionheading]->position + 1;
             }
 
+            $supportlabel = $this->checklist->supportlabel;
             foreach ($sections[$section] as $cmid) {
                 if ($this->cm->id == $cmid) {
                     continue; // Do not include this checklist in the list of modules.
                 }
-                if ($mods->get_cm($cmid)->modname === 'label') {
-                    continue; // Ignore any labels.
+                if ($mods->get_cm($cmid)->modname === 'label' && !$supportlabel) {
+                        continue; // Ignore any labels.
                 }
                 if (isset($mods->get_cm($cmid)->deletioninprogress) && $mods->get_cm($cmid)->deletioninprogress) {
                     continue; // M3.2 onwards - if cm is in the recycle bin, being deleted, then skip it.
