@@ -441,5 +441,17 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         upgrade_mod_savepoint(true, 2022052801, 'checklist');
     }
 
+    if ($oldversion < 2026010100) {
+        $table = new xmldb_table('checklist');
+        $field = new xmldb_field('supportlabel', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Checklist savepoint reached.
+        upgrade_mod_savepoint(true, 2026010100, 'checklist');
+
+    }
+
     return $result;
 }

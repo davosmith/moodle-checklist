@@ -78,6 +78,8 @@ class output_status {
     protected $itemid = null;
     /** @var bool */
     protected $autopopulate = false;
+    /** @var bool */
+    protected $supportlabel = false;
     /** @var string|null */
     protected $autoupdatewarning = null;
     /** @var bool */
@@ -403,6 +405,22 @@ class output_status {
      */
     public function set_autopopulate($autopopulate) {
         $this->autopopulate = $autopopulate;
+    }
+
+    /**
+     * Is label support enabled for this instance?
+     * @return boolean
+     */
+    public function is_supportlabel() {
+        return $this->supportlabel;
+    }
+
+    /**
+     * Set as label support enabled
+     * @param boolean $supportlabel
+     */
+    public function set_supportlabel($supportlabel) {
+        $this->supportlabel = $supportlabel;
     }
 
     /**
