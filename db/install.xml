@@ -21,9 +21,7 @@
         <FIELD NAME="teachercomments" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Are teachers allowed to add comments to a user's checklist items?"/>
         <FIELD NAME="maxgrade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false"/>
         <FIELD NAME="autopopulate" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically fill in the checklist, based on the modules in the current course"/>
-
         <FIELD NAME="supportlabel" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Whether or not labels are supported"/>
-
         <FIELD NAME="autoupdate" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Automatically update items that are linked to course modules (tick them off when items are complete)"/>
         <FIELD NAME="completionpercent" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Percentage of items that need to be checked off before the checklist is regarded as complete"/>
         <FIELD NAME="completionpercenttype" TYPE="char" LENGTH="8" NOTNULL="true" DEFAULT="percent" SEQUENCE="false" COMMENT="Whether completionpercent represents a percentage or raw number of items"/>

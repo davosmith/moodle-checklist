@@ -49,6 +49,7 @@ class mod_checklist_generator extends testing_module_generator {
             'teachercomments' => 1,
             'maxgrade' => 100,
             'autopopulate' => CHECKLIST_AUTOPOPULATE_NO,
+            'supportlabel' => 0,
             'autoupdate' => CHECKLIST_AUTOUPDATE_YES,
             'completionpercent' => 0,
             'emailoncomplete' => 0,

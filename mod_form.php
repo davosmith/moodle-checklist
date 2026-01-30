@@ -96,6 +96,7 @@ class mod_checklist_mod_form extends moodleform_mod {
 
         $mform->addElement('select', 'supportlabel', get_string('supportlabel', 'checklist'), $ynoptions);
         $mform->setDefault('supportlabel', 0);
+        $mform->addHelpButton('supportlabel', 'supportlabel', 'checklist');
 
         $checkdisable = true;
         $str = 'autoupdate';
