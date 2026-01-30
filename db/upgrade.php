@@ -450,7 +450,7 @@ function xmldb_checklist_upgrade($oldversion = 0) {
             $dbman->add_field($table, $field);
         }
 
-        // Switch all 'hidden headings' to being headings & hidden.
+        // Set the new field supportlabel in all existing instances of checklist to the new default value 0.
         $sql = 'UPDATE {checklist} ';
         $sql .= 'SET supportlabel=0 ';
         $DB->execute($sql);
