@@ -441,8 +441,6 @@ function xmldb_checklist_upgrade($oldversion = 0) {
         upgrade_mod_savepoint(true, 2022052801, 'checklist');
     }
 
-
-
     if ($oldversion < 2026010100) {
         $table = new xmldb_table('checklist');
         $field = new xmldb_field('supportlabel', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
@@ -450,18 +448,10 @@ function xmldb_checklist_upgrade($oldversion = 0) {
             $dbman->add_field($table, $field);
         }
 
-        // Set the new field supportlabel in all existing instances of checklist to the new default value 0.
-        $sql = 'UPDATE {checklist} ';
-        $sql .= 'SET supportlabel=0 ';
-        $DB->execute($sql);
-
         // Checklist savepoint reached.
         upgrade_mod_savepoint(true, 2026010100, 'checklist');
 
     }
-
-
-
 
     return $result;
 }
