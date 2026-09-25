@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026042400;  // The current module version (Date: YYYYMMDDXX).
+$plugin->version = 2026092500;  // The current module version (Date: YYYYMMDDXX).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '4.1.0.8';
+$plugin->release = '4.1.0.9';
 $plugin->requires = 2022112800; // Moodle 4.1.0.
 $plugin->component = 'mod_checklist';
-$plugin->supported = [401, 502];
+$plugin->supported = [401, 503];

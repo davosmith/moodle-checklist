@@ -13,14 +13,9 @@ Feature: A student can update their progress in a checklist
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a checklist activity to course "Course 1" section 1 and I fill the form with:
-      | Checklist                    | Test checklist      |
-      | Introduction                 | This is a checklist |
-      | Updates by                   | Student only        |
-      | User can add their own items | Yes                 |
+    And the following "activities" exist:
+      | activity  | course | name           | intro               | teacheredit | useritemsallowed |
+      | checklist | C1     | Test checklist | This is a checklist | 0           | 1                |
     And the following items exist in checklist "Test checklist":
       | text                      | required |
       | Checklist required item 1 | required |
@@ -28,7 +23,6 @@ Feature: A student can update their progress in a checklist
       | Checklist required item 3 | required |
       | Checklist optional item 4 | optional |
       | Checklist optional item 5 | optional |
-    And I log out
 
   @javascript
   Scenario: When a student ticks/unticks items on a checklist their progress is updated

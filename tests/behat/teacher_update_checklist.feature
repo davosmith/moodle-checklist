@@ -134,4 +134,7 @@ Feature: Teacher update checklist works as expected
       | Checklist required item 3 |  |
       | Checklist optional item 4 |  |
       | Checklist optional item 5 |  |
-    And I should not see "Next"
+    When I press "Next"
+    Then "Student 1" "table_row" should exist
+    And "Student 2" "table_row" should exist
+    And "Student 3" "table_row" should exist

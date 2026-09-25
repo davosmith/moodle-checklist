@@ -232,15 +232,6 @@ class behat_mod_checklist extends behat_base {
     }
 
     /**
-     * Once I'm only supporting Moodle 4.0+, I can use the standard step: And I enable "selfcompletion" "block" plugin
-     * @Given /^I enable selfcompletion block plugin for use by mod_checklist$/
-     */
-    public function i_enable_selfcompletion_block_plugin_for_use_by_mod_checklist() {
-        global $DB;
-        $DB->set_field('block', 'visible', 1, ['name' => 'selfcompletion']);
-    }
-
-    /**
      * Set the given field to the view URL for the given activity
      * @Given /^I set the field "([^"]*)" to the view URL for activity "([^"]*)"$/
      * @param string $fieldname the field to set

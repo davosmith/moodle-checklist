@@ -13,13 +13,10 @@ Feature: I can add dates to a checklist and they appear in the calendar.
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
+    And the following "activities" exist:
+      | activity  | course | name           | intro               | duedatesoncalendar |
+      | checklist | C1     | Test checklist | This is a checklist | 1                  |
     And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a checklist activity to course "Course 1" section 1 and I fill the form with:
-      | Checklist                 | Test checklist      |
-      | Introduction              | This is a checklist |
-      | Add due dates to calendar | Yes                 |
     And I am on the "Test checklist" "checklist activity" page
     And I press "Edit dates"
     # A date in the future (should be easy to fix in 10 years time when it fails).

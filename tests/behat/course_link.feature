@@ -20,14 +20,10 @@ Feature: A teacher can link a checklist item to a course
     And the following config values are set as admin:
       | linkcourses      | 1 | mod_checklist |
       | enablecompletion | 1 |               |
+    And the following "activities" exist:
+      | activity  | course | name           | intro               | teacheredit | autoupdate |
+      | checklist | C1     | Test checklist | This is a checklist | 0           | 2          |
     And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a checklist activity to course "Course 1" section 1 and I fill the form with:
-      | Checklist                                  | Test checklist       |
-      | Introduction                               | This is a checklist  |
-      | Updates by                                 | Student only         |
-      | Check-off when courses or modules complete | Yes, cannot override |
 
   @javascript
   Scenario: A teacher can link to a course or a URL, but not both
@@ -83,7 +79,11 @@ Feature: A teacher can link a checklist item to a course
 
   @javascript
   Scenario: An item linked to a course is automatically checked-off when that course is completed
-    Given I am on the "Test checklist" "checklist activity" page
+    Given I enable "selfcompletion" "block" plugin
+    And the following "blocks" exist:
+      | blockname        | contextlevel | reference | pagetypepattern | defaultregion |
+      | selfcompletion   | Course       | C2        | course-view-*   | side-pre      |
+    And I am on the "Test checklist" "checklist activity" page
     And I set the following fields to these values:
       | displaytext  | Item with course link |
       | linkcourseid | Course 2              |
@@ -97,8 +97,6 @@ Feature: A teacher can link a checklist item to a course
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"
-    And I enable selfcompletion block plugin for use by mod_checklist
-    And I add the "Self completion" block
     And I log out
 
     When I am on the "Test checklist" "checklist activity" page logged in as "student1"
@@ -117,13 +115,15 @@ Feature: A teacher can link a checklist item to a course
 
   @javascript
   Scenario: An item linked to a course is automatically checked-off if that course is *already* completed
-    Given I am on "Course 2" course homepage
+    Given I enable "selfcompletion" "block" plugin
+    And the following "blocks" exist:
+      | blockname        | contextlevel | reference | pagetypepattern | defaultregion |
+      | selfcompletion   | Course       | C2        | course-view-*   | side-pre      |
+    And I am on "Course 2" course homepage
     And I navigate to "Course completion" in current page administration
     And I set the following fields to these values:
       | criteria_self | 1 |
     And I press "Save changes"
-    And I enable selfcompletion block plugin for use by mod_checklist
-    And I add the "Self completion" block
     And I log out
 
     And I log in as "student1"
