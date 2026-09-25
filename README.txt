@@ -11,6 +11,7 @@ Students are presented with a simple chart showing how far they have progressed 
 
 ==Changes==
 
+* 2026-09-25 - 4.1.0.9 - M5.3 compatibility fixes
 * 2026-04-24 - 4.1.0.8 - M5.2 compatibility fixes
 * 2025-10-18 - 4.1.0.7 - M5.1 compatibility fixes, add missing AJAX_SCRIPT define (thanks to Julia M Jenkins)
 * 2025-07-25 - 4.1.0.6 - Fix for students updating their own checklist items
