@@ -16,6 +16,7 @@ Feature: Progress reports can be filtered by group
       | student7 | Student   | 7        |
       | student8 | Student   | 8        |
       | teacher1 | Teacher   | 1        |
+      | teacher2 | Teacher   | 2        |
     And the following "course enrolments" exist:
       | course | user     | role           |
       | C1     | student1 | student        |
@@ -27,6 +28,7 @@ Feature: Progress reports can be filtered by group
       | C1     | student7 | student        |
       | C1     | student8 | student        |
       | C1     | teacher1 | editingteacher |
+      | C1     | teacher2 | teacher        |
     And the following "groups" exist:
       | name    | course | idnumber |
       | Group 1 | C1     | GRP01    |
@@ -42,6 +44,7 @@ Feature: Progress reports can be filtered by group
       | student1 | GRP02 |
       | student6 | GRP02 |
       | student7 | GRP02 |
+      | teacher2 | GRP01 |
     And the following "activities" exist:
       | activity  | name        | course | idnumber | groupmode |
       | checklist | Checklist 1 | C1     | CHK01    | 1         |
@@ -127,6 +130,17 @@ Feature: Progress reports can be filtered by group
     And I should see "Student 6"
     And I should see "Student 7"
     And I should see "Student 8"
+
+  Scenario: A non-editing teacher only has access to students in the same group as them
+    Given I am on the "Checklist 1" "checklist activity" page logged in as "teacher2"
+    And I follow "View progress"
+    Then I should see "Separate groups: Group 1"
+    And I should see "Student 1"
+    And I should not see "Student 6"
+
+    When I click on "View progress for this user" "link" in the "Student 1" "table_row"
+    Then I should see "Checklist for Student 1"
+    And I should not see "Student 2"
 
   Scenario: A teacher can filter checklist progress by group in visible groups mode
     Given I am on the "Checklist 2" "checklist activity" page logged in as "teacher1"

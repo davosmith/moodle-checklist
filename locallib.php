@@ -886,7 +886,6 @@ class checklist_class {
      * View the report on user's checkmarks.
      */
     public function report() {
-        global $CFG;
         if ((!$this->items) && $this->canedit()) {
             redirect(new moodle_url('/mod/checklist/edit.php', ['id' => $this->cm->id]));
         }
@@ -902,6 +901,16 @@ class checklist_class {
             }
         } else if (!$this->caneditother()) {
             $this->userid = false;
+        }
+        if (
+            $this->userid && (int) groups_get_activity_groupmode($this->cm) === SEPARATEGROUPS
+            && !has_capability('moodle/site:accessallgroups', $this->context)
+        ) {
+            $mygroups = groups_get_activity_allowed_groups($this->cm);
+            $usergroups = groups_get_user_groups($this->course->id, $this->userid);
+            if (!array_intersect(array_keys($mygroups), $usergroups[0])) {
+                $this->userid = false;
+            }
         }
 
         checklist_item::add_grouping_names($this->items, $this->course->id);
