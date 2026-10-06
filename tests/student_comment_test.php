@@ -126,6 +126,8 @@ final class student_comment_test extends \advanced_testcase {
         $this->assertEquals(true, $result);
     }
 
+    #[\PHPUnit\Framework\Attributes\Group('baseline')]
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
     /**
      * Test the creation of comments via external function.
      *
@@ -171,6 +173,32 @@ final class student_comment_test extends \advanced_testcase {
         $eventtext = 'The user with id ' . $this->student->id . ' has created a comment in ';
         $eventtext .= 'the checklist with course module id ' . $this->cm->cmid . ' with text \'test new comment\'';
         $this->assertEquals($eventtext, $event->get_description());
+    }
+
+    #[\PHPUnit\Framework\Attributes\Group('baseline')]
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    /**
+     * A hidden checklist does not accept comments via external function.
+     *
+     * @return void
+     */
+    public function test_external_function_rejects_hidden_activity(): void {
+        set_coursemodule_visible($this->cm->cmid, 0);
+
+        try {
+            update_student_comment::execute([
+                'cmid' => $this->cm->cmid,
+                'commenttext' => 'hidden comment',
+                'checklistitemid' => $this->items[1]->id,
+            ]);
+            $this->fail('Comment on a hidden checklist was accepted');
+        } catch (\require_login_exception $exception) {
+            $this->assertSame('requireloginerror', $exception->errorcode);
+        }
+        $this->assertSame('testcomment3', checklist_comment_student::get_record([
+            'itemid' => $this->items[1]->id,
+            'usermodified' => $this->student->id,
+        ])->get('text'));
     }
 
     /**
