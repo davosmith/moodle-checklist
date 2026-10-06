@@ -68,12 +68,17 @@ class update_student_comment extends external_api {
      * @return string welcome message
      */
     public static function execute(array $params): string {
-        global $USER;
+        global $USER, $DB;
         $params = self::validate_parameters(self::execute_parameters(), ['comment' => $params]);
         $commentdata = $params['comment'];
         $cm = get_coursemodule_from_id('checklist', $commentdata['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
+        self::validate_context($context);
         require_capability('mod/checklist:updateown', $context);
+        $checklist = $DB->get_record('checklist', ['id' => $cm->instance], 'id, studentcomments', MUST_EXIST);
+        if (!$checklist->studentcomments) {
+            throw new moodle_exception('nopermissions', 'error', '', 'studentcomments');
+        }
         // Validate that this checklist item exists and belongs to the checklist with the given 'cmid'.
         $checklistitem = checklist_item::fetch(['checklist' => $cm->instance, 'id' => $commentdata['checklistitemid']]);
         if (!$checklistitem) {
