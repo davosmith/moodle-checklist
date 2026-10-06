@@ -2930,6 +2930,9 @@ class checklist_class {
             $comments[$comment->itemid] = $comment;
         }
         foreach ($newcomments as $itemid => $newcomment) {
+            if (!array_key_exists($itemid, $this->items)) {
+                continue; // Item is not part of this checklist.
+            }
             $newcomment = trim($newcomment);
             if ($newcomment == '') {
                 if (array_key_exists($itemid, $comments)) {
