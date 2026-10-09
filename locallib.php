@@ -902,6 +902,9 @@ class checklist_class {
         } else if (!$this->caneditother()) {
             $this->userid = false;
         }
+        if ($this->userid && !in_array($this->userid, $this->get_report_userids())) {
+            $this->userid = false;
+        }
         if (
             $this->userid && (int) groups_get_activity_groupmode($this->cm) === SEPARATEGROUPS
             && !has_capability('moodle/site:accessallgroups', $this->context)
@@ -3010,6 +3013,7 @@ class checklist_class {
             // Something has gone wrong, so update nothing.
             return;
         }
+        $userids = array_intersect($userids, $this->get_report_userids());
 
         $disableditems = $this->get_teacher_disabled_items();
 
@@ -3090,6 +3094,30 @@ class checklist_class {
                 checklist_update_grades($this->checklist, $userid);
             }
         }
+    }
+
+    /**
+     * Get the ids of all users who can appear in the report for this checklist.
+     *
+     * @return int[]
+     */
+    protected function get_report_userids() {
+        if (get_config('mod_checklist', 'onlyenrolled')) {
+            $users = get_enrolled_users($this->context, 'mod/checklist:updateown', 0, 'u.id', null, 0, 0, true);
+        } else {
+            $users = get_users_by_capability(
+                $this->context,
+                'mod/checklist:updateown',
+                'u.id',
+                '',
+                '',
+                '',
+                '',
+                '',
+                false
+            );
+        }
+        return array_keys($users);
     }
 
     /**
