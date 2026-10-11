@@ -54,11 +54,16 @@ final class teacher_comment_test extends \advanced_testcase {
      * @param array $comments item id => comment text
      */
     private function save_teacher_comments(\stdClass $checklist, int $studentid, array $comments): void {
-        global $CFG;
+        global $CFG, $OUTPUT, $PAGE;
         require_once($CFG->dirroot . '/mod/checklist/locallib.php');
+        $PAGE->set_url('/mod/checklist/report.php', ['id' => $checklist->cmid, 'studentid' => $studentid]);
+        // The CLI renderer used by unit tests does not return a page footer.
+        $OUTPUT = $PAGE->get_renderer('core', null, RENDERER_TARGET_GENERAL);
+        $_POST['action'] = 'updatechecks';
+        $_POST['sesskey'] = sesskey();
         $_POST['teachercomment'] = $comments;
         $checklistclass = new \checklist_class($checklist->cmid, $studentid);
-        (new \ReflectionMethod($checklistclass, 'updateteachermarks'))->invoke($checklistclass);
+        $checklistclass->report();
     }
 
     #[\PHPUnit\Framework\Attributes\Group('baseline')]
