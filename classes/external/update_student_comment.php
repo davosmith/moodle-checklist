@@ -75,8 +75,7 @@ class update_student_comment extends external_api {
         $context = context_module::instance($cm->id);
         self::validate_context($context);
         require_capability('mod/checklist:updateown', $context);
-        $checklist = $DB->get_record('checklist', ['id' => $cm->instance], 'id, studentcomments', MUST_EXIST);
-        if (!$checklist->studentcomments) {
+        if (!$DB->get_field('checklist', 'studentcomments', ['id' => $cm->instance], MUST_EXIST)) {
             throw new moodle_exception('nopermissions', 'error', '', 'studentcomments');
         }
         // Validate that this checklist item exists and belongs to the checklist with the given 'cmid'.

@@ -181,6 +181,7 @@ final class student_comment_test extends \advanced_testcase {
      * A hidden checklist does not accept comments via external function.
      *
      * @return void
+     * @runInSeparateProcess
      */
     public function test_external_function_rejects_hidden_activity(): void {
         set_coursemodule_visible($this->cm->cmid, 0);
