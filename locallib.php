@@ -902,8 +902,16 @@ class checklist_class {
         } else if (!$this->caneditother()) {
             $this->userid = false;
         }
-        if ($this->userid && !in_array($this->userid, $this->get_report_userids())) {
-            $this->userid = false;
+        if ($this->userid) {
+            // Group and mentee access for a single user is checked separately, as it is not limited to the active group.
+            if (get_config('mod_checklist', 'onlyenrolled')) {
+                $isparticipant = is_enrolled($this->context, $this->userid, 'mod/checklist:updateown', true);
+            } else {
+                $isparticipant = has_capability('mod/checklist:updateown', $this->context, $this->userid, false);
+            }
+            if (!$isparticipant) {
+                $this->userid = false;
+            }
         }
         if (
             $this->userid && (int) groups_get_activity_groupmode($this->cm) === SEPARATEGROUPS
@@ -1301,14 +1309,6 @@ class checklist_class {
         }
 
         $out .= groups_print_activity_menu($this->cm, $thisurl, true);
-        $activegroup = groups_get_activity_group($this->cm, true);
-        if ($activegroup == 0) {
-            if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS) {
-                if (!has_capability('moodle/site:accessallgroups', $this->context)) {
-                    $activegroup = -1; // Not allowed to access any groups.
-                }
-            }
-        }
 
         $inline = self::form_inline_class();
         $out .= '&nbsp;&nbsp;<form style="display: inline;" class="' . $inline . '" action="' .
@@ -1365,61 +1365,8 @@ class checklist_class {
 
         $out .= '<br style="clear:both"/>';
 
-        switch ($reportsettings->sortby) {
-            case 'firstdesc':
-                $orderby = 'u.firstname DESC';
-                break;
-
-            case 'lastasc':
-                $orderby = 'u.lastname';
-                break;
-
-            case 'lastdesc':
-                $orderby = 'u.lastname DESC';
-                break;
-
-            default:
-                $orderby = 'u.firstname';
-                break;
-        }
-
         $ausers = false;
-        if ($activegroup == -1) {
-            $users = [];
-        } else {
-            if (get_config('mod_checklist', 'onlyenrolled')) {
-                $users = get_enrolled_users(
-                    $this->context,
-                    'mod/checklist:updateown',
-                    $activegroup,
-                    'u.id',
-                    $orderby,
-                    0,
-                    0,
-                    true
-                );
-            } else {
-                $users = get_users_by_capability(
-                    $this->context,
-                    'mod/checklist:updateown',
-                    'u.id',
-                    $orderby,
-                    '',
-                    '',
-                    $activegroup,
-                    '',
-                    false
-                );
-            }
-            if ($users) {
-                $users = array_keys($users);
-                if ($this->only_view_mentee_reports()) {
-                    // Filter to only show reports for users who this user mentors
-                    // (ie they have been assigned to them in a context).
-                    $users = static::filter_mentee_users($users);
-                }
-            }
-        }
+        $users = $this->get_report_userids($reportsettings->sortby);
         if ($users && !empty($users)) {
             if (count($users) < $page * $perpage) {
                 $page = 0;
@@ -1445,9 +1392,11 @@ class checklist_class {
             }
             $ausers = $DB->get_records_sql(
                 "SELECT u.id {$namesql->selects} FROM {user} u {$namesql->joins}
-                                             WHERE u.id {$usql} ORDER BY {$orderby}",
+                                             WHERE u.id {$usql}",
                 array_merge($uparams, $namesql->params)
             );
+            // Restore the order of the sorted list of userids.
+            $ausers = array_replace(array_flip($users), $ausers);
         }
 
         if ($reportsettings->showprogressbars) {
@@ -3097,27 +3046,71 @@ class checklist_class {
     }
 
     /**
-     * Get the ids of all users who can appear in the report for this checklist.
+     * Get the ids of the users the current user can see in the report (taking into account
+     * the active group and mentee restrictions).
      *
+     * @param string|null $sortby the report sort setting, null for no particular order
      * @return int[]
      */
-    protected function get_report_userids() {
+    protected function get_report_userids(?string $sortby = null): array {
+        $activegroup = groups_get_activity_group($this->cm, true);
+        if ($activegroup == 0) {
+            if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS) {
+                if (!has_capability('moodle/site:accessallgroups', $this->context)) {
+                    return []; // Not allowed to access any groups.
+                }
+            }
+        }
+
+        switch ($sortby) {
+            case 'firstdesc':
+                $orderby = 'u.firstname DESC';
+                break;
+
+            case 'lastasc':
+                $orderby = 'u.lastname';
+                break;
+
+            case 'lastdesc':
+                $orderby = 'u.lastname DESC';
+                break;
+
+            default:
+                $orderby = ($sortby === null) ? '' : 'u.firstname';
+                break;
+        }
+
         if (get_config('mod_checklist', 'onlyenrolled')) {
-            $users = get_enrolled_users($this->context, 'mod/checklist:updateown', 0, 'u.id', null, 0, 0, true);
+            $users = get_enrolled_users(
+                $this->context,
+                'mod/checklist:updateown',
+                $activegroup,
+                'u.id',
+                $orderby,
+                0,
+                0,
+                true
+            );
         } else {
             $users = get_users_by_capability(
                 $this->context,
                 'mod/checklist:updateown',
                 'u.id',
+                $orderby,
                 '',
                 '',
-                '',
-                '',
+                $activegroup,
                 '',
                 false
             );
         }
-        return array_keys($users);
+        $users = array_keys($users);
+        if ($users && $this->only_view_mentee_reports()) {
+            // Filter to only show reports for users who this user mentors
+            // (ie they have been assigned to them in a context).
+            $users = array_values(array_intersect($users, static::filter_mentee_users($users)));
+        }
+        return $users;
     }
 
     /**
@@ -3315,71 +3308,16 @@ class checklist_class {
      * @throws dml_exception
      */
     protected function getnextuserid() {
-        global $DB;
-
-        $activegroup = groups_get_activity_group($this->cm, true);
         $settings = $this->get_report_settings();
-        switch ($settings->sortby) {
-            case 'firstdesc':
-                $orderby = 'ORDER BY u.firstname DESC';
-                break;
-
-            case 'lastasc':
-                $orderby = 'ORDER BY u.lastname';
-                break;
-
-            case 'lastdesc':
-                $orderby = 'ORDER BY u.lastname DESC';
-                break;
-
-            default:
-                $orderby = 'ORDER BY u.firstname';
-                break;
-        }
-
-        $ausers = [];
-        if (get_config('mod_checklist', 'onlyenrolled')) {
-            $users = get_enrolled_users(
-                $this->context,
-                'mod/checklist:updateown',
-                $activegroup,
-                'u.id',
-                null,
-                0,
-                0,
-                true
-            );
-        } else {
-            $users = get_users_by_capability(
-                $this->context,
-                'mod/checklist:updateown',
-                'u.id',
-                '',
-                '',
-                '',
-                $activegroup,
-                '',
-                false
-            );
-        }
-        if ($users) {
-            $users = array_keys($users);
-            if ($this->only_view_mentee_reports()) {
-                $users = $this->filter_mentee_users($users);
-            }
-            if ($users) {
-                [$usql, $uparams] = $DB->get_in_or_equal($users);
-                $ausers = $DB->get_records_sql('SELECT u.id FROM {user} u WHERE u.id ' . $usql . $orderby, $uparams);
-            }
-        }
+        $users = $this->get_report_userids($settings->sortby);
 
         $stoponnext = false;
-        foreach ($ausers as $user) {
+        foreach ($users as $userid) {
             if ($stoponnext) {
-                $this->userid = $user->id;
+                $this->userid = $userid;
                 return;
             }
-            if ($user->id == $this->userid) {
+            if ($userid == $this->userid) {
                 $stoponnext = true;
             }
         }
