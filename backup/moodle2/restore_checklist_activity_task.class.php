@@ -118,6 +118,21 @@ class restore_checklist_activity_task extends restore_activity_task {
                 $DB->delete_records('checklist_item', ['id' => $item->id]);
             }
         }
+
+        // Links are decoded by now, so apply the same rule as the edit form and the CSV import.
+        $items = $DB->get_records_select(
+            'checklist_item',
+            'checklist = ? AND linkurl IS NOT NULL',
+            [$this->get_activityid()],
+            '',
+            'id, linkurl'
+        );
+        foreach ($items as $item) {
+            $linkurl = clean_param($item->linkurl, PARAM_URL);
+            if ($linkurl !== $item->linkurl) {
+                $DB->set_field('checklist_item', 'linkurl', $linkurl === '' ? null : $linkurl, ['id' => $item->id]);
+            }
+        }
     }
 
 
