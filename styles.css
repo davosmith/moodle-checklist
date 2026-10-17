@@ -303,6 +303,21 @@ ol.checklist label {
     background-color: var(--bs-gray-300);
 }
 
+/* Keep the colour dropdown inline with the other action icons ('menubar' uses d-flex, which is !important). */
+.checklist-item-actions .action-menu,
+.checklist-item-actions .action-menu .menubar {
+    /* stylelint-disable-next-line declaration-no-important */
+    display: inline-flex !important;
+}
+
+.checklist-item-actions .action-menu .dropdown-toggle {
+    margin-right: .5rem;
+}
+
+.checklist-item-actions .action-menu .dropdown-toggle::after {
+    display: none;
+}
+
 .checklist-extendedit .checklist-edititem {
     border: 1px solid #ddd;
     padding: 10px 0 5px;

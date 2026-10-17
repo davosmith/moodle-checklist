@@ -747,27 +747,8 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 $itemname = '"item' . $item->id . '"';
                 $itemurl = new moodle_url($thispageurl, ['itemid' => $item->id]);
 
-                switch ($item->colour) {
-                    case 'red':
-                        $itemcolour = 'itemred';
-                        $nexticon = 'colour_orange';
-                        break;
-                    case 'orange':
-                        $itemcolour = 'itemorange';
-                        $nexticon = 'colour_green';
-                        break;
-                    case 'green':
-                        $itemcolour = 'itemgreen';
-                        $nexticon = 'colour_purple';
-                        break;
-                    case 'purple':
-                        $itemcolour = 'itempurple';
-                        $nexticon = 'colour_black';
-                        break;
-                    default:
-                        $itemcolour = 'itemblack';
-                        $nexticon = 'colour_red';
-                }
+                $colour = in_array($item->colour, checklist_class::COLOURS) ? $item->colour : 'black';
+                $itemcolour = 'item' . $colour;
 
                 $autoitem = ($status->is_autopopulate()) && ($item->moduleid != 0);
                 if ($autoitem) {
@@ -904,9 +885,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
                     // Item colour.
                     if (!empty(get_config('mod_checklist', 'showcolorchooser'))) {
-                        $out .= '<a href="' . $itemurl->out(true, ['action' => 'nextcolour']) . '">';
-                        $title = get_string('changetextcolour', 'checklist');
-                        $out .= $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]) . '</a>';
+                        $out .= $this->colour_menu($itemurl, $colour);
                     }
 
                     // Edit item.
@@ -1001,6 +980,26 @@ class mod_checklist_renderer extends plugin_renderer_base {
         $out .= $this->output->box_end();
 
         return $out;
+    }
+
+    /**
+     * Output the dropdown menu to choose the text colour of an item
+     * @param moodle_url $itemurl
+     * @param string $colour the current colour of the item
+     * @return string
+     */
+    protected function colour_menu(moodle_url $itemurl, string $colour): string {
+        $title = get_string('textcolour', 'mod_checklist');
+        $menu = new action_menu();
+        $menu->set_menu_trigger($this->output->pix_icon('colour_' . $colour, $title, 'mod_checklist', ['title' => $title]));
+        foreach (checklist_class::COLOURS as $option) {
+            $menu->add(new action_menu_link_secondary(
+                new moodle_url($itemurl, ['action' => 'setcolour', 'colour' => $option]),
+                new pix_icon('colour_' . $option, '', 'mod_checklist'),
+                get_string('colour' . $option, 'mod_checklist')
+            ));
+        }
+        return $this->output->render($menu);
     }
 
     /**

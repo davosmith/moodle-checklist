@@ -52,6 +52,9 @@ define("CHECKLIST_HIDDEN_BYMODULE", 2);
  * Class checklist_class
  */
 class checklist_class {
+    /** @var string[] The text colours an item can have. */
+    const COLOURS = ['black', 'red', 'orange', 'green', 'purple'];
+
     /** @var stdClass */
     protected $cm;
     /** @var stdClass */
@@ -2055,8 +2058,8 @@ class checklist_class {
                 $this->makeoptional($itemid, true, true);
                 $triggerupdate = true;
                 break;
-            case 'nextcolour':
-                $this->nextcolour($itemid);
+            case 'setcolour':
+                $this->setcolour($itemid, required_param('colour', PARAM_ALPHA));
                 $triggerupdate = true;
                 break;
 
@@ -2731,33 +2734,16 @@ class checklist_class {
     }
 
     /**
-     * Set the item to the next colour in the list
+     * Set the item to the given colour
      * @param int $itemid
+     * @param string $colour one of self::COLOURS
      */
-    protected function nextcolour($itemid) {
-        if (!isset($this->items[$itemid])) {
+    protected function setcolour($itemid, $colour) {
+        if (!isset($this->items[$itemid]) || !in_array($colour, self::COLOURS)) {
             return;
         }
         $item = $this->items[$itemid];
-
-        switch ($item->colour) {
-            case 'black':
-                $nextcolour = 'red';
-                break;
-            case 'red':
-                $nextcolour = 'orange';
-                break;
-            case 'orange':
-                $nextcolour = 'green';
-                break;
-            case 'green':
-                $nextcolour = 'purple';
-                break;
-            default:
-                $nextcolour = 'black';
-        }
-
-        $item->colour = $nextcolour;
+        $item->colour = $colour;
         $item->update();
     }
 
