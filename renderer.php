@@ -380,7 +380,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                             'itemid' => $item->id, 'sesskey' => sesskey(), 'action' => 'startadditem',
                         ]) . '">';
                     $title = get_string('additemalt', 'checklist');
-                    $out .= $this->output->pix_icon('add', $title, 'mod_checklist', ['title' => $title]) . '</a>';
+                    $out .= $this->output->pix_icon('t/add', $title, 'moodle', ['title' => $title]) . '</a>';
                 }
 
                 if ($item->duetime) {
@@ -648,23 +648,17 @@ class mod_checklist_renderer extends plugin_renderer_base {
             $out .= '&nbsp;';
             switch ($item->get_link_type()) {
                 case checklist_item::LINK_MODULE:
-                    $icon = $this->output->pix_icon(
-                        'follow_link',
-                        get_string('linktomodule', 'checklist'),
-                        'mod_checklist'
-                    );
+                    $icon = $this->output->pix_icon('i/link', get_string('linktomodule', 'checklist'));
                     break;
                 case checklist_item::LINK_COURSE:
                     $icon = $this->output->pix_icon('i/course', get_string('linktocourse', 'checklist'));
                     break;
                 case checklist_item::LINK_URL:
-                    $icon = $this->output->pix_icon(
-                        'follow_link',
-                        get_string('linktourl', 'checklist'),
-                        'mod_checklist'
-                    );
                     if ($item->openlinkinnewwindow) {
+                        $icon = $this->output->pix_icon('i/externallink', get_string('linktourl', 'checklist'));
                         $attrs['target'] = '_blank';
+                    } else {
+                        $icon = $this->output->pix_icon('i/link', get_string('linktourl', 'checklist'));
                     }
                     break;
             }
@@ -712,7 +706,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
         }
 
         // Start the ordered list of checklist items.
-        $attr = ['class' => 'checklist'];
+        $attr = ['class' => 'checklist checklist-editlist'];
         if ($status->is_editdates() || $status->is_editlinks()) {
             $attr['class'] .= ' checklist-extendedit';
         }
@@ -739,6 +733,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 ]);
             }
 
+            $rownumber = 0;
             foreach ($items as $item) {
                 while ($item->indent > $currindent) {
                     $currindent++;
@@ -782,10 +777,12 @@ class mod_checklist_renderer extends plugin_renderer_base {
                 }
                 $hasauto = $hasauto || ($item->moduleid != 0);
 
+                $rownumber++;
+                $rowclass = ($rownumber % 2) ? ' ' : ' checklist-row-alt';
                 if ($item->is_editme()) {
-                    $out .= '<li class="checklist-edititem ' . $inline . '">';
+                    $out .= '<li class="checklist-edititem ' . $inline . $rowclass . '">';
                 } else {
-                    $out .= '<li>';
+                    $out .= '<li class="' . trim($rowclass) . '">';
                 }
 
                 $out .= html_writer::start_span('', ['style' => 'display: inline-block; width: 16px;']);
@@ -861,21 +858,21 @@ class mod_checklist_renderer extends plugin_renderer_base {
                     // Grouping.
                     $out .= $this->item_grouping($item);
 
-                    // Item colour.
-                    if (!empty(get_config('mod_checklist', 'showcolorchooser'))) {
-                        $out .= '<a href="' . $itemurl->out(true, ['action' => 'nextcolour']) . '">';
-                        $title = get_string('changetextcolour', 'checklist');
-                        $out .= $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]) . '</a>';
+                    // Due time.
+                    if ($item->duetime) {
+                        if ($item->duetime > time()) {
+                            $out .= '<span class="checklist-itemdue"> '
+                                . userdate($item->duetime, get_string('strftimedate')) . '</span>';
+                        } else {
+                            $out .= '<span class="checklist-itemoverdue"> ' .
+                                userdate($item->duetime, get_string('strftimedate')) . '</span>';
+                        }
                     }
 
-                    // Edit item.
-                    if (!$autoitem) {
-                        $edititemurl = new moodle_url($itemurl, ['action' => 'edititem']);
-                        $edititemurl->remove_params('additemafter');
-                        $out .= '<a href="' . $edititemurl->out() . '">';
-                        $title = get_string('edititem', 'checklist');
-                        $out .= $this->output->pix_icon('t/edit', $title, 'moodle', ['title' => $title]) . '</a>&nbsp;';
-                    }
+                    $out .= $this->checklist_item_link($item);
+
+                    $spacer = html_writer::span($this->output->pix_icon('t/up', ''), 'checklist-action-spacer invisible');
+                    $out .= html_writer::start_span('checklist-item-actions ml-auto text-nowrap');
 
                     // Change item indent.
                     if (!$autoitem && $item->indent > 0) {
@@ -889,24 +886,44 @@ class mod_checklist_renderer extends plugin_renderer_base {
                         $out .= $this->output->pix_icon('t/right', $title, 'moodle', ['title' => $title]) . '</a>';
                     }
 
-                    $out .= '&nbsp;';
-
                     // Move item up/down.
                     if (!$autoitem && $item->position > 1) {
                         $out .= '<a href="' . $itemurl->out(true, ['action' => 'moveitemup']) . '">';
                         $title = get_string('moveitemup', 'checklist');
                         $out .= $this->output->pix_icon('t/up', $title, 'moodle', ['title' => $title]) . '</a>';
+                    } else {
+                        $out .= $spacer;
                     }
                     if (!$autoitem && $item->position < $lastitem) {
                         $out .= '<a href="' . $itemurl->out(true, ['action' => 'moveitemdown']) . '">';
                         $title = get_string('moveitemdown', 'checklist');
                         $out .= $this->output->pix_icon('t/down', $title, 'moodle', ['title' => $title]) . '</a>';
+                    } else {
+                        $out .= $spacer;
+                    }
+
+                    // Item colour.
+                    if (!empty(get_config('mod_checklist', 'showcolorchooser'))) {
+                        $out .= '<a href="' . $itemurl->out(true, ['action' => 'nextcolour']) . '">';
+                        $title = get_string('changetextcolour', 'checklist');
+                        $out .= $this->output->pix_icon($nexticon, $title, 'mod_checklist', ['title' => $title]) . '</a>';
+                    }
+
+                    // Edit item.
+                    if (!$autoitem) {
+                        $edititemurl = new moodle_url($itemurl, ['action' => 'edititem']);
+                        $edititemurl->remove_params('additemafter');
+                        $out .= '<a href="' . $edititemurl->out() . '">';
+                        $title = get_string('edititem', 'checklist');
+                        $out .= $this->output->pix_icon('t/edit', $title, 'moodle', ['title' => $title]) . '</a>';
+                    } else {
+                        $out .= $spacer;
                     }
 
                     // Hide/delete item.
                     if ($autoitem) {
                         if ($item->hidden != CHECKLIST_HIDDEN_BYMODULE) {
-                            $out .= '&nbsp;<a href="' . $itemurl->out(true, ['action' => 'deleteitem']) . '">';
+                            $out .= '<a href="' . $itemurl->out(true, ['action' => 'deleteitem']) . '">';
                             if ($item->hidden == CHECKLIST_HIDDEN_MANUAL) {
                                 $title = get_string('show');
                                 $out .= $this->output->pix_icon('t/show', $title, 'moodle', ['title' => $title]) . '</a>';
@@ -914,31 +931,21 @@ class mod_checklist_renderer extends plugin_renderer_base {
                                 $title = get_string('hide');
                                 $out .= $this->output->pix_icon('t/hide', $title, 'moodle', ['title' => $title]) . '</a>';
                             }
+                        } else {
+                            $out .= $spacer;
                         }
                     } else {
-                        $out .= '&nbsp;<a href="' . $itemurl->out(true, ['action' => 'deleteitem']) . '">';
+                        $out .= '<a href="' . $itemurl->out(true, ['action' => 'deleteitem']) . '">';
                         $title = get_string('deleteitem', 'checklist');
                         $out .= $this->output->pix_icon('t/delete', $title, 'moodle', ['title' => $title]) . '</a>';
                     }
 
                     // Add item icon.
-                    $out .= '&nbsp;&nbsp;&nbsp;<a href="' . $itemurl->out(true, ['action' => 'startadditem']) . '">';
+                    $out .= '<a href="' . $itemurl->out(true, ['action' => 'startadditem']) . '">';
                     $title = get_string('additemhere', 'checklist');
-                    $out .= $this->output->pix_icon('add', $title, 'mod_checklist', ['title' => $title]) . '</a>';
+                    $out .= $this->output->pix_icon('t/add', $title, 'moodle', ['title' => $title]) . '</a>';
 
-                    // Due time.
-                    if ($item->duetime) {
-                        if ($item->duetime > time()) {
-                            $out .= '<span class="checklist-itemdue"> '
-                                . userdate($item->duetime, get_string('strftimedate')) . '</span>';
-                        } else {
-                            $out .= '<span class="checklist-itemoverdue"> ' .
-                                userdate($item->duetime, get_string('strftimedate')) . '</span>';
-                        }
-                    }
-
-                    // Link (if any).
-                    $out .= $this->checklist_item_link($item);
+                    $out .= html_writer::end_span();
                 }
 
                 if ($status->get_additemafter() == $item->id) {
@@ -1190,7 +1197,6 @@ ENDSCRIPT;
             $out .= '<input type="hidden" name="position" value="' . $position . '" />';
         }
         $out .= '<input type="hidden" name="indent" value="' . $currindent . '" />';
-        $out .= $this->output->pix_icon('tick_box', '', 'mod_checklist');
         $out .= '<input type="text" class="' . self::form_control_class() . ' form-text-inline" size="' .
             CHECKLIST_TEXT_INPUT_WIDTH . '" name="displaytext" value="" id="additembox" />';
         $out .= '<input type="submit" class="btn btn-secondary" name="additem" value="' .
