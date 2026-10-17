@@ -138,7 +138,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
     private static function form_control_class(): string {
         global $CFG;
         if ($CFG->branch >= 500) {
-            return 'mb-3';
+            return 'form-control d-inline-block w-auto';
         }
         return 'form-control';
     }
@@ -1040,7 +1040,7 @@ class mod_checklist_renderer extends plugin_renderer_base {
 
         // Disabled checkbox.
         $attr = [
-            'type' => 'checkbox', 'class' => 'checkbox-inline', 'name' => 'duetimedisable',
+            'type' => 'checkbox', 'class' => 'form-check-input', 'name' => 'duetimedisable',
             'id' => "timeduedisable{$id}", 'onclick' => "toggledate{$id}()",
         ];
         if ($disabled) {
@@ -1087,7 +1087,6 @@ ENDSCRIPT;
         global $CFG;
         $out = '';
 
-        $out .= '<br>';
         $out .= html_writer::tag('label', get_string('linkto', 'mod_checklist')) . ' ';
         if ($status->is_allowcourselinks()) {
             $selected = $item ? $item->linkcourseid : null;
@@ -1097,7 +1096,10 @@ ENDSCRIPT;
                 $selected,
                 ['' => get_string('choosecourse', 'mod_checklist')]
             );
-            $out .= ' ' . get_string('or', 'mod_checklist') . ' ';
+            $out .= html_writer::span(
+                get_string('or', 'mod_checklist'),
+                'mx-1',
+            );
         }
         $out .= html_writer::label(get_string('url'), 'id_linkurl', true, ['class' => 'accesshide']);
         $attr = [
@@ -1113,15 +1115,19 @@ ENDSCRIPT;
 
         $attr = [
             'type' => 'checkbox',
-            'class' => self::form_control_class(),
+            'class' => 'form-check-input',
             'id' => 'id_openlinkinnewwindow',
         ];
-        $out .= html_writer::checkbox(
-            'openlinkinnewwindow',
-            1,
-            $item ? (bool)$item->openlinkinnewwindow : false,
-            get_string('openlinkinnewwindow', 'mod_checklist'),
-            $attr
+        $out .= html_writer::div(
+            html_writer::checkbox(
+                'openlinkinnewwindow',
+                1,
+                $item ? (bool)$item->openlinkinnewwindow : false,
+                get_string('openlinkinnewwindow', 'mod_checklist'),
+                $attr,
+                ['class' => 'form-check-label']
+            ),
+            'd-flex align-items-center px-1'
         );
         if ($CFG->version > 2025041400) {
             return html_writer::div($out, 'd-flex flex-row align-items-center flex-wrap mt-3 mb-3');
@@ -1171,9 +1177,10 @@ ENDSCRIPT;
         $addingatend = ($position === null);
         $inline = self::form_inline_class();
 
-        $out .= '<li class="checklist-edititem ' . $inline . '">';
+        $out .= '<li class="checklist-edititem">';
         if ($addingatend) {
-            $out .= '<form action="' . $thispageurl->out_omit_querystring() . '" class="form-horizontal" method="post">';
+            $out .= '<form action="' . $thispageurl->out_omit_querystring() . '" class="form-horizontal ' . $inline .
+                '" method="post">';
             $out .= html_writer::input_hidden_params($thispageurl);
         }
 
