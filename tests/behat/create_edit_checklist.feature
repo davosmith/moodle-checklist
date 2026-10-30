@@ -123,7 +123,8 @@ Feature: I can create and update a checklist
     Then "The first list item" "text" should appear before "Third list item" "text"
     And I should not see "Another list item"
 
-  Scenario: When I click on the change colour icons for items they change colour
+  @javascript
+  Scenario: When I choose a colour for items they change colour
     Given I am on the "Test checklist" "checklist activity" page logged in as "teacher1"
     And I set the field "displaytext" to "The first list item"
     And I press "Add"
@@ -131,12 +132,12 @@ Feature: I can create and update a checklist
     And I press "Add"
     And I set the field "displaytext" to "Third list item"
     And I press "Add"
-    And I click on "Next text colour" "link" in the "The first list item" "list_item"
-    And I click on "Next text colour" "link" in the "Another list item" "list_item"
-    And I click on "Next text colour" "link" in the "Another list item" "list_item"
-    And I click on "Next text colour" "link" in the "Third list item" "list_item"
-    And I click on "Next text colour" "link" in the "Third list item" "list_item"
-    And I click on "Next text colour" "link" in the "Third list item" "list_item"
+    And I open the action menu in "The first list item" "list_item"
+    And I choose "Red" in the open action menu
+    And I open the action menu in "Another list item" "list_item"
+    And I choose "Orange" in the open action menu
+    And I open the action menu in "Third list item" "list_item"
+    And I choose "Green" in the open action menu
     And I log out
     When I am on the "Test checklist" "checklist activity" page logged in as "student1"
     Then "label.itemred" "css_element" should appear before "label.itemorange" "css_element"

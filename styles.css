@@ -2,7 +2,7 @@
 
 ol.checklist {
     margin-top: 10px;
-    margin-bottom: 0;
+    margin-bottom: 10px;
 }
 ol.checklist ol.checklist {
     margin-top: 0;
@@ -10,6 +10,12 @@ ol.checklist ol.checklist {
 
 ol.checklist li {
     list-style-type: none;
+}
+
+.checklist-editlist li {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 ol.checklist .useritem {
@@ -244,7 +250,6 @@ ol.checklist li .itemteachername {
 
 .checklistimportexport {
     text-align: right;
-    width: 90%;
 }
 
 p.checklistwarning {
@@ -288,6 +293,29 @@ p.checklistwarning {
 
 ol.checklist label {
     display: inline;
+}
+
+.checklist-extendedit li {
+    padding: .375rem 0;
+}
+
+.checklist li.checklist-row-alt {
+    background-color: var(--bs-gray-300);
+}
+
+/* Keep the colour dropdown inline with the other action icons ('menubar' uses d-flex, which is !important). */
+.checklist-item-actions .action-menu,
+.checklist-item-actions .action-menu .menubar {
+    /* stylelint-disable-next-line declaration-no-important */
+    display: inline-flex !important;
+}
+
+.checklist-item-actions .action-menu .dropdown-toggle {
+    margin-right: .5rem;
+}
+
+.checklist-item-actions .action-menu .dropdown-toggle::after {
+    display: none;
 }
 
 .checklist-extendedit .checklist-edititem {
